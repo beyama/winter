@@ -12,7 +12,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     private val cache = DependencyMap<AnyProvider>(component.dependencyMap.size)
     private val stack = Stack<DependencyId>()
 
-    inline fun <reified T> get(qualifier: Any? = null, generics: Boolean = false): T {
+    inline fun <reified T: Any> get(qualifier: Any? = null, generics: Boolean = false): T {
         val provider: AnyProvider = if (generics) {
             retrieve(genericProviderId<T>(qualifier))
         } else {
@@ -21,12 +21,12 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         return provider.invoke() as T
     }
 
-    inline fun <reified T> getOrNull(qualifier: Any? = null, generics: Boolean = false): T? {
+    inline fun <reified T: Any?> getOrNull(qualifier: Any? = null, generics: Boolean = false): T? {
         val provider: AnyProvider = if (generics) {
             retrieve(genericProviderId<T>(qualifier))
         } else {
             retrieve(T::class, qualifier)
-        } ?: return null
+        } ?: throw EntryNotFoundException("Provider for class `${T::class}` and qualifier `$qualifier` does not exist.")
         return provider.invoke() as T
     }
 

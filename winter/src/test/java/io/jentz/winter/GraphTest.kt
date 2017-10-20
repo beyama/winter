@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class GraphTest {
 
+    private val emptyGraph = component {}.init()
+
     @Test
     fun `#get should return non optional instance returned by the provider`() {
         val instance = Any()
@@ -20,12 +22,6 @@ class GraphTest {
         assertSame(instance, graph.get<Map<Int, String>>(generics = true))
     }
 
-    @Test
-    fun `#get should return null for optional type where the provider returns null`() {
-        val graph = component { provider<Service?> { null } }.init()
-        assertNull(graph.get<Service?>())
-    }
-
     @Test(expected = TypeCastException::class)
     fun `#get with non optional type should throw a TypeCastException when the provider is optional and returns null`() {
         val graph = component { provider<Service?> { null } }.init()
@@ -34,8 +30,7 @@ class GraphTest {
 
     @Test(expected = EntryNotFoundException::class)
     fun `#get should throw an EntryNotFoundException when the requested provider does not exist`() {
-        val graph = component {}.init()
-        graph.get<Service>()
+        emptyGraph.get<Service>()
     }
 
     @Test
@@ -81,7 +76,7 @@ class GraphTest {
     @Test
     fun `#getOrNull should return null for optional type when the provider returns null`() {
         val graph = component { provider<Service?> { null } }.init()
-        assertNull(graph.get<Service?>())
+        assertNull(graph.getOrNull<Service?>())
     }
 
     @Test(expected = TypeCastException::class)
@@ -90,16 +85,14 @@ class GraphTest {
         graph.getOrNull<Service>()
     }
 
-    @Test
-    fun `#getOrNull should return null when the provider does not exist`() {
-        val graph = component {}.init()
-        assertNull(graph.getOrNull<Service>())
+    @Test(expected = EntryNotFoundException::class)
+    fun `#getOrNull should throw an EntryNotFoundException when the requested provider does not exist`() {
+        assertNull(emptyGraph.getOrNull<Service>())
     }
 
     @Test(expected = EntryNotFoundException::class)
     fun `#provider should throw a EntryNotFoundException if provider does not exist`() {
-        val graph = component {}.init()
-        graph.provider<Service>()
+        emptyGraph.provider<Service>()
     }
 
     @Test
