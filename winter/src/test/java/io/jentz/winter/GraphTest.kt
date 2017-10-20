@@ -91,15 +91,15 @@ class GraphTest {
     }
 
     @Test(expected = EntryNotFoundException::class)
-    fun `#provider should throw a EntryNotFoundException if provider does not exist`() {
-        emptyGraph.provider<Service>()
+    fun `#getProvider should throw a EntryNotFoundException if provider does not exist`() {
+        emptyGraph.getProvider<Service>()
     }
 
     @Test
-    fun `#provider should return a provider function that calls the register provider block when invoked`() {
+    fun `#getProvider should return a provider function that calls the register provider block when invoked`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
-        val provider = graph.provider<Any>()
+        val provider = graph.getProvider<Any>()
         assertSame(instance, provider())
     }
 
@@ -144,7 +144,7 @@ class GraphTest {
     @Test
     fun `#factory should return a factory function that calls the registered factory block when invoked`() {
         val graph = component { factory { int: Int -> 4 + int } }.init()
-        val factory = graph.factory<Int, Int>()
+        val factory = graph.getFactory<Int, Int>()
         assertEquals(10, factory(6))
     }
 
@@ -153,8 +153,8 @@ class GraphTest {
         val atomicInteger = AtomicInteger(0)
         val graph = component { factory(scope = multiton) { add: Int -> atomicInteger.getAndAdd(add) } }.init()
 
-        (0 until 5).forEach { graph.factory<Int, Int>().invoke(4) }
-        (0 until 5).forEach { graph.factory<Int, Int>().invoke(6) }
+        (0 until 5).forEach { graph.getFactory<Int, Int>().invoke(4) }
+        (0 until 5).forEach { graph.getFactory<Int, Int>().invoke(6) }
 
         assertEquals(10, atomicInteger.get())
     }
@@ -165,11 +165,11 @@ class GraphTest {
             constant("Hello %s!")
             factory<String, ServiceDependency> { arg: String -> ServiceDependencyImpl(get<String>().format(arg)) }
             factory<String, Service>(scope = multiton) { name: String ->
-                ServiceImpl(factory<String, ServiceDependency>().invoke(name))
+                ServiceImpl(getFactory<String, ServiceDependency>().invoke(name))
             }
         }.init()
 
-        val f: (String) -> Service = graph.factory()
+        val f: (String) -> Service = graph.getFactory()
         assertEquals("Hello Joe!", f("Joe").dependency.aValue)
     }
 

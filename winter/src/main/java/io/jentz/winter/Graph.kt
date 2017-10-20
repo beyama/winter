@@ -30,12 +30,12 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         return provider.invoke() as T
     }
 
-    inline fun <reified T> provider(qualifier: Any? = null, generics: Boolean = false): () -> T {
-        return providerOrNull(qualifier, generics)
+    inline fun <reified T> getProvider(qualifier: Any? = null, generics: Boolean = false): () -> T {
+        return getProviderOrNull(qualifier, generics)
                 ?: throw EntryNotFoundException("Entry for class `${T::class}` and qualifier `$qualifier` does not exist.")
     }
 
-    inline fun <reified T> providerOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
+    inline fun <reified T> getProviderOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
         @Suppress("UNCHECKED_CAST")
         return if (generics) {
             retrieve(genericProviderId<T>(qualifier)) as? () -> T
@@ -44,12 +44,12 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         }
     }
 
-    inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false): (A) -> R {
-        return factoryOrNull(qualifier, generics)
+    inline fun <reified A, reified R> getFactory(qualifier: Any? = null, generics: Boolean = false): (A) -> R {
+        return getFactoryOrNull(qualifier, generics)
                 ?: throw EntryNotFoundException("Factory `(${A::class}) -> ${R::class}` does not exist.")
     }
 
-    inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
+    inline fun <reified A, reified R> getFactoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
         @Suppress("UNCHECKED_CAST")
         return if (generics) {
             retrieve(genericFactoryId<A, R>(qualifier))?.invoke() as? (A) -> R
