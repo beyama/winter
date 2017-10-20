@@ -35,6 +35,20 @@ class ComponentBuilder internal constructor() {
         register(id, Constant(value), override)
     }
 
+    inline fun <reified T : Any> removeProvider(qualifier: Any? = null,
+                                                generics: Boolean = false,
+                                                silent: Boolean = false) {
+        val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
+        remove(id, silent)
+    }
+
+    inline fun <reified A : Any, reified R : Any> removeFactory(qualifier: Any? = null,
+                                                                generics: Boolean = false,
+                                                                silent: Boolean = false) {
+        val id = if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)
+        remove(id, silent)
+    }
+
     fun subComponent(name: String,
                      override: Boolean = false,
                      deriveExisting: Boolean = false,
@@ -80,6 +94,13 @@ class ComponentBuilder internal constructor() {
         }
 
         registry[id] = entry
+    }
+
+    fun remove(id: DependencyId, silent: Boolean) {
+        if (!silent && !registry.containsKey(id)) {
+            throw WinterException("Can't remove entry with `$id` because it doesn't exist.")
+        }
+        registry.remove(id)
     }
 
     fun build() = Component(registry)

@@ -6,6 +6,17 @@ import org.junit.Test
 
 class ComponentTest {
 
+    private val testComponent = component {
+        provider { ServiceDependencyImpl("") }
+        provider(qualifier = "name") { ServiceDependencyImpl("") }
+        provider(generics = true) { GenericDependencyImpl(1) }
+        provider(generics = true, qualifier = "name") { GenericDependencyImpl(1) }
+        factory { string: String -> ServiceDependencyImpl(string) }
+        factory(qualifier = "name") { string: String -> ServiceDependencyImpl(string) }
+        factory(generics = true) { int: Int -> GenericDependencyImpl(int) }
+        factory(qualifier = "name", generics = true) { int: Int -> GenericDependencyImpl(int) }
+    }
+
     @Test
     fun `Component created with empty block should contain an empty dependency map`() {
         assertTrue(component { }.dependencyMap.isEmpty())
@@ -53,6 +64,52 @@ class ComponentTest {
             constant(ServiceDependencyImpl(""))
             constant(ServiceDependencyImpl(""))
         }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#removeProvider should throw an exception when provider doesn't exist`() {
+        component { removeProvider<ServiceDependency>() }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should not throw an exception when provider doesn't exist but silent is true`() {
+        component { removeProvider<ServiceDependency>(silent = true) }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should remove non-generic provider`() {
+        val graph = testComponent.derive { removeProvider<ServiceDependencyImpl>() }.init()
+        assertNull(graph.instanceOrNull<ServiceDependencyImpl>())
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should remove generic provider`() {
+        val graph = testComponent.derive { removeProvider<GenericDependencyImpl<Int>>(generics = true) }.init()
+        assertNull(graph.instanceOrNull<GenericDependencyImpl<Int>>(generics = true))
+    }
+
+    //
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#removeFactory should throw an exception when factory doesn't exist`() {
+        component { removeFactory<String, ServiceDependency>() }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should not throw an exception when factory doesn't exist but silent is true`() {
+        component { removeFactory<String, ServiceDependency>(silent = true) }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should remove non-generic factory`() {
+        val graph = testComponent.derive { removeFactory<String, ServiceDependencyImpl>() }.init()
+        assertNull(graph.factoryOrNull<String, ServiceDependencyImpl>())
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should remove generic factory`() {
+        val graph = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }.init()
+        assertNull(graph.factoryOrNull<Int, GenericDependencyImpl<Int>>(generics = true))
     }
 
     @Test
