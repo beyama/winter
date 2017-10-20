@@ -9,11 +9,11 @@ class ComponentBuilder internal constructor() {
         component.dependencyMap.forEach { k, v -> register(k, v, false) }
     }
 
-    inline fun <reified T> provider(qualifier: Any? = null,
-                                    scope: ProviderScope = prototype,
-                                    generics: Boolean = false,
-                                    override: Boolean = false,
-                                    noinline block: Graph.() -> T) {
+    inline fun <reified T : Any> provider(qualifier: Any? = null,
+                                          scope: ProviderScope = prototype,
+                                          generics: Boolean = false,
+                                          override: Boolean = false,
+                                          noinline block: Graph.() -> T) {
         val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
         register(id, Provider(scope, block), override)
     }
@@ -27,10 +27,10 @@ class ComponentBuilder internal constructor() {
         register(id, Factory(scope, block), override)
     }
 
-    inline fun <reified T> constant(value: T,
-                                    qualifier: Any? = null,
-                                    generics: Boolean = false,
-                                    override: Boolean = false) {
+    inline fun <reified T : Any> constant(value: T,
+                                          qualifier: Any? = null,
+                                          generics: Boolean = false,
+                                          override: Boolean = false) {
         val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
         register(id, Constant(value), override)
     }

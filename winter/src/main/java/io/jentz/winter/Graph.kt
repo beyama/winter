@@ -12,69 +12,53 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     private val cache = DependencyMap<AnyProvider>(component.dependencyMap.size)
     private val stack = Stack<DependencyId>()
 
-    inline fun <reified T : Any> get(qualifier: Any? = null, generics: Boolean = false): T {
-        val provider: AnyProvider = if (generics) {
-            getProvider(genericProviderId<T>(qualifier))
-        } else {
-            getProvider(T::class, qualifier)
-        }
-        return provider.invoke() as T
-    }
+    inline fun <reified T : Any> get(qualifier: Any? = null, generics: Boolean = false): T
+            = getProvider<T>(qualifier, generics).invoke()
 
-    inline fun <reified T : Any?> getOrNull(qualifier: Any? = null, generics: Boolean = false): T? {
-        val provider: AnyProvider = if (generics) {
-            getProvider(genericProviderId<T>(qualifier))
-        } else {
-            getProvider(T::class, qualifier)
-        }
-        return provider.invoke() as T
-    }
+    inline fun <reified T : Any> getOrNull(qualifier: Any? = null, generics: Boolean = false): T?
+            = getProviderOrNull<T>(qualifier, generics)?.invoke()
 
-    inline fun <reified T> getProvider(qualifier: Any? = null, generics: Boolean = false): () -> T {
-        val provider = if (generics) {
-            getProvider(genericProviderId<T>(qualifier))
-        } else {
-            getProvider(T::class, qualifier)
-        }
+    inline fun <reified T : Any> getProvider(qualifier: Any? = null, generics: Boolean = false): () -> T
+            = getProviderOrNull(qualifier, generics) ?: throw EntryNotFoundException("Provider for class `${T::class}` and qualifier `$qualifier` does not exist.")
+
+    inline fun <reified T : Any> getProviderOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
         @Suppress("UNCHECKED_CAST")
-        return provider as () -> T
-    }
-
-    inline fun <reified A, reified R> getFactory(qualifier: Any? = null, generics: Boolean = false): (A) -> R {
-        val provider = if (generics) {
-            getProvider(genericFactoryId<A, R>(qualifier))
+        return if (generics) {
+            getProviderOrNull(genericProviderId<T>(qualifier))
         } else {
-            getProvider(A::class, R::class, qualifier)
-        }
-        @Suppress("UNCHECKED_CAST")
-        return provider.invoke() as (A) -> R
+            getProviderOrNull(T::class, qualifier)
+        } as? () -> T
     }
 
-    fun getProvider(kClass: KClass<*>, qualifier: Any? = null): AnyProvider
-            = retrieve(kClass, qualifier) ?: throw EntryNotFoundException("Entry for class `$kClass` and qualifier `$qualifier` does not exist.")
+    inline fun <reified A : Any, reified R : Any> getFactory(qualifier: Any? = null, generics: Boolean = false): (A) -> R
+            = getFactoryOrNull(qualifier, generics) ?: throw EntryNotFoundException("Factory `(${A::class}) -> ${R::class}` does not exist.")
 
-    fun getProvider(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): AnyProvider
-            = retrieve(argClass, retClass, qualifier) ?: throw EntryNotFoundException("Factory `($argClass) -> $retClass` does not exist.")
+    inline fun <reified A : Any, reified R : Any> getFactoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
+        @Suppress("UNCHECKED_CAST")
+        return if (generics) {
+            getProviderOrNull(genericFactoryId<A, R>(qualifier))
+        } else {
+            getProviderOrNull(A::class, R::class, qualifier)
+        }?.invoke() as? (A) -> R
+    }
 
-    fun getProvider(id: DependencyId): AnyProvider
-            = retrieve(id) ?: throw EntryNotFoundException("Provider with ID `$id` does not exist.")
+    fun getProvider(id: DependencyId)
+            = getProviderOrNull(id) ?: throw EntryNotFoundException("Provider with ID `$id` does not exist.")
 
-    private fun retrieve(kClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
-            getCached = { cache.get(kClass, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(kClass, qualifier) },
-            getParent = { parent?.retrieve(kClass, qualifier) }
-    )
-
-    private fun retrieve(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
-            getCached = { cache.get(argClass, retClass, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(argClass, retClass, qualifier) },
-            getParent = { parent?.retrieve(argClass, retClass, qualifier) }
-    )
-
-    private fun retrieve(id: DependencyId): AnyProvider? = retrieve(
+    fun getProviderOrNull(id: DependencyId): AnyProvider? = retrieve(
             getCached = { cache[id] },
             getEntry = { component.dependencyMap.getEntry(id) },
-            getParent = { parent?.retrieve(id) })
+            getParent = { parent?.getProviderOrNull(id) })
+
+    fun getProviderOrNull(kClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+            getCached = { cache.get(kClass, qualifier) },
+            getEntry = { component.dependencyMap.getEntry(kClass, qualifier) },
+            getParent = { parent?.getProviderOrNull(kClass, qualifier) })
+
+    fun getProviderOrNull(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+            getCached = { cache.get(argClass, retClass, qualifier) },
+            getEntry = { component.dependencyMap.getEntry(argClass, retClass, qualifier) },
+            getParent = { parent?.getProviderOrNull(argClass, retClass, qualifier) })
 
     private inline fun retrieve(getCached: () -> AnyProvider?,
                                 getEntry: () -> DependencyMap.Entry<ComponentEntry>?,

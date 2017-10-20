@@ -45,11 +45,17 @@ class Injector {
         abstract fun getValue(graph: Graph): T
     }
 
-    class Instance<out T>(private val id: DependencyId) : AbstractEagerProperty<T>() {
+    class Instance<out T : Any>(private val id: DependencyId) : AbstractEagerProperty<T>() {
         override fun getValue(graph: Graph): T {
-            val provider = graph.getProvider(id)
             @Suppress("UNCHECKED_CAST")
-            return provider() as T
+            return graph.getProvider(id).invoke() as T
+        }
+    }
+
+    class InstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractEagerProperty<T?>() {
+        override fun getValue(graph: Graph): T? {
+            @Suppress("UNCHECKED_CAST")
+            return graph.getProviderOrNull(id)?.invoke() as? T
         }
     }
 
@@ -62,7 +68,7 @@ class Injector {
         }
     }
 
-    class LazyInstance<out T>(private val id: DependencyId) : AbstractLazyProperty<T>() {
+    class LazyInstance<out T : Any>(private val id: DependencyId) : AbstractLazyProperty<T>() {
         override fun getValue(graph: Graph): T {
             val provider = graph.getProvider(id)
             @Suppress("UNCHECKED_CAST")
@@ -70,11 +76,18 @@ class Injector {
         }
     }
 
+    class LazyInstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractLazyProperty<T?>() {
+        override fun getValue(graph: Graph): T? {
+            @Suppress("UNCHECKED_CAST")
+            return graph.getProviderOrNull(id)?.invoke() as? T
+        }
+    }
+
     inline fun <reified T : Any> instance(qualifier: String? = null, generics: Boolean = false)
             = register(Instance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
     inline fun <reified T : Any?> instanceOrNull(qualifier: String? = null, generics: Boolean = false)
-            = register(Instance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(InstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
     inline fun <reified A, reified R> factory(qualifier: String? = null, generics: Boolean = false)
             = register(Instance<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
@@ -86,7 +99,7 @@ class Injector {
             = register(LazyInstance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
     inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: String? = null, generics: Boolean = false)
-            = register(LazyInstance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(LazyInstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
     fun <T> register(propertyInjector: PropertyInjector<T>): ReadOnlyProperty<Any, T> {
         propertyInjectors.add(propertyInjector)

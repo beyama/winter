@@ -44,32 +44,23 @@ class InjectorTest {
         o.property
     }
 
-    @Test(expected = EntryNotFoundException::class)
-    fun `#instanceOrNull delegate should throw an error if dependency couldn't be found`() {
-        val o = object : InjectorAwareBase() {
-            val property: String? by instanceOrNull()
-        }
-        o.inject(emptyGraph)
-    }
-
     @Test
     fun `#instanceOrNull delegate should eagerly resolve dependency when graph is attached`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
         val o = object : InjectorAwareBase() {
-            val property: Int by instanceOrNull()
+            val property: Int? by instanceOrNull()
         }
         o.inject(graph)
         assertEquals(1, integer.get())
     }
 
     @Test
-    fun `#instanceOrNull should allow optionals`() {
-        val graph = component { provider<Any?> { null } }.init()
+    fun `#instanceOrNull should resolve to null if provider doesn't exist`() {
         val o = object : InjectorAwareBase() {
             val property: Any? by instanceOrNull()
         }
-        o.inject(graph)
+        o.inject(emptyGraph)
         assertNull(o.property)
     }
 
@@ -103,12 +94,11 @@ class InjectorTest {
     }
 
     @Test
-    fun `#lazyInstanceOrNull should allow optionals`() {
-        val graph = component { provider<Any?> { null } }.init()
+    fun `#lazyInstanceOrNull should resolve to null if provider doesn't exist`() {
         val o = object : InjectorAwareBase() {
             val property: Any? by lazyInstanceOrNull()
         }
-        o.inject(graph)
+        o.inject(emptyGraph)
         assertNull(o.property)
     }
 

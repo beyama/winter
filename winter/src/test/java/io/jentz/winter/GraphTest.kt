@@ -9,23 +9,20 @@ class GraphTest {
     private val emptyGraph = component {}.init()
 
     @Test
-    fun `#get should return non optional instance returned by the provider`() {
+    fun `#get should return instance returned by the provider`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
         assertSame(instance, graph.get())
     }
 
     @Test
-    fun `#get should return non optional instance with generics returned by the provider`() {
-        val instance = mapOf(1 to "1")
-        val graph = component { provider(generics = true) { instance } }.init()
-        assertSame(instance, graph.get<Map<Int, String>>(generics = true))
-    }
-
-    @Test(expected = TypeCastException::class)
-    fun `#get with non optional type should throw a TypeCastException when the provider is optional and returns null`() {
-        val graph = component { provider<Service?> { null } }.init()
-        graph.get<Service>()
+    fun `#get should return instance with generics returned by the provider`() {
+        val withGenerics = mapOf(1 to "1")
+        val graph = component {
+            provider(generics = true) { withGenerics }
+            provider { mapOf<Int, String>() }
+        }.init()
+        assertSame(withGenerics, graph.get<Map<Int, String>>(generics = true))
     }
 
     @Test(expected = EntryNotFoundException::class)
@@ -60,33 +57,21 @@ class GraphTest {
     }
 
     @Test
-    fun `#getOrNull should return non optional instance returned by the provider`() {
+    fun `#getOrNull should return instance returned by the provider`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
-        assertSame(instance, graph.getOrNull<Any>())
+        assertSame(instance, graph.getOrNull())
     }
 
     @Test
-    fun `#getOrNull should return non optional instance with generics returned by the provider`() {
+    fun `#getOrNull should return instance with generics returned by the provider`() {
         val instance = mapOf(1 to "1")
         val graph = component { provider(generics = true) { instance } }.init()
         assertSame(instance, graph.getOrNull<Map<Int, String>>(generics = true))
     }
 
     @Test
-    fun `#getOrNull should return null for optional type when the provider returns null`() {
-        val graph = component { provider<Service?> { null } }.init()
-        assertNull(graph.getOrNull<Service?>())
-    }
-
-    @Test(expected = TypeCastException::class)
-    fun `#getOrNull with non optional type should throw a TypeCastException if provider is optional and returns null`() {
-        val graph = component { provider<Service?> { null } }.init()
-        graph.getOrNull<Service>()
-    }
-
-    @Test(expected = EntryNotFoundException::class)
-    fun `#getOrNull should throw an EntryNotFoundException when the requested provider does not exist`() {
+    fun `#getOrNull should return null when the requested provider does not exist`() {
         assertNull(emptyGraph.getOrNull<Service>())
     }
 
