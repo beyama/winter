@@ -1,13 +1,13 @@
 package io.jentz.winter
 
-import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 
 class InjectorTest {
 
-    private val emptyGraph = component {  }.init()
+    private val emptyGraph = component { }.init()
 
     @Test(expected = WinterException::class)
     fun `#instance delegate should throw an error if accessed before the graph is attached`() {
@@ -37,6 +37,43 @@ class InjectorTest {
     }
 
     @Test(expected = WinterException::class)
+    fun `#instanceOrNull delegate should throw an error if accessed before the graph is attached`() {
+        val o = object : InjectorAwareBase() {
+            val property: String? by instanceOrNull()
+        }
+        o.property
+    }
+
+    @Test(expected = EntryNotFoundException::class)
+    fun `#instanceOrNull delegate should throw an error if dependency couldn't be found`() {
+        val o = object : InjectorAwareBase() {
+            val property: String? by instanceOrNull()
+        }
+        o.inject(emptyGraph)
+    }
+
+    @Test
+    fun `#instanceOrNull delegate should eagerly resolve dependency when graph is attached`() {
+        val integer = AtomicInteger(0)
+        val graph = component { provider { integer.getAndIncrement() } }.init()
+        val o = object : InjectorAwareBase() {
+            val property: Int by instanceOrNull()
+        }
+        o.inject(graph)
+        assertEquals(1, integer.get())
+    }
+
+    @Test
+    fun `#instanceOrNull should allow optionals`() {
+        val graph = component { provider<Any?> { null } }.init()
+        val o = object : InjectorAwareBase() {
+            val property: Any? by instanceOrNull()
+        }
+        o.inject(graph)
+        assertNull(o.property)
+    }
+
+    @Test(expected = WinterException::class)
     fun `#factory delegate should throw an error if accessed before the graph is attached`() {
         val o = object : InjectorAwareBase() {
             val property: (Int) -> String by factory()
@@ -50,6 +87,29 @@ class InjectorTest {
             val property: (Int) -> String by factory()
         }
         o.inject(emptyGraph)
+    }
+
+    @Test
+    fun `#lazyInstance should resolve dependency on first access`() {
+        val integer = AtomicInteger(0)
+        val graph = component { provider { integer.getAndIncrement() } }.init()
+        val o = object : InjectorAwareBase() {
+            val property: Int by lazyInstance()
+        }
+        o.inject(graph)
+        assertEquals(0, integer.get())
+        o.property
+        assertEquals(1, integer.get())
+    }
+
+    @Test
+    fun `#lazyInstanceOrNull should allow optionals`() {
+        val graph = component { provider<Any?> { null } }.init()
+        val o = object : InjectorAwareBase() {
+            val property: Any? by lazyInstanceOrNull()
+        }
+        o.inject(graph)
+        assertNull(o.property)
     }
 
 }
