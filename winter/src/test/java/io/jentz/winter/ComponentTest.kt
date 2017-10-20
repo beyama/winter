@@ -86,7 +86,7 @@ class ComponentTest {
         val component = component { provider { instanceA } }
         val derived = component.derive { provider(override = true) { instanceB } }
         assertEquals(1, derived.dependencyMap.size)
-        assertSame(instanceB, derived.init().get())
+        assertSame(instanceB, derived.init().instance())
     }
 
 }

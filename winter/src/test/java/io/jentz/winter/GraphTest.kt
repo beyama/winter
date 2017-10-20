@@ -9,82 +9,95 @@ class GraphTest {
     private val emptyGraph = component {}.init()
 
     @Test
-    fun `#get should return instance returned by the provider`() {
+    fun `#instance should return instance returned by the provider`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
-        assertSame(instance, graph.get())
+        assertSame(instance, graph.instance())
     }
 
     @Test
-    fun `#get should return instance with generics returned by the provider`() {
+    fun `#instance should return instance with generics returned by the provider`() {
         val withGenerics = mapOf(1 to "1")
         val graph = component {
             provider(generics = true) { withGenerics }
             provider { mapOf<Int, String>() }
         }.init()
-        assertSame(withGenerics, graph.get<Map<Int, String>>(generics = true))
+        assertSame(withGenerics, graph.instance<Map<Int, String>>(generics = true))
     }
 
     @Test(expected = EntryNotFoundException::class)
-    fun `#get should throw an EntryNotFoundException when the requested provider does not exist`() {
-        emptyGraph.get<Service>()
+    fun `#instance should throw an EntryNotFoundException when the requested provider does not exist`() {
+        emptyGraph.instance<Service>()
     }
 
     @Test
-    fun `#get should be able to retrieve dependencies from parent graph`() {
+    fun `#instance should be able to retrieve dependencies from parent graph`() {
         val graph = component {
             constant("foo")
-            provider<ServiceDependency> { ServiceDependencyImpl(get()) }
+            provider<ServiceDependency> { ServiceDependencyImpl(instance()) }
             subComponent("sub") {
-                provider<Service> { ServiceImpl(get()) }
+                provider<Service> { ServiceImpl(instance()) }
             }
         }.init().initSubComponent("sub")
-        assertEquals("foo", graph.get<Service>().dependency.aValue)
+        assertEquals("foo", graph.instance<Service>().dependency.aValue)
     }
 
     @Test
-    fun `#get should be able to retrieve dependencies with generics from parent graph`() {
+    fun `#instance should be able to retrieve dependencies with generics from parent graph`() {
         val graph = component {
             constant("foo")
-            provider<GenericDependency<String>>(generics = true) { GenericDependencyImpl(get()) }
+            provider<GenericDependency<String>>(generics = true) { GenericDependencyImpl(instance()) }
             subComponent("sub") {
                 provider<GenericService<String>>(generics = true) {
-                    GenericServiceImpl(get(generics = true))
+                    GenericServiceImpl(instance(generics = true))
                 }
             }
         }.init().initSubComponent("sub")
-        assertEquals("foo", graph.get<GenericService<String>>(generics = true).dependency.aValue)
+        assertEquals("foo", graph.instance<GenericService<String>>(generics = true).dependency.aValue)
     }
 
     @Test
-    fun `#getOrNull should return instance returned by the provider`() {
+    fun `#instanceOrNull should return instance returned by the provider`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
-        assertSame(instance, graph.getOrNull())
+        assertSame(instance, graph.instanceOrNull())
     }
 
     @Test
-    fun `#getOrNull should return instance with generics returned by the provider`() {
+    fun `#instanceOrNull should return instance with generics returned by the provider`() {
         val instance = mapOf(1 to "1")
         val graph = component { provider(generics = true) { instance } }.init()
-        assertSame(instance, graph.getOrNull<Map<Int, String>>(generics = true))
+        assertSame(instance, graph.instanceOrNull<Map<Int, String>>(generics = true))
     }
 
     @Test
-    fun `#getOrNull should return null when the requested provider does not exist`() {
-        assertNull(emptyGraph.getOrNull<Service>())
+    fun `#instanceOrNull should return null when the requested provider does not exist`() {
+        assertNull(emptyGraph.instanceOrNull<Service>())
     }
 
     @Test(expected = EntryNotFoundException::class)
-    fun `#getProvider should throw a EntryNotFoundException if provider does not exist`() {
-        emptyGraph.getProvider<Service>()
+    fun `#provider should throw a EntryNotFoundException when provider does not exist`() {
+        emptyGraph.provider<Any>()
     }
 
     @Test
-    fun `#getProvider should return a provider function that calls the register provider block when invoked`() {
+    fun `#provider should return a provider function that calls the register provider block when invoked`() {
         val instance = Any()
         val graph = component { provider { instance } }.init()
-        val provider = graph.getProvider<Any>()
+        val provider = graph.provider<Any>()
+        assertSame(instance, provider())
+    }
+
+    @Test
+    fun `#providerOrNull should return null when provider does not exist`() {
+        assertNull(emptyGraph.providerOrNull<Any>())
+    }
+
+    @Test
+    fun `#providerOrNull should return a provider function that calls the register provider block when invoked`() {
+        val instance = Any()
+        val graph = component { provider { instance } }.init()
+        val provider = graph.provider<Any>()
         assertSame(instance, provider())
     }
 
@@ -92,7 +105,7 @@ class GraphTest {
     fun `provider block should get called every time a value is requested`() {
         val atomicInteger = AtomicInteger(0)
         val graph = component { provider { atomicInteger.getAndIncrement() } }.init()
-        (0 until 5).forEach { graph.get<Int>() }
+        (0 until 5).forEach { graph.instance<Int>() }
         assertEquals(5, atomicInteger.get())
     }
 
@@ -100,18 +113,18 @@ class GraphTest {
     fun `provider block should have access to graph`() {
         val graph = component {
             constant("foo")
-            provider<ServiceDependency> { ServiceDependencyImpl(get()) }
-            provider<Service> { ServiceImpl(get()) }
+            provider<ServiceDependency> { ServiceDependencyImpl(instance()) }
+            provider<Service> { ServiceImpl(instance()) }
         }.init()
 
-        assertEquals("foo", graph.get<Service>().dependency.aValue)
+        assertEquals("foo", graph.instance<Service>().dependency.aValue)
     }
 
     @Test
     fun `singleton block should only get called once`() {
         val atomicInteger = AtomicInteger(0)
         val graph = component { provider(scope = singleton) { atomicInteger.getAndIncrement() } }.init()
-        (0 until 5).forEach { graph.get<Int>() }
+        (0 until 5).forEach { graph.instance<Int>() }
         assertEquals(1, atomicInteger.get())
     }
 
@@ -119,17 +132,17 @@ class GraphTest {
     fun `singleton block should have access to graph`() {
         val graph = component {
             constant("foo")
-            provider<ServiceDependency> { ServiceDependencyImpl(get()) }
-            provider<Service>(scope = singleton) { ServiceImpl(get()) }
+            provider<ServiceDependency> { ServiceDependencyImpl(instance()) }
+            provider<Service>(scope = singleton) { ServiceImpl(instance()) }
         }.init()
 
-        assertEquals("foo", graph.get<Service>().dependency.aValue)
+        assertEquals("foo", graph.instance<Service>().dependency.aValue)
     }
 
     @Test
     fun `#factory should return a factory function that calls the registered factory block when invoked`() {
         val graph = component { factory { int: Int -> 4 + int } }.init()
-        val factory = graph.getFactory<Int, Int>()
+        val factory = graph.factory<Int, Int>()
         assertEquals(10, factory(6))
     }
 
@@ -138,8 +151,8 @@ class GraphTest {
         val atomicInteger = AtomicInteger(0)
         val graph = component { factory(scope = multiton) { add: Int -> atomicInteger.getAndAdd(add) } }.init()
 
-        (0 until 5).forEach { graph.getFactory<Int, Int>().invoke(4) }
-        (0 until 5).forEach { graph.getFactory<Int, Int>().invoke(6) }
+        (0 until 5).forEach { graph.factory<Int, Int>().invoke(4) }
+        (0 until 5).forEach { graph.factory<Int, Int>().invoke(6) }
 
         assertEquals(10, atomicInteger.get())
     }
@@ -148,13 +161,13 @@ class GraphTest {
     fun `multiton block should have access to graph`() {
         val graph = component {
             constant("Hello %s!")
-            factory<String, ServiceDependency> { arg: String -> ServiceDependencyImpl(get<String>().format(arg)) }
+            factory<String, ServiceDependency> { arg: String -> ServiceDependencyImpl(instance<String>().format(arg)) }
             factory<String, Service>(scope = multiton) { name: String ->
-                ServiceImpl(getFactory<String, ServiceDependency>().invoke(name))
+                ServiceImpl(factory<String, ServiceDependency>().invoke(name))
             }
         }.init()
 
-        val f: (String) -> Service = graph.getFactory()
+        val f: (String) -> Service = graph.factory()
         assertEquals("Hello Joe!", f("Joe").dependency.aValue)
     }
 
@@ -162,10 +175,10 @@ class GraphTest {
     fun `graph should detect cyclic dependencies`() {
         component {
             provider {
-                get<Any>()
+                instance<Any>()
                 Any()
             }
-        }.init().get<Any>()
+        }.init().instance<Any>()
     }
 
 }

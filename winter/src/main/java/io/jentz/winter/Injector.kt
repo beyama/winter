@@ -48,21 +48,21 @@ class Injector {
     class Instance<out T : Any>(private val id: DependencyId) : AbstractEagerProperty<T>() {
         override fun getValue(graph: Graph): T {
             @Suppress("UNCHECKED_CAST")
-            return graph.getProvider(id).invoke() as T
+            return graph.provider(id).invoke() as T
         }
     }
 
     class InstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractEagerProperty<T?>() {
         override fun getValue(graph: Graph): T? {
             @Suppress("UNCHECKED_CAST")
-            return graph.getProviderOrNull(id)?.invoke() as? T
+            return graph.providerOrNull(id)?.invoke() as? T
         }
     }
 
     class CurriedFactory<in A, out R>(private val id: DependencyId, private val argument: A) : AbstractEagerProperty<() -> R>() {
         override fun getValue(graph: Graph): () -> R {
             @Suppress("UNCHECKED_CAST")
-            val provider = graph.getProvider(id) as () -> (A) -> R
+            val provider = graph.provider(id) as () -> (A) -> R
             val factory = provider()
             return { factory(argument) }
         }
@@ -70,7 +70,7 @@ class Injector {
 
     class LazyInstance<out T : Any>(private val id: DependencyId) : AbstractLazyProperty<T>() {
         override fun getValue(graph: Graph): T {
-            val provider = graph.getProvider(id)
+            val provider = graph.provider(id)
             @Suppress("UNCHECKED_CAST")
             return provider() as T
         }
@@ -79,7 +79,7 @@ class Injector {
     class LazyInstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractLazyProperty<T?>() {
         override fun getValue(graph: Graph): T? {
             @Suppress("UNCHECKED_CAST")
-            return graph.getProviderOrNull(id)?.invoke() as? T
+            return graph.providerOrNull(id)?.invoke() as? T
         }
     }
 
