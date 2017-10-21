@@ -35,10 +35,10 @@ class GraphTest {
         val graph = component {
             constant("foo")
             provider<ServiceDependency> { ServiceDependencyImpl(instance()) }
-            subComponent("sub") {
+            subcomponent("sub") {
                 provider<Service> { ServiceImpl(instance()) }
             }
-        }.init().initSubComponent("sub")
+        }.init().initSubcomponent("sub")
         assertEquals("foo", graph.instance<Service>().dependency.aValue)
     }
 
@@ -47,12 +47,12 @@ class GraphTest {
         val graph = component {
             constant("foo")
             provider<GenericDependency<String>>(generics = true) { GenericDependencyImpl(instance()) }
-            subComponent("sub") {
+            subcomponent("sub") {
                 provider<GenericService<String>>(generics = true) {
                     GenericServiceImpl(instance(generics = true))
                 }
             }
-        }.init().initSubComponent("sub")
+        }.init().initSubcomponent("sub")
         assertEquals("foo", graph.instance<GenericService<String>>(generics = true).dependency.aValue)
     }
 
