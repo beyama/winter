@@ -36,6 +36,24 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
+     * Register a singleton scoped provider for an instance of type `T`.
+     *
+     * This is syntactic sugar for [provider] with parameter scope is [singleton].
+     *
+     * @param qualifier An optional qualifier.
+     * @param generics If true this will preserve generic information of `T`.
+     * @param override If true this will override a existing provider of this type.
+     * @param block The provider block.
+     */
+    inline fun <reified T : Any> singleton(qualifier: Any? = null,
+                                           generics: Boolean = false,
+                                           override: Boolean = false,
+                                           noinline block: Graph.() -> T) {
+        provider(qualifier, singleton, generics, override, block)
+    }
+
+
+    /**
      * Register a factory that takes `A` and returns `R`.
      *
      * @param qualifier An optional qualifier.
