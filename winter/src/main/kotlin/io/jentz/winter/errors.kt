@@ -11,6 +11,11 @@ open class WinterException(message: String?, cause: Throwable? = null) : Excepti
 class EntryNotFoundException(message: String) : WinterException(message)
 
 /**
+ * Exception that is thrown when an error occurs during dependency resolution.
+ */
+class DependencyResolutionException(message: String, cause: Throwable? = null) : WinterException(message, cause)
+
+/**
  * Exception that is thrown when a cyclic dependency was detected.
  */
 class CyclicDependencyException(message: String) : WinterException(message)

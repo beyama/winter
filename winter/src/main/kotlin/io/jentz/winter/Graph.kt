@@ -196,6 +196,14 @@ class Graph internal constructor(private val parent: Graph?, private val compone
             try {
                 stack.push(id)
                 block()
+            } catch (e: EntryNotFoundException) {
+                val stackInfo = stack.joinToString(" -> ")
+                throw DependencyResolutionException("Error while resolving dependencies of $id (dependency stack: $stackInfo)", e)
+            } catch (e: WinterException) {
+                throw e
+            } catch (t: Throwable) {
+                val stackInfo = stack.joinToString(" -> ")
+                throw DependencyResolutionException("Error while invoking provider block of $id (dependency stack: $stackInfo)", t)
             } finally {
                 stack.pop()
             }
@@ -211,6 +219,14 @@ class Graph internal constructor(private val parent: Graph?, private val compone
                 try {
                     stack.push(id)
                     block(arg)
+                } catch (e: EntryNotFoundException) {
+                    val stackInfo = stack.joinToString(" -> ")
+                    throw DependencyResolutionException("Error while resolving dependencies of $id (dependency stack: $stackInfo)", e)
+                } catch (e: WinterException) {
+                    throw e
+                } catch (t: Throwable) {
+                    val stackInfo = stack.joinToString(" -> ")
+                    throw DependencyResolutionException("Error while invoking factory block of $id (dependency stack: $stackInfo)", t)
                 } finally {
                     stack.pop()
                 }
