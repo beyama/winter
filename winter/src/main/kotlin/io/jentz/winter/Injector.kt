@@ -83,23 +83,25 @@ class Injector {
         }
     }
 
-    inline fun <reified T : Any> instance(qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false)
             = register(Instance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
-    inline fun <reified T : Any?> instanceOrNull(qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified T : Any?> instanceOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(InstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
-    inline fun <reified A, reified R> factory(qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false)
             = register(Instance<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
 
-    inline fun <reified A, reified R> curriedFactory(argument: A, qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified A, reified R> curriedFactory(argument: A, qualifier: Any? = null, generics: Boolean = false)
             = register(CurriedFactory<A, R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier), argument))
 
-    inline fun <reified T : Any> lazyInstance(qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified T : Any> lazyInstance(qualifier: Any? = null, generics: Boolean = false)
             = register(LazyInstance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
-    inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: String? = null, generics: Boolean = false)
+    inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(LazyInstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+
+    operator inline fun <reified T : Any> invoke(qualifier: Any? = null) = instance<T>(qualifier)
 
     fun <T> register(propertyInjector: PropertyInjector<T>): ReadOnlyProperty<Any, T> {
         propertyInjectors.add(propertyInjector)

@@ -102,4 +102,13 @@ class InjectorTest {
         assertNull(o.property)
     }
 
+    @Test
+    fun `test invoke operator`() {
+        val o = object : InjectableBase() {
+            val property by injector<String>()
+        }
+        o.inject(component { constant("test string") }.init())
+        assertEquals("test string", o.property)
+    }
+
 }
