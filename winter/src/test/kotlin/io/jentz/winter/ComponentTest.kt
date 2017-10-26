@@ -4,6 +4,7 @@ import io.jentz.winter.internal.*
 import org.junit.Assert.*
 import org.junit.Test
 
+@Suppress("UNCHECKED_CAST")
 class ComponentTest {
 
     private val testComponent = component {
@@ -88,8 +89,6 @@ class ComponentTest {
         assertNull(graph.instanceOrNull<GenericDependencyImpl<Int>>(generics = true))
     }
 
-    //
-
     @Test(expected = WinterException::class)
     fun `ComponentBuilder#removeFactory should throw an exception when factory doesn't exist`() {
         component { removeFactory<String, ServiceDependency>() }
@@ -110,6 +109,37 @@ class ComponentTest {
     fun `ComponentBuilder#removeFactory should remove generic factory`() {
         val graph = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }.init()
         assertNull(graph.factoryOrNull<Int, GenericDependencyImpl<Int>>(generics = true))
+    }
+
+    @Test
+    fun `ComponentBuilder#subcomponent should register a subcomponent`() {
+        val component = component { subcomponent("sub") { } }
+        assertNotNull(component.dependencyMap.get(Component::class, "sub"))
+    }
+
+    @Test
+    fun `ComponentBuilder#subcomponent should extend existing subcomponent when deriveExisting is true`() {
+        val base = component { subcomponent("sub") { constant("a", "a") } }
+        val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
+        val subcomponent = (derived.dependencyMap.get(Component::class, "sub") as Constant<Component>).value
+        assertNotNull(subcomponent.dependencyMap.get(String::class, "a"))
+        assertNotNull(subcomponent.dependencyMap.get(String::class, "b"))
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting is true but subcomponent doesn't exist`() {
+        component { subcomponent("sub", deriveExisting = true) {} }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when override is true but subcomponent doesn't exist`() {
+        component { subcomponent("sub", override = true) {} }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting and override is true`() {
+        val base = component { subcomponent("sub") {} }
+        base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
     }
 
     @Test

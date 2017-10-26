@@ -131,21 +131,21 @@ class ComponentBuilder internal constructor() {
             throw WinterException("You can either override existing or derive existing but not both.")
         }
 
-        val id = providerId<Constant<*>>(name)
+        val id = providerId<Component>(name)
 
         val existingEntry = registry[id] as? Constant<*>
 
         if (existingEntry != null && !(override || deriveExisting)) {
-            throw WinterException("Sub-component with name `$name` already exists.")
+            throw WinterException("Subcomponent with name `$name` already exists.")
         }
 
         if (existingEntry == null && override) {
-            throw WinterException("Sub-component with name `$name` doesn't exist but override is true.")
+            throw WinterException("Subcomponent with name `$name` doesn't exist but override is true.")
         }
 
         val component = if (deriveExisting) {
             if (existingEntry == null) {
-                throw WinterException("Sub-component with name `$name` doesn't exist but deriveExisting is true.")
+                throw WinterException("Subcomponent with name `$name` doesn't exist but deriveExisting is true.")
             }
             val baseComponent = existingEntry.value as Component
             baseComponent.derive(block)
