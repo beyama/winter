@@ -11,16 +11,16 @@ class InjectorTest {
 
     @Test(expected = WinterException::class)
     fun `#instance delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectorAwareBase() {
-            val property: String by instance()
+        val o = object : InjectableBase() {
+            val property: String by injector.instance()
         }
         o.property
     }
 
     @Test(expected = EntryNotFoundException::class)
     fun `#instance delegate should throw an error if dependency couldn't be found`() {
-        val o = object : InjectorAwareBase() {
-            val property: String by instance()
+        val o = object : InjectableBase() {
+            val property: String by injector.instance()
         }
         o.inject(emptyGraph)
     }
@@ -29,8 +29,8 @@ class InjectorTest {
     fun `#instance delegate should eagerly resolve dependency when graph is attached`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectorAwareBase() {
-            val property: Int by instance()
+        val o = object : InjectableBase() {
+            val property: Int by injector.instance()
         }
         o.inject(graph)
         assertEquals(1, integer.get())
@@ -38,8 +38,8 @@ class InjectorTest {
 
     @Test(expected = WinterException::class)
     fun `#instanceOrNull delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectorAwareBase() {
-            val property: String? by instanceOrNull()
+        val o = object : InjectableBase() {
+            val property: String? by injector.instanceOrNull()
         }
         o.property
     }
@@ -48,8 +48,8 @@ class InjectorTest {
     fun `#instanceOrNull delegate should eagerly resolve dependency when graph is attached`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectorAwareBase() {
-            val property: Int? by instanceOrNull()
+        val o = object : InjectableBase() {
+            val property: Int? by injector.instanceOrNull()
         }
         o.inject(graph)
         assertEquals(1, integer.get())
@@ -57,8 +57,8 @@ class InjectorTest {
 
     @Test
     fun `#instanceOrNull should resolve to null if provider doesn't exist`() {
-        val o = object : InjectorAwareBase() {
-            val property: Any? by instanceOrNull()
+        val o = object : InjectableBase() {
+            val property: Any? by injector.instanceOrNull()
         }
         o.inject(emptyGraph)
         assertNull(o.property)
@@ -66,16 +66,16 @@ class InjectorTest {
 
     @Test(expected = WinterException::class)
     fun `#factory delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectorAwareBase() {
-            val property: (Int) -> String by factory()
+        val o = object : InjectableBase() {
+            val property: (Int) -> String by injector.factory()
         }
         o.property
     }
 
     @Test(expected = EntryNotFoundException::class)
     fun `#factory delegate should throw an error if dependency couldn't be found`() {
-        val o = object : InjectorAwareBase() {
-            val property: (Int) -> String by factory()
+        val o = object : InjectableBase() {
+            val property: (Int) -> String by injector.factory()
         }
         o.inject(emptyGraph)
     }
@@ -84,8 +84,8 @@ class InjectorTest {
     fun `#lazyInstance should resolve dependency on first access`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectorAwareBase() {
-            val property: Int by lazyInstance()
+        val o = object : InjectableBase() {
+            val property: Int by injector.lazyInstance()
         }
         o.inject(graph)
         assertEquals(0, integer.get())
@@ -95,8 +95,8 @@ class InjectorTest {
 
     @Test
     fun `#lazyInstanceOrNull should resolve to null if provider doesn't exist`() {
-        val o = object : InjectorAwareBase() {
-            val property: Any? by lazyInstanceOrNull()
+        val o = object : InjectableBase() {
+            val property: Any? by injector.lazyInstanceOrNull()
         }
         o.inject(emptyGraph)
         assertNull(o.property)

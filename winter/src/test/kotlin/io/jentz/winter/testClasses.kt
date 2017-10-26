@@ -24,6 +24,7 @@ class GenericDependencyImpl<out T>(override val aValue: T?) : GenericDependency<
 
 class GenericServiceImpl<out T>(override val dependency: GenericDependency<T>) : GenericService<T>
 
-abstract class InjectorAwareBase : InjectorAware {
-    override val injector = Injector()
+abstract class InjectableBase {
+    val injector = Injector()
+    fun inject(graph: Graph) = injector.inject(graph)
 }
