@@ -6,6 +6,8 @@ apply plugin: 'org.jetbrains.dokka'
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile 'junit:junit:4.12'
+    compile 'javax.inject:javax.inject:1'
+    kapt project(':winter-compiler')
 }
 
 task javadocJar(type: Jar) {

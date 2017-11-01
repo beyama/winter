@@ -1,1 +1,1 @@
-include ':winter-android', ':winter'
+include ':winter-android', ':winter', ':winter-compiler'
