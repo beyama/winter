@@ -2,10 +2,7 @@ apply plugin: 'kotlin'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'org.jetbrains.dokka'
-
-kapt {
-    generateStubs = true
-}
+apply plugin: 'kotlin-kapt'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

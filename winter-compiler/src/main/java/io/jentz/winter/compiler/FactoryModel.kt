@@ -12,7 +12,7 @@ class FactoryModel(val constructor: ExecutableElement) {
 
     val typeElement = (constructor.enclosingElement as TypeElement)
     val typeName = typeElement.asClassName()
-    val generatedClassName = typeName.peerClass("${typeName.simpleName()}$FACTORY_POSTFIX")
+    val generatedClassName = ClassName(typeName.packageName(), "${typeName.simpleNames().joinToString("_")}$FACTORY_POSTFIX")
 
     fun generate(injectorModel: InjectorModel?) = FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
             .addType(
@@ -41,6 +41,7 @@ class FactoryModel(val constructor: ExecutableElement) {
                                                                 }
                                                                 CodeBlock.of("graph.instance<%T>()", instanceType)
                                                             }.joinToString(", ")
+
                                                             if (params.isNotEmpty()) {
                                                                 createInstanceBlock.add(params)
                                                             }

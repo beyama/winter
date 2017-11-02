@@ -11,7 +11,7 @@ class InjectorModel(val typeElement: TypeElement) {
     }
 
     val typeName = typeElement.asClassName()
-    val generatedClassName = typeName.peerClass("${typeName.simpleName()}$INJECTOR_POSTFIX")
+    val generatedClassName = ClassName(typeName.packageName(), "${typeName.simpleNames().joinToString("_")}${INJECTOR_POSTFIX}")
 
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
