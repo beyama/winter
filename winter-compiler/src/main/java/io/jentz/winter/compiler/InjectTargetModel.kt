@@ -6,7 +6,6 @@ import javax.lang.model.element.*
 
 sealed class InjectTargetModel {
     abstract val element: Element
-    val qualifier: String? get() = element.getAnnotation(Named::class.java)?.value
     val type get() = element.enclosingElement as TypeElement
     val fqdn get() = "${type.qualifiedName}.${element.simpleName}"
 
@@ -21,7 +20,7 @@ sealed class InjectTargetModel {
         }
 
         override fun codeBlock(): CodeBlock {
-            return CodeBlock.builder().add("target.${element.simpleName} = graph.instance()\n").build()
+            return CodeBlock.of("target.${element.simpleName} = %L\n", generateGetInstanceCodeBlock(element))
         }
     }
 
@@ -36,7 +35,11 @@ sealed class InjectTargetModel {
         }
 
         override fun codeBlock(): CodeBlock {
-            return CodeBlock.builder().add("target.${element.simpleName}(graph.instance())\n").build()
+            return CodeBlock.builder()
+                    .add("target.${element.simpleName}(")
+                    .add(generateGetInstanceCodeBlock(element.parameters.first()))
+                    .add(")\n")
+                    .build()
         }
     }
 }
