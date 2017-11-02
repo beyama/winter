@@ -32,7 +32,7 @@ class ComponentBuilder internal constructor() {
                                           override: Boolean = false,
                                           noinline block: Graph.() -> T) {
         val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
-        register(id, Provider(scope, block), override)
+        register(id, ProviderEntry(scope, block), override)
     }
 
     /**
@@ -68,7 +68,7 @@ class ComponentBuilder internal constructor() {
                                                           override: Boolean = false,
                                                           noinline block: Graph.(A) -> R) {
         val id = if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)
-        register(id, Factory(scope, block), override)
+        register(id, FactoryEntry(scope, block), override)
     }
 
     /**
@@ -84,7 +84,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false) {
         val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
-        register(id, Constant(value), override)
+        register(id, ConstantEntry(value), override)
     }
 
     /**
@@ -133,7 +133,7 @@ class ComponentBuilder internal constructor() {
 
         val id = providerId<Component>(name)
 
-        val existingEntry = registry[id] as? Constant<*>
+        val existingEntry = registry[id] as? ConstantEntry<*>
 
         if (existingEntry != null && !(override || deriveExisting)) {
             throw WinterException("Subcomponent with name `$name` already exists.")

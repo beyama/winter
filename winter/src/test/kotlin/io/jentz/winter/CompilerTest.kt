@@ -21,10 +21,8 @@ class Foo @Inject constructor(val message: String) {
 
 class CompilerTest {
 
-
-
     inline fun <reified T : Any> injectorForClass(instance: T): MembersInjector<T> {
-        return Class.forName( "${T::class.java.name}$\$MembersInjector").newInstance() as MembersInjector<T>
+        return Class.forName("${T::class.java.name}$\$MembersInjector").newInstance() as MembersInjector<T>
     }
 
     inline fun <reified T : Any> inject(graph: Graph, instance: T) {

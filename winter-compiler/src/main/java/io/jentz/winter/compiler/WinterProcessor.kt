@@ -1,5 +1,9 @@
 package io.jentz.winter.compiler
 
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.PropertySpec
 import java.io.File
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
@@ -51,27 +55,61 @@ class WinterProcessor : AbstractProcessor() {
         }
 
         buildInjectors()
+        buildFactories()
+        buildRegistry()
 
         return true
     }
 
     private fun buildInjectors() {
-        injectors.forEach { (typeElement, injector) ->
-            info("injector enclosing ${typeElement.enclosingElement}")
-
+        injectors.forEach { (_, injector) ->
+            info("Create injector for ${injector.typeName}")
             val kCode = injector.generate()
             info(kCode.toString())
-            val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
-            val file = File(kaptKotlinGeneratedDir)
-            kCode.writeTo(file)
-            info("Write injector class to ${file.absolutePath}")
+            write(kCode)
         }
     }
 
+    private fun buildFactories() {
+        factories.forEach { factory ->
+            info("Create factory for ${factory.typeName}")
+            val kCode = factory.generate(injectors[factory.typeElement])
+            info(kCode.toString())
+            write(kCode)
+        }
+    }
 
+    private fun buildRegistry() {
+        val graphClass = ClassName("io.jentz.winter", "Graph")
+
+        val block = CodeBlock.builder()
+                .beginControlFlow("component")
+                .also { block ->
+                    factories.forEach {
+                        block.add("singleton<%T> { `%T`().instance(this) }\n", it.typeName, it.generatedClassName)
+                    }
+                }
+                .endControlFlow()
+                .build()
+
+        val file = FileSpec.builder("io.jentz.winter", "Registry")
+                .addProperty(
+                        PropertySpec.builder("generatedComponent", graphClass)
+                                .initializer(block)
+                                .build()
+                )
+
+        info(file.build().toString())
+    }
+
+    private fun write(fileSpec: FileSpec) {
+        val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
+        val file = File(kaptKotlinGeneratedDir)
+        fileSpec.writeTo(file)
+    }
 
     private fun getOrCreateInjector(fieldOrSetter: Element): InjectorModel {
-        val typeElement = fieldOrSetter.enclosingElement as? TypeElement ?: throw IllegalArgumentException("Enclosing element for $fieldOrSetter must be a class")
+        val typeElement = fieldOrSetter.enclosingElement as? TypeElement ?: throw IllegalArgumentException("Enclosing constructor for $fieldOrSetter must be a class")
         return injectors.getOrPut(typeElement) { InjectorModel(typeElement) }
     }
 

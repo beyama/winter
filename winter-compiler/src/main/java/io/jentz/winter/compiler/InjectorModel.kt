@@ -1,39 +1,38 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.*
-import javax.lang.model.element.QualifiedNameable
 import javax.lang.model.element.TypeElement
 
 class InjectorModel(val typeElement: TypeElement) {
+    companion object {
+        val GRAPH_CLASS = ClassName("io.jentz.winter", "Graph")
+        val INJECTOR_INTERFACE = ClassName("io.jentz.winter", "MembersInjector")
+        val INJECTOR_POSTFIX = "\$\$MembersInjector"
+    }
+
+    val typeName = typeElement.asClassName()
+    val generatedClassName = typeName.peerClass("${typeName.simpleName()}$INJECTOR_POSTFIX")
+
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
-    fun generate(): FileSpec {
-        val packageName = (typeElement.enclosingElement as QualifiedNameable).qualifiedName.toString()
-        val graphClass = ClassName("io.jentz.winter", "Graph")
-        val injectorInterface = ClassName("io.jentz.winter", "MembersInjector")
-        val targetClass = ClassName(packageName, typeElement.simpleName.toString())
-        val className = "${typeElement.simpleName}$\$MembersInjector"
-
-        return FileSpec.builder(packageName, className)
-                .addStaticImport(graphClass.packageName(), graphClass.simpleName())
-                .addType(
-                        TypeSpec
-                                .classBuilder("`$className`")
-                                .addSuperinterface(ParameterizedTypeName.get(injectorInterface, targetClass))
-                                .addFunction(
-                                        FunSpec.builder("injectMembers")
-                                                .addModifiers(KModifier.OVERRIDE)
-                                                .addParameter("graph", graphClass)
-                                                .addParameter("target", targetClass)
-                                                .also {
-                                                    targets.forEach { target ->
-                                                        it.addCode(target.codeBlock())
-                                                    }
+    fun generate() = FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
+            .addStaticImport(GRAPH_CLASS.packageName(), GRAPH_CLASS.simpleName())
+            .addType(
+                    TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
+                            .addSuperinterface(ParameterizedTypeName.get(INJECTOR_INTERFACE, typeName))
+                            .addFunction(
+                                    FunSpec.builder("injectMembers")
+                                            .addModifiers(KModifier.OVERRIDE)
+                                            .addParameter("graph", GRAPH_CLASS)
+                                            .addParameter("target", typeName)
+                                            .also {
+                                                targets.forEach { target ->
+                                                    it.addCode(target.codeBlock())
                                                 }
-                                                .build()
-                                )
-                                .build()
-                ).build()
-    }
+                                            }
+                                            .build()
+                            )
+                            .build()
+            ).build()
 
 }

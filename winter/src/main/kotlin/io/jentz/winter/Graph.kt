@@ -169,9 +169,9 @@ class Graph internal constructor(private val parent: Graph?, private val compone
             val value = entry.value
 
             val provider: AnyProvider = when (value) {
-                is Constant<*> -> wrapConstant(value)
-                is Provider<*> -> wrapProvider(entry.key, value.bind(this))
-                is Factory<*, *> -> {
+                is ConstantEntry<*> -> wrapConstant(value)
+                is ProviderEntry<*> -> wrapProvider(entry.key, value.bind(this))
+                is FactoryEntry<*, *> -> {
                     @Suppress("UNCHECKED_CAST")
                     wrapFactory(entry.key, value.bind(this) as AnyFactory)
                 }
@@ -186,7 +186,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     }
 
 
-    private fun wrapConstant(constant: Constant<*>): AnyProvider = { constant.value }
+    private fun wrapConstant(constant: ConstantEntry<*>): AnyProvider = { constant.value }
 
     private fun wrapProvider(id: DependencyId, block: AnyProvider): AnyProvider = {
         synchronized(this) {
