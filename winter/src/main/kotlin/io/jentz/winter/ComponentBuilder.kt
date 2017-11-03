@@ -6,7 +6,7 @@ import io.jentz.winter.internal.*
  * Component builder DSL.
  */
 class ComponentBuilder internal constructor() {
-    private val registry: MutableMap<DependencyId, ComponentEntry> = mutableMapOf()
+    private val registry: MutableMap<DependencyId, ComponentEntry<*>> = mutableMapOf()
 
     /**
      * Include dependency from the given component into the new component.
@@ -161,7 +161,7 @@ class ComponentBuilder internal constructor() {
      *
      * @suppress
      */
-    fun register(id: DependencyId, entry: ComponentEntry, override: Boolean) {
+    fun register(id: DependencyId, entry: ComponentEntry<*>, override: Boolean) {
         val alreadyExists = registry.containsKey(id)
 
         if (alreadyExists && !override) {

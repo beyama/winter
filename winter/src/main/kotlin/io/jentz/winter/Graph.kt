@@ -5,7 +5,6 @@ import java.util.*
 import kotlin.reflect.KClass
 
 typealias AnyProvider = () -> Any?
-typealias AnyFactory = (Any?) -> Any?
 
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
@@ -159,43 +158,31 @@ class Graph internal constructor(private val parent: Graph?, private val compone
             getParent = { parent?.providerOrNull(argClass, retClass, qualifier) })
 
     private inline fun retrieve(getCached: () -> AnyProvider?,
-                                getEntry: () -> DependencyMap.Entry<ComponentEntry>?,
+                                getEntry: () -> DependencyMap.Entry<ComponentEntry<*>>?,
                                 getParent: () -> AnyProvider?): AnyProvider? = synchronized(this) {
         getCached()?.let { return@synchronized it }
 
-        val entry = getEntry()
-
-        if (entry != null) {
-            val value = entry.value
-
-            val provider: AnyProvider = when (value) {
-                is ConstantEntry<*> -> wrapConstant(value)
-                is ProviderEntry<*> -> wrapProvider(entry.key, value.bind(this))
-                is FactoryEntry<*, *> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    wrapFactory(entry.key, value.bind(this) as AnyFactory)
-                }
-            }
-
-            cache[entry.key] = provider
-
-            return@synchronized provider
-        }
-
-        return@synchronized getParent()
+        return@synchronized getEntry()?.let { entry ->
+            entry.value.bind(this, entry.key).also { cache[entry.key] = it }
+        } ?: getParent()
     }
 
+    fun <A, R> evaluateFactory(id: DependencyId, arg: A, block: Graph.(A) -> R): R {
+        return evaluate(id, { block(arg) })
+    }
 
-    private fun wrapConstant(constant: ConstantEntry<*>): AnyProvider = { constant.value }
+    fun <T> evaluateProvider(id: DependencyId, block: Graph.() -> T): T {
+        return evaluate(id, block)
+    }
 
-    private fun wrapProvider(id: DependencyId, block: AnyProvider): AnyProvider = {
+    private inline fun <T> evaluate(id: DependencyId, block: Graph.() -> T): T {
         synchronized(this) {
             if (stack.contains(id)) {
                 throw CyclicDependencyException("Cyclic dependency for ID `$id`.")
             }
             try {
                 stack.push(id)
-                block()
+                return block()
             } catch (e: EntryNotFoundException) {
                 val stackInfo = stack.joinToString(" -> ")
                 throw DependencyResolutionException("Error while resolving dependencies of $id (dependency stack: $stackInfo)", e)
@@ -208,31 +195,6 @@ class Graph internal constructor(private val parent: Graph?, private val compone
                 stack.pop()
             }
         }
-    }
-
-    private fun wrapFactory(id: DependencyId, block: AnyFactory): AnyProvider {
-        val wrapped = { arg: Any? ->
-            synchronized(this) {
-                if (stack.contains(id)) {
-                    throw CyclicDependencyException("Cyclic dependency for ID `$id`.")
-                }
-                try {
-                    stack.push(id)
-                    block(arg)
-                } catch (e: EntryNotFoundException) {
-                    val stackInfo = stack.joinToString(" -> ")
-                    throw DependencyResolutionException("Error while resolving dependencies of $id (dependency stack: $stackInfo)", e)
-                } catch (e: WinterException) {
-                    throw e
-                } catch (t: Throwable) {
-                    val stackInfo = stack.joinToString(" -> ")
-                    throw DependencyResolutionException("Error while invoking factory block of $id (dependency stack: $stackInfo)", t)
-                } finally {
-                    stack.pop()
-                }
-            }
-        }
-        return { wrapped }
     }
 
     /**

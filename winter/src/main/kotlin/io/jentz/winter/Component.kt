@@ -30,9 +30,9 @@ fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply { t
  * val graph = derived.init { constant<Application>(myAndroidApplication) }
  * ```
  */
-class Component internal constructor(registry: Map<DependencyId, ComponentEntry>) {
+class Component internal constructor(registry: Map<DependencyId, ComponentEntry<*>>) {
 
-    internal val dependencyMap: DependencyMap<ComponentEntry> = DependencyMap(registry)
+    internal val dependencyMap: DependencyMap<ComponentEntry<*>> = DependencyMap(registry)
 
     /**
      * Create an extended copy of this component.
