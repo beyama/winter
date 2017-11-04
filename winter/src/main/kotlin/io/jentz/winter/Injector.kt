@@ -5,9 +5,13 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class Injector {
-    private var propertyInjectors = mutableListOf<PropertyInjector<*>>()
+    private val propertyInjectors = mutableListOf<PropertyInjector<*>>()
 
-    interface PropertyInjector<out T> : ReadOnlyProperty<Any?, T> {
+    interface InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
+        fun <R> map(mapper: (T) -> R): InjectedProperty<R>
+    }
+
+    interface PropertyInjector<out T> : InjectedProperty<T> {
         fun inject(graph: Graph)
     }
 
@@ -27,6 +31,8 @@ class Injector {
         }
 
         abstract fun getValue(graph: Graph): T
+
+        final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
 
     abstract class AbstractLazyProperty<out T> : PropertyInjector<T> {
@@ -43,44 +49,50 @@ class Injector {
         override fun getValue(thisRef: Any?, property: KProperty<*>) = memorized()
 
         abstract fun getValue(graph: Graph): T
+
+        final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
+    }
+
+    private class MapProperty<in I, out O>(private val base: InjectedProperty<I>, private val mapper: (I) -> O) : InjectedProperty<O> {
+        private var value: Any? = UNINITIALIZED_VALUE
+
+        override fun getValue(thisRef: Any?, property: KProperty<*>): O {
+            val v1 = value
+            @Suppress("UNCHECKED_CAST")
+            if (v1 !== UNINITIALIZED_VALUE) return v1 as O
+
+            synchronized(this) {
+                val v2 = value
+                @Suppress("UNCHECKED_CAST")
+                if (v2 !== UNINITIALIZED_VALUE) return v2 as O
+
+                val typedValue = mapper(base.getValue(thisRef, property))
+                value = typedValue
+                return typedValue
+            }
+        }
+
+        override fun <R> map(mapper: (O) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
 
     class Instance<out T : Any>(private val id: DependencyId) : AbstractEagerProperty<T>() {
-        override fun getValue(graph: Graph): T {
-            @Suppress("UNCHECKED_CAST")
-            return graph.provider(id).invoke() as T
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getValue(graph: Graph): T = graph.provider(id).invoke() as T
     }
 
     class InstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractEagerProperty<T?>() {
-        override fun getValue(graph: Graph): T? {
-            @Suppress("UNCHECKED_CAST")
-            return graph.providerOrNull(id)?.invoke() as? T
-        }
-    }
-
-    class CurriedFactory<in A, out R>(private val id: DependencyId, private val argument: A) : AbstractEagerProperty<() -> R>() {
-        override fun getValue(graph: Graph): () -> R {
-            @Suppress("UNCHECKED_CAST")
-            val provider = graph.provider(id) as () -> (A) -> R
-            val factory = provider()
-            return { factory(argument) }
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getValue(graph: Graph): T? = graph.providerOrNull(id)?.invoke() as? T
     }
 
     class LazyInstance<out T : Any>(private val id: DependencyId) : AbstractLazyProperty<T>() {
-        override fun getValue(graph: Graph): T {
-            val provider = graph.provider(id)
-            @Suppress("UNCHECKED_CAST")
-            return provider() as T
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getValue(graph: Graph): T = graph.provider(id).invoke() as T
     }
 
     class LazyInstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractLazyProperty<T?>() {
-        override fun getValue(graph: Graph): T? {
-            @Suppress("UNCHECKED_CAST")
-            return graph.providerOrNull(id)?.invoke() as? T
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getValue(graph: Graph): T? = graph.providerOrNull(id)?.invoke() as? T
     }
 
     inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false)
@@ -89,27 +101,28 @@ class Injector {
     inline fun <reified T : Any?> instanceOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(InstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
-    inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false)
-            = register(Instance<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
-
-    inline fun <reified A, reified R> curriedFactory(argument: A, qualifier: Any? = null, generics: Boolean = false)
-            = register(CurriedFactory<A, R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier), argument))
-
     inline fun <reified T : Any> lazyInstance(qualifier: Any? = null, generics: Boolean = false)
             = register(LazyInstance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
     inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(LazyInstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
 
+    inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false)
+            = register(Instance<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
+
+    inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false)
+            = register(InstanceOrNull<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
+
     operator inline fun <reified T : Any> invoke(qualifier: Any? = null) = instance<T>(qualifier)
 
-    fun <T> register(propertyInjector: PropertyInjector<T>): ReadOnlyProperty<Any, T> {
+    fun <T> register(propertyInjector: PropertyInjector<T>): InjectedProperty<T> {
         propertyInjectors.add(propertyInjector)
         return propertyInjector
     }
 
     fun inject(graph: Graph) {
         propertyInjectors.forEach { it.inject(graph) }
+        propertyInjectors.clear()
     }
 
 }

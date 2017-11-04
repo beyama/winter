@@ -111,4 +111,16 @@ class InjectorTest {
         assertEquals("test string", o.property)
     }
 
+    @Test
+    fun `#map for factory currying`() {
+        val graph = component {
+            factory<Int, String> { i -> i.toString() }
+        }.init()
+        val o = object : InjectableBase() {
+            val factory: () -> String by injector.factory<Int, String>().map { { it(1) } }
+        }
+        o.inject(graph)
+        assertEquals("1", o.factory())
+    }
+
 }
