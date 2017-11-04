@@ -21,7 +21,7 @@ class ComponentModel {
                 "javax.inject.Singleton" -> factories.forEach { componentBuilder.add(generateSingleton(it)) }
                 else -> {
                     componentBuilder
-                            .beginControlFlow("subcomponent(%S)", scope)
+                            .beginControlFlow("subcomponent($scope::class)")
                             .also { subcomponentBlock ->
                                 factories.forEach { subcomponentBlock.add(generateSingleton(it)) }
                             }

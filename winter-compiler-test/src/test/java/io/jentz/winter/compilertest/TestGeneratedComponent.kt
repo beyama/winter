@@ -91,13 +91,13 @@ class TestGeneratedComponent {
         assertNotNull(instance._dep3    )
     }
 
-//    @Test
-//    fun `Test custom scoped class with no argument inject constructor`() {
-//        val subgraph = graph.initSubcomponent(CustomScope::class)
-//        assertSame(
-//                subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>(),
-//                subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>()
-//        )
-//    }
+    @Test
+    fun `Test custom scoped class with no argument inject constructor`() {
+        val subgraph = graph.initSubcomponent(CustomScope::class)
+        assertSame(
+                subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>(),
+                subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>()
+        )
+    }
 
 }
