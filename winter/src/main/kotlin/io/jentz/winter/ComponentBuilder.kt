@@ -118,12 +118,12 @@ class ComponentBuilder internal constructor() {
     /**
      * Register a subcomponent.
      *
-     * @param name The name of the subcomponent.
+     * @param qualifier The qualifier of the subcomponent.
      * @param override If true an existing subcomponent will be replaced.
      * @param deriveExisting If true an existing subcomponent will be derived and replaced with the derived version.
      * @param block A builder block to register provider on the subcomponent.
      */
-    fun subcomponent(name: String,
+    fun subcomponent(qualifier: Any,
                      override: Boolean = false,
                      deriveExisting: Boolean = false,
                      block: ComponentBuilder.() -> Unit) {
@@ -131,21 +131,21 @@ class ComponentBuilder internal constructor() {
             throw WinterException("You can either override existing or derive existing but not both.")
         }
 
-        val id = providerId<Component>(name)
+        val id = providerId<Component>(qualifier)
 
         val existingEntry = registry[id] as? ConstantEntry<*>
 
         if (existingEntry != null && !(override || deriveExisting)) {
-            throw WinterException("Subcomponent with name `$name` already exists.")
+            throw WinterException("Subcomponent with qualifier `$qualifier` already exists.")
         }
 
         if (existingEntry == null && override) {
-            throw WinterException("Subcomponent with name `$name` doesn't exist but override is true.")
+            throw WinterException("Subcomponent with qualifier `$qualifier` doesn't exist but override is true.")
         }
 
         val component = if (deriveExisting) {
             if (existingEntry == null) {
-                throw WinterException("Subcomponent with name `$name` doesn't exist but deriveExisting is true.")
+                throw WinterException("Subcomponent with qualifier `$qualifier` doesn't exist but deriveExisting is true.")
             }
             val baseComponent = existingEntry.value as Component
             baseComponent.derive(block)
@@ -153,7 +153,7 @@ class ComponentBuilder internal constructor() {
             ComponentBuilder().apply { this.block() }.build()
         }
 
-        constant(qualifier = name, override = (override || deriveExisting), value = component)
+        constant(qualifier = qualifier, override = (override || deriveExisting), value = component)
     }
 
     /**

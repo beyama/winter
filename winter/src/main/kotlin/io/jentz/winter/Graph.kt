@@ -200,11 +200,11 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     /**
      * Initialize a subcomponent.
      *
-     * @param name The name of the subcomponent.
+     * @param qualifier The qualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
-    fun initSubcomponent(name: String, block: (ComponentBuilder.() -> Unit)? = null): Graph {
-        val subComponent: Component = instance(name)
+    fun initSubcomponent(qualifier: Any, block: (ComponentBuilder.() -> Unit)? = null): Graph {
+        val subComponent: Component = instance(qualifier)
         return Graph(this, if (block != null) subComponent.derive(block) else subComponent)
     }
 
