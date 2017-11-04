@@ -17,7 +17,8 @@ class FactoryModel(val constructor: ExecutableElement) {
     val scope: String?
 
     init {
-        if (!typeElement.modifiers.contains(Modifier.STATIC)) {
+        val isInnerClass = typeElement.enclosingElement is TypeElement
+        if (isInnerClass && !typeElement.modifiers.contains(Modifier.STATIC)) {
             throw IllegalArgumentException("Can't inject a non-static inner class: $typeElement")
         }
         if (typeElement.modifiers.contains(Modifier.PRIVATE)) {

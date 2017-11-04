@@ -9,8 +9,8 @@ val optionGeneratedComponentPackage = "winterGeneratedComponentPackage"
 
 val graphClassName = ClassName("io.jentz.winter", "Graph")
 val componentClassName = ClassName("io.jentz.winter", "Component")
-val factoryInterfaceName = ClassName("io.jentz.winter", "Factory")
-val injectorInterfaceName = ClassName("io.jentz.winter", "MembersInjector")
+val factoryInterfaceName = ClassName("io.jentz.winter.internal", "Factory")
+val injectorInterfaceName = ClassName("io.jentz.winter.internal", "MembersInjector")
 
 val generatedFactoryPostfix = "\$\$Factory"
 val generatedInjectorPostfix = "\$\$MembersInjector"
