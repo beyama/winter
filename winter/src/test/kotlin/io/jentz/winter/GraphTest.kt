@@ -181,4 +181,11 @@ class GraphTest {
         }.init().instance<Any>()
     }
 
+    @Test
+    fun `provider registered via init block should be retrievable from graph`() {
+        val component = component { provider<ServiceDependency> { ServiceDependencyImpl(instance()) } }
+        val graph = component.init { constant("foo") }
+        assertEquals("foo", graph.instance<ServiceDependency>().aValue)
+    }
+
 }
