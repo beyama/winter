@@ -1,9 +1,20 @@
 package io.jentz.winter.internal
 
+/**
+ * A map to store values by [DependencyKey].
+ *
+ * This was created to retrieve values by the components of the [keys][DependencyKey] without
+ * building an instance of the key.
+ */
 internal class DependencyMap<T>(capacity: Int) {
 
     internal data class Entry<T>(var key: DependencyKey, var value: T, var next: Entry<T>? = null)
 
+    /**
+     * Create a instance with all entries from the given map.
+     *
+     * @param map The map to copy values from.
+     */
     constructor(map: Map<DependencyKey, T>) : this(map.size) {
         map.forEach { (key, value) -> put(key, value) }
     }
@@ -15,6 +26,11 @@ internal class DependencyMap<T>(capacity: Int) {
     var size: Int = 0
         private set
 
+    /**
+     * Associates the specified value with the specified key in the map.
+     *
+     * @return Return the previous value associated with the key, or null if the key was not present in the map.
+     */
     fun put(key: DependencyKey, value: T): T? {
         val index = key.hashCode() and tableMask
         val entry = table[index]
@@ -43,21 +59,40 @@ internal class DependencyMap<T>(capacity: Int) {
         return null
     }
 
+    /**
+     * An alias for [put].
+     */
     operator fun set(key: DependencyKey, value: T) {
         put(key, value)
     }
 
-    operator fun get(key: DependencyKey): T? = get(key.hashCode()) { it == key }
+    /**
+     * Returns the value corresponding to the given [key], or null if such a key is not present in the map.
+     */
+    operator fun get(key: DependencyKey): T? = getEntry(key.hashCode()) { it == key }?.value
 
+    /**
+     * Returns the value corresponding to a [TypeKey] that was created from the given class and qualifier,
+     * or null if such a key is not present in the map.
+     */
     fun get(cls: Class<*>, qualifier: Any? = null): T? = getEntry(cls, qualifier)?.value
 
+    /**
+     * Returns the value corresponding to a [CompoundTypeKey] that was created from the given classes and qualifier,
+     * or null if such a key is not present in the map.
+     */
     fun get(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): T? =
             getEntry(firstClass, secondClass, qualifier)?.value
 
-    private inline fun get(hash: Int, equals: (DependencyKey) -> Boolean): T? = getEntry(hash, equals)?.value
-
+    /**
+     * Returns the entry corresponding to the given [key], or null if such a key is not present in the map.
+     */
     fun getEntry(key: DependencyKey): Entry<T>? = getEntry(key.hashCode()) { it == key }
 
+    /**
+     * Returns the entry corresponding to a [TypeKey] that was created from the given class and qualifier,
+     * or null if such a key is not present in the map.
+     */
     fun getEntry(cls: Class<*>, qualifier: Any?): Entry<T>? =
             getEntry(Types.hashCode(cls, qualifier)) {
                 when (it) {
@@ -67,6 +102,10 @@ internal class DependencyMap<T>(capacity: Int) {
                 }
             }
 
+    /**
+     * Returns the entry corresponding to a [CompoundTypeKey] that was created from the given classes and qualifier,
+     * or null if such a key is not present in the map.
+     */
     fun getEntry(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Entry<T>? =
             getEntry(Types.hashCode(firstClass, secondClass, qualifier)) {
                 when (it) {
@@ -92,12 +131,15 @@ internal class DependencyMap<T>(capacity: Int) {
         return null
     }
 
+    /**
+     * Performs the given action on each key/value pair.
+     */
     fun forEach(action: (DependencyKey, T) -> Unit) {
         table.forEach { entry ->
             entry?.let {
-                action(entry.key, entry.value)
+                action(it.key, it.value)
 
-                var e = entry.next
+                var e = it.next
                 while (e != null) {
                     action(e.key, e.value)
                     e = e.next
@@ -106,8 +148,14 @@ internal class DependencyMap<T>(capacity: Int) {
         }
     }
 
+    /**
+     * Returns true if the map contains the specified [key].
+     */
     fun containsKey(key: DependencyKey) = getEntry(key) != null
 
+    /**
+     * Returns true if the map is empty (contains no entries), false otherwise.
+     */
     fun isEmpty() = size == 0
 
     override fun hashCode(): Int {
