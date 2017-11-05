@@ -4,9 +4,9 @@ import kotlin.reflect.KClass
 
 internal class DependencyMap<T>(capacity: Int) {
 
-    internal data class Entry<T>(var key: DependencyId, var value: T, var next: Entry<T>? = null)
+    internal data class Entry<T>(var key: DependencyKey, var value: T, var next: Entry<T>? = null)
 
-    constructor(map: Map<DependencyId, T>) : this(map.size) {
+    constructor(map: Map<DependencyKey, T>) : this(map.size) {
         map.forEach { (key, value) -> put(key, value) }
     }
 
@@ -17,7 +17,7 @@ internal class DependencyMap<T>(capacity: Int) {
     var size: Int = 0
         private set
 
-    fun put(key: DependencyId, value: T): T? {
+    fun put(key: DependencyKey, value: T): T? {
         val index = key.hashCode() and tableMask
         val entry = table[index]
 
@@ -45,15 +45,15 @@ internal class DependencyMap<T>(capacity: Int) {
         return null
     }
 
-    fun getEntry(id: DependencyId) = getEntry(id.hashCode()) { it == id }
+    fun getEntry(key: DependencyKey) = getEntry(key.hashCode()) { it == key }
 
     fun getEntry(kClass: KClass<*>, qualifier: Any?): Entry<T>? {
         val javaClass = kClass.javaObjectType
 
         return getEntry(Types.hashCode(javaClass, qualifier)) {
             when (it) {
-                is ProviderId -> it.qualifier == qualifier && it.cls == javaClass
-                is GenericProviderId<*> -> it.qualifier == qualifier && Types.equals(it.type, javaClass)
+                is TypeKey -> it.qualifier == qualifier && it.type == javaClass
+                is GenericTypeKey<*> -> it.qualifier == qualifier && Types.equals(it.type, javaClass)
                 else -> false
             }
         }
@@ -65,14 +65,14 @@ internal class DependencyMap<T>(capacity: Int) {
 
         return getEntry(Types.hashCode(argJavaClass, retJavaClass, qualifier)) {
             when (it) {
-                is FactoryId -> it.qualifier == qualifier && it.argClass == argJavaClass && it.retClass == retJavaClass
-                is GenericFactoryId<*, *> -> it.qualifier == qualifier && Types.equals(it.argType, argJavaClass) && Types.equals(it.retType, retJavaClass)
+                is CompoundTypeKey -> it.qualifier == qualifier && it.firstType == argJavaClass && it.secondType == retJavaClass
+                is GenericCompoundTypeKey<*, *> -> it.qualifier == qualifier && Types.equals(it.firstType, argJavaClass) && Types.equals(it.secondType, retJavaClass)
                 else -> false
             }
         }
     }
 
-    private inline fun getEntry(hash: Int, equals: (DependencyId) -> Boolean): Entry<T>? {
+    private inline fun getEntry(hash: Int, equals: (DependencyKey) -> Boolean): Entry<T>? {
         val index = hash and tableMask
         val entry = table[index] ?: return null
         if (equals(entry.key)) {
@@ -88,19 +88,19 @@ internal class DependencyMap<T>(capacity: Int) {
         return null
     }
 
-    operator fun get(key: DependencyId): T? = get(key.hashCode()) { it == key }
+    operator fun get(key: DependencyKey): T? = get(key.hashCode()) { it == key }
 
     fun get(kClass: KClass<*>, qualifier: Any? = null) = getEntry(kClass, qualifier)?.value
 
     fun get(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): T? = getEntry(argClass, retClass, qualifier)?.value
 
-    private inline fun get(hash: Int, equals: (DependencyId) -> Boolean): T? = getEntry(hash, equals)?.value
+    private inline fun get(hash: Int, equals: (DependencyKey) -> Boolean): T? = getEntry(hash, equals)?.value
 
-    operator fun set(key: DependencyId, value: T) {
+    operator fun set(key: DependencyKey, value: T) {
         put(key, value)
     }
 
-    fun forEach(action: (DependencyId, T) -> Unit) {
+    fun forEach(action: (DependencyKey, T) -> Unit) {
         table.forEach { entry ->
             entry?.let {
                 action(entry.key, entry.value)
@@ -114,7 +114,7 @@ internal class DependencyMap<T>(capacity: Int) {
         }
     }
 
-    fun containsKey(key: DependencyId) = getEntry(key) != null
+    fun containsKey(key: DependencyKey) = getEntry(key) != null
 
     fun isEmpty() = size == 0
 

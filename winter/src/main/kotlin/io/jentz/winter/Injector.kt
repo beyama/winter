@@ -75,43 +75,43 @@ class Injector {
         override fun <R> map(mapper: (O) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
 
-    class Instance<out T : Any>(private val id: DependencyId) : AbstractEagerProperty<T>() {
+    class Instance<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T = graph.provider(id).invoke() as T
+        override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
     }
 
-    class InstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractEagerProperty<T?>() {
+    class InstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractEagerProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T? = graph.providerOrNull(id)?.invoke() as? T
+        override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
     }
 
-    class LazyInstance<out T : Any>(private val id: DependencyId) : AbstractLazyProperty<T>() {
+    class LazyInstance<out T : Any>(private val key: DependencyKey) : AbstractLazyProperty<T>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T = graph.provider(id).invoke() as T
+        override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
     }
 
-    class LazyInstanceOrNull<out T : Any?>(private val id: DependencyId) : AbstractLazyProperty<T?>() {
+    class LazyInstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractLazyProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T? = graph.providerOrNull(id)?.invoke() as? T
+        override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
     }
 
     inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false)
-            = register(Instance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(Instance<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
 
     inline fun <reified T : Any?> instanceOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(InstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(InstanceOrNull<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
 
     inline fun <reified T : Any> lazyInstance(qualifier: Any? = null, generics: Boolean = false)
-            = register(LazyInstance<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(LazyInstance<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
 
     inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(LazyInstanceOrNull<T>(if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)))
+            = register(LazyInstanceOrNull<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
 
     inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false)
-            = register(Instance<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
+            = register(Instance<(A) -> R>(if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)))
 
     inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(InstanceOrNull<(A) -> R>(if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)))
+            = register(InstanceOrNull<(A) -> R>(if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)))
 
     operator inline fun <reified T : Any> invoke(qualifier: Any? = null) = instance<T>(qualifier)
 

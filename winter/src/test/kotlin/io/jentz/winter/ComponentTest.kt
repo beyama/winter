@@ -26,37 +26,37 @@ class ComponentTest {
     @Test
     fun `Component configured with provider should contain provider in its dependency map`() {
         val component = component { provider { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[providerId<ServiceDependencyImpl>()] is ProviderEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is ProviderEntry<*>)
     }
 
     @Test
     fun `Component configured with provider and qualifier should contain provider in its dependency map`() {
         val component = component { provider("name") { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[providerId<ServiceDependencyImpl>("name")] is ProviderEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is ProviderEntry<*>)
     }
 
     @Test
     fun `Component configured with factory should contain factory in its dependency map`() {
         val component = component { factory { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencyMap[factoryId<String, ServiceDependencyImpl>()] is FactoryEntry<*, *>)
+        assertTrue(component.dependencyMap[compoundTypeKey<String, ServiceDependencyImpl>()] is FactoryEntry<*, *>)
     }
 
     @Test
     fun `Component configured with factory and qualifier should contain factory in its dependency map`() {
         val component = component { factory("name") { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencyMap[factoryId<String, ServiceDependencyImpl>("name")] is FactoryEntry<*, *>)
+        assertTrue(component.dependencyMap[compoundTypeKey<String, ServiceDependencyImpl>("name")] is FactoryEntry<*, *>)
     }
 
     @Test
     fun `Component configured with constant should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl("")) }
-        assertTrue(component.dependencyMap[providerId<ServiceDependencyImpl>()] is ConstantEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is ConstantEntry<*>)
     }
 
     @Test
     fun `Component configured with constant and qualifier should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl(""), qualifier = "name") }
-        assertTrue(component.dependencyMap[providerId<ServiceDependencyImpl>("name")] is ConstantEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is ConstantEntry<*>)
     }
 
     @Test(expected = WinterException::class)
@@ -157,7 +157,7 @@ class ComponentTest {
         val derived = component.derive { provider("name") { ServiceDependencyImpl("") } }
         assertEquals(1, component.dependencyMap.size)
         assertEquals(2, derived.dependencyMap.size)
-        assertTrue(derived.dependencyMap.containsKey(providerId<ServiceDependencyImpl>("name")))
+        assertTrue(derived.dependencyMap.containsKey(typeKey<ServiceDependencyImpl>("name")))
     }
 
     @Test(expected = WinterException::class)

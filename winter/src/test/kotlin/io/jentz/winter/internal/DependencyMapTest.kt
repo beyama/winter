@@ -26,8 +26,8 @@ class DependencyMapTest {
         val v1 = object : TestInterface {}
         val v2 = "A string"
 
-        locator.put(providerId<TestInterface>(), v1)
-        locator.put(providerId<String>(), v2)
+        locator.put(typeKey<TestInterface>(), v1)
+        locator.put(typeKey<String>(), v2)
 
         assertTrue(v1 === locator.get(TestInterface::class))
         assertTrue(v2 === locator.get(String::class))
@@ -38,8 +38,8 @@ class DependencyMapTest {
         val v1 = object : TestInterface {}
         val v2 = object : TestInterface {}
 
-        locator.put(providerId<TestInterface>("a"), v1)
-        locator.put(providerId<TestInterface>("b"), v2)
+        locator.put(typeKey<TestInterface>("a"), v1)
+        locator.put(typeKey<TestInterface>("b"), v2)
 
         assertTrue(v1 === locator.get(TestInterface::class, "a"))
         assertTrue(v2 === locator.get(TestInterface::class, "b"))
@@ -50,8 +50,8 @@ class DependencyMapTest {
         val v1 = object : TestInterface {}
         val v2 = { arg: Int -> arg.toString() }
 
-        locator.put(providerId<TestInterface>(), v1)
-        locator.put(factoryId<Int, String>(), v2)
+        locator.put(typeKey<TestInterface>(), v1)
+        locator.put(compoundTypeKey<Int, String>(), v2)
 
         assertEquals(v1, locator.get(TestInterface::class))
         assertEquals(v2, locator.get(Int::class, String::class))

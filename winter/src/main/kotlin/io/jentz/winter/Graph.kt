@@ -14,7 +14,7 @@ typealias AnyProvider = () -> Any?
 class Graph internal constructor(private val parent: Graph?, private val component: Component) {
 
     private val cache = DependencyMap<AnyProvider>(component.dependencyMap.size)
-    private val stack = Stack<DependencyId>()
+    private val stack = Stack<DependencyKey>()
 
     /**
      * Retrieve a non-optional instance of `T`.
@@ -60,7 +60,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     inline fun <reified T : Any> providerOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
         @Suppress("UNCHECKED_CAST")
         return if (generics) {
-            providerOrNull(genericProviderId<T>(qualifier))
+            providerOrNull(genericTypeKey<T>(qualifier))
         } else {
             providerOrNull(T::class, qualifier)
         } as? () -> T
@@ -90,39 +90,39 @@ class Graph internal constructor(private val parent: Graph?, private val compone
     inline fun <reified A : Any, reified R : Any> factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
         @Suppress("UNCHECKED_CAST")
         return if (generics) {
-            providerOrNull(genericFactoryId<A, R>(qualifier))
+            providerOrNull(genericCompoundTypeKey<A, R>(qualifier))
         } else {
             providerOrNull(A::class, R::class, qualifier)
         }?.invoke() as? (A) -> R
     }
 
     /**
-     * Retrieve a non-optional provider by [ID][DependencyId].
+     * Retrieve a non-optional provider by [key][DependencyKey].
      *
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
-     * @param id A dependency ID
+     * @param key A dependency key
      * @return The [provider][AnyProvider]
      *
      * @throws EntryNotFoundException
      * @suppress
      */
-    fun provider(id: DependencyId) = providerOrNull(id) ?: throw EntryNotFoundException("Provider with ID `$id` does not exist.")
+    fun provider(key: DependencyKey) = providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
 
     /**
-     * Retrieve an optional provider by [ID][DependencyId].
+     * Retrieve an optional provider by [key][DependencyKey].
      *
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
-     * @param id A dependency ID
+     * @param key A dependency key
      * @return The [provider][AnyProvider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(id: DependencyId): AnyProvider? = retrieve(
-            getCached = { cache[id] },
-            getEntry = { component.dependencyMap.getEntry(id) },
-            getParent = { parent?.providerOrNull(id) })
+    fun providerOrNull(key: DependencyKey): AnyProvider? = retrieve(
+            getCached = { cache[key] },
+            getEntry = { component.dependencyMap.getEntry(key) },
+            getParent = { parent?.providerOrNull(key) })
 
     /**
      * Retrieve an optional provider by class and qualifier.
@@ -167,30 +167,30 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         } ?: getParent()
     }
 
-    fun <A, R> evaluateFactory(id: DependencyId, arg: A, block: Graph.(A) -> R): R {
-        return evaluate(id, { block(arg) })
+    fun <A, R> evaluateFactory(key: DependencyKey, arg: A, block: Graph.(A) -> R): R {
+        return evaluate(key, { block(arg) })
     }
 
-    fun <T> evaluateProvider(id: DependencyId, block: Graph.() -> T): T {
-        return evaluate(id, block)
+    fun <T> evaluateProvider(key: DependencyKey, block: Graph.() -> T): T {
+        return evaluate(key, block)
     }
 
-    private inline fun <T> evaluate(id: DependencyId, block: Graph.() -> T): T {
+    private inline fun <T> evaluate(key: DependencyKey, block: Graph.() -> T): T {
         synchronized(this) {
-            if (stack.contains(id)) {
-                throw CyclicDependencyException("Cyclic dependency for ID `$id`.")
+            if (stack.contains(key)) {
+                throw CyclicDependencyException("Cyclic dependency for key `$key`.")
             }
             try {
-                stack.push(id)
+                stack.push(key)
                 return block()
             } catch (e: EntryNotFoundException) {
                 val stackInfo = stack.joinToString(" -> ")
-                throw DependencyResolutionException("Error while resolving dependencies of $id (dependency stack: $stackInfo)", e)
+                throw DependencyResolutionException("Error while resolving dependencies of $key (dependency stack: $stackInfo)", e)
             } catch (e: WinterException) {
                 throw e
             } catch (t: Throwable) {
                 val stackInfo = stack.joinToString(" -> ")
-                throw DependencyResolutionException("Error while invoking provider block of $id (dependency stack: $stackInfo)", t)
+                throw DependencyResolutionException("Error while invoking provider block of $key (dependency stack: $stackInfo)", t)
             } finally {
                 stack.pop()
             }

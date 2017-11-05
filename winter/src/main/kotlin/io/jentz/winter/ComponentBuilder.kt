@@ -6,7 +6,7 @@ import io.jentz.winter.internal.*
  * Component builder DSL.
  */
 class ComponentBuilder internal constructor() {
-    private val registry: MutableMap<DependencyId, ComponentEntry<*>> = mutableMapOf()
+    private val registry: MutableMap<DependencyKey, ComponentEntry<*>> = mutableMapOf()
 
     /**
      * Include dependency from the given component into the new component.
@@ -31,7 +31,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: Graph.() -> T) {
-        val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
+        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
         register(id, ProviderEntry(scope, block), override)
     }
 
@@ -67,7 +67,7 @@ class ComponentBuilder internal constructor() {
                                                           generics: Boolean = false,
                                                           override: Boolean = false,
                                                           noinline block: Graph.(A) -> R) {
-        val id = if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)
+        val id = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
         register(id, FactoryEntry(scope, block), override)
     }
 
@@ -83,7 +83,7 @@ class ComponentBuilder internal constructor() {
                                           qualifier: Any? = null,
                                           generics: Boolean = false,
                                           override: Boolean = false) {
-        val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
+        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
         register(id, ConstantEntry(value), override)
     }
 
@@ -97,7 +97,7 @@ class ComponentBuilder internal constructor() {
     inline fun <reified T : Any> removeProvider(qualifier: Any? = null,
                                                 generics: Boolean = false,
                                                 silent: Boolean = false) {
-        val id = if (generics) genericProviderId<T>(qualifier) else providerId<T>(qualifier)
+        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
         remove(id, silent)
     }
 
@@ -111,7 +111,7 @@ class ComponentBuilder internal constructor() {
     inline fun <reified A : Any, reified R : Any> removeFactory(qualifier: Any? = null,
                                                                 generics: Boolean = false,
                                                                 silent: Boolean = false) {
-        val id = if (generics) genericFactoryId<A, R>(qualifier) else factoryId<A, R>(qualifier)
+        val id = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
         remove(id, silent)
     }
 
@@ -131,7 +131,7 @@ class ComponentBuilder internal constructor() {
             throw WinterException("You can either override existing or derive existing but not both.")
         }
 
-        val id = providerId<Component>(qualifier)
+        val id = typeKey<Component>(qualifier)
 
         val existingEntry = registry[id] as? ConstantEntry<*>
 
@@ -157,34 +157,34 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Register a [ComponentEntry] by [DependencyId].
+     * Register a [ComponentEntry] by [DependencyKey].
      *
      * @suppress
      */
-    fun register(id: DependencyId, entry: ComponentEntry<*>, override: Boolean) {
-        val alreadyExists = registry.containsKey(id)
+    fun register(key: DependencyKey, entry: ComponentEntry<*>, override: Boolean) {
+        val alreadyExists = registry.containsKey(key)
 
         if (alreadyExists && !override) {
-            throw WinterException("Entry with ID `$id` already exists.")
+            throw WinterException("Entry with key `$key` already exists.")
         }
 
         if (!alreadyExists && override) {
-            throw WinterException("Entry with ID `$id` doesn't exist but override is true.")
+            throw WinterException("Entry with key `$key` doesn't exist but override is true.")
         }
 
-        registry[id] = entry
+        registry[key] = entry
     }
 
     /**
-     * Remove a [ComponentEntry] by [DependencyId].
+     * Remove a [ComponentEntry] by [DependencyKey].
      *
      * @suppress
      */
-    fun remove(id: DependencyId, silent: Boolean) {
-        if (!silent && !registry.containsKey(id)) {
-            throw WinterException("Can't remove entry with `$id` because it doesn't exist.")
+    fun remove(key: DependencyKey, silent: Boolean) {
+        if (!silent && !registry.containsKey(key)) {
+            throw WinterException("Can't remove entry with `$key` because it doesn't exist.")
         }
-        registry.remove(id)
+        registry.remove(key)
     }
 
     internal fun build() = Component(registry)
