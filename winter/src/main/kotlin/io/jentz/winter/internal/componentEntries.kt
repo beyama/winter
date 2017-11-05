@@ -22,3 +22,7 @@ class FactoryEntry<in A : Any, out R : Any>(private val scope: FactoryScope, pri
 class ConstantEntry<out T : Any>(val value: T) : ComponentEntry<T>() {
     override fun bind(graph: Graph, key: DependencyKey): () -> T = { value }
 }
+
+class MembersInjectorEntry<in T : Any>(private val block: () -> MembersInjector<T>) : ComponentEntry<MembersInjector<T>>() {
+    override fun bind(graph: Graph, key: DependencyKey) = block
+}

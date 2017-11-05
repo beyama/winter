@@ -1,7 +1,5 @@
 package io.jentz.winter.internal
 
-import kotlin.reflect.KClass
-
 internal class DependencyMap<T>(capacity: Int) {
 
     internal data class Entry<T>(var key: DependencyKey, var value: T, var next: Entry<T>? = null)
@@ -45,32 +43,38 @@ internal class DependencyMap<T>(capacity: Int) {
         return null
     }
 
-    fun getEntry(key: DependencyKey) = getEntry(key.hashCode()) { it == key }
-
-    fun getEntry(kClass: KClass<*>, qualifier: Any?): Entry<T>? {
-        val javaClass = kClass.javaObjectType
-
-        return getEntry(Types.hashCode(javaClass, qualifier)) {
-            when (it) {
-                is TypeKey -> it.qualifier == qualifier && it.type == javaClass
-                is GenericTypeKey<*> -> it.qualifier == qualifier && Types.equals(it.type, javaClass)
-                else -> false
-            }
-        }
+    operator fun set(key: DependencyKey, value: T) {
+        put(key, value)
     }
 
-    fun getEntry(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): Entry<T>? {
-        val argJavaClass = argClass.javaObjectType
-        val retJavaClass = retClass.javaObjectType
+    operator fun get(key: DependencyKey): T? = get(key.hashCode()) { it == key }
 
-        return getEntry(Types.hashCode(argJavaClass, retJavaClass, qualifier)) {
-            when (it) {
-                is CompoundTypeKey -> it.qualifier == qualifier && it.firstType == argJavaClass && it.secondType == retJavaClass
-                is GenericCompoundTypeKey<*, *> -> it.qualifier == qualifier && Types.equals(it.firstType, argJavaClass) && Types.equals(it.secondType, retJavaClass)
-                else -> false
+    fun get(cls: Class<*>, qualifier: Any? = null): T? = getEntry(cls, qualifier)?.value
+
+    fun get(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): T? =
+            getEntry(firstClass, secondClass, qualifier)?.value
+
+    private inline fun get(hash: Int, equals: (DependencyKey) -> Boolean): T? = getEntry(hash, equals)?.value
+
+    fun getEntry(key: DependencyKey): Entry<T>? = getEntry(key.hashCode()) { it == key }
+
+    fun getEntry(cls: Class<*>, qualifier: Any?): Entry<T>? =
+            getEntry(Types.hashCode(cls, qualifier)) {
+                when (it) {
+                    is TypeKey -> it.qualifier == qualifier && it.type == cls
+                    is GenericTypeKey<*> -> it.qualifier == qualifier && Types.equals(it.type, cls)
+                    else -> false
+                }
             }
-        }
-    }
+
+    fun getEntry(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Entry<T>? =
+            getEntry(Types.hashCode(firstClass, secondClass, qualifier)) {
+                when (it) {
+                    is CompoundTypeKey -> it.qualifier == qualifier && it.firstType == firstClass && it.secondType == secondClass
+                    is GenericCompoundTypeKey<*, *> -> it.qualifier == qualifier && Types.equals(it.firstType, firstClass) && Types.equals(it.secondType, secondClass)
+                    else -> false
+                }
+            }
 
     private inline fun getEntry(hash: Int, equals: (DependencyKey) -> Boolean): Entry<T>? {
         val index = hash and tableMask
@@ -86,18 +90,6 @@ internal class DependencyMap<T>(capacity: Int) {
             e = e.next
         }
         return null
-    }
-
-    operator fun get(key: DependencyKey): T? = get(key.hashCode()) { it == key }
-
-    fun get(kClass: KClass<*>, qualifier: Any? = null) = getEntry(kClass, qualifier)?.value
-
-    fun get(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): T? = getEntry(argClass, retClass, qualifier)?.value
-
-    private inline fun get(hash: Int, equals: (DependencyKey) -> Boolean): T? = getEntry(hash, equals)?.value
-
-    operator fun set(key: DependencyKey, value: T) {
-        put(key, value)
     }
 
     fun forEach(action: (DependencyKey, T) -> Unit) {

@@ -114,16 +114,16 @@ class ComponentTest {
     @Test
     fun `ComponentBuilder#subcomponent should register a subcomponent`() {
         val component = component { subcomponent("sub") { } }
-        assertNotNull(component.dependencyMap.get(Component::class, "sub"))
+        assertNotNull(component.dependencyMap.get(Component::class.java, "sub"))
     }
 
     @Test
     fun `ComponentBuilder#subcomponent should extend existing subcomponent when deriveExisting is true`() {
         val base = component { subcomponent("sub") { constant("a", "a") } }
         val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
-        val subcomponent = (derived.dependencyMap.get(Component::class, "sub") as ConstantEntry<Component>).value
-        assertNotNull(subcomponent.dependencyMap.get(String::class, "a"))
-        assertNotNull(subcomponent.dependencyMap.get(String::class, "b"))
+        val subcomponent = (derived.dependencyMap.get(Component::class.java, "sub") as ConstantEntry<Component>).value
+        assertNotNull(subcomponent.dependencyMap.get(String::class.java, "a"))
+        assertNotNull(subcomponent.dependencyMap.get(String::class.java, "b"))
     }
 
     @Test(expected = WinterException::class)

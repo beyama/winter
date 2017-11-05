@@ -100,4 +100,19 @@ class TestGeneratedComponent {
         )
     }
 
+    @Test
+    fun `Test members injector only`() {
+        val i = graph.inject(OnlyInjectedMembers())
+        assertNotNull(i.field0)
+        assertNotNull(i.field1)
+    }
+
+    @Test
+    fun `Test extended members injector only`() {
+        val i = graph.inject(OnlyInjectedMembersExtended(), injectSuperClasses = true)
+        assertNotNull(i.field0)
+        assertNotNull(i.field1)
+        assertNotNull(i.field2)
+    }
+
 }

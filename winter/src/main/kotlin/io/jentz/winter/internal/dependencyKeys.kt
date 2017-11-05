@@ -7,6 +7,7 @@ inline fun <reified T> typeKey(qualifier: Any? = null) = TypeKey(T::class.java, 
 inline fun <reified T> genericTypeKey(qualifier: Any? = null) = object : GenericTypeKey<T>(qualifier) {}
 inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null) = CompoundTypeKey(T0::class.java, T1::class.java, qualifier)
 inline fun <reified T0, reified T1> genericCompoundTypeKey(qualifier: Any? = null) = object : GenericCompoundTypeKey<T0, T1>(qualifier) {}
+inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>, T>()
 
 sealed class DependencyKey
 

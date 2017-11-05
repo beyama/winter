@@ -15,6 +15,11 @@ class ComponentModel {
 
         val componentBuilder = CodeBlock.builder().beginControlFlow("component")
 
+        injectors.forEach { (_, injector) ->
+            val code = CodeBlock.of("membersInjector<%T> { %T() }\n", injector.typeName, escapeGeneratedClassName(injector.generatedClassName))
+            componentBuilder.add(code)
+        }
+
         grouped.forEach { (scope, factories) ->
             when (scope) {
                 "__provider__" -> factories.forEach { componentBuilder.add(generateProvider(it)) }
@@ -29,6 +34,7 @@ class ComponentModel {
                 }
             }
         }
+
         componentBuilder.endControlFlow()
 
         return FileSpec.builder(packageName, "generatedComponent")

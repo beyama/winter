@@ -18,11 +18,11 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Register a provider for instances of type `T`.
+     * Register a provider for instances of type [T].
      *
      * @param qualifier An optional qualifier.
      * @param scope A [ProviderScope] like [singleton].
-     * @param generics If true this will preserve generic information of `T`.
+     * @param generics If true this will preserve generic information of [T].
      * @param override If true this will override a existing provider of this type.
      * @param block The provider block.
      */
@@ -31,17 +31,17 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: Graph.() -> T) {
-        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        register(id, ProviderEntry(scope, block), override)
+        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
+        register(key, ProviderEntry(scope, block), override)
     }
 
     /**
-     * Register a singleton scoped provider for an instance of type `T`.
+     * Register a singleton scoped provider for an instance of type [T].
      *
-     * This is syntactic sugar for [provider] with parameter scope is [singleton].
+     * This is syntactic sugar for [provider] with parameter scope = [singleton].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of `T`.
+     * @param generics If true this will preserve generic information of [T].
      * @param override If true this will override a existing provider of this type.
      * @param block The provider block.
      */
@@ -54,11 +54,11 @@ class ComponentBuilder internal constructor() {
 
 
     /**
-     * Register a factory that takes `A` and returns `R`.
+     * Register a factory that takes [A] and returns [R].
      *
      * @param qualifier An optional qualifier.
      * @param scope A [FactoryScope] like [multiton].
-     * @param generics If true this will preserve generic information of `A` and `R`.
+     * @param generics If true this will preserve generic information of [A] and [R].
      * @param override If true this will override a existing factory of this type.
      * @param block The factory block.
      */
@@ -67,52 +67,59 @@ class ComponentBuilder internal constructor() {
                                                           generics: Boolean = false,
                                                           override: Boolean = false,
                                                           noinline block: Graph.(A) -> R) {
-        val id = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
-        register(id, FactoryEntry(scope, block), override)
+        val key = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
+        register(key, FactoryEntry(scope, block), override)
     }
 
     /**
-     * Register a constant of type `T`.
+     * Register a constant of type [T].
      *
      * @param value The value of this constant provider.
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of `T`.
+     * @param generics If true this will preserve generic information of [T].
      * @param override If true this will override a existing provider of this type.
      */
     inline fun <reified T : Any> constant(value: T,
                                           qualifier: Any? = null,
                                           generics: Boolean = false,
                                           override: Boolean = false) {
-        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        register(id, ConstantEntry(value), override)
+        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
+        register(key, ConstantEntry(value), override)
     }
 
     /**
-     * Remove a provider of type `T`.
+     * Register a members injector for [T].
+     */
+    inline fun <reified T : Any> membersInjector(noinline block: () -> MembersInjector<T>) {
+        register(membersInjectorKey<T>(), MembersInjectorEntry(block), false)
+    }
+
+    /**
+     * Remove a provider of type [T].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of `T`.
+     * @param generics If true this will preserve generic information of [T].
      * @param silent If true this will not throw an exception if the provider doesn't exist.
      */
     inline fun <reified T : Any> removeProvider(qualifier: Any? = null,
                                                 generics: Boolean = false,
                                                 silent: Boolean = false) {
-        val id = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        remove(id, silent)
+        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
+        remove(key, silent)
     }
 
     /**
-     * Remove a factory of type `(A) -> R`.
+     * Remove a factory of type `([A]) -> [R]`.
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of `A` and `R`.
+     * @param generics If true this will preserve generic information of [A] and [R].
      * @param silent If true this will not throw an exception if the factory doesn't exist.
      */
     inline fun <reified A : Any, reified R : Any> removeFactory(qualifier: Any? = null,
                                                                 generics: Boolean = false,
                                                                 silent: Boolean = false) {
-        val id = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
-        remove(id, silent)
+        val key = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
+        remove(key, silent)
     }
 
     /**
@@ -131,9 +138,9 @@ class ComponentBuilder internal constructor() {
             throw WinterException("You can either override existing or derive existing but not both.")
         }
 
-        val id = typeKey<Component>(qualifier)
+        val key = typeKey<Component>(qualifier)
 
-        val existingEntry = registry[id] as? ConstantEntry<*>
+        val existingEntry = registry[key] as? ConstantEntry<*>
 
         if (existingEntry != null && !(override || deriveExisting)) {
             throw WinterException("Subcomponent with qualifier `$qualifier` already exists.")
@@ -182,7 +189,7 @@ class ComponentBuilder internal constructor() {
      */
     fun remove(key: DependencyKey, silent: Boolean) {
         if (!silent && !registry.containsKey(key)) {
-            throw WinterException("Can't remove entry with `$key` because it doesn't exist.")
+            throw WinterException("Can't remove entry with key `$key` because it doesn't exist.")
         }
         registry.remove(key)
     }

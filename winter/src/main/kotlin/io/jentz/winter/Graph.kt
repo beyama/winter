@@ -2,7 +2,6 @@ package io.jentz.winter
 
 import io.jentz.winter.internal.*
 import java.util.*
-import kotlin.reflect.KClass
 
 typealias AnyProvider = () -> Any?
 
@@ -12,7 +11,6 @@ typealias AnyProvider = () -> Any?
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
 class Graph internal constructor(private val parent: Graph?, private val component: Component) {
-
     private val cache = DependencyMap<AnyProvider>(component.dependencyMap.size)
     private val stack = Stack<DependencyKey>()
 
@@ -62,7 +60,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         return if (generics) {
             providerOrNull(genericTypeKey<T>(qualifier))
         } else {
-            providerOrNull(T::class, qualifier)
+            providerOrNull(T::class.javaObjectType, qualifier)
         } as? () -> T
     }
 
@@ -92,7 +90,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
         return if (generics) {
             providerOrNull(genericCompoundTypeKey<A, R>(qualifier))
         } else {
-            providerOrNull(A::class, R::class, qualifier)
+            providerOrNull(A::class.javaObjectType, R::class.javaObjectType, qualifier)
         }?.invoke() as? (A) -> R
     }
 
@@ -107,7 +105,8 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      * @throws EntryNotFoundException
      * @suppress
      */
-    fun provider(key: DependencyKey) = providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
+    fun provider(key: DependencyKey): AnyProvider =
+            providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
 
     /**
      * Retrieve an optional provider by [key][DependencyKey].
@@ -129,33 +128,33 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      *
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
-     * @param kClass The return class of the requested provider.
+     * @param cls The return class of the requested provider.
      * @param qualifier An optional qualifier of the requested provider.
      * @return The [provider][AnyProvider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(kClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
-            getCached = { cache.get(kClass, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(kClass, qualifier) },
-            getParent = { parent?.providerOrNull(kClass, qualifier) })
+    fun providerOrNull(cls: Class<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+            getCached = { cache.get(cls, qualifier) },
+            getEntry = { component.dependencyMap.getEntry(cls, qualifier) },
+            getParent = { parent?.providerOrNull(cls, qualifier) })
 
     /**
      * Retrieve an optional factory provider by argument and return class and qualifier.
      *
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
-     * @param argClass The argument class of the requested factory provider.
-     * @param retClass The return class of the requested factory provider.
+     * @param firstClass The argument class of the requested factory provider.
+     * @param secondClass The return class of the requested factory provider.
      * @param qualifier An optional qualifier of the requested factory provider.
      * @return The [provider][AnyProvider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(argClass: KClass<*>, retClass: KClass<*>, qualifier: Any? = null): AnyProvider? = retrieve(
-            getCached = { cache.get(argClass, retClass, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(argClass, retClass, qualifier) },
-            getParent = { parent?.providerOrNull(argClass, retClass, qualifier) })
+    fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+            getCached = { cache.get(firstClass, secondClass, qualifier) },
+            getEntry = { component.dependencyMap.getEntry(firstClass, secondClass, qualifier) },
+            getParent = { parent?.providerOrNull(firstClass, secondClass, qualifier) })
 
     private inline fun retrieve(getCached: () -> AnyProvider?,
                                 getEntry: () -> DependencyMap.Entry<ComponentEntry<*>>?,
@@ -195,6 +194,40 @@ class Graph internal constructor(private val parent: Graph?, private val compone
                 stack.pop()
             }
         }
+    }
+
+    /**
+     * Inject members of class [T].
+     *
+     * @param instance The instance to inject members to.
+     * @param injectSuperClasses If true this will look for members injectors for super classes too.
+     *
+     * @throws WinterException When no members injector was found.
+     */
+    fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
+        var found = false
+        var cls: Class<*>? = instance.javaClass
+
+        while (cls != null) {
+            @Suppress("UNCHECKED_CAST")
+            val provider = providerOrNull(MembersInjector::class.java, cls) as? () -> MembersInjector<Any>
+
+            if (provider != null) {
+                found = true
+                val injector = provider()
+                injector.injectMembers(this, instance)
+            }
+
+            if (!injectSuperClasses) break
+
+            cls = cls.superclass
+        }
+
+        if (!found) {
+            throw WinterException("No members injector found for `${instance.javaClass}`.")
+        }
+
+        return instance
     }
 
     /**
