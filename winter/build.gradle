@@ -3,6 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'org.jetbrains.dokka'
 
 version = VERSION_NAME
+group = GROUP
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
