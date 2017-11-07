@@ -28,6 +28,12 @@ object AndroidInjection {
         this.activityGraphFactory = activityGraphFactory
     }
 
+    fun getApplicationGraph(context: Context) = applicationGraphGetter(context)
+
+    fun createActivityGraph(activity: Activity): Graph = activityGraphFactory(activity)
+
+    fun getActivityGraph(context: Context): Graph = activityGraphGetter(context)
+
     fun inject(view: View, injector: Injector) {
         inject(view.context, injector)
     }
@@ -35,8 +41,6 @@ object AndroidInjection {
     fun inject(context: Context, injector: Injector) {
         injector.inject(activityGraphGetter(context))
     }
-
-    fun createActivityGraph(activity: Activity): Graph = activityGraphFactory(activity)
 
     internal fun getActivityDependencyGraph(context: Context): Graph = when (context) {
         is ContextWrapper -> getActivityDependencyGraph(context.baseContext)
