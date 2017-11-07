@@ -113,8 +113,6 @@ class Injector {
     inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(InstanceOrNull<(A) -> R>(if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)))
 
-    operator inline fun <reified T : Any> invoke(qualifier: Any? = null) = instance<T>(qualifier)
-
     fun <T> register(propertyInjector: PropertyInjector<T>): InjectedProperty<T> {
         propertyInjectors.add(propertyInjector)
         return propertyInjector
