@@ -4,3 +4,5 @@ dependencies {
     compile 'javax.inject:javax.inject:1'
     compile 'com.squareup:kotlinpoet:0.5.0'
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
