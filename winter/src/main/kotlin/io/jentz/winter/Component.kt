@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.internal.ComponentEntry
+import io.jentz.winter.internal.ConstantEntry
 import io.jentz.winter.internal.DependencyMap
 
 /**
@@ -40,6 +41,30 @@ class Component internal constructor(internal val dependencyMap: DependencyMap<C
     fun derive(block: ComponentBuilder.() -> Unit) = component {
         include(this@Component)
         block()
+    }
+
+    /**
+     * Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.
+     *
+     * Main usage for this is to restructure components when using [ComponentBuilder.include] in conjunction
+     * with [ComponentBuilder.SubcomponentIncludeMode.DoNotInclude].
+     *
+     * @param qualifiers The qualifier/path of qualifiers of the subcomponent
+     * @return The subcomponent
+     *
+     * @throws EntryNotFoundException If the component does not exist.
+     */
+    fun subcomponent(vararg qualifiers: Any): Component {
+        var component: Component = this
+        qualifiers.forEach { qualifier ->
+            val constant = component.dependencyMap.get(Component::class.java, qualifier) as? ConstantEntry<*>
+            if (constant == null) {
+                val path = qualifiers.joinToString(", ")
+                throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")
+            }
+            component = constant.value as Component
+        }
+        return component
     }
 
     /**

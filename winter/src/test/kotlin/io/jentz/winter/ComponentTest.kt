@@ -101,6 +101,34 @@ class ComponentTest {
         assertSame(instanceB, derived.init().instance())
     }
 
+    @Test(expected = EntryNotFoundException::class)
+    fun `#subcomponent should throw an exception if entry doesn't exist`() {
+        component {}.subcomponent("a")
+    }
+
+    @Test
+    fun `#subcomponent with one qualifier should return the corresponding subcomponent`() {
+        val c = component {
+            subcomponent("s1") {}
+            subcomponent("s2") { constant(42)}
+        }
+        assertEquals(42, c.subcomponent("s2").constantValue(typeKey<Int>()))
+    }
+
+    @Test
+    fun `#subcomponent with multiple qualifiers should return the corresponding nested subcomponent`() {
+        val c = component {
+            subcomponent("1") {
+                subcomponent("1.1") {
+                    subcomponent("1.1.1") {
+                        constant(42)
+                    }
+                }
+            }
+        }
+        assertEquals(42, c.subcomponent("1", "1.1", "1.1.1").constantValue(typeKey<Int>()))
+    }
+
     @Test
     fun `ComponentBuilder#include with subcomponent include mode 'DoNotInclude' should not include subcomponents`() {
         val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
@@ -232,11 +260,6 @@ class ComponentTest {
         assertTrue(testComponent.has(key))
         val component = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }
         assertFalse(component.has(key))
-    }
-
-    private fun Component.subcomponent(qualifier: Any): Component {
-        @Suppress("UNCHECKED_CAST")
-        return (dependencyMap[typeKey<Component>(qualifier)] as ConstantEntry<Component>).value
     }
 
     private fun Component.has(key: DependencyKey) = dependencyMap.containsKey(key)
