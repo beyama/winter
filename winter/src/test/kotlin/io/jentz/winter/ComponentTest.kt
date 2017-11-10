@@ -4,7 +4,6 @@ import io.jentz.winter.internal.*
 import org.junit.Assert.*
 import org.junit.Test
 
-@Suppress("UNCHECKED_CAST")
 class ComponentTest {
 
     private val testComponent = component {
@@ -67,81 +66,6 @@ class ComponentTest {
         }
     }
 
-    @Test(expected = WinterException::class)
-    fun `ComponentBuilder#removeProvider should throw an exception when provider doesn't exist`() {
-        component { removeProvider<ServiceDependency>() }
-    }
-
-    @Test
-    fun `ComponentBuilder#removeProvider should not throw an exception when provider doesn't exist but silent is true`() {
-        component { removeProvider<ServiceDependency>(silent = true) }
-    }
-
-    @Test
-    fun `ComponentBuilder#removeProvider should remove non-generic provider`() {
-        val graph = testComponent.derive { removeProvider<ServiceDependencyImpl>() }.init()
-        assertNull(graph.instanceOrNull<ServiceDependencyImpl>())
-    }
-
-    @Test
-    fun `ComponentBuilder#removeProvider should remove generic provider`() {
-        val graph = testComponent.derive { removeProvider<GenericDependencyImpl<Int>>(generics = true) }.init()
-        assertNull(graph.instanceOrNull<GenericDependencyImpl<Int>>(generics = true))
-    }
-
-    @Test(expected = WinterException::class)
-    fun `ComponentBuilder#removeFactory should throw an exception when factory doesn't exist`() {
-        component { removeFactory<String, ServiceDependency>() }
-    }
-
-    @Test
-    fun `ComponentBuilder#removeFactory should not throw an exception when factory doesn't exist but silent is true`() {
-        component { removeFactory<String, ServiceDependency>(silent = true) }
-    }
-
-    @Test
-    fun `ComponentBuilder#removeFactory should remove non-generic factory`() {
-        val graph = testComponent.derive { removeFactory<String, ServiceDependencyImpl>() }.init()
-        assertNull(graph.factoryOrNull<String, ServiceDependencyImpl>())
-    }
-
-    @Test
-    fun `ComponentBuilder#removeFactory should remove generic factory`() {
-        val graph = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }.init()
-        assertNull(graph.factoryOrNull<Int, GenericDependencyImpl<Int>>(generics = true))
-    }
-
-    @Test
-    fun `ComponentBuilder#subcomponent should register a subcomponent`() {
-        val component = component { subcomponent("sub") { } }
-        assertNotNull(component.dependencyMap.get(Component::class.java, "sub"))
-    }
-
-    @Test
-    fun `ComponentBuilder#subcomponent should extend existing subcomponent when deriveExisting is true`() {
-        val base = component { subcomponent("sub") { constant("a", "a") } }
-        val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
-        val subcomponent = (derived.dependencyMap.get(Component::class.java, "sub") as ConstantEntry<Component>).value
-        assertNotNull(subcomponent.dependencyMap.get(String::class.java, "a"))
-        assertNotNull(subcomponent.dependencyMap.get(String::class.java, "b"))
-    }
-
-    @Test(expected = WinterException::class)
-    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting is true but subcomponent doesn't exist`() {
-        component { subcomponent("sub", deriveExisting = true) {} }
-    }
-
-    @Test(expected = WinterException::class)
-    fun `ComponentBuilder#subcomponent should throw exception when override is true but subcomponent doesn't exist`() {
-        component { subcomponent("sub", override = true) {} }
-    }
-
-    @Test(expected = WinterException::class)
-    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting and override is true`() {
-        val base = component { subcomponent("sub") {} }
-        base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
-    }
-
     @Test
     fun `#derive with empty block should create a copy of the component`() {
         val component = component { provider { ServiceDependencyImpl("") } }
@@ -172,8 +96,155 @@ class ComponentTest {
         val instanceB = Any()
         val component = component { provider { instanceA } }
         val derived = component.derive { provider(override = true) { instanceB } }
+
         assertEquals(1, derived.dependencyMap.size)
         assertSame(instanceB, derived.init().instance())
     }
+
+    @Test
+    fun `ComponentBuilder#include with subcomponent include mode 'DoNotInclude' should not include subcomponents`() {
+        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c2 = component { include(c1, subcomponentIncludeMode = ComponentBuilder.SubcomponentIncludeMode.DoNotInclude) }
+
+        assertTrue(c2.dependencyMap.isEmpty())
+    }
+
+    @Test
+    fun `ComponentBuilder#include with subcomponent include mode 'DoNotIncludeIfAlreadyPresent' should not touch existing subcomponents`() {
+        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
+        val c3 = c1.derive { include(c2, false, ComponentBuilder.SubcomponentIncludeMode.DoNotIncludeIfAlreadyPresent) }
+
+        assertFalse(c3.subcomponent("sub").has(typeKey<String>("b")))
+        assertEquals(1, c3.subcomponent("sub").size)
+    }
+
+    @Test
+    fun `ComponentBuilder#include with subcomponent include mode 'Replace' should replace existing subcomponents`() {
+        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
+        val c3 = c1.derive { include(c2, false, ComponentBuilder.SubcomponentIncludeMode.Replace) }
+
+        assertFalse(c3.subcomponent("sub").has(typeKey<String>("a")))
+        assertEquals(1, c3.subcomponent("sub").size)
+    }
+
+    @Test
+    fun `ComponentBuilder#include with subcomponent include mode 'Merge' should merge existing subcomponents`() {
+        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
+        val c3 = c1.derive { include(c2, false, ComponentBuilder.SubcomponentIncludeMode.Merge) }
+
+        assertTrue(c3.subcomponent("sub").has(typeKey<String>("a")))
+        assertTrue(c3.subcomponent("sub").has(typeKey<String>("b")))
+        assertEquals(2, c3.subcomponent("sub").size)
+    }
+
+    @Test
+    fun `ComponentBuilder#include with subcomponent include mode 'Merge' should override existing provider`() {
+        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c2 = component { subcomponent("sub") { constant("b", qualifier = "a") } }
+        val c3 = c1.derive { include(c2, false, ComponentBuilder.SubcomponentIncludeMode.Merge) }
+
+        assertEquals(1, c3.subcomponent("sub").size)
+        assertEquals("b", c3.subcomponent("sub").constantValue(typeKey<String>("a")))
+    }
+
+    @Test
+    fun `ComponentBuilder#subcomponent should register a subcomponent`() {
+        val component = component { subcomponent("sub") { } }
+        assertNotNull(component.dependencyMap.get(Component::class.java, "sub"))
+    }
+
+    @Test
+    fun `ComponentBuilder#subcomponent should extend existing subcomponent when deriveExisting is true`() {
+        val base = component { subcomponent("sub") { constant("a", "a") } }
+        val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
+        val sub = derived.subcomponent("sub")
+
+        assertNotNull(sub.dependencyMap.get(String::class.java, "a"))
+        assertNotNull(sub.dependencyMap.get(String::class.java, "b"))
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting is true but subcomponent doesn't exist`() {
+        component { subcomponent("sub", deriveExisting = true) {} }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when override is true but subcomponent doesn't exist`() {
+        component { subcomponent("sub", override = true) {} }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#subcomponent should throw exception when deriveExisting and override is true`() {
+        val base = component { subcomponent("sub") {} }
+        base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#removeProvider should throw an exception when provider doesn't exist`() {
+        component { removeProvider<ServiceDependency>() }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should not throw an exception when provider doesn't exist but silent is true`() {
+        component { removeProvider<ServiceDependency>(silent = true) }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should remove non-generic provider`() {
+        val key = typeKey<ServiceDependencyImpl>()
+        assertTrue(testComponent.has(key))
+        val component = testComponent.derive { removeProvider<ServiceDependencyImpl>() }
+        assertFalse(component.has(key))
+    }
+
+    @Test
+    fun `ComponentBuilder#removeProvider should remove generic provider`() {
+        val key = genericTypeKey<GenericDependencyImpl<Int>>()
+        assertTrue(testComponent.has(key))
+        val component = testComponent.derive { removeProvider<GenericDependencyImpl<Int>>(generics = true) }
+        assertFalse(component.has(key))
+    }
+
+    @Test(expected = WinterException::class)
+    fun `ComponentBuilder#removeFactory should throw an exception when factory doesn't exist`() {
+        component { removeFactory<String, ServiceDependency>() }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should not throw an exception when factory doesn't exist but silent is true`() {
+        component { removeFactory<String, ServiceDependency>(silent = true) }
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should remove non-generic factory`() {
+        val key = compoundTypeKey<String, ServiceDependencyImpl>()
+        assertTrue(testComponent.has(key))
+        val component = testComponent.derive { removeFactory<String, ServiceDependencyImpl>() }
+        assertFalse(component.has(key))
+    }
+
+    @Test
+    fun `ComponentBuilder#removeFactory should remove generic factory`() {
+        val key = genericCompoundTypeKey<Int, GenericDependencyImpl<Int>>()
+        assertTrue(testComponent.has(key))
+        val component = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }
+        assertFalse(component.has(key))
+    }
+
+    private fun Component.subcomponent(qualifier: Any): Component {
+        @Suppress("UNCHECKED_CAST")
+        return (dependencyMap[typeKey<Component>(qualifier)] as ConstantEntry<Component>).value
+    }
+
+    private fun Component.has(key: DependencyKey) = dependencyMap.containsKey(key)
+
+    private val Component.size get() = dependencyMap.size
+
+    private fun Component.constant(key: DependencyKey) = dependencyMap[key] as ConstantEntry<*>
+
+    private fun Component.constantValue(key: DependencyKey) = constant(key).value
 
 }

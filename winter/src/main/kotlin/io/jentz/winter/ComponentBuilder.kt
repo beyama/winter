@@ -7,14 +7,47 @@ import io.jentz.winter.internal.*
  */
 class ComponentBuilder internal constructor() {
     private val registry: MutableMap<DependencyKey, ComponentEntry<*>> = mutableMapOf()
+    private var subcomponentBuilders: MutableMap<DependencyKey, ComponentBuilder>? = null
+
+    enum class SubcomponentIncludeMode {
+        /**
+         * Do not include subcomponents from the component to include.
+         */
+        DoNotInclude,
+        /**
+         * Do not include a subcomponent with a qualifier that is already present in the including component.
+         */
+        DoNotIncludeIfAlreadyPresent,
+        /**
+         * Replace an existing subcomponent with same qualifier if already present in the including component.
+         */
+        Replace,
+        /**
+         * If a component with the same qualifier already exists in the including component then derive from it
+         * and include the subcomponent with same qualifier from the component to include.
+         */
+        Merge
+    }
 
     /**
      * Include dependency from the given component into the new component.
      *
      * @param component The component to include the dependency provider from.
      */
-    fun include(component: Component) {
-        component.dependencyMap.forEach { k, v -> register(k, v, false) }
+    fun include(component: Component,
+                override: Boolean = true,
+                subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge) {
+        component.dependencyMap.forEach { k, v ->
+            if (v is ConstantEntry<*> && v.value is Component) {
+                @Suppress("UNCHECKED_CAST")
+                registerSubcomponent(k, v as ConstantEntry<Component>, subcomponentIncludeMode)
+            } else {
+                if (!override && registry.containsKey(k)) {
+                    throw WinterException("Entry with key `$k` already exists.")
+                }
+                registry[k] = v
+            }
+        }
     }
 
     /**
@@ -51,7 +84,6 @@ class ComponentBuilder internal constructor() {
                                            noinline block: Graph.() -> T) {
         provider(qualifier, singleton, generics, override, block)
     }
-
 
     /**
      * Register a factory that takes [A] and returns [R].
@@ -140,27 +172,21 @@ class ComponentBuilder internal constructor() {
 
         val key = typeKey<Component>(qualifier)
 
-        val existingEntry = registry[key] as? ConstantEntry<*>
+        val doesAlreadyExist = registry.containsKey(key) || subcomponentBuilders?.containsKey(key) == true
 
-        if (existingEntry != null && !(override || deriveExisting)) {
+        if (doesAlreadyExist && !(override || deriveExisting)) {
             throw WinterException("Subcomponent with qualifier `$qualifier` already exists.")
         }
 
-        if (existingEntry == null && override) {
+        if (!doesAlreadyExist && override) {
             throw WinterException("Subcomponent with qualifier `$qualifier` doesn't exist but override is true.")
         }
 
-        val component = if (deriveExisting) {
-            if (existingEntry == null) {
-                throw WinterException("Subcomponent with qualifier `$qualifier` doesn't exist but deriveExisting is true.")
-            }
-            val baseComponent = existingEntry.value as Component
-            baseComponent.derive(block)
-        } else {
-            ComponentBuilder().apply { this.block() }.build()
+        if (!doesAlreadyExist && deriveExisting) {
+            throw WinterException("Subcomponent with qualifier `$qualifier` doesn't exist but deriveExisting is true.")
         }
 
-        constant(qualifier = qualifier, override = (override || deriveExisting), value = component)
+        getOrCreateSubcomponentBuilder(key).also(block)
     }
 
     /**
@@ -194,5 +220,45 @@ class ComponentBuilder internal constructor() {
         registry.remove(key)
     }
 
-    internal fun build() = Component(registry)
+    private fun registerSubcomponent(key: DependencyKey,
+                                     entry: ConstantEntry<Component>,
+                                     subcomponentIncludeMode: SubcomponentIncludeMode) {
+        when (subcomponentIncludeMode) {
+            SubcomponentIncludeMode.DoNotInclude -> {
+            }
+            SubcomponentIncludeMode.DoNotIncludeIfAlreadyPresent -> {
+                if (!registry.containsKey(key) && subcomponentBuilders?.containsKey(key) != true) {
+                    registry[key] = entry
+                }
+            }
+            SubcomponentIncludeMode.Replace -> {
+                subcomponentBuilders?.remove(key)
+                registry[key] = entry
+            }
+            SubcomponentIncludeMode.Merge -> {
+                val builder = getOrCreateSubcomponentBuilder(key)
+                builder.include(entry.value)
+            }
+        }
+    }
+
+    private fun getOrCreateSubcomponentBuilder(key: DependencyKey): ComponentBuilder {
+        subcomponentBuilders?.get(key)?.let { return it }
+
+        val builders = subcomponentBuilders ?: mutableMapOf<DependencyKey, ComponentBuilder>().also { subcomponentBuilders = it }
+        val constant = registry.remove(key) as? ConstantEntry<*>
+        val existingSubcomponent = constant?.value as? Component
+
+        return ComponentBuilder().also { builder ->
+            existingSubcomponent?.let { builder.include(it) }
+            builders[key] = builder
+        }
+    }
+
+    internal fun build(): Component {
+        val dependencyMap = DependencyMap<ComponentEntry<*>>(registry.size + (subcomponentBuilders?.size ?: 0))
+        registry.forEach { (k, v) -> dependencyMap[k] = v }
+        subcomponentBuilders?.forEach { (k, v) -> dependencyMap[k] = ConstantEntry(v.build()) }
+        return Component(dependencyMap)
+    }
 }

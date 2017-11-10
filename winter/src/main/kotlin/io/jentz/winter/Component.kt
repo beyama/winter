@@ -1,7 +1,6 @@
 package io.jentz.winter
 
 import io.jentz.winter.internal.ComponentEntry
-import io.jentz.winter.internal.DependencyKey
 import io.jentz.winter.internal.DependencyMap
 
 /**
@@ -30,9 +29,7 @@ fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply { t
  * val graph = derived.init { constant<Application>(myAndroidApplication) }
  * ```
  */
-class Component internal constructor(registry: Map<DependencyKey, ComponentEntry<*>>) {
-
-    internal val dependencyMap: DependencyMap<ComponentEntry<*>> = DependencyMap(registry)
+class Component internal constructor(internal val dependencyMap: DependencyMap<ComponentEntry<*>>) {
 
     /**
      * Create an extended copy of this component.
