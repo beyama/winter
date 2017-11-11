@@ -115,4 +115,17 @@ class TestGeneratedComponent {
         assertNotNull(i.field2)
     }
 
+    @Test
+    fun `Test injected provider`() {
+        graph = generatedComponent.init {
+            constant("constructor", qualifier = "constructor")
+            constant("setter", qualifier = "setter")
+            constant("field", qualifier = "field")
+        }
+        val instance: ProviderInjection = graph.instance()
+        assertEquals("constructor", instance.namedConstructorInjected.get())
+        assertEquals("setter", instance.namedSetterInjected.get())
+        assertEquals("field", instance.namedFieldInjected.get())
+    }
+
 }
