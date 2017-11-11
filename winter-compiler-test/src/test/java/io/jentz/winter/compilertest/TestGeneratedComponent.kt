@@ -1,9 +1,11 @@
 package io.jentz.winter.compilertest
 
 import io.jentz.winter.Graph
+import io.jentz.winter.memorize
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.atomic.AtomicInteger
 
 class TestGeneratedComponent {
 
@@ -128,4 +130,12 @@ class TestGeneratedComponent {
         assertEquals("field", instance.namedFieldInjected.get())
     }
 
+    @Test
+    fun `Test lazy injection`() {
+        val atomic = AtomicInteger(0)
+        val graph = generatedComponent.init { provider { atomic.incrementAndGet() } }
+        val instance: LazyInjection = graph.instance()
+        assertEquals(1, instance.field.value)
+        assertEquals(1, instance.field.value)
+    }
 }
