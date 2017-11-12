@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
 
 android {
     compileSdkVersion 26
@@ -7,6 +8,18 @@ android {
 
     defaultConfig {
         minSdkVersion 16
+    }
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    includes = ['dokka-packages.md']
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-android/src/main/kotlin"
+        suffix = "#L"
     }
 }
 
