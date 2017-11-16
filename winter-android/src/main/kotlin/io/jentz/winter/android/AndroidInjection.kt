@@ -28,16 +28,21 @@ object AndroidInjection {
         this.activityGraphFactory = activityGraphFactory
     }
 
+    @JvmStatic
     fun getApplicationGraph(context: Context) = applicationGraphGetter(context)
 
+    @JvmStatic
     fun createActivityGraph(activity: Activity): Graph = activityGraphFactory(activity)
 
+    @JvmStatic
     fun getActivityGraph(context: Context): Graph = activityGraphGetter(context)
 
+    @JvmStatic
     fun inject(view: View, injector: Injector) {
         inject(view.context, injector)
     }
 
+    @JvmStatic
     fun inject(context: Context, injector: Injector) {
         injector.inject(activityGraphGetter(context))
     }

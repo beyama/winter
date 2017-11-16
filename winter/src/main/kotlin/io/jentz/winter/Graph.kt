@@ -204,6 +204,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      *
      * @throws WinterException When no members injector was found.
      */
+    @JvmOverloads
     fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
         var found = false
         var cls: Class<*>? = instance.javaClass
