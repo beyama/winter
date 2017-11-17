@@ -48,8 +48,8 @@ object AndroidInjection {
     }
 
     internal fun getActivityDependencyGraph(context: Context): Graph = when (context) {
-        is ContextWrapper -> getActivityDependencyGraph(context.baseContext)
         is ActivityDependencyGraphHolder -> context.activityDependencyGraph
+        is ContextWrapper -> getActivityDependencyGraph(context.baseContext)
         else -> throw WinterException("Activity graph not found.")
     }
 
