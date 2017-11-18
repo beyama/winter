@@ -42,6 +42,12 @@ class TestGeneratedComponent {
     }
 
     @Test
+    fun `Test nullable argument must not be declared in graph`() {
+        val instance: NamedArgumentInjectConstructor = graph.instance()
+        assertNull(instance.message)
+    }
+
+    @Test
     fun `Test inject constructor with five arguments`() {
         val instance: FiveArgumentsInjectConstructor = graph.instance()
         assertNotNull(instance)

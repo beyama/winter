@@ -41,6 +41,16 @@ val mappedTypes: Map<TypeName, TypeName> = mapOf(
         ClassName("java.lang", "Boolean") to ClassName("kotlin", "Boolean")
 )
 
+val notNullAnnotations = setOf(
+        "org.jetbrains.annotations.NotNull",
+        "javax.validation.constraints.NotNull",
+        "edu.umd.cs.findbugs.annotations.NonNull",
+        "javax.annotation.Nonnull",
+        "lombok.NonNull",
+        "android.support.annotation.NonNull",
+        "org.eclipse.jdt.annotation.NonNull"
+)
+
 fun mapTypeName(typeName: TypeName) = mappedTypes.getOrDefault(typeName, typeName)
 
 fun isProvider(e: VariableElement): Boolean {
@@ -57,17 +67,24 @@ fun isLazy(e: VariableElement): Boolean {
     return (declared.asElement() as TypeElement).asClassName() == lazyInterfaceName
 }
 
-private fun getInstanceCodeBlock(typeName: TypeName, qualifier: String?): CodeBlock {
-    return if (qualifier != null) {
-        CodeBlock.of("graph.instance<%T>(%S)", typeName, qualifier)
-    } else {
-        CodeBlock.of("graph.instance<%T>()", typeName)
-    }
+fun isNotNullable(e: VariableElement): Boolean = e.annotationMirrors.any {
+    val element = it.annotationType.asElement() as TypeElement
+    val qualifiedName = element.qualifiedName.toString()
+    notNullAnnotations.contains(qualifiedName)
+}
+
+private fun getInstanceCodeBlock(typeName: TypeName, isNullable: Boolean, qualifier: String?): CodeBlock {
+    val hasQualifier = qualifier != null
+    return if (hasQualifier && isNullable) CodeBlock.of("graph.instanceOrNull<%T>(%S)", typeName, qualifier)
+    else if (hasQualifier && !isNullable) CodeBlock.of("graph.instance<%T>(%S)", typeName, qualifier)
+    else if (!hasQualifier && isNullable) CodeBlock.of("graph.instanceOrNull<%T>()", typeName)
+    else CodeBlock.of("graph.instance<%T>()", typeName)
 }
 
 fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
-    val annotation = e.getAnnotation(Named::class.java) ?: e.enclosingElement.getAnnotation(Named::class.java)
-    val qualifier = annotation?.value
+    val namedAnnotation = e.getAnnotation(Named::class.java) ?: e.enclosingElement.getAnnotation(Named::class.java)
+    val qualifier = namedAnnotation?.value
+    val isNullable = !isNotNullable(e)
 
     return when {
         isProvider(e) -> {
@@ -76,8 +93,8 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
 
             val getter = FunSpec.builder("get")
                     .addModifiers(KModifier.OVERRIDE)
-                    .returns(typeName)
-                    .addCode("return %L\n", getInstanceCodeBlock(typeName, qualifier))
+                    .returns(if (isNullable) typeName.asNullable() else typeName)
+                    .addCode("return %L\n", getInstanceCodeBlock(typeName, isNullable, qualifier))
                     .build()
                     .toString()
 
@@ -90,11 +107,11 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
         isLazy(e) -> {
             val genericTypeMirror = (e.asType() as DeclaredType).typeArguments.first()
             val typeName = mapTypeName(genericTypeMirror.asTypeName())
-            CodeBlock.of("lazy { %L }", getInstanceCodeBlock(typeName, qualifier))
+            CodeBlock.of("lazy { %L }", getInstanceCodeBlock(typeName, isNullable, qualifier))
         }
         else -> {
             val typeName = mapTypeName(e.asType().asTypeName())
-            getInstanceCodeBlock(typeName, qualifier)
+            getInstanceCodeBlock(typeName, isNullable, qualifier)
         }
     }
 }
