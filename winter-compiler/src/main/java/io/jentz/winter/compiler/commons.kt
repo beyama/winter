@@ -7,7 +7,8 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 
-val optionGeneratedComponentPackage = "winterGeneratedComponentPackage"
+const val OPTION_GENERATED_COMPONENT_PACKAGE = "winterGeneratedComponentPackage"
+const val OPTION_PRINT_SOURCES = "winterPrintSources" // for printf-debugging during development
 
 val graphClassName = ClassName("io.jentz.winter", "Graph")
 val componentClassName = ClassName("io.jentz.winter", "Component")
