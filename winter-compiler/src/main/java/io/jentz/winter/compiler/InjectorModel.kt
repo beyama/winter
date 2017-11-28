@@ -13,6 +13,7 @@ class InjectorModel(val typeElement: TypeElement) {
             .addStaticImport(graphClassName.packageName(), graphClassName.simpleName())
             .addType(
                     TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
+                            .addAnnotation(generatedAnnotation())
                             .addSuperinterface(ParameterizedTypeName.get(injectorInterfaceName, typeName))
                             .addFunction(
                                     FunSpec.builder("injectMembers")

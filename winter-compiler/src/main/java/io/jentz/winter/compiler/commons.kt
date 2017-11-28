@@ -1,6 +1,8 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.*
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Named
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -17,8 +19,12 @@ val injectorInterfaceName = ClassName("io.jentz.winter.internal", "MembersInject
 val providerInterfaceName = ClassName("javax.inject", "Provider")
 val lazyInterfaceName = ClassName("kotlin", "Lazy")
 
+val generatedAnnotationName = ClassName("javax.annotation", "Generated")
+
 val generatedFactoryPostfix = "\$\$Factory"
 val generatedInjectorPostfix = "\$\$MembersInjector"
+
+val iso8601Format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'").apply { timeZone = TimeZone.getTimeZone("UTC"); }
 
 // see https://kotlinlang.org/docs/reference/java-interop.html#mapped-types
 val mappedTypes: Map<TypeName, TypeName> = mapOf(
@@ -116,3 +122,8 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
         }
     }
 }
+
+fun generatedAnnotation() = AnnotationSpec.builder(generatedAnnotationName)
+        .addMember("value", "%S", WinterProcessor::class.java.name)
+        .addMember("date", "%S", iso8601Format.format(Date()))
+        .build()

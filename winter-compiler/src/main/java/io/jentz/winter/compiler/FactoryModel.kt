@@ -72,6 +72,7 @@ class FactoryModel(val constructor: ExecutableElement) {
         return FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
                 .addType(
                         TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
+                                .addAnnotation(generatedAnnotation())
                                 .addSuperinterface(ParameterizedTypeName.get(factoryInterfaceName, typeName))
                                 .addFunction(
                                         FunSpec.builder("createInstance")

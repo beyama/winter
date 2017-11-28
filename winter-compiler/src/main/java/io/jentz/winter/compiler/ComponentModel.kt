@@ -41,6 +41,7 @@ class ComponentModel {
                 .addStaticImport("io.jentz.winter", "component")
                 .addProperty(
                         PropertySpec.builder("generatedComponent", componentClassName)
+                                .addAnnotation(generatedAnnotation())
                                 .initializer(componentBuilder.build())
                                 .build()
                 )
