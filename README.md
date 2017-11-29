@@ -1,13 +1,12 @@
 # Winter
 
 [![Kotlin 1.1.51](https://img.shields.io/badge/Kotlin-1.1-blue.svg)](http://kotlinlang.org)
-[![Nexus](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.jentz/winter.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/jentz/)
+[![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.jentz.winter%22)
 [![Travis](https://img.shields.io/travis/beyama/winter.svg)](https://travis-ci.org/beyama/winter/builds)
 [![MIT License](https://img.shields.io/github/license/beyama/winter.svg)](https://github.com/beyama/winter/blob/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/beyama/winter.svg)](https://github.com/beyama/winter/issues)
 
-Kotlin Dependency Injection
-===========================
+## Kotlin Dependency Injection
 
 Winter is a fast and intuitive dependency injection and service locator
 library for Kotlin on Android and the JVM.
@@ -15,8 +14,32 @@ library for Kotlin on Android and the JVM.
 It offers an idiomatic Kotlin API as well as optional JSR-330 support
 with annotation processor.
 
-Basic Concepts
---------------
+## Getting Started
+
+### Gradle
+
+```groovy
+dependencies {
+  // Core
+  implementation 'io.jentz.winter:winter:0.0.1'
+  // Android support
+  implementation 'io.jentz.winter:winter-android:0.0.1'
+  // Optional JSR-330 support
+  kapt 'io.jentz.winter:winter-compiler:0.0.1'
+}
+
+// The optional JSR-330 support requires also a kapt configuration block like
+kapt {
+  generateStubs = true
+  arguments {
+    // This tells the Winter compiler under which package name it should store 
+    // the generated component. See the advanced section for more details.
+    arg("winterGeneratedComponentPackage", "my.project.root.package.name")
+  }
+}
+```
+
+### Basic Concepts
 
 The building blocks of Winter are:
 
@@ -26,8 +49,7 @@ The building blocks of Winter are:
 | Graph     | The "instance" of a component that holds actual instances and is used to retrieve dependencies defined in a component.                 |
 | Scope     | The lifetime of an instance in a graph e.g. singleton for only one per graph or prototype for one each time an instance is requested.  |
 
-Simple Example
---------------
+### Simple Example
 
 Given is an Android application with an application component and an
 activity subcomponent. If you are more familiar with web development
@@ -60,8 +82,7 @@ val gitHubApi: GitHubApi = applicationComponent.instance()
 
 ```
 
-Injector
---------
+## Injector
 
 The usage of the `Injector` class is the default way to handle
 cases were you are not able to use constructor injection like in cases
@@ -106,8 +127,7 @@ is computationally expensive but may not be required in some cases.
 
 ```
 
-JSR-330 Annotation Processor
-----------------------------
+## JSR-330 Annotation Processor
 
 JSR-330 support is provided by the Winter module `winter-compiler`.
 
@@ -120,18 +140,15 @@ setter or fields.
 And it generates a component containing all those factories and
 members-injectors to avoid the usage of reflection.
 
-Android Support
----------------
+## Android Support
 
 *TODO:* AndroidInjection, view-extensions
 
-Advanced Usage
---------------
+## Advanced Usage
 
 *TODO:* mixing components, usage of factories, type erasure, qualifier
 
-License
--------
+## License
 
     Copyright 2017 Alexander Jentz
 
