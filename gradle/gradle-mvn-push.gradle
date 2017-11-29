@@ -87,26 +87,4 @@ afterEvaluate { project ->
         sign configurations.archives
     }
 
-    //task androidJavadocs(type: Javadoc) {
-    //    source = android.sourceSets.main.java.srcDirs
-    //    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    //
-    //    options.addStringOption('Xdoclint:none', '-quiet')
-    //}
-
-    //task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    //    classifier = 'javadoc'
-    //    from androidJavadocs.destinationDir
-    //}
-
-    //task androidSourcesJar(type: Jar) {
-    //    classifier = 'sources'
-    //    from android.sourceSets.main.java.sourceFiles
-    //}
-
-    artifacts {
-        // TODO fix these:
-        //archives androidSourcesJar
-        //archives androidJavadocsJar
-    }
 }
