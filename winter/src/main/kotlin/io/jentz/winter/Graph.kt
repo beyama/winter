@@ -8,9 +8,20 @@ import java.util.*
  *
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
-class Graph internal constructor(private val parent: Graph?, private val component: Component) {
-    private val cache = DependencyMap<Provider<*>>(component.dependencyMap.size)
+class Graph internal constructor(private val parent: Graph?,
+                                 private val dependencyMap: DependencyMap<ComponentEntry<*>>) {
+
+    private val cache = DependencyMap<Provider<*>>(dependencyMap.size)
     private val stack = Stack<DependencyKey>()
+
+    init {
+        @Suppress("UNCHECKED_CAST")
+        val entry = dependencyMap[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
+        entry?.value?.forEach { key ->
+            val provider = providerOrNull(key) ?: throw EntryNotFoundException("Eager dependency with key `$key` doesn't exist.")
+            provider.invoke()
+        }
+    }
 
     /**
      * Retrieve a non-optional instance of `T`.
@@ -118,7 +129,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      */
     fun providerOrNull(key: DependencyKey): Provider<*>? = retrieve(
             getCached = { cache[key] },
-            getEntry = { component.dependencyMap.getEntry(key) },
+            getEntry = { dependencyMap.getEntry(key) },
             getParent = { parent?.providerOrNull(key) })
 
     /**
@@ -134,7 +145,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      */
     fun providerOrNull(cls: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
             getCached = { cache.get(cls, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(cls, qualifier) },
+            getEntry = { dependencyMap.getEntry(cls, qualifier) },
             getParent = { parent?.providerOrNull(cls, qualifier) })
 
     /**
@@ -151,7 +162,7 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      */
     fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
             getCached = { cache.get(firstClass, secondClass, qualifier) },
-            getEntry = { component.dependencyMap.getEntry(firstClass, secondClass, qualifier) },
+            getEntry = { dependencyMap.getEntry(firstClass, secondClass, qualifier) },
             getParent = { parent?.providerOrNull(firstClass, secondClass, qualifier) })
 
     private inline fun retrieve(getCached: () -> Provider<*>?,

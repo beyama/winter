@@ -29,6 +29,15 @@ class ComponentBuilder internal constructor() {
         Merge
     }
 
+    @Suppress("UNCHECKED_CAST")
+    var eagerDependencies: Set<DependencyKey>
+        get() = (registry[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>)
+                ?.let { return it.value }
+                ?: emptySet()
+        set(value) {
+            registry[eagerDependenciesKey] = ConstantEntry(value)
+        }
+
     /**
      * Include dependency from the given component into the new component.
      *
@@ -38,14 +47,22 @@ class ComponentBuilder internal constructor() {
                 override: Boolean = true,
                 subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge) {
         component.dependencyMap.forEach { k, v ->
-            if (v is ConstantEntry<*> && v.value is Component) {
-                @Suppress("UNCHECKED_CAST")
-                registerSubcomponent(k, v as ConstantEntry<Component>, subcomponentIncludeMode)
-            } else {
-                if (!override && registry.containsKey(k)) {
-                    throw WinterException("Entry with key `$k` already exists.")
+            when {
+                k === eagerDependenciesKey -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val entry = v as ConstantEntry<Set<DependencyKey>>
+                    eagerDependencies += entry.value
                 }
-                registry[k] = v
+                v is ConstantEntry<*> && v.value is Component -> {
+                    @Suppress("UNCHECKED_CAST")
+                    registerSubcomponent(k, v as ConstantEntry<Component>, subcomponentIncludeMode)
+                }
+                else -> {
+                    if (!override && registry.containsKey(k)) {
+                        throw WinterException("Entry with key `$k` already exists.")
+                    }
+                    registry[k] = v
+                }
             }
         }
     }
@@ -64,9 +81,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: ProviderBlock<T>) {
-        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        val unboundProvider = setupProviderBlock(key, scope, block)
-        register(key, ProviderEntry(scope, unboundProvider), override)
+        registerProvider(providerKey<T>(qualifier, generics), scope, override, block)
     }
 
     /**
@@ -83,7 +98,26 @@ class ComponentBuilder internal constructor() {
                                            generics: Boolean = false,
                                            override: Boolean = false,
                                            noinline block: ProviderBlock<T>) {
-        provider(qualifier, singleton, generics, override, block)
+        registerProvider(providerKey<T>(qualifier, generics), singleton, override, block)
+    }
+
+    /**
+     * Register a singleton scoped provider for an instance of type [T].
+     *
+     * This is syntactic sugar for [provider] with parameter scope = [singleton].
+     *
+     * @param qualifier An optional qualifier.
+     * @param generics If true this will preserve generic information of [T].
+     * @param override If true this will override a existing provider of this type.
+     * @param block The provider block.
+     */
+    inline fun <reified T : Any> eagerSingleton(qualifier: Any? = null,
+                                                generics: Boolean = false,
+                                                override: Boolean = false,
+                                                noinline block: ProviderBlock<T>) {
+        val key = providerKey<T>(qualifier, generics)
+        registerProvider(key, singleton, override, block)
+        eagerDependencies += key
     }
 
     /**
@@ -100,9 +134,7 @@ class ComponentBuilder internal constructor() {
                                                           generics: Boolean = false,
                                                           override: Boolean = false,
                                                           noinline block: FactoryBlock<A, R>) {
-        val key = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
-        val unboundFactory = setupFactoryBlock(key, block)
-        register(key, FactoryEntry(scope, unboundFactory), override)
+        registerFactory(factoryKey<A, R>(qualifier, generics), scope, override, block)
     }
 
     /**
@@ -117,43 +149,14 @@ class ComponentBuilder internal constructor() {
                                           qualifier: Any? = null,
                                           generics: Boolean = false,
                                           override: Boolean = false) {
-        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        register(key, ConstantEntry(value), override)
+        registerConstant(providerKey<T>(qualifier, generics), override, value)
     }
 
     /**
      * Register a members injector for [T].
      */
     inline fun <reified T : Any> membersInjector(noinline block: () -> MembersInjector<T>) {
-        register(membersInjectorKey<T>(), MembersInjectorEntry(block), false)
-    }
-
-    /**
-     * Remove a provider of type [T].
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
-     * @param silent If true this will not throw an exception if the provider doesn't exist.
-     */
-    inline fun <reified T : Any> removeProvider(qualifier: Any? = null,
-                                                generics: Boolean = false,
-                                                silent: Boolean = false) {
-        val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        remove(key, silent)
-    }
-
-    /**
-     * Remove a factory of type `([A]) -> [R]`.
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [A] and [R].
-     * @param silent If true this will not throw an exception if the factory doesn't exist.
-     */
-    inline fun <reified A : Any, reified R : Any> removeFactory(qualifier: Any? = null,
-                                                                generics: Boolean = false,
-                                                                silent: Boolean = false) {
-        val key = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
-        remove(key, silent)
+        registerMembersInjector(membersInjectorKey<T>(), block)
     }
 
     /**
@@ -192,11 +195,57 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Register a [ComponentEntry] by [DependencyKey].
+     * Create [DependencyKey] for provider.
+     */
+    inline fun <reified T : Any> providerKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
+            if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
+
+    /**
+     * Create [DependencyKey] for factory.
+     */
+    inline fun <reified A : Any, reified R : Any> factoryKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
+            if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
+
+    /**
+     * Register a provider by key.
      *
      * @suppress
      */
-    fun register(key: DependencyKey, entry: ComponentEntry<*>, override: Boolean) {
+    fun <T : Any> registerProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, block: ProviderBlock<T>) {
+        register(key, ProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
+    }
+
+    /**
+     * Register a constant by key.
+     *
+     * @suppress
+     */
+    fun <T : Any> registerConstant(key: DependencyKey, override: Boolean, value: T) {
+        register(key, ConstantEntry(value), override)
+    }
+
+    /**
+     * Register a factory by key.
+     *
+     * @suppress
+     */
+    fun <A : Any, R : Any> registerFactory(key: DependencyKey,
+                                           scope: FactoryScope,
+                                           override: Boolean = false,
+                                           block: FactoryBlock<A, R>) {
+        register(key, FactoryEntry(scope, setupFactoryBlock(key, block)), override)
+    }
+
+    /**
+     * Register a [MembersInjector] provider by key.
+     *
+     * @suppress
+     */
+    fun <T : Any> registerMembersInjector(key: DependencyKey, block: Provider<MembersInjector<T>>) {
+        register(key, MembersInjectorEntry(block), false)
+    }
+
+    private fun register(key: DependencyKey, entry: ComponentEntry<*>, override: Boolean) {
         val alreadyExists = registry.containsKey(key)
 
         if (alreadyExists && !override) {
@@ -211,15 +260,15 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Remove a [ComponentEntry] by [DependencyKey].
-     *
-     * @suppress
+     * Remove a dependency from the component.
+     * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false (default).
      */
-    fun remove(key: DependencyKey, silent: Boolean) {
+    fun remove(key: DependencyKey, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
-            throw WinterException("Can't remove entry with key `$key` because it doesn't exist.")
+            throw EntryNotFoundException("Can't remove entry with key `$key` because it doesn't exist.")
         }
         registry.remove(key)
+        eagerDependencies -= key
     }
 
     private fun registerSubcomponent(key: DependencyKey,

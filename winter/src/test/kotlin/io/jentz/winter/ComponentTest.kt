@@ -211,46 +211,46 @@ class ComponentTest {
     }
 
     @Test(expected = WinterException::class)
-    fun `ComponentBuilder#removeProvider should throw an exception when provider doesn't exist`() {
-        component { removeProvider<ServiceDependency>() }
+    fun `ComponentBuilder#remove should throw an exception when provider doesn't exist`() {
+        component { remove(providerKey<ServiceDependency>()) }
     }
 
     @Test
-    fun `ComponentBuilder#removeProvider should not throw an exception when provider doesn't exist but silent is true`() {
-        component { removeProvider<ServiceDependency>(silent = true) }
+    fun `ComponentBuilder#remove should not throw an exception when provider doesn't exist but silent is true`() {
+        component { remove(providerKey<ServiceDependency>(), silent = true) }
     }
 
     @Test
-    fun `ComponentBuilder#removeProvider should remove non-generic provider`() {
+    fun `ComponentBuilder#remove should remove non-generic provider`() {
         val key = typeKey<ServiceDependencyImpl>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { removeProvider<ServiceDependencyImpl>() }
+        val component = testComponent.derive { remove(providerKey<ServiceDependencyImpl>()) }
         assertFalse(component.has(key))
     }
 
     @Test
-    fun `ComponentBuilder#removeProvider should remove generic provider`() {
+    fun `ComponentBuilder#remove should remove generic provider`() {
         val key = genericTypeKey<GenericDependencyImpl<Int>>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { removeProvider<GenericDependencyImpl<Int>>(generics = true) }
+        val component = testComponent.derive { remove(providerKey<GenericDependencyImpl<Int>>(generics = true)) }
         assertFalse(component.has(key))
     }
 
     @Test(expected = WinterException::class)
-    fun `ComponentBuilder#removeFactory should throw an exception when factory doesn't exist`() {
-        component { removeFactory<String, ServiceDependency>() }
+    fun `ComponentBuilder#remove should throw an exception when factory doesn't exist`() {
+        component { remove(factoryKey<String, ServiceDependency>()) }
     }
 
     @Test
-    fun `ComponentBuilder#removeFactory should not throw an exception when factory doesn't exist but silent is true`() {
-        component { removeFactory<String, ServiceDependency>(silent = true) }
+    fun `ComponentBuilder#remove should not throw an exception when factory doesn't exist but silent is true`() {
+        component { remove(factoryKey<String, ServiceDependency>(), silent = true) }
     }
 
     @Test
-    fun `ComponentBuilder#removeFactory should remove non-generic factory`() {
+    fun `ComponentBuilder#remove should remove non-generic factory`() {
         val key = compoundTypeKey<String, ServiceDependencyImpl>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { removeFactory<String, ServiceDependencyImpl>() }
+        val component = testComponent.derive { remove(factoryKey<String, ServiceDependencyImpl>()) }
         assertFalse(component.has(key))
     }
 
@@ -258,7 +258,7 @@ class ComponentTest {
     fun `ComponentBuilder#removeFactory should remove generic factory`() {
         val key = genericCompoundTypeKey<Int, GenericDependencyImpl<Int>>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { removeFactory<Int, GenericDependencyImpl<Int>>(generics = true) }
+        val component = testComponent.derive { remove(factoryKey<Int, GenericDependencyImpl<Int>>(generics = true)) }
         assertFalse(component.has(key))
     }
 

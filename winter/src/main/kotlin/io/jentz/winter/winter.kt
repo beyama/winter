@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.internal.DependencyKey
+import io.jentz.winter.internal.typeKey
 
 typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
 
@@ -10,6 +11,8 @@ internal typealias Provider<T> = () -> T
 
 typealias FactoryBlock<A, R> = Graph.(A) -> R
 internal typealias UnboundFactory<A, R> = (Graph, A) -> R
+
+internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
 
 internal fun initializeGraph(parentGraph: Graph?, component: Component, block: ComponentBuilderBlock?): Graph {
     val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
@@ -21,7 +24,7 @@ internal fun initializeGraph(parentGraph: Graph?, component: Component, block: C
     } else {
         component
     }
-    return Graph(parentGraph, baseComponent)
+    return Graph(parentGraph, baseComponent.dependencyMap)
 }
 
 /**
