@@ -6,8 +6,8 @@ internal sealed class ComponentEntry<out T : Any> {
     abstract fun bind(graph: Graph): Provider<T>
 }
 
-internal class ProviderEntry<out T : Any>(private val scope: ProviderScope,
-                                          private val unboundProvider: UnboundProvider<T>) : ComponentEntry<T>() {
+internal class UnboundProviderEntry<out T : Any>(private val scope: ProviderScope,
+                                                 private val unboundProvider: UnboundProvider<T>) : ComponentEntry<T>() {
     override fun bind(graph: Graph) = scope.bind(graph, unboundProvider)
 }
 
@@ -20,6 +20,6 @@ internal class ConstantEntry<out T : Any>(val value: T) : ComponentEntry<T>() {
     override fun bind(graph: Graph): () -> T = { value }
 }
 
-internal class MembersInjectorEntry<in T : Any>(private val provider: Provider<MembersInjector<T>>) : ComponentEntry<MembersInjector<T>>() {
+internal class ProviderEntry<out T : Any>(val provider: Provider<T>) : ComponentEntry<T>() {
     override fun bind(graph: Graph) = provider
 }

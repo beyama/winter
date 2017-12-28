@@ -25,13 +25,13 @@ class ComponentTest {
     @Test
     fun `Component configured with provider should contain provider in its dependency map`() {
         val component = component { provider { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is ProviderEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is UnboundProviderEntry<*>)
     }
 
     @Test
     fun `Component configured with provider and qualifier should contain provider in its dependency map`() {
         val component = component { provider("name") { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is ProviderEntry<*>)
+        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is UnboundProviderEntry<*>)
     }
 
     @Test

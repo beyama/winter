@@ -212,7 +212,7 @@ class ComponentBuilder internal constructor() {
      * @suppress
      */
     fun <T : Any> registerProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, block: ProviderBlock<T>) {
-        register(key, ProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
+        register(key, UnboundProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
     }
 
     /**
@@ -241,8 +241,8 @@ class ComponentBuilder internal constructor() {
      *
      * @suppress
      */
-    fun <T : Any> registerMembersInjector(key: DependencyKey, block: Provider<MembersInjector<T>>) {
-        register(key, MembersInjectorEntry(block), false)
+    fun <T : Any> registerMembersInjector(key: DependencyKey, provider: Provider<MembersInjector<T>>) {
+        register(key, ProviderEntry(provider), false)
     }
 
     private fun register(key: DependencyKey, entry: ComponentEntry<*>, override: Boolean) {
