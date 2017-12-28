@@ -30,7 +30,7 @@ class Injector {
             return value as T
         }
 
-        abstract fun getValue(graph: Graph): T
+        abstract protected fun getValue(graph: Graph): T
 
         final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
@@ -48,7 +48,7 @@ class Injector {
 
         override fun getValue(thisRef: Any?, property: KProperty<*>) = memorized()
 
-        abstract fun getValue(graph: Graph): T
+        abstract protected fun getValue(graph: Graph): T
 
         final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }

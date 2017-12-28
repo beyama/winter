@@ -1,28 +1,25 @@
 package io.jentz.winter.internal
 
-import io.jentz.winter.FactoryScope
-import io.jentz.winter.Graph
-import io.jentz.winter.ProviderScope
+import io.jentz.winter.*
 
-sealed class ComponentEntry<out T> {
-    abstract fun bind(graph: Graph, key: DependencyKey): () -> T
+sealed class ComponentEntry<out T : Any> {
+    abstract fun bind(graph: Graph): Provider<T>
 }
 
-class ProviderEntry<out T : Any>(private val scope: ProviderScope, private val block: Graph.() -> T) : ComponentEntry<T>() {
-    override fun bind(graph: Graph, key: DependencyKey) = scope.bind(graph, key, block)
+class ProviderEntry<out T : Any>(private val scope: ProviderScope,
+                                 private val unboundProvider: UnboundProvider<T>) : ComponentEntry<T>() {
+    override fun bind(graph: Graph) = scope.bind(graph, unboundProvider)
 }
 
-class FactoryEntry<in A : Any, out R : Any>(private val scope: FactoryScope, private val block: Graph.(A) -> R) : ComponentEntry<(A) -> R>() {
-    override fun bind(graph: Graph, key: DependencyKey): () -> (A) -> R {
-        val bound = scope.bind(graph, key, block)
-        return { bound }
-    }
+class FactoryEntry<in A : Any, out R : Any>(private val scope: FactoryScope,
+                                            private val unboundFactory: UnboundFactory<A, R>) : ComponentEntry<(A) -> R>() {
+    override fun bind(graph: Graph) = scope.bind(graph, unboundFactory)
 }
 
 class ConstantEntry<out T : Any>(val value: T) : ComponentEntry<T>() {
-    override fun bind(graph: Graph, key: DependencyKey): () -> T = { value }
+    override fun bind(graph: Graph): () -> T = { value }
 }
 
 class MembersInjectorEntry<in T : Any>(private val block: () -> MembersInjector<T>) : ComponentEntry<MembersInjector<T>>() {
-    override fun bind(graph: Graph, key: DependencyKey) = block
+    override fun bind(graph: Graph) = block
 }

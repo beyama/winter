@@ -146,6 +146,14 @@ class GraphTest {
         assertEquals(10, factory(6))
     }
 
+    @Test(expected = CyclicDependencyException::class)
+    fun `factory should detect cyclic dependency on invocation`() {
+        val graph = component {
+            factory { arg: Int -> factory<Int, Int>().invoke(arg) }
+        }.init()
+        graph.factory<Int, Int>().invoke(42)
+    }
+
     @Test
     fun `multiton block should only get called once per argument`() {
         val atomicInteger = AtomicInteger(0)

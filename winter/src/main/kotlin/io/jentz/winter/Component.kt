@@ -38,7 +38,7 @@ class Component internal constructor(internal val dependencyMap: DependencyMap<C
      * @param block A builder block that is called in the context of a [ComponentBuilder].
      * @return A new [Component] that contains all provider of the base component plus the one defined in the builder block.
      */
-    fun derive(block: ComponentBuilder.() -> Unit) = component {
+    fun derive(block: ComponentBuilderBlock) = component {
         include(this@Component)
         block()
     }
@@ -73,9 +73,8 @@ class Component internal constructor(internal val dependencyMap: DependencyMap<C
      * @param block An optional builder block to extend the component before creating the graph.
      * @return An instance of [Graph] backed by this component.
      */
-    fun init(block: (ComponentBuilder.() -> Unit)? = null): Graph {
-        val component = if (block != null) derive(block) else this
-        return Graph(null, component)
+    fun init(block: ComponentBuilderBlock? = null): Graph {
+        return initializeGraph(null, this, block)
     }
 
 }

@@ -110,7 +110,7 @@ class ComponentTest {
     fun `#subcomponent with one qualifier should return the corresponding subcomponent`() {
         val c = component {
             subcomponent("s1") {}
-            subcomponent("s2") { constant(42)}
+            subcomponent("s2") { constant(42) }
         }
         assertEquals(42, c.subcomponent("s2").constantValue(typeKey<Int>()))
     }

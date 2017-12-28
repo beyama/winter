@@ -3,15 +3,13 @@ package io.jentz.winter
 import io.jentz.winter.internal.*
 import java.util.*
 
-typealias AnyProvider = () -> Any?
-
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
  *
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
 class Graph internal constructor(private val parent: Graph?, private val component: Component) {
-    private val cache = DependencyMap<AnyProvider>(component.dependencyMap.size)
+    private val cache = DependencyMap<Provider<*>>(component.dependencyMap.size)
     private val stack = Stack<DependencyKey>()
 
     /**
@@ -100,12 +98,12 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
      * @param key A dependency key
-     * @return The [provider][AnyProvider]
+     * @return The [provider][Provider]
      *
      * @throws EntryNotFoundException
      * @suppress
      */
-    fun provider(key: DependencyKey): AnyProvider =
+    fun provider(key: DependencyKey): Provider<*> =
             providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
 
     /**
@@ -114,11 +112,11 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      * `THIS ISN'T PART OF THE PUBLIC API`
      *
      * @param key A dependency key
-     * @return The [provider][AnyProvider] or null if provider doesn't exist.
+     * @return The [provider][Provider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(key: DependencyKey): AnyProvider? = retrieve(
+    fun providerOrNull(key: DependencyKey): Provider<*>? = retrieve(
             getCached = { cache[key] },
             getEntry = { component.dependencyMap.getEntry(key) },
             getParent = { parent?.providerOrNull(key) })
@@ -130,11 +128,11 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      *
      * @param cls The return class of the requested provider.
      * @param qualifier An optional qualifier of the requested provider.
-     * @return The [provider][AnyProvider] or null if provider doesn't exist.
+     * @return The [provider][Provider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(cls: Class<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+    fun providerOrNull(cls: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
             getCached = { cache.get(cls, qualifier) },
             getEntry = { component.dependencyMap.getEntry(cls, qualifier) },
             getParent = { parent?.providerOrNull(cls, qualifier) })
@@ -147,41 +145,35 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      * @param firstClass The argument class of the requested factory provider.
      * @param secondClass The return class of the requested factory provider.
      * @param qualifier An optional qualifier of the requested factory provider.
-     * @return The [provider][AnyProvider] or null if provider doesn't exist.
+     * @return The [provider][Provider] or null if provider doesn't exist.
      *
      * @suppress
      */
-    fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): AnyProvider? = retrieve(
+    fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
             getCached = { cache.get(firstClass, secondClass, qualifier) },
             getEntry = { component.dependencyMap.getEntry(firstClass, secondClass, qualifier) },
             getParent = { parent?.providerOrNull(firstClass, secondClass, qualifier) })
 
-    private inline fun retrieve(getCached: () -> AnyProvider?,
+    private inline fun retrieve(getCached: () -> Provider<*>?,
                                 getEntry: () -> DependencyMap.Entry<ComponentEntry<*>>?,
-                                getParent: () -> AnyProvider?): AnyProvider? = synchronized(this) {
+                                getParent: () -> Provider<*>?): Provider<*>? = synchronized(this) {
         getCached()?.let { return@synchronized it }
 
         return@synchronized getEntry()?.let { entry ->
-            entry.value.bind(this, entry.key).also { cache[entry.key] = it }
+            entry.value
+                    .bind(this)
+                    .also { cache[entry.key] = it }
         } ?: getParent()
     }
 
-    fun <A, R> evaluateFactory(key: DependencyKey, arg: A, block: Graph.(A) -> R): R {
-        return evaluate(key, { block(arg) })
-    }
-
-    fun <T> evaluateProvider(key: DependencyKey, block: Graph.() -> T): T {
-        return evaluate(key, block)
-    }
-
-    private inline fun <T> evaluate(key: DependencyKey, block: Graph.() -> T): T {
+    internal fun <T> evaluate(key: DependencyKey, unboundProvider: UnboundProvider<T>): T {
         synchronized(this) {
             if (stack.contains(key)) {
                 throw CyclicDependencyException("Cyclic dependency for key `$key`.")
             }
             try {
                 stack.push(key)
-                return block()
+                return unboundProvider(this)
             } catch (e: EntryNotFoundException) {
                 val stackInfo = stack.joinToString(" -> ")
                 throw DependencyResolutionException("Error while resolving dependencies of $key (dependency stack: $stackInfo)", e)
@@ -237,9 +229,9 @@ class Graph internal constructor(private val parent: Graph?, private val compone
      * @param qualifier The qualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
-    fun initSubcomponent(qualifier: Any, block: (ComponentBuilder.() -> Unit)? = null): Graph {
+    fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph {
         val subComponent: Component = instance(qualifier)
-        return Graph(this, if (block != null) subComponent.derive(block) else subComponent)
+        return initializeGraph(this, subComponent, block)
     }
 
 }

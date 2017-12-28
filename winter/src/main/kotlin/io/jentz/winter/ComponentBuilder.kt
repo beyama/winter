@@ -63,9 +63,10 @@ class ComponentBuilder internal constructor() {
                                           scope: ProviderScope = prototype,
                                           generics: Boolean = false,
                                           override: Boolean = false,
-                                          noinline block: Graph.() -> T) {
+                                          noinline block: ProviderBlock<T>) {
         val key = if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-        register(key, ProviderEntry(scope, block), override)
+        val unboundProvider = setupProviderBlock(key, scope, block)
+        register(key, ProviderEntry(scope, unboundProvider), override)
     }
 
     /**
@@ -81,7 +82,7 @@ class ComponentBuilder internal constructor() {
     inline fun <reified T : Any> singleton(qualifier: Any? = null,
                                            generics: Boolean = false,
                                            override: Boolean = false,
-                                           noinline block: Graph.() -> T) {
+                                           noinline block: ProviderBlock<T>) {
         provider(qualifier, singleton, generics, override, block)
     }
 
@@ -98,9 +99,10 @@ class ComponentBuilder internal constructor() {
                                                           scope: FactoryScope = prototypeFactory,
                                                           generics: Boolean = false,
                                                           override: Boolean = false,
-                                                          noinline block: Graph.(A) -> R) {
+                                                          noinline block: FactoryBlock<A, R>) {
         val key = if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
-        register(key, FactoryEntry(scope, block), override)
+        val unboundFactory = setupFactoryBlock(key, block)
+        register(key, FactoryEntry(scope, unboundFactory), override)
     }
 
     /**
