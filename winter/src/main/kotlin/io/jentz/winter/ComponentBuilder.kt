@@ -102,9 +102,9 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Register a singleton scoped provider for an instance of type [T].
+     * Register an eager singleton scoped provider for an instance of type [T].
      *
-     * This is syntactic sugar for [provider] with parameter scope = [singleton].
+     * The instance will be created as soon as the component is initialized.
      *
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [T].
