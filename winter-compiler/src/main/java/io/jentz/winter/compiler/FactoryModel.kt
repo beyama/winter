@@ -54,7 +54,7 @@ class FactoryModel(val constructor: ExecutableElement) {
         }
     }
 
-    fun generate(injectorModel: InjectorModel?): FileSpec {
+    fun generate(injectorModel: InjectorModel?, generatedAnnotationAvailable: Boolean): FileSpec {
         val params = constructor.parameters.map { generateGetInstanceCodeBlock(it) }.joinToString(", ")
 
         val createInstance = CodeBlock.of("%T(%L)", typeName, params)
@@ -72,7 +72,13 @@ class FactoryModel(val constructor: ExecutableElement) {
         return FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
                 .addType(
                         TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
-                                .addAnnotation(generatedAnnotation())
+                                .also {
+                                    if (generatedAnnotationAvailable) {
+                                        it.addAnnotation(generatedAnnotation())
+                                    } else {
+                                        it.addKdoc(generatedComment())
+                                    }
+                                }
                                 .addSuperinterface(ParameterizedTypeName.get(factoryInterfaceName, typeName))
                                 .addFunction(
                                         FunSpec.builder("createInstance")

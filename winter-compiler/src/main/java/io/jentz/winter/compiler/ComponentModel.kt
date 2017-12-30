@@ -10,7 +10,7 @@ class ComponentModel {
     val factories = mutableListOf<FactoryModel>()
     val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
-    fun generate(packageName: String): FileSpec {
+    fun generate(packageName: String, generatedAnnotationAvailable: Boolean): FileSpec {
         val grouped = factories.groupBy { it.scope ?: "__provider__" }
 
         val componentBuilder = CodeBlock.builder().beginControlFlow("component")
@@ -41,7 +41,13 @@ class ComponentModel {
                 .addStaticImport("io.jentz.winter", "component")
                 .addProperty(
                         PropertySpec.builder("generatedComponent", componentClassName)
-                                .addAnnotation(generatedAnnotation())
+                                .also {
+                                    if (generatedAnnotationAvailable) {
+                                        it.addAnnotation(generatedAnnotation())
+                                    } else {
+                                        it.addKdoc(generatedComment())
+                                    }
+                                }
                                 .initializer(componentBuilder.build())
                                 .build()
                 )

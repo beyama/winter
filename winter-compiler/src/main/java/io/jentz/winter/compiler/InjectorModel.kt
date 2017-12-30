@@ -9,11 +9,17 @@ class InjectorModel(val typeElement: TypeElement) {
 
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
-    fun generate() = FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
+    fun generate(generatedAnnotationAvailable: Boolean) = FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
             .addStaticImport(graphClassName.packageName(), graphClassName.simpleName())
             .addType(
                     TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
-                            .addAnnotation(generatedAnnotation())
+                            .also {
+                                if (generatedAnnotationAvailable) {
+                                    it.addAnnotation(generatedAnnotation())
+                                } else {
+                                    it.addKdoc(generatedComment())
+                                }
+                            }
                             .addSuperinterface(ParameterizedTypeName.get(injectorInterfaceName, typeName))
                             .addFunction(
                                     FunSpec.builder("injectMembers")

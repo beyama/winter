@@ -13,6 +13,7 @@ import javax.tools.Diagnostic
 
 class WinterProcessor : AbstractProcessor() {
 
+    private var generatedAnnotationAvailable = false
     private var generatedComponentPackage: String? = null
     private var printSources = false
 
@@ -22,6 +23,8 @@ class WinterProcessor : AbstractProcessor() {
         super.init(processingEnv)
         generatedComponentPackage = processingEnv.options[OPTION_GENERATED_COMPONENT_PACKAGE]
         printSources = processingEnv.options[OPTION_PRINT_SOURCES] == "true"
+        // Android's API jar doesn't include javax.annotation.Generated so we check the availability here
+        generatedAnnotationAvailable = processingEnv.elementUtils.getTypeElement(generatedAnnotationName.canonicalName) != null
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> = setOf(Inject::class.java.canonicalName)
@@ -76,7 +79,7 @@ class WinterProcessor : AbstractProcessor() {
 
     private fun buildInjectors() {
         componentModel.injectors.forEach { (_, injector) ->
-            val kCode = injector.generate()
+            val kCode = injector.generate(generatedAnnotationAvailable)
             write(kCode)
             print(kCode)
         }
@@ -84,14 +87,15 @@ class WinterProcessor : AbstractProcessor() {
 
     private fun buildFactories() {
         componentModel.factories.forEach { factory ->
-            val kCode = factory.generate(componentModel.injectors[factory.typeElement])
+            val injectorModel = componentModel.injectors[factory.typeElement]
+            val kCode = factory.generate(injectorModel, generatedAnnotationAvailable)
             write(kCode)
             print(kCode)
         }
     }
 
     private fun buildRegistry() {
-        val kCode = componentModel.generate(generatedComponentPackage!!)
+        val kCode = componentModel.generate(generatedComponentPackage!!, generatedAnnotationAvailable)
         write(kCode)
         print(kCode)
     }

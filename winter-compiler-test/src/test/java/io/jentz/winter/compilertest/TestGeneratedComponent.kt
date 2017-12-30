@@ -1,7 +1,6 @@
 package io.jentz.winter.compilertest
 
 import io.jentz.winter.Graph
-import io.jentz.winter.memorize
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -96,7 +95,7 @@ class TestGeneratedComponent {
         assertNotNull(instance.dep0)
         assertNotNull(instance.dep1)
         assertNotNull(instance.dep2)
-        assertNotNull(instance._dep3    )
+        assertNotNull(instance._dep3)
     }
 
     @Test
