@@ -81,7 +81,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: ProviderBlock<T>) {
-        registerProvider(providerKey<T>(qualifier, generics), scope, override, block)
+        registerUnboundProvider(providerKey<T>(qualifier, generics), scope, override, block)
     }
 
     /**
@@ -98,7 +98,7 @@ class ComponentBuilder internal constructor() {
                                            generics: Boolean = false,
                                            override: Boolean = false,
                                            noinline block: ProviderBlock<T>) {
-        registerProvider(providerKey<T>(qualifier, generics), singleton, override, block)
+        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, block)
     }
 
     /**
@@ -116,7 +116,7 @@ class ComponentBuilder internal constructor() {
                                                 override: Boolean = false,
                                                 noinline block: ProviderBlock<T>) {
         val key = providerKey<T>(qualifier, generics)
-        registerProvider(key, singleton, override, block)
+        registerUnboundProvider(key, singleton, override, block)
         eagerDependencies += key
     }
 
@@ -155,8 +155,8 @@ class ComponentBuilder internal constructor() {
     /**
      * Register a members injector for [T].
      */
-    inline fun <reified T : Any> membersInjector(noinline block: () -> MembersInjector<T>) {
-        registerMembersInjector(membersInjectorKey<T>(), block)
+    inline fun <reified T : Any> membersInjector(noinline provider: Provider<MembersInjector<T>>) {
+        registerProvider(membersInjectorKey<T>(), false, provider)
     }
 
     /**
@@ -207,11 +207,11 @@ class ComponentBuilder internal constructor() {
             if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
 
     /**
-     * Register a provider by key.
+     * Register an unbound provider by key.
      *
      * @suppress
      */
-    fun <T : Any> registerProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, block: ProviderBlock<T>) {
+    fun <T : Any> registerUnboundProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, block: ProviderBlock<T>) {
         register(key, UnboundProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
     }
 
@@ -237,12 +237,12 @@ class ComponentBuilder internal constructor() {
     }
 
     /**
-     * Register a [MembersInjector] provider by key.
+     * Register a provider by key.
      *
      * @suppress
      */
-    fun <T : Any> registerMembersInjector(key: DependencyKey, provider: Provider<MembersInjector<T>>) {
-        register(key, ProviderEntry(provider), false)
+    fun <T : Any> registerProvider(key: DependencyKey, override: Boolean, provider: Provider<T>) {
+        register(key, ProviderEntry(provider), override)
     }
 
     private fun register(key: DependencyKey, entry: ComponentEntry<*>, override: Boolean) {
