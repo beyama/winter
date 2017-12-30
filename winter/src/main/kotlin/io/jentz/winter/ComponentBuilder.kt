@@ -30,7 +30,7 @@ class ComponentBuilder internal constructor() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    var eagerDependencies: Set<DependencyKey>
+    private var eagerDependencies: Set<DependencyKey>
         get() = (registry[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>)
                 ?.let { return it.value }
                 ?: emptySet()
@@ -81,7 +81,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: ProviderBlock<T>) {
-        registerUnboundProvider(providerKey<T>(qualifier, generics), scope, override, block)
+        registerUnboundProvider(providerKey<T>(qualifier, generics), scope, override, false, block)
     }
 
     /**
@@ -98,7 +98,7 @@ class ComponentBuilder internal constructor() {
                                            generics: Boolean = false,
                                            override: Boolean = false,
                                            noinline block: ProviderBlock<T>) {
-        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, block)
+        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, false, block)
     }
 
     /**
@@ -115,9 +115,7 @@ class ComponentBuilder internal constructor() {
                                                 generics: Boolean = false,
                                                 override: Boolean = false,
                                                 noinline block: ProviderBlock<T>) {
-        val key = providerKey<T>(qualifier, generics)
-        registerUnboundProvider(key, singleton, override, block)
-        eagerDependencies += key
+        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, true, block)
     }
 
     /**
@@ -211,8 +209,9 @@ class ComponentBuilder internal constructor() {
      *
      * @suppress
      */
-    fun <T : Any> registerUnboundProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, block: ProviderBlock<T>) {
+    fun <T : Any> registerUnboundProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, eager: Boolean, block: ProviderBlock<T>) {
         register(key, UnboundProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
+        if (eager) eagerDependencies += key
     }
 
     /**

@@ -146,11 +146,6 @@ class GraphTest {
         assertTrue(initialized)
     }
 
-    @Test(expected = EntryNotFoundException::class)
-    fun `graph initialisation should throw an exception if a eager dependency doesn't exist`() {
-        component { eagerDependencies += providerKey<Service>() }.init()
-    }
-
     @Test
     fun `#factory should return a factory function that calls the registered factory block when invoked`() {
         val graph = component { factory { int: Int -> 4 + int } }.init()

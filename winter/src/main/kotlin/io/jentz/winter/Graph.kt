@@ -18,7 +18,7 @@ class Graph internal constructor(private val parent: Graph?,
         @Suppress("UNCHECKED_CAST")
         val entry = dependencyMap[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
         entry?.value?.forEach { key ->
-            val provider = providerOrNull(key) ?: throw EntryNotFoundException("Eager dependency with key `$key` doesn't exist.")
+            val provider = providerOrNull(key) ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
             provider.invoke()
         }
     }
