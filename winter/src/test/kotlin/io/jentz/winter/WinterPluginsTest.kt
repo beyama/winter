@@ -25,6 +25,7 @@ class WinterPluginsTest {
     fun beforeEach() {
         WinterPlugins.resetPostConstructPlugins()
         WinterPlugins.resetInitializingComponentPlugins()
+        WinterPlugins.resetGraphDisposePlugins()
     }
 
     @Test
@@ -75,12 +76,30 @@ class WinterPluginsTest {
     }
 
     @Test
-    fun `#removeInitializingComponentPlugin should remove a initializing component plugin`() {
+    fun `#removeInitializingComponentPlugin should remove the given initializing component plugin`() {
         val plugin: InitializingComponentPlugin = { _, builder -> builder.provider { "foo" } }
         WinterPlugins.addInitializingComponentPlugin(plugin)
         assertEquals("foo", testComponent.init().instance<String>())
         WinterPlugins.removeInitializingComponentPlugin(plugin)
         assertNull(testComponent.init().instanceOrNull<String>())
+    }
+
+    @Test
+    fun `should run dispose plugins when graph is disposed`() {
+        var called = false
+        WinterPlugins.addGraphDisposePlugin { called = true }
+        testComponent.init().dispose()
+        assertTrue(called)
+    }
+
+    @Test
+    fun `#removeGraphDisposePlugin should remove the given graph dispose plugin`() {
+        var called = false
+        val plugin: GraphDisposePlugin = { called = true }
+        WinterPlugins.addGraphDisposePlugin(plugin)
+        WinterPlugins.removeGraphDisposePlugin(plugin)
+        testComponent.init().dispose()
+        assertFalse(called)
     }
 
 }

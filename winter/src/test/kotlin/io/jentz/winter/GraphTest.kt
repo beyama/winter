@@ -56,6 +56,13 @@ class GraphTest {
         assertEquals("foo", graph.instance<GenericService<String>>(generics = true).dependency.aValue)
     }
 
+    @Test(expected = WinterException::class)
+    fun `#instance should throw an exception if graph is disposed`() {
+        val graph = component { constant("foo") }.init()
+        graph.dispose()
+        graph.instance<String>()
+    }
+
     @Test
     fun `#instanceOrNull should return instance returned by the provider`() {
         val instance = Any()
@@ -75,6 +82,13 @@ class GraphTest {
         assertNull(emptyGraph.instanceOrNull<Service>())
     }
 
+    @Test(expected = WinterException::class)
+    fun `#instanceOrNull should throw an exception if graph is disposed`() {
+        val graph = component { }.init()
+        graph.dispose()
+        graph.instanceOrNull<String>()
+    }
+
     @Test(expected = EntryNotFoundException::class)
     fun `#provider should throw a EntryNotFoundException when provider does not exist`() {
         emptyGraph.provider<Any>()
@@ -88,6 +102,13 @@ class GraphTest {
         assertSame(instance, provider())
     }
 
+    @Test(expected = WinterException::class)
+    fun `#provider should throw an exception if graph is disposed`() {
+        val graph = component { constant("foo") }.init()
+        graph.dispose()
+        graph.provider<String>()
+    }
+
     @Test
     fun `#providerOrNull should return null when provider does not exist`() {
         assertNull(emptyGraph.providerOrNull<Any>())
@@ -99,6 +120,13 @@ class GraphTest {
         val graph = component { provider { instance } }.init()
         val provider = graph.provider<Any>()
         assertSame(instance, provider())
+    }
+
+    @Test(expected = WinterException::class)
+    fun `#providerOrNull should throw an exception if graph is disposed`() {
+        val graph = component { }.init()
+        graph.dispose()
+        graph.providerOrNull<String>()
     }
 
     @Test
@@ -201,6 +229,24 @@ class GraphTest {
         val component = component { provider<ServiceDependency> { ServiceDependencyImpl(instance()) } }
         val graph = component.init { constant("foo") }
         assertEquals("foo", graph.instance<ServiceDependency>().aValue)
+    }
+
+    @Test
+    fun `#dispose should mark the graph as disposed`() {
+        val graph = component {}.init()
+        assertFalse(graph.isDisposed)
+        graph.dispose()
+        assertTrue(graph.isDisposed)
+    }
+
+    @Test
+    fun `subsequent calls to #dispose should be ignored`() {
+        var count = 0
+        val graph = component {}.init()
+        WinterPlugins.addGraphDisposePlugin { count += 1 }
+        (0..3).forEach { graph.dispose() }
+        WinterPlugins.resetGraphDisposePlugins()
+        assertEquals(1, count)
     }
 
 }

@@ -11,8 +11,11 @@ import java.util.*
 class Graph internal constructor(private val parent: Graph?,
                                  private val dependencyMap: DependencyMap<ComponentEntry<*>>) {
 
-    private val cache = DependencyMap<Provider<*>>(dependencyMap.size)
+    private var cache: DependencyMap<Provider<*>>? = DependencyMap(dependencyMap.size)
     private val stack = Stack<DependencyKey>()
+
+    var isDisposed = false
+        private set
 
     init {
         @Suppress("UNCHECKED_CAST")
@@ -128,7 +131,7 @@ class Graph internal constructor(private val parent: Graph?,
      * @suppress
      */
     fun providerOrNull(key: DependencyKey): Provider<*>? = retrieve(
-            getCached = { cache[key] },
+            getCached = { cache?.get(key) },
             getEntry = { dependencyMap.getEntry(key) },
             getParent = { parent?.providerOrNull(key) })
 
@@ -144,7 +147,7 @@ class Graph internal constructor(private val parent: Graph?,
      * @suppress
      */
     fun providerOrNull(cls: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
-            getCached = { cache.get(cls, qualifier) },
+            getCached = { cache?.get(cls, qualifier) },
             getEntry = { dependencyMap.getEntry(cls, qualifier) },
             getParent = { parent?.providerOrNull(cls, qualifier) })
 
@@ -161,24 +164,27 @@ class Graph internal constructor(private val parent: Graph?,
      * @suppress
      */
     fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
-            getCached = { cache.get(firstClass, secondClass, qualifier) },
+            getCached = { cache?.get(firstClass, secondClass, qualifier) },
             getEntry = { dependencyMap.getEntry(firstClass, secondClass, qualifier) },
             getParent = { parent?.providerOrNull(firstClass, secondClass, qualifier) })
 
     private inline fun retrieve(getCached: () -> Provider<*>?,
                                 getEntry: () -> DependencyMap.Entry<ComponentEntry<*>>?,
-                                getParent: () -> Provider<*>?): Provider<*>? = synchronized(this) {
-        getCached()?.let { return@synchronized it }
+                                getParent: () -> Provider<*>?): Provider<*>? {
+        synchronized(this) {
+            ensureNotDisposed()
 
-        return@synchronized getEntry()?.let { entry ->
-            entry.value
-                    .bind(this)
-                    .also { cache[entry.key] = it }
-        } ?: getParent()
+            getCached()?.let { return it }
+
+            val entry = getEntry() ?: return getParent()
+            return entry.value.bind(this).also { cache?.set(entry.key, it) }
+        }
     }
 
     internal fun <T> evaluate(key: DependencyKey, unboundProvider: UnboundProvider<T>): T {
         synchronized(this) {
+            ensureNotDisposed()
+
             if (stack.contains(key)) {
                 throw CyclicDependencyException("Cyclic dependency for key `$key`.")
             }
@@ -209,6 +215,8 @@ class Graph internal constructor(private val parent: Graph?,
      */
     @JvmOverloads
     fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
+        ensureNotDisposed()
+
         var found = false
         var cls: Class<*>? = instance.javaClass
 
@@ -241,8 +249,31 @@ class Graph internal constructor(private val parent: Graph?,
      * @param block An optional builder block to register provider on the subcomponent.
      */
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph {
-        val subComponent: Component = instance(qualifier)
-        return initializeGraph(this, subComponent, block)
+        ensureNotDisposed()
+
+        return initializeGraph(this, instance(qualifier), block)
+    }
+
+    /**
+     * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
+     *
+     * Subsequent calls are ignored.
+     */
+    fun dispose() {
+        synchronized(this) {
+            if (isDisposed) return
+
+            try {
+                WinterPlugins.runGraphDisposePlugins(this)
+            } finally {
+                isDisposed = true
+                cache = null
+            }
+        }
+    }
+
+    private fun ensureNotDisposed() {
+        if (isDisposed) throw WinterException("Graph is already disposed.")
     }
 
 }

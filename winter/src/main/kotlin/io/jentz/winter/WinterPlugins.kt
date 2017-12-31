@@ -11,12 +11,18 @@ typealias PostConstructPlugin = (graph: Graph, scope: ProviderScope, instance: A
 typealias InitializingComponentPlugin = (parentGraph: Graph?, builder: ComponentBuilder) -> Unit
 
 /**
+ * Plugin that is called on [Graph.dispose].
+ */
+typealias GraphDisposePlugin = (graph: Graph) -> Unit
+
+/**
  * Utility class to hook into certain graph lifecycle.
  */
 object WinterPlugins {
 
     private val postConstructPlugins = mutableListOf<PostConstructPlugin>()
     private val initializingComponentPlugins = mutableListOf<InitializingComponentPlugin>()
+    private val graphDisposePlugins = mutableListOf<GraphDisposePlugin>()
 
     internal val hasInitializingComponentPlugins get() = initializingComponentPlugins.isNotEmpty()
 
@@ -68,6 +74,31 @@ object WinterPlugins {
 
     internal fun runInitializingComponentPlugins(graph: Graph?, builder: ComponentBuilder) {
         initializingComponentPlugins.forEach { it(graph, builder) }
+    }
+
+    /**
+     * Register a [graph dispose plugin][GraphDisposePlugin].
+     */
+    fun addGraphDisposePlugin(plugin: GraphDisposePlugin) {
+        graphDisposePlugins += plugin
+    }
+
+    /**
+     * Unregister a [graph dispose plugin][GraphDisposePlugin].
+     */
+    fun removeGraphDisposePlugin(plugin: GraphDisposePlugin) {
+        graphDisposePlugins -= plugin
+    }
+
+    /**
+     * Remove all [graph dispose plugins][GraphDisposePlugin].
+     */
+    fun resetGraphDisposePlugins() {
+        graphDisposePlugins.clear()
+    }
+
+    internal fun runGraphDisposePlugins(graph: Graph) {
+        graphDisposePlugins.forEach { it(graph) }
     }
 
 }
