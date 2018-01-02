@@ -76,7 +76,7 @@ package io.jentz.winter
  */
 object GraphRegistry {
 
-    private class Node(val parent: Node?, val qualifier: Any, val graph: Graph) {
+    private class Node(val parent: Node?, val name: Any, val graph: Graph) {
         val children = mutableMapOf<Any, Node>()
     }
 
@@ -88,13 +88,14 @@ object GraphRegistry {
 
     private var rootNode: Node? = null
 
+    private val root get() = rootNode ?: throw EntryNotFoundException("Root dependency graph isn't initialized.")
+
     /**
      * Get a registered dependency graph by path.
      */
     @JvmStatic
     fun get(vararg path: Any): Graph {
-        val base = rootNode ?: throw EntryNotFoundException("Root dependency graph isn't initialized.")
-        val node = getNode(base, *path)
+        val node = getNode(path)
                 ?: throw EntryNotFoundException("Dependency graph in path '${pathToString(path)}' doesn't exist.")
         return node.graph
     }
@@ -104,16 +105,31 @@ object GraphRegistry {
      */
     @JvmStatic
     fun has(vararg path: Any): Boolean {
-        val base = rootNode ?: return false
-        return getNode(base, *path) != null
+        rootNode ?: return false
+        return getNode(path) != null
     }
 
     /**
-     * Initialize a (sub-)component by path.
+     * Create and return dependency graph by (sub-)component path.
+     */
+    @JvmStatic
+    fun create(vararg path: Any, builderBlock: ComponentBuilderBlock? = null): Graph {
+        if (path.isEmpty()) {
+            val component = applicationComponent
+                    ?: throw WinterException("Can't create root dependency graph without application component.")
+            return component.init(builderBlock)
+        }
+        val parentPath = path.copyOfRange(0, path.lastIndex)
+        val qualifier = path.last()
+        return create(parentPath, qualifier, builderBlock)
+    }
+
+    /**
+     * Create a dependency graph by (sub-)component path and register it.
      * Opened components will be children of each other in left to right order.
      *
      * @param path The path of the (sub-)component to initialize.
-     * @param identifier An optional identifier to store the sub-graph under.
+     * @param identifier An optional identifier to store the sub dependency graph under.
      * @param builderBlock An optional [ComponentBuilderBlock] that's passed to the (sub-)component init method.
      */
     @JvmStatic
@@ -121,34 +137,19 @@ object GraphRegistry {
         synchronized(this) {
             if (path.isEmpty()) {
                 if (identifier != null) throw WinterException("Identifier for root dependency graph is not allowed.")
-                return initRootGraph(builderBlock)
+                if (has()) throw WinterException("Root dependency graph is already open.")
+                return create(builderBlock = builderBlock).also { registerRoot(it) }
             }
-
-            val base = rootNode ?: throw EntryNotFoundException("Root dependency graph isn't initialized.")
 
             val parentPath = path.copyOfRange(0, path.lastIndex)
             val qualifier = path.last()
-            val key = identifier ?: qualifier
-            val parent = getNode(base, *parentPath)
-                    ?: throw EntryNotFoundException("Parent in path '${pathToString(parentPath)}' doesn't exist.")
+            val name = identifier ?: qualifier
+            val target = if (identifier == null) path else arrayOf(*parentPath, identifier)
 
-            if (parent.children.containsKey(key)) {
-                throw WinterException("Graph under '${pathToString(arrayOf(*parentPath, key))}' already exists.")
-            }
-            val graph = parent.graph.initSubcomponent(qualifier, builderBlock)
-            parent.children[key] = Node(parent, key, graph)
-            return graph
+            if (has(*target)) throw WinterException("Graph under '${pathToString(target)}' already exists.")
+
+            return create(parentPath, qualifier, builderBlock).also { register(parentPath, name, it) }
         }
-    }
-
-    private fun initRootGraph(builderBlock: ComponentBuilderBlock?): Graph {
-        if (rootNode != null) throw WinterException("Root dependency graph is already open.")
-
-        val component = applicationComponent
-                ?: throw WinterException("Can't open root dependency graph without root component.")
-        return component
-                .init(builderBlock)
-                .also { rootNode = Node(null, Any(), it) }
     }
 
     /**
@@ -163,7 +164,7 @@ object GraphRegistry {
                         ?: throw WinterException("Subcomponent with path '${pathToString(path)}' is not initialized.")
             }
             disposeNode(node)
-            node.parent?.children?.remove(node.qualifier)
+            node.parent?.children?.remove(node.name)
             if (node === rootNode) rootNode = null
         }
     }
@@ -173,10 +174,24 @@ object GraphRegistry {
         node.graph.dispose()
     }
 
-    private fun getNode(base: Node, vararg pathTokens: Any): Node? {
-        if (pathTokens.isEmpty()) return base
+    private fun getNode(path: Array<out Any>): Node? {
+        if (path.isEmpty()) return root
+        return path.fold(root) { node, token -> node.children[token] ?: return null }
+    }
 
-        return pathTokens.fold(base) { node, token -> node.children[token] ?: return null }
+    private fun create(parentPath: Array<out Any>, qualifier: Any, builderBlock: ComponentBuilderBlock?): Graph {
+        val parent = get(*parentPath)
+        return parent.initSubcomponent(qualifier, builderBlock)
+    }
+
+    private fun registerRoot(graph: Graph) {
+        rootNode = Node(null, Any(), graph)
+    }
+
+    private fun register(parentPath: Array<out Any>, name: Any, graph: Graph) {
+        val parent = getNode(parentPath)
+                ?: throw EntryNotFoundException("Parent in path '${pathToString(parentPath)}' doesn't exist.")
+        parent.children[name] = Node(parent, name, graph)
     }
 
     private fun pathToString(path: Array<out Any>) = path.joinToString(".")

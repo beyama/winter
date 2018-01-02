@@ -51,6 +51,34 @@ class GraphRegistryTest {
     }
 
     @Test(expected = WinterException::class)
+    fun `#create without arguments should throw an exception if root component is not set`() {
+        GraphRegistry.applicationComponent = null
+        GraphRegistry.create()
+    }
+
+    @Test
+    fun `#create without path should initialize and return root dependency graph`() {
+        assertEquals("root", GraphRegistry.create().instance<String>())
+    }
+
+    @Test
+    fun `#create should initialize and return subcomponent by path`() {
+        openAll("presentation")
+        assertEquals("view", GraphRegistry.create(*viewPath).instance<String>())
+    }
+
+    @Test
+    fun `#create without path should pass the builder block to the root component init method`() {
+        assertEquals(42, GraphRegistry.create { constant(42) }.instance<Int>())
+    }
+
+    @Test
+    fun `#create should should pass the builder block to the subcomponent init method`() {
+        openAll("presentation")
+        assertEquals(42, GraphRegistry.create(*viewPath) { constant(42) }.instance<Int>())
+    }
+
+    @Test(expected = WinterException::class)
     fun `#open without arguments should throw an exception if root component is not set`() {
         GraphRegistry.applicationComponent = null
         GraphRegistry.open()
@@ -85,7 +113,7 @@ class GraphRegistryTest {
     }
 
     @Test
-    fun `#open without arguments should pass the builder block to the root component init method`() {
+    fun `#open without path should pass the builder block to the root component init method`() {
         assertEquals(42, GraphRegistry.open { constant(42) }.instance<Int>())
     }
 
