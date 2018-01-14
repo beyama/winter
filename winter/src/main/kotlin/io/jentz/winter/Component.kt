@@ -2,15 +2,6 @@ package io.jentz.winter
 
 import io.jentz.winter.internal.ComponentEntry
 import io.jentz.winter.internal.ConstantEntry
-import io.jentz.winter.internal.DependencyMap
-
-/**
- * Create an instance of [Component].
- *
- * @param block A builder block to register provider on the component.
- * @return A instance of component containing all provider defined in the builder block.
- */
-fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply { this.block() }.build()
 
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
@@ -30,7 +21,7 @@ fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply { t
  * val graph = derived.init { constant<Application>(myAndroidApplication) }
  * ```
  */
-class Component internal constructor(internal val dependencyMap: DependencyMap<ComponentEntry<*>>) {
+class Component internal constructor(internal val dependencies: Map<DependencyKey, ComponentEntry<*>>) {
 
     /**
      * Create an extended copy of this component.
@@ -57,7 +48,7 @@ class Component internal constructor(internal val dependencyMap: DependencyMap<C
     fun subcomponent(vararg qualifiers: Any): Component {
         var component: Component = this
         qualifiers.forEach { qualifier ->
-            val constant = component.dependencyMap.get(Component::class.java, qualifier) as? ConstantEntry<*>
+            val constant = component.dependencies[typeKey<Component>(qualifier)] as? ConstantEntry<*>
             if (constant == null) {
                 val path = qualifiers.joinToString(", ")
                 throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")

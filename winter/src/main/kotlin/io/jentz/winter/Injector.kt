@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -96,22 +95,22 @@ class Injector {
     }
 
     inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false)
-            = register(Instance<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
+            = register(Instance<T>(typeKey<T>(qualifier, generics)))
 
     inline fun <reified T : Any?> instanceOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(InstanceOrNull<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
+            = register(InstanceOrNull<T>(typeKey<T>(qualifier, generics)))
 
     inline fun <reified T : Any> lazyInstance(qualifier: Any? = null, generics: Boolean = false)
-            = register(LazyInstance<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
+            = register(LazyInstance<T>(typeKey<T>(qualifier, generics)))
 
     inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(LazyInstanceOrNull<T>(if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)))
+            = register(LazyInstanceOrNull<T>(typeKey<T>(qualifier, generics)))
 
     inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false)
-            = register(Instance<(A) -> R>(if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)))
+            = register(Instance<(A) -> R>(compoundTypeKey<A, R>(qualifier, generics)))
 
     inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false)
-            = register(InstanceOrNull<(A) -> R>(if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)))
+            = register(InstanceOrNull<(A) -> R>(compoundTypeKey<A, R>(qualifier, generics)))
 
     fun <T> register(propertyInjector: PropertyInjector<T>): InjectedProperty<T> {
         propertyInjectors.add(propertyInjector)

@@ -46,7 +46,7 @@ class ComponentBuilder internal constructor() {
     fun include(component: Component,
                 override: Boolean = true,
                 subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge) {
-        component.dependencyMap.forEach { k, v ->
+        component.dependencies.forEach { (k, v) ->
             when {
                 k === eagerDependenciesKey -> {
                     @Suppress("UNCHECKED_CAST")
@@ -81,7 +81,7 @@ class ComponentBuilder internal constructor() {
                                           generics: Boolean = false,
                                           override: Boolean = false,
                                           noinline block: ProviderBlock<T>) {
-        registerUnboundProvider(providerKey<T>(qualifier, generics), scope, override, false, block)
+        registerUnboundProvider(typeKey<T>(qualifier, generics), scope, override, false, block)
     }
 
     /**
@@ -98,7 +98,7 @@ class ComponentBuilder internal constructor() {
                                            generics: Boolean = false,
                                            override: Boolean = false,
                                            noinline block: ProviderBlock<T>) {
-        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, false, block)
+        registerUnboundProvider(typeKey<T>(qualifier, generics), singleton, override, false, block)
     }
 
     /**
@@ -115,7 +115,7 @@ class ComponentBuilder internal constructor() {
                                                 generics: Boolean = false,
                                                 override: Boolean = false,
                                                 noinline block: ProviderBlock<T>) {
-        registerUnboundProvider(providerKey<T>(qualifier, generics), singleton, override, true, block)
+        registerUnboundProvider(typeKey<T>(qualifier, generics), singleton, override, true, block)
     }
 
     /**
@@ -132,7 +132,7 @@ class ComponentBuilder internal constructor() {
                                                           generics: Boolean = false,
                                                           override: Boolean = false,
                                                           noinline block: FactoryBlock<A, R>) {
-        registerFactory(factoryKey<A, R>(qualifier, generics), scope, override, block)
+        registerFactory(compoundTypeKey<A, R>(qualifier, generics), scope, override, block)
     }
 
     /**
@@ -147,7 +147,7 @@ class ComponentBuilder internal constructor() {
                                           qualifier: Any? = null,
                                           generics: Boolean = false,
                                           override: Boolean = false) {
-        registerConstant(providerKey<T>(qualifier, generics), override, value)
+        registerConstant(typeKey<T>(qualifier, generics), override, value)
     }
 
     /**
@@ -191,18 +191,6 @@ class ComponentBuilder internal constructor() {
 
         getOrCreateSubcomponentBuilder(key).also(block)
     }
-
-    /**
-     * Create [DependencyKey] for provider.
-     */
-    inline fun <reified T : Any> providerKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-            if (generics) genericTypeKey<T>(qualifier) else typeKey<T>(qualifier)
-
-    /**
-     * Create [DependencyKey] for factory.
-     */
-    inline fun <reified A : Any, reified R : Any> factoryKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-            if (generics) genericCompoundTypeKey<A, R>(qualifier) else compoundTypeKey<A, R>(qualifier)
 
     /**
      * Register an unbound provider by key.
@@ -306,9 +294,7 @@ class ComponentBuilder internal constructor() {
     }
 
     internal fun build(): Component {
-        val dependencyMap = DependencyMap<ComponentEntry<*>>(registry.size + (subcomponentBuilders?.size ?: 0))
-        registry.forEach { (k, v) -> dependencyMap[k] = v }
-        subcomponentBuilders?.forEach { (k, v) -> dependencyMap[k] = ConstantEntry(v.build()) }
-        return Component(dependencyMap)
+        subcomponentBuilders?.mapValuesTo(registry) { ConstantEntry(it.value.build()) }
+        return Component(registry.toMap())
     }
 }

@@ -1,17 +1,10 @@
 package io.jentz.winter.internal
 
+import io.jentz.winter.DependencyKey
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-inline fun <reified T> typeKey(qualifier: Any? = null) = TypeKey(T::class.java, qualifier)
-inline fun <reified T> genericTypeKey(qualifier: Any? = null) = object : GenericTypeKey<T>(qualifier) {}
-inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null) = CompoundTypeKey(T0::class.java, T1::class.java, qualifier)
-inline fun <reified T0, reified T1> genericCompoundTypeKey(qualifier: Any? = null) = object : GenericCompoundTypeKey<T0, T1>(qualifier) {}
-inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>, T>()
-
-sealed class DependencyKey
-
-class TypeKey(val type: Class<*>, val qualifier: Any?) : DependencyKey() {
+class TypeKey(val type: Class<*>, val qualifier: Any?) : DependencyKey {
     private var _hashCode = 0
 
     override fun equals(other: Any?): Boolean {
@@ -35,7 +28,7 @@ class TypeKey(val type: Class<*>, val qualifier: Any?) : DependencyKey() {
 }
 
 @Suppress("unused")
-abstract class GenericTypeKey<T>(val qualifier: Any?) : DependencyKey() {
+abstract class GenericTypeKey<T>(val qualifier: Any?) : DependencyKey {
     private var _hashCode = 0
     val type: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
 
@@ -59,7 +52,7 @@ abstract class GenericTypeKey<T>(val qualifier: Any?) : DependencyKey() {
     override fun toString(): String = "GenericTypeKey($type qualifier = $qualifier)"
 }
 
-class CompoundTypeKey(val firstType: Class<*>, val secondType: Class<*>, val qualifier: Any?) : DependencyKey() {
+class CompoundTypeKey(val firstType: Class<*>, val secondType: Class<*>, val qualifier: Any?) : DependencyKey {
     private var _hashCode = 0
 
     override fun equals(other: Any?): Boolean {
@@ -84,7 +77,7 @@ class CompoundTypeKey(val firstType: Class<*>, val secondType: Class<*>, val qua
 }
 
 @Suppress("unused")
-abstract class GenericCompoundTypeKey<T0, T1>(val qualifier: Any?) : DependencyKey() {
+abstract class GenericCompoundTypeKey<T0, T1>(val qualifier: Any?) : DependencyKey {
     private var _hashCode = 0
     val firstType: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
     val secondType: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[1]

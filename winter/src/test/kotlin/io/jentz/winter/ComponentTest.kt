@@ -1,6 +1,8 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.*
+import io.jentz.winter.internal.ConstantEntry
+import io.jentz.winter.internal.FactoryEntry
+import io.jentz.winter.internal.UnboundProviderEntry
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -19,43 +21,43 @@ class ComponentTest {
 
     @Test
     fun `Component created with empty block should contain an empty dependency map`() {
-        assertTrue(component { }.dependencyMap.isEmpty())
+        assertTrue(component { }.dependencies.isEmpty())
     }
 
     @Test
     fun `Component configured with provider should contain provider in its dependency map`() {
         val component = component { provider { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is UnboundProviderEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is UnboundProviderEntry<*>)
     }
 
     @Test
     fun `Component configured with provider and qualifier should contain provider in its dependency map`() {
         val component = component { provider("name") { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is UnboundProviderEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is UnboundProviderEntry<*>)
     }
 
     @Test
     fun `Component configured with factory should contain factory in its dependency map`() {
         val component = component { factory { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencyMap[compoundTypeKey<String, ServiceDependencyImpl>()] is FactoryEntry<*, *>)
+        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>()] is FactoryEntry<*, *>)
     }
 
     @Test
     fun `Component configured with factory and qualifier should contain factory in its dependency map`() {
         val component = component { factory("name") { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencyMap[compoundTypeKey<String, ServiceDependencyImpl>("name")] is FactoryEntry<*, *>)
+        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>("name")] is FactoryEntry<*, *>)
     }
 
     @Test
     fun `Component configured with constant should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl("")) }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>()] is ConstantEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is ConstantEntry<*>)
     }
 
     @Test
     fun `Component configured with constant and qualifier should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl(""), qualifier = "name") }
-        assertTrue(component.dependencyMap[typeKey<ServiceDependencyImpl>("name")] is ConstantEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is ConstantEntry<*>)
     }
 
     @Test(expected = WinterException::class)
@@ -71,17 +73,17 @@ class ComponentTest {
         val component = component { provider { ServiceDependencyImpl("") } }
         val derived = component.derive { }
         assertNotSame(component, derived)
-        assertNotSame(component.dependencyMap, derived.dependencyMap)
-        assertEquals(component.dependencyMap, derived.dependencyMap)
+        assertNotSame(component.dependencies, derived.dependencies)
+        assertEquals(component.dependencies, derived.dependencies)
     }
 
     @Test
     fun `#derive with block should add provider to newly created component`() {
         val component = component { provider { ServiceDependencyImpl("") } }
         val derived = component.derive { provider("name") { ServiceDependencyImpl("") } }
-        assertEquals(1, component.dependencyMap.size)
-        assertEquals(2, derived.dependencyMap.size)
-        assertTrue(derived.dependencyMap.containsKey(typeKey<ServiceDependencyImpl>("name")))
+        assertEquals(1, component.dependencies.size)
+        assertEquals(2, derived.dependencies.size)
+        assertTrue(derived.has(typeKey<ServiceDependencyImpl>("name")))
     }
 
     @Test(expected = WinterException::class)
@@ -97,7 +99,7 @@ class ComponentTest {
         val component = component { provider { instanceA } }
         val derived = component.derive { provider(override = true) { instanceB } }
 
-        assertEquals(1, derived.dependencyMap.size)
+        assertEquals(1, derived.dependencies.size)
         assertSame(instanceB, derived.init().instance())
     }
 
@@ -134,7 +136,7 @@ class ComponentTest {
         val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
         val c2 = component { include(c1, subcomponentIncludeMode = ComponentBuilder.SubcomponentIncludeMode.DoNotInclude) }
 
-        assertTrue(c2.dependencyMap.isEmpty())
+        assertTrue(c2.dependencies.isEmpty())
     }
 
     @Test
@@ -181,7 +183,7 @@ class ComponentTest {
     @Test
     fun `ComponentBuilder#subcomponent should register a subcomponent`() {
         val component = component { subcomponent("sub") { } }
-        assertNotNull(component.dependencyMap.get(Component::class.java, "sub"))
+        assertTrue(component.has(typeKey<Component>("sub")))
     }
 
     @Test
@@ -190,8 +192,8 @@ class ComponentTest {
         val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
         val sub = derived.subcomponent("sub")
 
-        assertNotNull(sub.dependencyMap.get(String::class.java, "a"))
-        assertNotNull(sub.dependencyMap.get(String::class.java, "b"))
+        assertTrue(sub.has(typeKey<String>("a")))
+        assertTrue(sub.has(typeKey<String>("b")))
     }
 
     @Test(expected = WinterException::class)
@@ -212,61 +214,61 @@ class ComponentTest {
 
     @Test(expected = WinterException::class)
     fun `ComponentBuilder#remove should throw an exception when provider doesn't exist`() {
-        component { remove(providerKey<ServiceDependency>()) }
+        component { remove(typeKey<ServiceDependency>()) }
     }
 
     @Test
     fun `ComponentBuilder#remove should not throw an exception when provider doesn't exist but silent is true`() {
-        component { remove(providerKey<ServiceDependency>(), silent = true) }
+        component { remove(typeKey<ServiceDependency>(), silent = true) }
     }
 
     @Test
     fun `ComponentBuilder#remove should remove non-generic provider`() {
         val key = typeKey<ServiceDependencyImpl>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { remove(providerKey<ServiceDependencyImpl>()) }
+        val component = testComponent.derive { remove(typeKey<ServiceDependencyImpl>()) }
         assertFalse(component.has(key))
     }
 
     @Test
     fun `ComponentBuilder#remove should remove generic provider`() {
-        val key = genericTypeKey<GenericDependencyImpl<Int>>()
+        val key = typeKey<GenericDependencyImpl<Int>>(generics = true)
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { remove(providerKey<GenericDependencyImpl<Int>>(generics = true)) }
+        val component = testComponent.derive { remove(typeKey<GenericDependencyImpl<Int>>(generics = true)) }
         assertFalse(component.has(key))
     }
 
     @Test(expected = WinterException::class)
     fun `ComponentBuilder#remove should throw an exception when factory doesn't exist`() {
-        component { remove(factoryKey<String, ServiceDependency>()) }
+        component { remove(compoundTypeKey<String, ServiceDependency>()) }
     }
 
     @Test
     fun `ComponentBuilder#remove should not throw an exception when factory doesn't exist but silent is true`() {
-        component { remove(factoryKey<String, ServiceDependency>(), silent = true) }
+        component { remove(compoundTypeKey<String, ServiceDependency>(), silent = true) }
     }
 
     @Test
     fun `ComponentBuilder#remove should remove non-generic factory`() {
         val key = compoundTypeKey<String, ServiceDependencyImpl>()
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { remove(factoryKey<String, ServiceDependencyImpl>()) }
+        val component = testComponent.derive { remove(compoundTypeKey<String, ServiceDependencyImpl>()) }
         assertFalse(component.has(key))
     }
 
     @Test
     fun `ComponentBuilder#removeFactory should remove generic factory`() {
-        val key = genericCompoundTypeKey<Int, GenericDependencyImpl<Int>>()
+        val key = compoundTypeKey<Int, GenericDependencyImpl<Int>>(generics = true)
         assertTrue(testComponent.has(key))
-        val component = testComponent.derive { remove(factoryKey<Int, GenericDependencyImpl<Int>>(generics = true)) }
+        val component = testComponent.derive { remove(compoundTypeKey<Int, GenericDependencyImpl<Int>>(generics = true)) }
         assertFalse(component.has(key))
     }
 
-    private fun Component.has(key: DependencyKey) = dependencyMap.containsKey(key)
+    private fun Component.has(key: DependencyKey) = dependencies.containsKey(key)
 
-    private val Component.size get() = dependencyMap.size
+    private val Component.size get() = dependencies.size
 
-    private fun Component.constant(key: DependencyKey) = dependencyMap[key] as ConstantEntry<*>
+    private fun Component.constant(key: DependencyKey) = dependencies[key] as ConstantEntry<*>
 
     private fun Component.constantValue(key: DependencyKey) = constant(key).value
 
