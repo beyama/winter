@@ -1,6 +1,9 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.*
+import io.jentz.winter.internal.ComponentEntry
+import io.jentz.winter.internal.CompoundTypeKey
+import io.jentz.winter.internal.ConstantEntry
+import io.jentz.winter.internal.MembersInjector
 import java.util.*
 
 /**
@@ -9,9 +12,9 @@ import java.util.*
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
 class Graph internal constructor(private val parent: Graph?,
-                                 private val dependencyMap: DependencyMap<ComponentEntry<*>>) {
+                                 private val dependencies: Map<DependencyKey, ComponentEntry<*>>) {
 
-    private var cache: DependencyMap<Provider<*>>? = DependencyMap(dependencyMap.size)
+    private var cache: MutableMap<DependencyKey, Provider<*>>? = mutableMapOf()
     private val stack = Stack<DependencyKey>()
 
     var isDisposed = false
@@ -19,7 +22,7 @@ class Graph internal constructor(private val parent: Graph?,
 
     init {
         @Suppress("UNCHECKED_CAST")
-        val entry = dependencyMap[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
+        val entry = dependencies[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
         entry?.value?.forEach { key ->
             val provider = providerOrNull(key) ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
             provider.invoke()
@@ -69,11 +72,7 @@ class Graph internal constructor(private val parent: Graph?,
      */
     inline fun <reified T : Any> providerOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
         @Suppress("UNCHECKED_CAST")
-        return if (generics) {
-            providerOrNull(genericTypeKey<T>(qualifier))
-        } else {
-            providerOrNull(T::class.javaObjectType, qualifier)
-        } as? () -> T
+        return providerOrNull(typeKey<T>(qualifier, generics)) as? () -> T
     }
 
     /**
@@ -99,11 +98,7 @@ class Graph internal constructor(private val parent: Graph?,
      */
     inline fun <reified A : Any, reified R : Any> factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
         @Suppress("UNCHECKED_CAST")
-        return if (generics) {
-            providerOrNull(genericCompoundTypeKey<A, R>(qualifier))
-        } else {
-            providerOrNull(A::class.javaObjectType, R::class.javaObjectType, qualifier)
-        }?.invoke() as? (A) -> R
+        return providerOrNull(compoundTypeKey<A, R>(qualifier, generics))?.invoke() as? (A) -> R
     }
 
     /**
@@ -130,54 +125,14 @@ class Graph internal constructor(private val parent: Graph?,
      *
      * @suppress
      */
-    fun providerOrNull(key: DependencyKey): Provider<*>? = retrieve(
-            getCached = { cache?.get(key) },
-            getEntry = { dependencyMap.getEntry(key) },
-            getParent = { parent?.providerOrNull(key) })
-
-    /**
-     * Retrieve an optional provider by class and qualifier.
-     *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param cls The return class of the requested provider.
-     * @param qualifier An optional qualifier of the requested provider.
-     * @return The [provider][Provider] or null if provider doesn't exist.
-     *
-     * @suppress
-     */
-    fun providerOrNull(cls: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
-            getCached = { cache?.get(cls, qualifier) },
-            getEntry = { dependencyMap.getEntry(cls, qualifier) },
-            getParent = { parent?.providerOrNull(cls, qualifier) })
-
-    /**
-     * Retrieve an optional factory provider by argument and return class and qualifier.
-     *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param firstClass The argument class of the requested factory provider.
-     * @param secondClass The return class of the requested factory provider.
-     * @param qualifier An optional qualifier of the requested factory provider.
-     * @return The [provider][Provider] or null if provider doesn't exist.
-     *
-     * @suppress
-     */
-    fun providerOrNull(firstClass: Class<*>, secondClass: Class<*>, qualifier: Any? = null): Provider<*>? = retrieve(
-            getCached = { cache?.get(firstClass, secondClass, qualifier) },
-            getEntry = { dependencyMap.getEntry(firstClass, secondClass, qualifier) },
-            getParent = { parent?.providerOrNull(firstClass, secondClass, qualifier) })
-
-    private inline fun retrieve(getCached: () -> Provider<*>?,
-                                getEntry: () -> DependencyMap.Entry<ComponentEntry<*>>?,
-                                getParent: () -> Provider<*>?): Provider<*>? {
+    fun providerOrNull(key: DependencyKey): Provider<*>? {
         synchronized(this) {
             ensureNotDisposed()
 
-            getCached()?.let { return it }
+            cache?.get(key)?.let { return it }
 
-            val entry = getEntry() ?: return getParent()
-            return entry.value.bind(this).also { cache?.set(entry.key, it) }
+            val entry = dependencies[key] ?: return parent?.providerOrNull(key)
+            return entry.bind(this).also { cache?.set(key, it) }
         }
     }
 
@@ -222,7 +177,7 @@ class Graph internal constructor(private val parent: Graph?,
 
         while (cls != null) {
             @Suppress("UNCHECKED_CAST")
-            val provider = providerOrNull(MembersInjector::class.java, cls) as? () -> MembersInjector<Any>
+            val provider = providerOrNull(CompoundTypeKey(MembersInjector::class.java, cls, null)) as? () -> MembersInjector<Any>
 
             if (provider != null) {
                 found = true
