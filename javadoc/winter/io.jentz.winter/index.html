@@ -1,0 +1,220 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>io.jentz.winter - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href=".">io.jentz.winter</a><br/>
+<br/>
+<h2>Package io.jentz.winter</h2>
+<h3>Public Winter API</h3>
+<p>The building blocks of Winter are the <code>components</code> and the <code>graphs</code>.</p>
+<h4>Components</h4>
+<p>Components store the dependency provider; basically the dependency definitions provided to Winter - they are
+the blueprints for the <code>graph</code>.</p>
+<ul><li>they are immutable</li>
+<li>they can be extended (by using derive)</li>
+<li>they can be mixed (by using include in the builder)</li>
+</ul>
+<h4>Graphs</h4>
+<p>Graphs are used to retrieve and instantiate dependencies defined in <code>components</code>.</p>
+<p>Think of Graphs as instances of <code>components</code>.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-component/index.html">Component</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Component</span></code>
+<p>The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
+<a href="-graph/index.html">graph</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-component-builder/index.html">ComponentBuilder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ComponentBuilder</span></code>
+<p>Component builder DSL.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-factory-scope/index.html">FactoryScope</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">FactoryScope</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-graph/index.html">Graph</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Graph</span></code>
+<p>The dependency graph class that retrieves and instantiates dependencies from a component.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-injector/index.html">Injector</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Injector</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-provider-scope/index.html">ProviderScope</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">ProviderScope</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Exceptions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-cyclic-dependency-exception/index.html">CyclicDependencyException</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">CyclicDependencyException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-exception/index.html"><span class="identifier">WinterException</span></a></code>
+<p>Exception that is thrown when a cyclic dependency was detected.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-dependency-resolution-exception/index.html">DependencyResolutionException</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">DependencyResolutionException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-exception/index.html"><span class="identifier">WinterException</span></a></code>
+<p>Exception that is thrown when an error occurs during dependency resolution.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-entry-not-found-exception/index.html">EntryNotFoundException</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">EntryNotFoundException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-exception/index.html"><span class="identifier">WinterException</span></a></code>
+<p>Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-exception/index.html">WinterException</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-exception/index.html"><span class="identifier">Exception</span></a></code>
+<p>Base exception class of all exception thrown by Winter.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Type Aliases</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-any-provider.html">AnyProvider</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">AnyProvider</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="multiton.html">multiton</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">multiton</span><span class="symbol">: </span><a href="-factory-scope/index.html"><span class="identifier">FactoryScope</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="prototype.html">prototype</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">prototype</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="prototype-factory.html">prototypeFactory</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">prototypeFactory</span><span class="symbol">: </span><a href="-factory-scope/index.html"><span class="identifier">FactoryScope</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="singleton.html">singleton</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">singleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="soft-singleton.html">softSingleton</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">softSingleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="weak-singleton.html">weakSingleton</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">weakSingleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="component.html">component</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$component(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder/index.html"><span class="identifier">ComponentBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-component/index.html"><span class="identifier">Component</span></a></code>
+<p>Create an instance of <a href="-component/index.html">Component</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="memorize.html">memorize</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorize</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorize(kotlin.Function0((io.jentz.winter.memorize.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="memorize-soft.html">memorizeSoft</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeSoft</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeSoft(kotlin.Function0((io.jentz.winter.memorizeSoft.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="memorize-weak.html">memorizeWeak</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeWeak</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeWeak(kotlin.Function0((io.jentz.winter.memorizeWeak.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="multiton.html">multiton</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">multiton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$multiton(kotlin.Function1((io.jentz.winter.multiton.A, io.jentz.winter.multiton.R)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

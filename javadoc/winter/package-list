@@ -1,0 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+
+io.jentz.winter
+io.jentz.winter.internal

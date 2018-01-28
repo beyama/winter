@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ComponentBuilder - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href=".">ComponentBuilder</a><br/>
+<br/>
+<h1>ComponentBuilder</h1>
+<code><span class="keyword">class </span><span class="identifier">ComponentBuilder</span></code>
+<p>Component builder DSL.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-subcomponent-include-mode/index.html">SubcomponentIncludeMode</a></p>
+</td>
+<td>
+<code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">SubcomponentIncludeMode</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="constant.html">constant</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">constant</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$constant(io.jentz.winter.ComponentBuilder.constant.T, kotlin.Any, kotlin.Boolean, kotlin.Boolean)/value">value</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$constant(io.jentz.winter.ComponentBuilder.constant.T, kotlin.Any, kotlin.Boolean, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$constant(io.jentz.winter.ComponentBuilder.constant.T, kotlin.Any, kotlin.Boolean, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$constant(io.jentz.winter.ComponentBuilder.constant.T, kotlin.Any, kotlin.Boolean, kotlin.Boolean)/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a constant of type <a href="#">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="factory.html">factory</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">factory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$factory(kotlin.Any, io.jentz.winter.FactoryScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.factory.A, io.jentz.winter.ComponentBuilder.factory.R)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$factory(kotlin.Any, io.jentz.winter.FactoryScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.factory.A, io.jentz.winter.ComponentBuilder.factory.R)))/scope">scope</span><span class="symbol">:</span>&nbsp;<a href="../-factory-scope/index.html"><span class="identifier">FactoryScope</span></a>&nbsp;<span class="symbol">=</span>&nbsp;prototypeFactory<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$factory(kotlin.Any, io.jentz.winter.FactoryScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.factory.A, io.jentz.winter.ComponentBuilder.factory.R)))/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$factory(kotlin.Any, io.jentz.winter.FactoryScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.factory.A, io.jentz.winter.ComponentBuilder.factory.R)))/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$factory(kotlin.Any, io.jentz.winter.FactoryScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.factory.A, io.jentz.winter.ComponentBuilder.factory.R)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a factory that takes <a href="#">A</a> and returns <a href="#">R</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="include.html">include</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">include</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$include(io.jentz.winter.Component, kotlin.Boolean, io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode)/component">component</span><span class="symbol">:</span>&nbsp;<a href="../-component/index.html"><span class="identifier">Component</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$include(io.jentz.winter.Component, kotlin.Boolean, io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode)/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$include(io.jentz.winter.Component, kotlin.Boolean, io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode)/subcomponentIncludeMode">subcomponentIncludeMode</span><span class="symbol">:</span>&nbsp;<a href="-subcomponent-include-mode/index.html"><span class="identifier">SubcomponentIncludeMode</span></a>&nbsp;<span class="symbol">=</span>&nbsp;SubcomponentIncludeMode.Merge<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Include dependency from the given component into the new component.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="members-injector.html">membersInjector</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">membersInjector</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$membersInjector(kotlin.Function0((io.jentz.winter.internal.MembersInjector((io.jentz.winter.ComponentBuilder.membersInjector.T)))))/block">block</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="../../io.jentz.winter.internal/-members-injector/index.html"><span class="identifier">MembersInjector</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a members injector for <a href="#">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="provider.html">provider</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">provider</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$provider(kotlin.Any, io.jentz.winter.ProviderScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.provider.T)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$provider(kotlin.Any, io.jentz.winter.ProviderScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.provider.T)))/scope">scope</span><span class="symbol">:</span>&nbsp;<a href="../-provider-scope/index.html"><span class="identifier">ProviderScope</span></a>&nbsp;<span class="symbol">=</span>&nbsp;prototype<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$provider(kotlin.Any, io.jentz.winter.ProviderScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.provider.T)))/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$provider(kotlin.Any, io.jentz.winter.ProviderScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.provider.T)))/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$provider(kotlin.Any, io.jentz.winter.ProviderScope, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.provider.T)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a provider for instances of type <a href="#">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-factory.html">removeFactory</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">removeFactory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeFactory(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeFactory(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeFactory(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/silent">silent</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove a factory of type <code>([A]) -&gt; [R]</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-provider.html">removeProvider</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">removeProvider</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeProvider(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeProvider(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$removeProvider(kotlin.Any, kotlin.Boolean, kotlin.Boolean)/silent">silent</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove a provider of type <a href="#">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="singleton.html">singleton</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">singleton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$singleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.singleton.T)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$singleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.singleton.T)))/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$singleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.singleton.T)))/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$singleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.singleton.T)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a singleton scoped provider for an instance of type <a href="#">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="subcomponent.html">subcomponent</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">subcomponent</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$subcomponent(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$subcomponent(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$subcomponent(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/deriveExisting">deriveExisting</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$subcomponent(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="identifier">ComponentBuilder</span><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a subcomponent.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

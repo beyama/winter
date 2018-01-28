@@ -1,0 +1,144 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>io.jentz.winter.internal - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href=".">io.jentz.winter.internal</a><br/>
+<br/>
+<h2>Package io.jentz.winter.internal</h2>
+<h3>Internal parts of Winter</h3>
+<p>This is subject to change and shouldn't be used outside of Winter.
+The API inside this package may change between patch level version changes.</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-component-entry/index.html">ComponentEntry</a></p>
+</td>
+<td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">ComponentEntry</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-compound-type-key/index.html">CompoundTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">CompoundTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-constant-entry/index.html">ConstantEntry</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ConstantEntry</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-component-entry/index.html"><span class="identifier">ComponentEntry</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-dependency-key.html">DependencyKey</a></p>
+</td>
+<td>
+<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">DependencyKey</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-factory/index.html">Factory</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">Factory</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-factory-entry/index.html">FactoryEntry</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">FactoryEntry</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">A</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="keyword">out</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-component-entry/index.html"><span class="identifier">ComponentEntry</span></a><span class="symbol">&lt;</span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-generic-compound-type-key/index.html">GenericCompoundTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-generic-type-key/index.html">GenericTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-members-injector/index.html">MembersInjector</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">MembersInjector</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-members-injector-entry/index.html">MembersInjectorEntry</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">MembersInjectorEntry</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-component-entry/index.html"><span class="identifier">ComponentEntry</span></a><span class="symbol">&lt;</span><a href="-members-injector/index.html"><span class="identifier">MembersInjector</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-provider-entry/index.html">ProviderEntry</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ProviderEntry</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-component-entry/index.html"><span class="identifier">ComponentEntry</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-type-key/index.html">TypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">TypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="compound-type-key.html">compoundTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal$compoundTypeKey(kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-compound-type-key/index.html"><span class="identifier">CompoundTypeKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="generic-compound-type-key.html">genericCompoundTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">genericCompoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal$genericCompoundTypeKey(kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-generic-compound-type-key/index.html"><span class="identifier">GenericCompoundTypeKey</span></a><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">,</span>&nbsp;<span class="identifier">T1</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="generic-type-key.html">genericTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">genericTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal$genericTypeKey(kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-generic-type-key/index.html"><span class="identifier">GenericTypeKey</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="members-injector-key.html">membersInjectorKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-compound-type-key/index.html"><span class="identifier">CompoundTypeKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="type-key.html">typeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal$typeKey(kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

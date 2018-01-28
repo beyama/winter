@@ -1,0 +1,81 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AndroidInjection - winter-android</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href=".">AndroidInjection</a><br/>
+<br/>
+<h1>AndroidInjection</h1>
+<code><span class="keyword">object </span><span class="identifier">AndroidInjection</span></code>
+<p>Retrieves application and activity graphs and injects into core Android types.</p>
+<p>The default application graph retrieval strategy is to assume that the application context implements
+<a href="../-application-dependency-graph-holder/index.html">ApplicationDependencyGraphHolder</a> and to get the graph from there.</p>
+<p>The default activity graph retrieval strategy is to assume that the activity implements
+<a href="../-activity-dependency-graph-holder/index.html">ActivityDependencyGraphHolder</a> and to get the graph from there.</p>
+<p>The default strategy to create a new activity graph is to assume that the activity component is a "activity" named
+subcomponent of the application component and retrieve the application graph and call <a href="#">Graph.initSubcomponent</a>
+and add the activity instance as a constant of type <a href="https://developer.android.com/reference/android/app/Activity.html">Activity</a> to the resulting activity graph.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="configure.html">configure</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">configure</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$configure(kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.app.Activity, io.jentz.winter.Graph)))/applicationGraphGetter">applicationGraphGetter</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">Graph</span>&nbsp;<span class="symbol">=</span>&nbsp;this.applicationGraphGetter<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$configure(kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.app.Activity, io.jentz.winter.Graph)))/activityGraphGetter">activityGraphGetter</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">Graph</span>&nbsp;<span class="symbol">=</span>&nbsp;this.activityGraphGetter<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$configure(kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.content.Context, io.jentz.winter.Graph)), kotlin.Function1((android.app.Activity, io.jentz.winter.Graph)))/activityGraphFactory">activityGraphFactory</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="https://developer.android.com/reference/android/app/Activity.html"><span class="identifier">Activity</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">Graph</span>&nbsp;<span class="symbol">=</span>&nbsp;this.activityGraphFactory<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Configure this to use different graph retrieval and creation strategies.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-activity-graph.html">createActivityGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$createActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/app/Activity.html"><span class="identifier">Activity</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Create a new activity graph for <a href="create-activity-graph.html#io.jentz.winter.android.AndroidInjection$createActivityGraph(android.app.Activity)/activity">activity</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-activity-graph.html">getActivityGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$getActivityGraph(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Get activity graph from <a href="get-activity-graph.html#io.jentz.winter.android.AndroidInjection$getActivityGraph(android.content.Context)/context">context</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">getActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$getActivityGraph(android.view.View)/view">view</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/view/View.html"><span class="identifier">View</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Get activity graph from <a href="get-activity-graph.html#io.jentz.winter.android.AndroidInjection$getActivityGraph(android.view.View)/view">view</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-application-graph.html">getApplicationGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getApplicationGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$getApplicationGraph(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Get the application graph from <a href="get-application-graph.html#io.jentz.winter.android.AndroidInjection$getApplicationGraph(android.content.Context)/context">context</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="inject.html">inject</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/view/View.html"><span class="identifier">View</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/view">view</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/injector">injector</span><span class="symbol">:</span>&nbsp;<span class="identifier">Injector</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code>
+<p>Gets activity graph from <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/view">view</a> and calls <a href="#">Injector.inject</a> with it and returns the <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/view">view</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/injector">injector</span><span class="symbol">:</span>&nbsp;<span class="identifier">Injector</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code>
+<p>Gets activity graph from <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/context">context</a> and calls <a href="#">Injector.inject</a> with it and returns the <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, io.jentz.winter.Injector)/context">context</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code>
+<p>Injects into <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/context">context</a> from activity graph and returns context.
+This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation processor.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/view/View.html"><span class="identifier">View</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/view">view</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><span class="identifier">T</span></code>
+<p>Injects into <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/view">view</a> from activity graph and returns view.
+This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation processor.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>
