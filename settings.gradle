@@ -1,1 +1,0 @@
-include ':winter-android', ':winter', ':winter-compiler', ':winter-compiler-test'
