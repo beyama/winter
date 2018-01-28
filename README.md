@@ -14,6 +14,8 @@ library for Kotlin on Android and the JVM.
 It offers an idiomatic Kotlin API as well as optional JSR-330 support
 with annotation processor.
 
+See also the [API documentation for Winter](https://beyama.github.io/winter/javadoc/winter/io.jentz.winter/index.html) and [Winter Android](https://beyama.github.io/winter/javadoc/winter-android/io.jentz.winter.android/index.html).
+
 ## Getting Started
 
 ### Gradle
