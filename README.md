@@ -23,11 +23,11 @@ See also the [API documentation for Winter](https://beyama.github.io/winter/java
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.0.1'
+  implementation 'io.jentz.winter:winter:0.0.2'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.0.1'
+  implementation 'io.jentz.winter:winter-android:0.0.2'
   // Optional JSR-330 support
-  kapt 'io.jentz.winter:winter-compiler:0.0.1'
+  kapt 'io.jentz.winter:winter-compiler:0.0.2'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
