@@ -4,40 +4,50 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class Injector {
-    private val propertyInjectors = mutableListOf<PropertyInjector<*>>()
+    private val propertyInjectors = mutableListOf<InjectedProperty<*>>()
 
-    interface InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
-        fun <R> map(mapper: (T) -> R): InjectedProperty<R>
-    }
+    var injected = false
+        private set
 
-    interface PropertyInjector<out T> : InjectedProperty<T> {
-        fun inject(graph: Graph)
-    }
+    abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
+        abstract val value: T
+        abstract fun inject(graph: Graph)
 
-    abstract class AbstractEagerProperty<out T> : PropertyInjector<T> {
-        private var value: Any? = UNINITIALIZED_VALUE
+        fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
 
-        override fun inject(graph: Graph) {
-            value = getValue(graph)
-        }
-
-        override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-            if (value == UNINITIALIZED_VALUE) {
+        final override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+            return try {
+                value
+            } catch (e: UninitializedPropertyAccessException) {
                 throw WinterException("Injected property `${property.name}` not initialized.")
             }
-            @Suppress("UNCHECKED_CAST")
-            return value as T
+        }
+    }
+
+    abstract class AbstractEagerProperty<out T> : InjectedProperty<T>() {
+        private var _value: Any? = UNINITIALIZED_VALUE
+
+        override val value: T
+            get() {
+                if (_value == UNINITIALIZED_VALUE) {
+                    throw UninitializedPropertyAccessException("Property not initialized.")
+                }
+                @Suppress("UNCHECKED_CAST")
+                return _value as T
+            }
+
+        override fun inject(graph: Graph) {
+            _value = getValue(graph)
         }
 
         abstract protected fun getValue(graph: Graph): T
-
-        final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
 
-    abstract class AbstractLazyProperty<out T> : PropertyInjector<T> {
+    abstract class AbstractLazyProperty<out T> : InjectedProperty<T>() {
         private var graph: Graph? = null
         private val memorized = memorize {
-            val graph = graph ?: throw WinterException("Injector graph must be set before accessing injected properties.")
+            val graph = graph ?: throw UninitializedPropertyAccessException("Property not initialized.")
+            this.graph = null
             getValue(graph)
         }
 
@@ -45,33 +55,29 @@ class Injector {
             this.graph = graph
         }
 
-        override fun getValue(thisRef: Any?, property: KProperty<*>) = memorized()
+        override val value: T get() = memorized()
 
         abstract protected fun getValue(graph: Graph): T
-
-        final override fun <R> map(mapper: (T) -> R): InjectedProperty<R> = MapProperty(this, mapper)
     }
 
-    private class MapProperty<in I, out O>(private val base: InjectedProperty<I>, private val mapper: (I) -> O) : InjectedProperty<O> {
-        private var value: Any? = UNINITIALIZED_VALUE
-
-        override fun getValue(thisRef: Any?, property: KProperty<*>): O {
-            val v1 = value
-            @Suppress("UNCHECKED_CAST")
-            if (v1 !== UNINITIALIZED_VALUE) return v1 as O
-
-            synchronized(this) {
-                val v2 = value
-                @Suppress("UNCHECKED_CAST")
-                if (v2 !== UNINITIALIZED_VALUE) return v2 as O
-
-                val typedValue = mapper(base.getValue(thisRef, property))
-                value = typedValue
-                return typedValue
+    class MapProperty<in I, out O>(base: InjectedProperty<I>, mapper: (I) -> O) : InjectedProperty<O>() {
+        private var base: InjectedProperty<I>? = base
+        private var mapper: ((I) -> O)? = mapper
+        private val memorized = memorize {
+            val fn = this.mapper ?: throw IllegalStateException("BUG: MapProperty mapper == null")
+            val property = this.base ?: throw IllegalStateException("BUG: MapProperty base == null")
+            fn(property.value).also {
+                this.base = null
+                this.mapper = null
             }
         }
 
-        override fun <R> map(mapper: (O) -> R): InjectedProperty<R> = MapProperty(this, mapper)
+        override val value: O
+            get() = memorized()
+
+        override fun inject(graph: Graph) {
+            base?.inject(graph)
+        }
     }
 
     class Instance<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T>() {
@@ -112,14 +118,18 @@ class Injector {
     inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false)
             = register(InstanceOrNull<(A) -> R>(compoundTypeKey<A, R>(qualifier, generics)))
 
-    fun <T> register(propertyInjector: PropertyInjector<T>): InjectedProperty<T> {
+    @PublishedApi
+    internal fun <T> register(propertyInjector: InjectedProperty<T>): InjectedProperty<T> {
+        if (injected) throw IllegalStateException("Injector is already injected.")
         propertyInjectors.add(propertyInjector)
         return propertyInjector
     }
 
     fun inject(graph: Graph) {
+        if (injected) return
         propertyInjectors.forEach { it.inject(graph) }
         propertyInjectors.clear()
+        injected = true
     }
 
 }

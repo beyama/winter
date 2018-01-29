@@ -1,7 +1,7 @@
 package io.jentz.winter
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -9,118 +9,153 @@ class InjectorTest {
 
     private val emptyGraph = component { }.init()
 
-    @Test(expected = WinterException::class)
-    fun `#instance delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectableBase() {
-            val property: String by injector.instance()
-        }
-        o.property
+    private lateinit var injector: Injector
+
+    @Before
+    fun beforeEach() {
+        injector = Injector()
+    }
+
+    @Test(expected = UninitializedPropertyAccessException::class)
+    fun `Instance#value should throw an error if accessed before injected`() {
+        Injector.Instance<String>(typeKey<String>()).value
     }
 
     @Test(expected = EntryNotFoundException::class)
-    fun `#instance delegate should throw an error if dependency couldn't be found`() {
-        val o = object : InjectableBase() {
-            val property: String by injector.instance()
-        }
-        o.inject(emptyGraph)
+    fun `Instance#inject should throw an error if dependency couldn't be found`() {
+        Injector.Instance<String>(typeKey<String>()).inject(emptyGraph)
     }
 
     @Test
-    fun `#instance delegate should eagerly resolve dependency when graph is attached`() {
+    fun `Instance#inject should eagerly resolve dependency`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectableBase() {
-            val property: Int by injector.instance()
-        }
-        o.inject(graph)
+        Injector.Instance<Int>(typeKey<Int>()).inject(graph)
         assertEquals(1, integer.get())
     }
 
-    @Test(expected = WinterException::class)
-    fun `#instanceOrNull delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectableBase() {
-            val property: String? by injector.instanceOrNull()
-        }
-        o.property
+    @Test(expected = UninitializedPropertyAccessException::class)
+    fun `InstanceOrNull should throw an error if accessed before injected`() {
+        Injector.InstanceOrNull<String>(typeKey<String>()).value
     }
 
     @Test
-    fun `#instanceOrNull delegate should eagerly resolve dependency when graph is attached`() {
+    fun `InstanceOrNull#inject should eagerly resolve dependency`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectableBase() {
-            val property: Int? by injector.instanceOrNull()
-        }
-        o.inject(graph)
+        Injector.InstanceOrNull<Int>(typeKey<Int>()).inject(graph)
         assertEquals(1, integer.get())
     }
 
     @Test
-    fun `#instanceOrNull should resolve to null if provider doesn't exist`() {
-        val o = object : InjectableBase() {
-            val property: Any? by injector.instanceOrNull()
-        }
-        o.inject(emptyGraph)
-        assertNull(o.property)
+    fun `InstanceOrNull#value should return null if provider doesn't exist`() {
+        val property = Injector.InstanceOrNull<Any>(typeKey<Any>())
+        property.inject(emptyGraph)
+        assertNull(property.value)
     }
 
-    @Test(expected = WinterException::class)
-    fun `#factory delegate should throw an error if accessed before the graph is attached`() {
-        val o = object : InjectableBase() {
-            val property: (Int) -> String by injector.factory()
-        }
-        o.property
-    }
-
-    @Test(expected = EntryNotFoundException::class)
-    fun `#factory delegate should throw an error if dependency couldn't be found`() {
-        val o = object : InjectableBase() {
-            val property: (Int) -> String by injector.factory()
-        }
-        o.inject(emptyGraph)
+    @Test(expected = UninitializedPropertyAccessException::class)
+    fun `LazyInstance should throw an error if accessed before injected`() {
+        Injector.LazyInstance<String>(typeKey<String>()).value
     }
 
     @Test
-    fun `#lazyInstance should resolve dependency on first access`() {
+    fun `LazyInstance should resolve dependency on first access`() {
         val integer = AtomicInteger(0)
         val graph = component { provider { integer.getAndIncrement() } }.init()
-        val o = object : InjectableBase() {
-            val property: Int by injector.lazyInstance()
-        }
-        o.inject(graph)
+        val property = Injector.LazyInstance<Int>(typeKey<Int>())
+        property.inject(graph)
         assertEquals(0, integer.get())
-        o.property
+        property.value
         assertEquals(1, integer.get())
     }
 
-    @Test
-    fun `#lazyInstanceOrNull should resolve to null if provider doesn't exist`() {
-        val o = object : InjectableBase() {
-            val property: Any? by injector.lazyInstanceOrNull()
-        }
-        o.inject(emptyGraph)
-        assertNull(o.property)
+    @Test(expected = UninitializedPropertyAccessException::class)
+    fun `LazyInstanceOrNull should throw an error if accessed before injected`() {
+        Injector.LazyInstanceOrNull<String>(typeKey<String>()).value
     }
 
     @Test
-    fun `test invoke operator`() {
-        val o = object : InjectableBase() {
-            val property by injector.instance<String>()
-        }
-        o.inject(component { constant("test string") }.init())
-        assertEquals("test string", o.property)
+    fun `LazyInstanceOrNull#value should return null if provider doesn't exist`() {
+        val property = Injector.LazyInstanceOrNull<Any>(typeKey<Any>())
+        property.inject(emptyGraph)
+        assertNull(property.value)
     }
 
     @Test
-    fun `#map for factory currying`() {
-        val graph = component {
-            factory<Int, String> { i -> i.toString() }
-        }.init()
-        val o = object : InjectableBase() {
-            val factory: () -> String by injector.factory<Int, String>().map { { it(1) } }
+    fun `MapProperty#value should apply mapping function to value of base property and memorize and return the result`() {
+        val graph = component { constant(21) }.init()
+        val property = Injector.Instance<Int>(typeKey<Int>())
+        val mapped = property.map { it * 2 }
+        property.inject(graph)
+        assertEquals(42, mapped.value)
+    }
+
+    @Test
+    fun `Injector#instance should return an instance of Instance`() {
+        assertTrue(injector.instance<String>() is Injector.Instance)
+    }
+
+    @Test
+    fun `Injector#instanceOrNull should return an instance of InstanceOrNull`() {
+        assertTrue(injector.instanceOrNull<String>() is Injector.InstanceOrNull)
+    }
+
+    @Test
+    fun `Injector#lazyInstance should return an instance of LazyInstance`() {
+        assertTrue(injector.lazyInstance<String>() is Injector.LazyInstance)
+    }
+
+    @Test
+    fun `Injector#lazyInstanceOrNull should return an instance of LazyInstanceOrNull`() {
+        assertTrue(injector.lazyInstanceOrNull<String>() is Injector.LazyInstanceOrNull)
+    }
+
+    @Test
+    fun `Injector#factory should return an instance of Instance`() {
+        assertTrue(injector.factory<Int, String>() is Injector.Instance)
+    }
+
+    @Test
+    fun `Injector#factoryOrNull should return an instance of InstanceOrNull`() {
+        assertTrue(injector.factoryOrNull<Int, String>() is Injector.InstanceOrNull)
+    }
+
+    @Test
+    fun `Injector#inject should inject graph on registered properties`() {
+        val property = TestProperty()
+        injector.register(property)
+        injector.inject(emptyGraph)
+        assertEquals(1, property.injectCalled)
+    }
+
+    @Test
+    fun `Injector#injected should return true after injecting`() {
+        assertFalse(injector.injected)
+        injector.inject(emptyGraph)
+        assertTrue(injector.injected)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `Injector#register should thorow an exception if already injected`() {
+        injector.inject(emptyGraph)
+        injector.register(TestProperty())
+    }
+
+    @Test
+    fun `Subsequent calls to Injector#inject should be ignored`() {
+        val property = TestProperty()
+        injector.register(property)
+        (0 until 5).forEach { injector.inject(emptyGraph) }
+        assertEquals(1, property.injectCalled)
+    }
+
+    private class TestProperty : Injector.AbstractEagerProperty<Any>() {
+        var injectCalled = 0
+        override fun getValue(graph: Graph): Any {
+            injectCalled += 1
+            return Any()
         }
-        o.inject(graph)
-        assertEquals("1", o.factory())
     }
 
 }

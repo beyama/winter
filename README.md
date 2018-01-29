@@ -14,6 +14,8 @@ library for Kotlin on Android and the JVM.
 It offers an idiomatic Kotlin API as well as optional JSR-330 support
 with annotation processor.
 
+See also the [API documentation for Winter](https://beyama.github.io/winter/javadoc/winter/io.jentz.winter/index.html) and [Winter Android](https://beyama.github.io/winter/javadoc/winter-android/io.jentz.winter.android/index.html).
+
 ## Getting Started
 
 ### Gradle
@@ -21,11 +23,11 @@ with annotation processor.
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.0.1'
+  implementation 'io.jentz.winter:winter:0.0.2'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.0.1'
+  implementation 'io.jentz.winter:winter-android:0.0.2'
   // Optional JSR-330 support
-  kapt 'io.jentz.winter:winter-compiler:0.0.1'
+  kapt 'io.jentz.winter:winter-compiler:0.0.2'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
