@@ -23,8 +23,3 @@ class ServiceImpl(override val dependency: ServiceDependency) : Service
 class GenericDependencyImpl<out T>(override val aValue: T?) : GenericDependency<T>
 
 class GenericServiceImpl<out T>(override val dependency: GenericDependency<T>) : GenericService<T>
-
-abstract class InjectableBase {
-    val injector = Injector()
-    fun inject(graph: Graph) = injector.inject(graph)
-}
