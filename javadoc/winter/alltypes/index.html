@@ -10,12 +10,6 @@
 <tbody>
 <tr>
 <td>
-<a href="../io.jentz.winter/-any-provider.html">io.jentz.winter.AnyProvider</a></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
 <a href="../io.jentz.winter/-component/index.html">io.jentz.winter.Component</a></td>
 <td>
 <p>The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
@@ -31,19 +25,14 @@
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter.internal/-component-entry/index.html">io.jentz.winter.internal.ComponentEntry</a></td>
+<a href="../io.jentz.winter/-component-builder-block.html">io.jentz.winter.ComponentBuilderBlock</a></td>
 <td>
+<p>Function signature alias for component builder DSL blocks.</p>
 </td>
 </tr>
 <tr>
 <td>
 <a href="../io.jentz.winter.internal/-compound-type-key/index.html">io.jentz.winter.internal.CompoundTypeKey</a></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
-<a href="../io.jentz.winter.internal/-constant-entry/index.html">io.jentz.winter.internal.ConstantEntry</a></td>
 <td>
 </td>
 </tr>
@@ -56,8 +45,9 @@
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter.internal/-dependency-key.html">io.jentz.winter.internal.DependencyKey</a></td>
+<a href="../io.jentz.winter/-dependency-key.html">io.jentz.winter.DependencyKey</a></td>
 <td>
+<p>Interface for all dependency key types.</p>
 </td>
 </tr>
 <tr>
@@ -82,8 +72,9 @@
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter.internal/-factory-entry/index.html">io.jentz.winter.internal.FactoryEntry</a></td>
+<a href="../io.jentz.winter/-factory-block.html">io.jentz.winter.FactoryBlock</a></td>
 <td>
+<p>Factory function with <a href="../io.jentz.winter/-graph/index.html">Graph</a> as receiver used in <a href="../io.jentz.winter/-component-builder/index.html">ComponentBuilder</a> factory register methods.</p>
 </td>
 </tr>
 <tr>
@@ -113,6 +104,27 @@
 </tr>
 <tr>
 <td>
+<a href="../io.jentz.winter/-graph-dispose-plugin.html">io.jentz.winter.GraphDisposePlugin</a></td>
+<td>
+<p>Plugin that is called on <a href="../io.jentz.winter/-graph/dispose.html">Graph.dispose</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-graph-registry/index.html">io.jentz.winter.GraphRegistry</a></td>
+<td>
+<p>The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-initializing-component-plugin.html">io.jentz.winter.InitializingComponentPlugin</a></td>
+<td>
+<p>Plugin that is called during an component initialization.</p>
+</td>
+</tr>
+<tr>
+<td>
 <a href="../io.jentz.winter/-injector/index.html">io.jentz.winter.Injector</a></td>
 <td>
 </td>
@@ -125,14 +137,16 @@
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter.internal/-members-injector-entry/index.html">io.jentz.winter.internal.MembersInjectorEntry</a></td>
+<a href="../io.jentz.winter/-post-construct-plugin.html">io.jentz.winter.PostConstructPlugin</a></td>
 <td>
+<p>Plugin that is called after an instance was created.</p>
 </td>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter.internal/-provider-entry/index.html">io.jentz.winter.internal.ProviderEntry</a></td>
+<a href="../io.jentz.winter/-provider-block.html">io.jentz.winter.ProviderBlock</a></td>
 <td>
+<p>Provider function with <a href="../io.jentz.winter/-graph/index.html">Graph</a> as receiver used in <a href="../io.jentz.winter/-component-builder/index.html">ComponentBuilder</a> register methods.</p>
 </td>
 </tr>
 <tr>
@@ -152,6 +166,13 @@
 <a href="../io.jentz.winter/-winter-exception/index.html">io.jentz.winter.WinterException</a></td>
 <td>
 <p>Base exception class of all exception thrown by Winter.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-winter-plugins/index.html">io.jentz.winter.WinterPlugins</a></td>
+<td>
+<p>Utility class to hook into certain graph lifecycle.</p>
 </td>
 </tr>
 </tbody>

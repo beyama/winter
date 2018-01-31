@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>GraphRegistry - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href=".">GraphRegistry</a><br/>
+<br/>
+<h1>GraphRegistry</h1>
+<code><span class="keyword">object </span><span class="identifier">GraphRegistry</span></code>
+<p>The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).</p>
+<p>For example consider the following application component of a basic Android application:</p>
+<pre><code>GraphRegistry.applicationComponent = component { // the application component
+  subcomponent("presentation") {                 // A presentation subcomponent that survives orientation changes
+    subcomponent("activity") {}                  // The activity subcomponent that gets recreated with every device rotation
+  }
+}
+</code></pre>
+<p>Create the application dependency graph on application start:</p>
+<pre><code>class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+    GraphRegistry.open() { constant&lt;Application&gt; { this@MyApplication }
+  }
+}
+</code></pre>
+<p>Create the presenter dependency graph by its path (of qualifiers) if it doesn't already exist:</p>
+<pre><code>if (!GraphRegistry.has("presentation") {
+  GraphRegistry.open("presentation")
+}
+</code></pre>
+<p>Create the activity dependency graph by its path (of qualifiers):</p>
+<pre><code>GraphRegistry.open("presentation", "activity") { constant&lt;Activity&gt;(theActivityInstance) }
+</code></pre>
+<p>If you need multiple instances of the same subcomponent you can pass an <code>identifier</code> parameter to the open method
+to register the graph instance under a different <code>identifier</code> than its component qualifier:</p>
+<pre><code>GraphRegistry.open("presentation", "activity", identifier: theActivityInstance) {
+  constant&lt;Activity&gt;(theActivityInstance)
+}
+</code></pre>
+<p>Close the activity graph:</p>
+<pre><code>GraphRegistry.close("presentation", "activity")
+</code></pre>
+<p>Close the activity graph that was created with an identifier:</p>
+<pre><code>GraphRegistry.close("presentation", theActivityInstance)
+</code></pre>
+<p><a href="close.html">GraphRegistry.close</a> will remove and dispose all child dependency graphs from the registry.
+So in our example above the call:</p>
+<pre><code>GraphRegistry.close("presentation")
+</code></pre>
+<p>will also close all activity dependency graphs.</p>
+<p>To get an instance of a dependency graph use <a href="get.html">get</a>:</p>
+<pre><code>GraphRegistry.get()               // Get the root dependency graph
+GraphRegistry.get("presentation") // Get the presentation dependency graph
+</code></pre>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="application-component.html">applicationComponent</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">applicationComponent</span><span class="symbol">: </span><a href="../-component/index.html"><span class="identifier">Component</span></a><span class="symbol">?</span></code>
+<p>The application <a href="../-component/index.html">Component</a> that's used to create the root dependency graph.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="close.html">close</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">close</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.GraphRegistry$close(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove and dispose the dependency graph and its children stored in <a href="close.html#io.jentz.winter.GraphRegistry$close(kotlin.Array((kotlin.Any)))/path">path</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create.html">create</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">create</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.GraphRegistry$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.GraphRegistry$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/builderBlock">builderBlock</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph by (sub-)component path.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get.html">get</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">get</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.GraphRegistry$get(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get a registered dependency graph by path.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="has.html">has</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">has</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.GraphRegistry$has(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Returns true if an entry under the given path exists otherwise false.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="open.html">open</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">open</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.GraphRegistry$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.GraphRegistry$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.GraphRegistry$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/builderBlock">builderBlock</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create a dependency graph by (sub-)component path and register it.
+Opened components will be children of each other in left to right order.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

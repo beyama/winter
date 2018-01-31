@@ -1,0 +1,100 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterPlugins - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href=".">WinterPlugins</a><br/>
+<br/>
+<h1>WinterPlugins</h1>
+<code><span class="keyword">object </span><span class="identifier">WinterPlugins</span></code>
+<p>Utility class to hook into certain graph lifecycle.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="add-graph-dispose-plugin.html">addGraphDisposePlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addGraphDisposePlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$addGraphDisposePlugin(kotlin.Function1((io.jentz.winter.Graph, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-graph-dispose-plugin.html"><span class="identifier">GraphDisposePlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a <a href="../-graph-dispose-plugin.html">graph dispose plugin</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="add-initializing-component-plugin.html">addInitializingComponentPlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addInitializingComponentPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$addInitializingComponentPlugin(kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-initializing-component-plugin.html"><span class="identifier">InitializingComponentPlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register an <a href="../-initializing-component-plugin.html">initializing component plugin</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="add-post-construct-plugin.html">addPostConstructPlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">addPostConstructPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$addPostConstructPlugin(kotlin.Function3((io.jentz.winter.Graph, io.jentz.winter.ProviderScope, kotlin.Any, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-post-construct-plugin.html"><span class="identifier">PostConstructPlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a <a href="../-post-construct-plugin.html">post construct plugin</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-graph-dispose-plugin.html">removeGraphDisposePlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeGraphDisposePlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$removeGraphDisposePlugin(kotlin.Function1((io.jentz.winter.Graph, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-graph-dispose-plugin.html"><span class="identifier">GraphDisposePlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unregister a <a href="../-graph-dispose-plugin.html">graph dispose plugin</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-initializing-component-plugin.html">removeInitializingComponentPlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removeInitializingComponentPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$removeInitializingComponentPlugin(kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-initializing-component-plugin.html"><span class="identifier">InitializingComponentPlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unregister an <a href="../-initializing-component-plugin.html">initializing component plugin</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="remove-post-construct-plugin.html">removePostConstructPlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">removePostConstructPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterPlugins$removePostConstructPlugin(kotlin.Function3((io.jentz.winter.Graph, io.jentz.winter.ProviderScope, kotlin.Any, kotlin.Unit)))/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../-post-construct-plugin.html"><span class="identifier">PostConstructPlugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unregister a <a href="../-post-construct-plugin.html">post construct plugin</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="reset-graph-dispose-plugins.html">resetGraphDisposePlugins</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resetGraphDisposePlugins</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove all <a href="../-graph-dispose-plugin.html">graph dispose plugins</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="reset-initializing-component-plugins.html">resetInitializingComponentPlugins</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resetInitializingComponentPlugins</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove all <a href="../-initializing-component-plugin.html">initializing component plugins</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="reset-post-construct-plugins.html">resetPostConstructPlugins</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resetPostConstructPlugins</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove all <a href="../-post-construct-plugin.html">post construct plugins</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

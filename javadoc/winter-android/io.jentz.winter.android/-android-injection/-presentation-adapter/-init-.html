@@ -1,0 +1,20 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AndroidInjection.PresentationAdapter.<init> - winter-android</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="../index.html">AndroidInjection</a>&nbsp;/&nbsp;<a href="index.html">PresentationAdapter</a>&nbsp;/&nbsp;<a href=".">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.android.AndroidInjection.PresentationAdapter$&lt;init&gt;()"></a>
+<code><span class="identifier">PresentationAdapter</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with a "presentation" named
+subcomponent that has a "activity" named subcomponent. The adapter adds the activity instance to the activity
+dependency graph.</p>
+<p>The activity graph gets disposed on <a href="../on-activity-destroy.html">AndroidInjection.onActivityDestroy</a> but the presentation dependency graph
+gets only disposed when <a href="https://developer.android.com/reference/android/app/Activity.html#isFinishing()">Activity.isFinishing</a> returns true so the presentation dependency graph survives
+configuration changes.</p>
+</BODY>
+</HTML>
