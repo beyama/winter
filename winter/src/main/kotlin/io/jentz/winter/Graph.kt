@@ -102,6 +102,34 @@ class Graph internal constructor(private val parent: Graph?,
     }
 
     /**
+     * Retrieve all providers of type `T`.
+     *
+     * @param generics Preserve generic type parameters.
+     * @return A [Set] of [providers][Provider] of type `T`.
+     */
+    inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
+        return keysOfType(typeKeyOfType<T>(generics))
+                .mapIndexedTo(mutableSetOf()) { _, key ->
+                    @Suppress("UNCHECKED_CAST")
+                    provider(key) as Provider<T>
+                }
+    }
+
+    /**
+     * Retrieve all instances of type `T`.
+     *
+     * @param generics Preserve generic type parameters.
+     * @return A [Set] of instances of type `T`.
+     */
+    inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> {
+        return keysOfType(typeKeyOfType<T>(generics))
+                .mapIndexedTo(mutableSetOf()) { _, key ->
+                    @Suppress("UNCHECKED_CAST")
+                    provider(key).invoke() as T
+                }
+    }
+
+    /**
      * Retrieve a non-optional provider by [key][DependencyKey].
      *
      * `THIS ISN'T PART OF THE PUBLIC API`
@@ -133,6 +161,27 @@ class Graph internal constructor(private val parent: Graph?,
 
             val entry = dependencies[key] ?: return parent?.providerOrNull(key)
             return entry.bind(this).also { cache?.set(key, it) }
+        }
+    }
+
+    private fun keys(): Set<DependencyKey> {
+        val keys = dependencies.keys
+        return parent?.keys()?.let { keys + it } ?: keys
+    }
+
+    @PublishedApi
+    internal fun keysOfType(key: DependencyKey): Set<DependencyKey> {
+        synchronized(this) {
+            ensureNotDisposed()
+
+            cache?.get(key)?.let {
+                @Suppress("UNCHECKED_CAST")
+                return it() as Set<DependencyKey>
+            }
+
+            return keys()
+                    .filterTo(mutableSetOf()) { it.typeEquals(key) }
+                    .also { cache?.put(key, { it }) }
         }
     }
 

@@ -2,8 +2,7 @@ package io.jentz.winter.internal
 
 import io.jentz.winter.compoundTypeKey
 import io.jentz.winter.typeKey
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class DependencyKeyTest {
@@ -12,113 +11,157 @@ class DependencyKeyTest {
     class TestClass
 
     @Test
-    fun `TypeKey should be equal for same class`() {
+    fun `TypeKey should not be equal to null`() {
+        @Suppress("SENSELESS_COMPARISON")
+        assertFalse(typeKey<TestInterface>() == null)
+    }
+
+    @Test
+    fun `TypeKey should be equal to TypeKey from same class`() {
         assertSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>())
     }
 
     @Test
-    fun `TypeKey should be equal for same class with same qualifier`() {
+    fun `TypeKey should be equal to TypeKey from same class with same qualifier`() {
         assertSameHashAndEquals(typeKey<TestInterface>("test"), typeKey<TestInterface>("test"))
     }
 
     @Test
-    fun `TypeKey should not be equal for different classes`() {
+    fun `TypeKey should not be equal to TypeKey from different class`() {
         assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestClass>())
     }
 
     @Test
-    fun `TypeKey should not be equal with different qualifiers`() {
+    fun `TypeKey should not be equal to TypeKey from same class but with different qualifier`() {
         assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>("test"))
     }
 
     @Test
-    fun `GenericTypeKey should be equal for same class`() {
+    fun `TypeKey should be type equal to TypeKey from same class`() {
+        assertTrue(typeKey<TestInterface>().typeEquals(typeKey<TestInterface>(qualifier = Any())))
+    }
+
+    @Test
+    fun `TypeKey should not be type equal to TypeKey from different class`() {
+        assertFalse(typeKey<TestInterface>().typeEquals(typeKey<TestClass>()))
+    }
+
+    @Test
+    fun `GenericTypeKey should be equal to GenericTypeKey from same class`() {
         assertSameHashAndEquals(typeKey<Map<String, List<Int>>>(generics = true), typeKey<Map<String, List<Int>>>(generics = true))
     }
 
     @Test
-    fun `GenericTypeKey should be equal for same class with same qualifier`() {
+    fun `GenericTypeKey should be equal to GenericTypeKey from same class with same qualifier`() {
         assertSameHashAndEquals(
                 typeKey<Map<String, List<Int>>>("test", true),
                 typeKey<Map<String, List<Int>>>("test", true))
     }
 
     @Test
-    fun `GenericTypeKey should not be equal for different classes`() {
+    fun `GenericTypeKey should not be equal to GenericTypeKey from different class`() {
         assertNotSameHashAndEquals(
                 typeKey<Map<String, List<Int>>>(generics = true),
                 typeKey<Set<String>>(generics = true))
     }
 
     @Test
-    fun `GenericTypeKey should not be equal with same class but different qualifiers`() {
+    fun `GenericTypeKey should not be equal to GenericTypeKey from same class but different qualifier`() {
         assertNotSameHashAndEquals(
                 typeKey<Map<String, List<Int>>>(generics = true),
                 typeKey<Map<String, List<Int>>>("test", true))
     }
 
     @Test
-    fun `TypeKey and GenericTypeKey should be equal when created for the same class`() {
+    fun `TypeKey and GenericTypeKey should be equal when created from the same class`() {
         assertSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(generics = true))
         assertSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>())
     }
 
     @Test
-    fun `TypeKey and GenericTypeKey should not be equal when created for the same class but different qualifier`() {
+    fun `TypeKey and GenericTypeKey should not be equal when created from the same class but different qualifier`() {
         assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>("test", true))
         assertNotSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>("test"))
     }
 
     @Test
-    fun `CompoundTypeKey should be equal for same classes`() {
+    fun `TypeKey and GenericTypeKey should be type equal when created from the same class`() {
+        assertTrue(typeKey<TestInterface>(qualifier = Any()).typeEquals(typeKey<TestInterface>(generics = true)))
+        assertTrue(typeKey<TestInterface>(qualifier = Any(), generics = true).typeEquals(typeKey<TestInterface>()))
+    }
+
+    @Test
+    fun `CompoundTypeKey should be equal to CompoundTypeKey from same classes`() {
         assertSameHashAndEquals(compoundTypeKey<Int, String>(), compoundTypeKey<Int, String>())
     }
 
     @Test
-    fun `CompoundTypeKey should be equal for same classes with same qualifier`() {
+    fun `CompoundTypeKey should be equal to CompoundTypeKey from same classes with same qualifier`() {
         assertSameHashAndEquals(compoundTypeKey<Int, String>("test"), compoundTypeKey<Int, String>("test"))
     }
 
     @Test
-    fun `CompoundTypeKey should not be equal for different classes`() {
+    fun `CompoundTypeKey should not be equal to CompoundTypeKey from different classes`() {
         assertNotSameHashAndEquals(compoundTypeKey<Int, String>(), compoundTypeKey<String, Int>())
     }
 
     @Test
-    fun `CompoundTypeKey should not be equal with same classes but different qualifiers`() {
+    fun `CompoundTypeKey should not be equal to CompoundTypeKey from same classes but different qualifier`() {
         assertNotSameHashAndEquals(compoundTypeKey<Int, String>(), compoundTypeKey<String, Int>("test"))
     }
 
     @Test
-    fun `GenericCompoundTypeKey should be equal for same classes`() {
+    fun `CompoundTypeKey should be type equal to CompoundTypeKey from same classes`() {
+        assertTrue(compoundTypeKey<Int, String>(qualifier = Any()).typeEquals(compoundTypeKey<Int, String>()))
+    }
+
+    @Test
+    fun `CompoundTypeKey should not be type equal to CompoundTypeKey from different classes`() {
+        assertFalse(compoundTypeKey<Int, String>().typeEquals(compoundTypeKey<String, Int>()))
+    }
+
+    @Test
+    fun `GenericCompoundTypeKey should be equal to GenericCompoundTypeKey from same classes`() {
         assertSameHashAndEquals(
                 compoundTypeKey<String, Set<List<Int>>>(generics = true),
                 compoundTypeKey<String, Set<List<Int>>>(generics = true))
     }
 
     @Test
-    fun `GenericCompoundTypeKey should be equal for same class with same qualifier`() {
+    fun `GenericCompoundTypeKey should be equal to GenericCompoundTypeKey from same classes with same qualifier`() {
         assertSameHashAndEquals(
                 compoundTypeKey<String, Set<List<Int>>>("test", true),
                 compoundTypeKey<String, Set<List<Int>>>("test", true))
     }
 
     @Test
-    fun `GenericCompoundTypeKey should not be equal for different classes`() {
+    fun `GenericCompoundTypeKey should not be equal to GenericCompoundTypeKey from different classes`() {
         assertNotSameHashAndEquals(
                 compoundTypeKey<String, Set<List<String>>>(generics = true),
                 compoundTypeKey<String, Set<List<Int>>>(generics = true))
     }
 
     @Test
-    fun `GenericCompoundTypeKey should not be equal with same class but different qualifiers`() {
+    fun `GenericCompoundTypeKey should not be equal to GenericCompoundTypeKey from same classes but different qualifiers`() {
         assertNotSameHashAndEquals(
                 compoundTypeKey<String, Set<List<Int>>>("test", true),
                 compoundTypeKey<String, Set<List<Int>>>(generics = true))
     }
 
     @Test
-    fun `CompoundTypeKey and GenericCompoundTypeKey should be equal when created for the same classes`() {
+    fun `GenericCompoundTypeKey should be type equal to GenericCompoundTypeKey from same classes`() {
+        assertTrue(compoundTypeKey<String, Set<List<Int>>>(qualifier = Any(), generics = true)
+                .typeEquals(compoundTypeKey<String, Set<List<Int>>>(generics = true)))
+    }
+
+    @Test
+    fun `GenericCompoundTypeKey should not be type equal to GenericCompoundTypeKey from different classes`() {
+        assertFalse(compoundTypeKey<String, Set<List<String>>>(qualifier = Any(), generics = true)
+                .typeEquals(compoundTypeKey<String, Set<List<Int>>>(generics = true)))
+    }
+
+    @Test
+    fun `CompoundTypeKey and GenericCompoundTypeKey should be equal when created from the same classes`() {
         assertSameHashAndEquals(
                 compoundTypeKey<String, TestInterface>(),
                 compoundTypeKey<String, TestInterface>(generics = true))
@@ -128,7 +171,7 @@ class DependencyKeyTest {
     }
 
     @Test
-    fun `CompoundTypeKey and GenericCompoundTypeKey should not be equal when created for the same classes but different qualifier`() {
+    fun `CompoundTypeKey and GenericCompoundTypeKey should not be equal when created from the same classes but different qualifier`() {
         assertNotSameHashAndEquals(
                 compoundTypeKey<String, TestInterface>(),
                 compoundTypeKey<String, TestInterface>("test", true))

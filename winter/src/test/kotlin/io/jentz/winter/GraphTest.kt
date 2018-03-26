@@ -232,6 +232,63 @@ class GraphTest {
     }
 
     @Test
+    fun `#keysOfType should return a set of dependency keys that match the type of the given dependency key`() {
+        val graph = component {
+            provider("a") { "" }
+            provider("b") { "" }
+            provider("c") { 42 }
+
+            subcomponent("foo") {
+                provider("d") { "" }
+                provider("e") { "" }
+                provider("f") { 42 }
+            }
+        }.init().initSubcomponent("foo")
+
+        assertEquals(
+                setOf(typeKey<Int>("c"), typeKey<Int>("f")),
+                graph.keysOfType(typeKeyOfType<Int>(false))
+        )
+    }
+
+    @Test
+    fun `#providersOfType should return a set of providers of given type`() {
+        val graph = component {
+            provider("something else") { Any() }
+            provider("a") { "a" }
+            provider("b") { "b" }
+            provider("c") { "c" }
+        }.init()
+
+        val providers = graph.providersOfType<String>()
+        val instances = providers.map { it() }
+
+        assertEquals(3, providers.size)
+
+        listOf("a", "b", "c").forEach { v ->
+            assertTrue(instances.contains(v))
+        }
+    }
+
+    @Test
+    fun `#instancesOfType should return a set of instances of given type`() {
+        val graph = component {
+            provider("something else") { Any() }
+            provider("a") { "a" }
+            provider("b") { "b" }
+            provider("c") { "c" }
+        }.init()
+
+        val instances = graph.instancesOfType<String>()
+
+        assertEquals(3, instances.size)
+
+        listOf("a", "b", "c").forEach { v ->
+            assertTrue(instances.contains(v))
+        }
+    }
+
+    @Test
     fun `#dispose should mark the graph as disposed`() {
         val graph = component {}.init()
         assertFalse(graph.isDisposed)
