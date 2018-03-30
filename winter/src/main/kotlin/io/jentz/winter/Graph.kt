@@ -131,29 +131,16 @@ class Graph internal constructor(private val parent: Graph?,
 
     /**
      * Retrieve a non-optional provider by [key][DependencyKey].
-     *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param key A dependency key
-     * @return The [provider][Provider]
-     *
-     * @throws EntryNotFoundException
-     * @suppress
      */
-    fun provider(key: DependencyKey): Provider<*> =
+    @PublishedApi
+    internal fun provider(key: DependencyKey): Provider<*> =
             providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
 
     /**
      * Retrieve an optional provider by [key][DependencyKey].
-     *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param key A dependency key
-     * @return The [provider][Provider] or null if provider doesn't exist.
-     *
-     * @suppress
      */
-    fun providerOrNull(key: DependencyKey): Provider<*>? {
+    @PublishedApi
+    internal fun providerOrNull(key: DependencyKey): Provider<*>? {
         synchronized(this) {
             ensureNotDisposed()
 

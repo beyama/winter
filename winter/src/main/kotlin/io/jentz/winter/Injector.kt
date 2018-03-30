@@ -24,7 +24,8 @@ class Injector {
         }
     }
 
-    abstract class AbstractEagerProperty<out T> : InjectedProperty<T>() {
+    @PublishedApi
+    internal abstract class AbstractEagerProperty<out T> : InjectedProperty<T>() {
         private var _value: Any? = UNINITIALIZED_VALUE
 
         override val value: T
@@ -43,7 +44,8 @@ class Injector {
         abstract protected fun getValue(graph: Graph): T
     }
 
-    abstract class AbstractLazyProperty<out T> : InjectedProperty<T>() {
+    @PublishedApi
+    internal abstract class AbstractLazyProperty<out T> : InjectedProperty<T>() {
         private var graph: Graph? = null
         private val memorized = memorize {
             val graph = graph ?: throw UninitializedPropertyAccessException("Property not initialized.")
@@ -60,7 +62,8 @@ class Injector {
         abstract protected fun getValue(graph: Graph): T
     }
 
-    class MapProperty<in I, out O>(base: InjectedProperty<I>, mapper: (I) -> O) : InjectedProperty<O>() {
+    @PublishedApi
+    internal class MapProperty<in I, out O>(base: InjectedProperty<I>, mapper: (I) -> O) : InjectedProperty<O>() {
         private var base: InjectedProperty<I>? = base
         private var mapper: ((I) -> O)? = mapper
         private val memorized = memorize {
@@ -80,22 +83,26 @@ class Injector {
         }
     }
 
-    class Instance<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T>() {
+    @PublishedApi
+    internal class Instance<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T>() {
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
     }
 
-    class InstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractEagerProperty<T?>() {
+    @PublishedApi
+    internal class InstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractEagerProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
     }
 
-    class LazyInstance<out T : Any>(private val key: DependencyKey) : AbstractLazyProperty<T>() {
+    @PublishedApi
+    internal class LazyInstance<out T : Any>(private val key: DependencyKey) : AbstractLazyProperty<T>() {
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
     }
 
-    class LazyInstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractLazyProperty<T?>() {
+    @PublishedApi
+    internal class LazyInstanceOrNull<out T : Any?>(private val key: DependencyKey) : AbstractLazyProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
     }
