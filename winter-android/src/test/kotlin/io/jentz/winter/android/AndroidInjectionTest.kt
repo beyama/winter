@@ -55,10 +55,10 @@ class AndroidInjectionTest {
     }
 
     @Test
-    fun `#createGraph with injector argument should inject graph into injector`() {
+    fun `#createGraphAndInject with injector argument should inject graph into injector`() {
         val injector = Injector()
         whenever(adapter.createGraph(instance)).thenReturn(rootGraph)
-        assertSame(rootGraph, AndroidInjection.createGraph(instance, injector))
+        assertSame(rootGraph, AndroidInjection.createGraphAndInject(instance, injector))
         assertTrue(injector.injected)
     }
 
