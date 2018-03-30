@@ -2,7 +2,6 @@ package io.jentz.winter.android
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import io.jentz.winter.Graph
@@ -22,8 +21,6 @@ import io.jentz.winter.WinterException
  *
  */
 open class SimpleAndroidInjectionAdapter : AndroidInjection.Adapter {
-
-    override fun getApplicationGraph(context: Context): Graph = GraphRegistry.get()
 
     override fun createGraph(instance: Any): Graph {
         return when (instance) {

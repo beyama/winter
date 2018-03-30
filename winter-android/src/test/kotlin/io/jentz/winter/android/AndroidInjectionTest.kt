@@ -1,5 +1,6 @@
 package io.jentz.winter.android
 
+import android.app.Application
 import android.content.Context
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
@@ -19,8 +20,9 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class AndroidInjectionTest {
 
-    @Mock lateinit var context: Context
-    @Mock lateinit var adapter: AndroidInjection.Adapter
+    @Mock private lateinit var context: Context
+    @Mock private lateinit var application: Application
+    @Mock private lateinit var adapter: AndroidInjection.Adapter
 
     private val instance = Any()
 
@@ -34,8 +36,9 @@ class AndroidInjectionTest {
     }
 
     @Test
-    fun `#getApplicationGraph should pass context to Adapter#getApplicationGraph and return result`() {
-        whenever(adapter.getApplicationGraph(context)).thenReturn(rootGraph)
+    fun `#getApplicationGraph should pass context#applicationContext to Adapter#getGraph and return result`() {
+        whenever(adapter.getGraph(application)).thenReturn(rootGraph)
+        whenever(context.applicationContext).thenReturn(application)
         assertSame(rootGraph, AndroidInjection.getApplicationGraph(context))
     }
 

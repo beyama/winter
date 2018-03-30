@@ -21,11 +21,11 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class SimpleAndroidInjectionAdapterTest {
 
-    @Mock lateinit var application: Application
-    @Mock lateinit var context: Context
-    @Mock lateinit var activity: Activity
-    @Mock lateinit var view: View
-    @Mock lateinit var contextWrapper: ContextWrapper
+    @Mock private lateinit var application: Application
+    @Mock private lateinit var context: Context
+    @Mock private lateinit var activity: Activity
+    @Mock private lateinit var view: View
+    @Mock private lateinit var contextWrapper: ContextWrapper
 
     private val adapter = SimpleAndroidInjectionAdapter()
 
@@ -40,12 +40,6 @@ class SimpleAndroidInjectionAdapterTest {
     fun beforeEach() {
         if (GraphRegistry.has()) GraphRegistry.close()
         GraphRegistry.applicationComponent = applicationComponent
-    }
-
-    @Test
-    fun `#getApplicationGraph should return root graph`() {
-        val graph = GraphRegistry.open()
-        assertSame(graph, adapter.getApplicationGraph(context))
     }
 
     @Test

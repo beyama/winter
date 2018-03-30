@@ -62,11 +62,6 @@ object AndroidInjection {
     interface Adapter {
 
         /**
-         * Get application dependency graph.
-         */
-        fun getApplicationGraph(context: Context): Graph
-
-        /**
          * Get dependency graph for [instance].
          */
         fun getGraph(instance: Any): Graph
@@ -92,9 +87,11 @@ object AndroidInjection {
 
     /**
      * Get application dependency graph.
+     *
+     * Sugar for `AndroidInjection.getGraph(context.applicationContext)`.
      */
     @JvmStatic
-    fun getApplicationGraph(context: Context): Graph = adapter.getApplicationGraph(context)
+    fun getApplicationGraph(context: Context): Graph = getGraph(context.applicationContext)
 
     /**
      * Create and return dependency graph for [instance].
