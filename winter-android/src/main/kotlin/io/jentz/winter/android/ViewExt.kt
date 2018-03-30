@@ -7,7 +7,7 @@ import io.jentz.winter.Graph
 /**
  * Returns the activity graph.
  */
-inline val View.graph: Graph get() = AndroidInjection.getActivityGraph(this.context)
+inline val View.graph: Graph get() = AndroidInjection.getGraph(this)
 
 /**
  * Retrieve a non-optional instance of [T].

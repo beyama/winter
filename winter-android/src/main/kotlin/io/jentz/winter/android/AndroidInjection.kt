@@ -1,13 +1,8 @@
 package io.jentz.winter.android
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
-import android.view.View
 import io.jentz.winter.Graph
-import io.jentz.winter.GraphRegistry
 import io.jentz.winter.Injector
-import io.jentz.winter.WinterException
 import io.jentz.winter.android.AndroidInjection.Adapter
 import io.jentz.winter.internal.MembersInjector
 
@@ -16,30 +11,22 @@ import io.jentz.winter.internal.MembersInjector
  *
  * An application specific graph creation and retrieval strategy can be provided by setting a custom [Adapter].
  *
- * Example using the [AndroidInjection.PresentationAdapter]:
+ * Example using the default [SimpleAndroidInjectionAdapter]:
  *
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
- *     AndroidInjection.adapter = AndroidInjection.PresentationAdapter()
- *
  *     GraphRegistry.applicationComponent = component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
- *         // A presentation subcomponent that survives configuration changes
- *         subcomponent("presentation") {
+ *       singleton { RepoListViewModel(instance()) }
  *
- *           singleton { RepoListViewModel(instance()) }
- *
- *           // The activity subcomponent that gets recreated with every configuration change
- *           subcomponent("activity") {
- *             singleton { Glide.with(instance<Activity>()) }
- *           }
- *         }
+ *       subcomponent("activity") {
+ *          singleton { Glide.with(instance<Activity>()) }
  *       }
  *     }
  *
- *     GraphRegistry.open { constant<Application>(this@MyApplication) }
+ *     AndroidInjection.createGraph(this)
  *   }
  * }
  *
@@ -48,18 +35,24 @@ import io.jentz.winter.internal.MembersInjector
  *   private val viewModel: RepoListViewModel by injector.instance()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     AndroidInjection.onActivityCreate(this, injector)
+ *     AndroidInjection.createGraph(this, injector)
  *     super.onCreate(savedInstanceState)
  *   }
  *
  *   override fun onDestroy() {
- *     AndroidInjection.onActivityDestroy(this)
+ *     AndroidInjection.disposeGraph(this)
  *     super.onDestroy()
  *   }
  *
  * }
  * ```
  *
+ * To register a custom graph creation and retrieval strategy a custom [AndroidInjection.Adapter] can be registered by
+ * setting the [AndroidInjection.adapter] property.
+ *
+ * ```
+ * AndroidInjection.adapter = MyCustomAdapter()
+ * ```
  */
 object AndroidInjection {
 
@@ -67,170 +60,84 @@ object AndroidInjection {
      * Adapter interface for Android application specific graph creation and retrieval strategy.
      */
     interface Adapter {
+
         /**
-         * Get the application dependency graph.
+         * Get application dependency graph.
          */
         fun getApplicationGraph(context: Context): Graph
 
         /**
-         * Get the activity dependency graph for the given [activity].
+         * Get dependency graph for [instance].
          */
-        fun getActivityGraph(activity: Activity): Graph
+        fun getGraph(instance: Any): Graph
 
         /**
-         * Create and return the activity dependency grapgh for the given [activity].
+         * Create dependency graph for [instance].
+         *
+         * The adapter implementation is responsible for storing the created graph.
          */
-        fun createActivityGraph(activity: Activity): Graph
+        fun createGraph(instance: Any): Graph
 
         /**
-         * Dispose the dependency graph of the given [activity].
+         * Dispose the dependency graph of the given [instance].
          */
-        fun disposeActivityGraph(activity: Activity)
-    }
-
-    /**
-     * Adapter that operates on the [GraphRegistry] and requires a root component with an "activity" named
-     * subcomponent. The adapter adds the activity instance to the activity dependency graph.
-     */
-    class SimpleAdapter : Adapter {
-        override fun getApplicationGraph(context: Context): Graph = GraphRegistry.get()
-
-        override fun getActivityGraph(activity: Activity): Graph = GraphRegistry.get(activity)
-
-        override fun createActivityGraph(activity: Activity): Graph =
-                GraphRegistry.open("activity", identifier = activity) { constant(activity) }
-
-        override fun disposeActivityGraph(activity: Activity) {
-            GraphRegistry.close(activity)
-        }
-    }
-
-    /**
-     * Adapter that operates on the [GraphRegistry] and requires a root component with a "presentation" named
-     * subcomponent that has a "activity" named subcomponent. The adapter adds the activity instance to the activity
-     * dependency graph.
-     *
-     * The activity graph gets disposed on [AndroidInjection.onActivityDestroy] but the presentation dependency graph
-     * gets only disposed when [Activity.isFinishing] returns true so the presentation dependency graph survives
-     * configuration changes.
-     */
-    class PresentationAdapter : Adapter {
-        override fun getApplicationGraph(context: Context): Graph = GraphRegistry.get()
-
-        override fun getActivityGraph(activity: Activity): Graph = GraphRegistry.get(activity.javaClass, activity)
-
-        override fun createActivityGraph(activity: Activity): Graph {
-            val presentationScope = activity.javaClass
-            if (!GraphRegistry.has(presentationScope)) {
-                GraphRegistry.open("presentation", identifier = presentationScope)
-            }
-            return GraphRegistry.open(presentationScope, "activity", identifier = activity) {
-                constant(activity)
-            }
-        }
-
-        override fun disposeActivityGraph(activity: Activity) {
-            val presentationScope = activity.javaClass
-            if (GraphRegistry.has(presentationScope, activity)) {
-                GraphRegistry.close(presentationScope, activity)
-
-                if (activity.isFinishing) {
-                    GraphRegistry.close(presentationScope)
-                }
-            }
-        }
+        fun disposeGraph(instance: Any)
     }
 
     /**
      * Set the application specific [adapter][Adapter].
-     * The default adapter is the [SimpleAdapter].
+     * The default adapter is the [SimpleAndroidInjectionAdapter].
      */
-    var adapter: Adapter = SimpleAdapter()
+    var adapter: Adapter = SimpleAndroidInjectionAdapter()
 
     /**
-     * Create and return the activity dependency graph.
-     * This is usually called during [Activity.onCreate].
+     * Get application dependency graph.
      */
     @JvmStatic
-    fun onActivityCreate(activity: Activity): Graph = adapter.createActivityGraph(activity)
+    fun getApplicationGraph(context: Context): Graph = adapter.getApplicationGraph(context)
 
     /**
-     * Create and return the activity dependency graph and pass the graph to the given [injector].
-     * This is usually called during [Activity.onCreate].
+     * Create and return dependency graph for [instance].
      */
     @JvmStatic
-    fun onActivityCreate(activity: Activity, injector: Injector): Graph =
-            onActivityCreate(activity).also { injector.inject(it) }
+    fun createGraph(instance: Any): Graph = adapter.createGraph(instance)
 
     /**
-     * Dispose the activity graph.
-     * This is usually called during [Activity.onDestroy].
+     * Create and return dependency graph for [instance] and also pass the graph to the given [injector].
      */
     @JvmStatic
-    fun onActivityDestroy(activity: Activity) {
-        adapter.disposeActivityGraph(activity)
+    fun createGraph(instance: Any, injector: Injector): Graph = createGraph(instance).also(injector::inject)
+
+    /**
+     * Get dependency graph for [instance].
+     */
+    @JvmStatic
+    fun getGraph(instance: Any): Graph = adapter.getGraph(instance)
+
+    /**
+     * Dispose the dependency graph of the given [instance].
+     */
+    @JvmStatic
+    fun disposeGraph(instance: Any) {
+        adapter.disposeGraph(instance)
     }
 
     /**
-     * Get the application graph from [context].
+     * Get dependency graph for given [instance] and inject dependencies into injector.
      */
     @JvmStatic
-    fun getApplicationGraph(context: Context) = adapter.getApplicationGraph(context)
-
-    /**
-     * Get activity graph from [context].
-     */
-    @JvmStatic
-    fun getActivityGraph(context: Context): Graph = adapter.getActivityGraph(getActivity(context))
-
-    /**
-     * Get activity graph from [view].
-     */
-    @JvmStatic
-    fun getActivityGraph(view: View): Graph = getActivityGraph(view.context)
-
-    /**
-     * Gets activity graph from [view] and calls [Injector.inject] with it and returns the [view].
-     */
-    @JvmStatic
-    fun <T : View> inject(view: T, injector: Injector): T {
-        inject(view.context, injector)
-        return view
+    fun inject(instance: Any, injector: Injector) {
+        injector.inject(getGraph(instance))
     }
 
     /**
-     * Gets activity graph from [context] and calls [Injector.inject] with it and returns the [context].
-     */
-    @JvmStatic
-    fun <T : Context> inject(context: T, injector: Injector): T {
-        injector.inject(getActivityGraph(context))
-        return context
-    }
-
-    /**
-     * Injects into [context] from activity graph and returns context.
+     * Inject into [instance] by using the dependency graph of the [instance].
      * This uses [MembersInjector] and is useful in conjunction with Winters JSR330 annotation processor.
      */
     @JvmStatic
     @JvmOverloads
-    fun <T : Context> inject(context: T, injectSuperClasses: Boolean = false): T {
-        return getActivityGraph(context).inject(context, injectSuperClasses)
-    }
-
-    /**
-     * Injects into [view] from activity graph and returns view.
-     * This uses [MembersInjector] and is useful in conjunction with Winters JSR330 annotation processor.
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun <T : View> inject(view: T, injectSuperClasses: Boolean = false): T {
-        return getActivityGraph(view).inject(view, injectSuperClasses)
-    }
-
-    private fun getActivity(context: Context): Activity = when (context) {
-        is Activity -> context
-        is ContextWrapper -> getActivity(context.baseContext)
-        else -> throw WinterException("The given context is not an activity context.")
+    fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false) {
+        getGraph(instance).inject(instance, injectSuperClasses)
     }
 
 }
