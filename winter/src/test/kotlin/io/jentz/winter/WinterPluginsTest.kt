@@ -59,7 +59,7 @@ class WinterPluginsTest {
         WinterPlugins.addInitializingComponentPlugin { _, builder ->
             builder.provider { "foo" }
         }
-        val graph = component {}.init()
+        val graph = graph {}
         assertEquals("foo", graph.instance<String>())
     }
 
@@ -68,10 +68,10 @@ class WinterPluginsTest {
         WinterPlugins.addInitializingComponentPlugin { parentGraph, builder ->
             parentGraph?.let { builder.provider { it.instance<String>().toUpperCase() } }
         }
-        val graph = component {
+        val graph = graph {
             provider { "foo" }
             subcomponent("sub") {}
-        }.init().initSubcomponent("sub")
+        }.initSubcomponent("sub")
         assertEquals("FOO", graph.instance<String>())
     }
 

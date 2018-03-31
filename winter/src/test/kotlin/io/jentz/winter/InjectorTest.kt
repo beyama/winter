@@ -114,7 +114,7 @@ class InjectorTest {
 
     @Test
     fun `MapPropertyProperty#value should apply mapping function to value of base property and memorize and return the result`() {
-        val graph = component { constant(21) }.init()
+        val graph = graph { constant(21) }
         val property = Injector.InstanceProperty<Int>(typeKey<Int>())
         val mapped = property.map { it * 2 }
         property.inject(graph)

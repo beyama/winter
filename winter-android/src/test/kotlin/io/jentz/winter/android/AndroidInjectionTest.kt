@@ -8,7 +8,7 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import io.jentz.winter.Graph
 import io.jentz.winter.Injector
-import io.jentz.winter.component
+import io.jentz.winter.graph
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -26,9 +26,9 @@ class AndroidInjectionTest {
 
     private val instance = Any()
 
-    private val rootGraph = component {
+    private val rootGraph = graph {
         subcomponent("activity") {}
-    }.init()
+    }
 
     @Before
     fun beforeEach() {
