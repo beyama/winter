@@ -108,11 +108,8 @@ class Graph internal constructor(private val parent: Graph?,
      * @return A [Set] of [providers][Provider] of type `T`.
      */
     inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
-        return keysOfType(typeKeyOfType<T>(generics))
-                .mapIndexedTo(mutableSetOf()) { _, key ->
-                    @Suppress("UNCHECKED_CAST")
-                    provider(key) as Provider<T>
-                }
+        @Suppress("UNCHECKED_CAST")
+        return providersOfType(typeKeyOfType<T>(generics)) as Set<Provider<T>>
     }
 
     /**
@@ -122,11 +119,8 @@ class Graph internal constructor(private val parent: Graph?,
      * @return A [Set] of instances of type `T`.
      */
     inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> {
-        return keysOfType(typeKeyOfType<T>(generics))
-                .mapIndexedTo(mutableSetOf()) { _, key ->
-                    @Suppress("UNCHECKED_CAST")
-                    provider(key).invoke() as T
-                }
+        @Suppress("UNCHECKED_CAST")
+        return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
 
     /**
@@ -157,17 +151,22 @@ class Graph internal constructor(private val parent: Graph?,
     }
 
     @PublishedApi
-    internal fun keysOfType(key: DependencyKey): Set<DependencyKey> {
+    internal fun instancesOfType(key: DependencyKey): Set<*> =
+            providersOfType(key).mapIndexedTo(mutableSetOf()) { _, provider -> provider.invoke() }
+
+    @PublishedApi
+    internal fun providersOfType(key: DependencyKey): Set<Provider<*>> {
         synchronized(this) {
             ensureNotDisposed()
 
             cache?.get(key)?.let {
                 @Suppress("UNCHECKED_CAST")
-                return it() as Set<DependencyKey>
+                return it() as Set<Provider<*>>
             }
 
             return keys()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
+                    .mapIndexedTo(mutableSetOf()) { _, key -> provider(key) }
                     .also { cache?.put(key, { it }) }
         }
     }

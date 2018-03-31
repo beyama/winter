@@ -13,7 +13,15 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  * @param block A builder block to register provider on the component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply(block).build()
+fun component(block: ComponentBuilderBlock): Component = ComponentBuilder().apply(block).build()
+
+/**
+ * Create an ad-hoc instance of [Graph].
+ *
+ * @param block A builder block to register provider on the backing component.
+ * @return A instance of component containing all provider defined in the builder block.
+ */
+fun graph(block: ComponentBuilderBlock): Graph = component(block).init()
 
 /**
  * Provider function with [Graph] as receiver used in [ComponentBuilder] register methods.

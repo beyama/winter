@@ -232,26 +232,6 @@ class GraphTest {
     }
 
     @Test
-    fun `#keysOfType should return a set of dependency keys that match the type of the given dependency key`() {
-        val graph = component {
-            provider("a") { "" }
-            provider("b") { "" }
-            provider("c") { 42 }
-
-            subcomponent("foo") {
-                provider("d") { "" }
-                provider("e") { "" }
-                provider("f") { 42 }
-            }
-        }.init().initSubcomponent("foo")
-
-        assertEquals(
-                setOf(typeKey<Int>("c"), typeKey<Int>("f")),
-                graph.keysOfType(typeKeyOfType<Int>(false))
-        )
-    }
-
-    @Test
     fun `#providersOfType should return a set of providers of given type`() {
         val graph = component {
             provider("something else") { Any() }
