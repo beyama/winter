@@ -7,7 +7,7 @@ import io.jentz.winter.Graph
 /**
  * Returns the activity graph.
  */
-inline val View.graph: Graph get() = AndroidInjection.getActivityGraph(this.context)
+inline val View.graph: Graph get() = AndroidInjection.getGraph(this)
 
 /**
  * Retrieve a non-optional instance of [T].
@@ -77,3 +77,21 @@ inline fun <reified A : Any, reified R : Any> View.factory(qualifier: Any? = nul
  */
 inline fun <reified A : Any, reified R : Any> View.factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? =
         graph.factoryOrNull(qualifier, generics)
+
+/**
+ * Retrieve all providers of type `T`.
+ *
+ * @param generics Preserve generic type parameters.
+ * @return A [Set] of providers of type `() -> T`.
+ */
+inline fun <reified T : Any> View.providersOfType(generics: Boolean = false): Set<() -> T> =
+        graph.providersOfType(generics)
+
+/**
+ * Retrieve all instances of type [T].
+ *
+ * @param generics Preserve generic type parameters.
+ * @return A [Set] of instances of type `T`.
+ */
+inline fun <reified T : Any> View.instancesOfType(generics: Boolean = false): Set<T> =
+        graph.instancesOfType(generics)

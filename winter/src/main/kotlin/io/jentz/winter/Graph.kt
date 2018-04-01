@@ -102,30 +102,39 @@ class Graph internal constructor(private val parent: Graph?,
     }
 
     /**
-     * Retrieve a non-optional provider by [key][DependencyKey].
+     * Retrieve all providers of type `T`.
      *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param key A dependency key
-     * @return The [provider][Provider]
-     *
-     * @throws EntryNotFoundException
-     * @suppress
+     * @param generics Preserve generic type parameters.
+     * @return A [Set] of [providers][Provider] of type `T`.
      */
-    fun provider(key: DependencyKey): Provider<*> =
+    inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
+        @Suppress("UNCHECKED_CAST")
+        return providersOfType(typeKeyOfType<T>(generics)) as Set<Provider<T>>
+    }
+
+    /**
+     * Retrieve all instances of type `T`.
+     *
+     * @param generics Preserve generic type parameters.
+     * @return A [Set] of instances of type `T`.
+     */
+    inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> {
+        @Suppress("UNCHECKED_CAST")
+        return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
+    }
+
+    /**
+     * Retrieve a non-optional provider by [key][DependencyKey].
+     */
+    @PublishedApi
+    internal fun provider(key: DependencyKey): Provider<*> =
             providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
 
     /**
      * Retrieve an optional provider by [key][DependencyKey].
-     *
-     * `THIS ISN'T PART OF THE PUBLIC API`
-     *
-     * @param key A dependency key
-     * @return The [provider][Provider] or null if provider doesn't exist.
-     *
-     * @suppress
      */
-    fun providerOrNull(key: DependencyKey): Provider<*>? {
+    @PublishedApi
+    internal fun providerOrNull(key: DependencyKey): Provider<*>? {
         synchronized(this) {
             ensureNotDisposed()
 
@@ -133,6 +142,32 @@ class Graph internal constructor(private val parent: Graph?,
 
             val entry = dependencies[key] ?: return parent?.providerOrNull(key)
             return entry.bind(this).also { cache?.set(key, it) }
+        }
+    }
+
+    private fun keys(): Set<DependencyKey> {
+        val keys = dependencies.keys
+        return parent?.keys()?.let { keys + it } ?: keys
+    }
+
+    @PublishedApi
+    internal fun instancesOfType(key: DependencyKey): Set<*> =
+            providersOfType(key).mapIndexedTo(mutableSetOf()) { _, provider -> provider.invoke() }
+
+    @PublishedApi
+    internal fun providersOfType(key: DependencyKey): Set<Provider<*>> {
+        synchronized(this) {
+            ensureNotDisposed()
+
+            cache?.get(key)?.let {
+                @Suppress("UNCHECKED_CAST")
+                return it() as Set<Provider<*>>
+            }
+
+            return keys()
+                    .filterTo(mutableSetOf()) { it.typeEquals(key) }
+                    .mapIndexedTo(mutableSetOf()) { _, key -> provider(key) }
+                    .also { cache?.put(key, { it }) }
         }
     }
 

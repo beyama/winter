@@ -13,7 +13,15 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  * @param block A builder block to register provider on the component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun component(block: ComponentBuilder.() -> Unit) = ComponentBuilder().apply(block).build()
+fun component(block: ComponentBuilderBlock): Component = ComponentBuilder().apply(block).build()
+
+/**
+ * Create an ad-hoc instance of [Graph].
+ *
+ * @param block A builder block to register provider on the backing component.
+ * @return A instance of component containing all provider defined in the builder block.
+ */
+fun graph(block: ComponentBuilderBlock): Graph = component(block).init()
 
 /**
  * Provider function with [Graph] as receiver used in [ComponentBuilder] register methods.
@@ -66,9 +74,26 @@ inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, gene
         if (generics) object : GenericCompoundTypeKey<T0, T1>(qualifier) {} else CompoundTypeKey(T0::class.java, T1::class.java, qualifier)
 
 /**
+ * This is used internally to created dependency keys to search for all entries of the given type.
+ * The qualifier is used to allow the usage of this key for caching to prevent clashes with normal dependency keys.
+ */
+@PublishedApi
+internal inline fun <reified T> typeKeyOfType(generics: Boolean) =
+        typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
+
+/**
  * Interface for all dependency key types.
  */
-interface DependencyKey
+interface DependencyKey {
+
+    val qualifier: Any?
+
+    /**
+     * Test if [other] has the same type.
+     * Like [equals] without looking onto the [qualifier].
+     */
+    fun typeEquals(other: DependencyKey): Boolean
+}
 
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
