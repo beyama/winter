@@ -192,43 +192,27 @@ class ComponentBuilder internal constructor() {
         getOrCreateSubcomponentBuilder(key).also(block)
     }
 
-    /**
-     * Register an unbound provider by key.
-     *
-     * @suppress
-     */
-    fun <T : Any> registerUnboundProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, eager: Boolean, block: ProviderBlock<T>) {
+    @PublishedApi
+    internal fun <T : Any> registerUnboundProvider(key: DependencyKey, scope: ProviderScope, override: Boolean, eager: Boolean, block: ProviderBlock<T>) {
         register(key, UnboundProviderEntry(scope, setupProviderBlock(key, scope, block)), override)
         if (eager) eagerDependencies += key
     }
 
-    /**
-     * Register a constant by key.
-     *
-     * @suppress
-     */
-    fun <T : Any> registerConstant(key: DependencyKey, override: Boolean, value: T) {
+    @PublishedApi
+    internal fun <T : Any> registerConstant(key: DependencyKey, override: Boolean, value: T) {
         register(key, ConstantEntry(value), override)
     }
 
-    /**
-     * Register a factory by key.
-     *
-     * @suppress
-     */
-    fun <A : Any, R : Any> registerFactory(key: DependencyKey,
-                                           scope: FactoryScope,
-                                           override: Boolean = false,
-                                           block: FactoryBlock<A, R>) {
+    @PublishedApi
+    internal fun <A : Any, R : Any> registerFactory(key: DependencyKey,
+                                                    scope: FactoryScope,
+                                                    override: Boolean = false,
+                                                    block: FactoryBlock<A, R>) {
         register(key, FactoryEntry(scope, setupFactoryBlock(key, block)), override)
     }
 
-    /**
-     * Register a provider by key.
-     *
-     * @suppress
-     */
-    fun <T : Any> registerProvider(key: DependencyKey, override: Boolean, provider: Provider<T>) {
+    @PublishedApi
+    internal fun <T : Any> registerProvider(key: DependencyKey, override: Boolean, provider: Provider<T>) {
         register(key, ProviderEntry(provider), override)
     }
 
