@@ -10,18 +10,21 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
 /**
  * Create an instance of [Component].
  *
+ * @param qualifier An optional qualifier for the component.
  * @param block A builder block to register provider on the component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun component(block: ComponentBuilderBlock): Component = ComponentBuilder().apply(block).build()
+fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
+        ComponentBuilder(qualifier).apply(block).build()
 
 /**
  * Create an ad-hoc instance of [Graph].
  *
+ * @param qualifier An optional qualifier for the graph.
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(block: ComponentBuilderBlock): Graph = component(block).init()
+fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph = component(qualifier, block).init()
 
 /**
  * Provider function with [Graph] as receiver used in [ComponentBuilder] register methods.
@@ -110,7 +113,7 @@ internal fun initializeGraph(parentGraph: Graph?, component: Component, block: C
     } else {
         component
     }
-    return Graph(parentGraph, baseComponent.dependencies)
+    return Graph(parentGraph, baseComponent)
 }
 
 internal fun <T : Any> setupProviderBlock(key: DependencyKey, scope: ProviderScope, block: ProviderBlock<T>): UnboundProvider<T> {

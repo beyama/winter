@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.ComponentEntry
 import io.jentz.winter.internal.CompoundTypeKey
 import io.jentz.winter.internal.ConstantEntry
 import io.jentz.winter.internal.MembersInjector
@@ -11,8 +10,17 @@ import java.util.*
  *
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
-class Graph internal constructor(private val parent: Graph?,
-                                 private val dependencies: Map<DependencyKey, ComponentEntry<*>>) {
+class Graph internal constructor(
+        /**
+         * The parent [Graph] instance.
+         */
+        val parent: Graph?,
+
+        /**
+         * The component instance.
+         */
+        val component: Component
+) {
 
     private var cache: MutableMap<DependencyKey, Provider<*>>? = mutableMapOf()
     private val stack = Stack<DependencyKey>()
@@ -22,9 +30,10 @@ class Graph internal constructor(private val parent: Graph?,
 
     init {
         @Suppress("UNCHECKED_CAST")
-        val entry = dependencies[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
+        val entry = component.dependencies[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
         entry?.value?.forEach { key ->
-            val provider = providerOrNull(key) ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
+            val provider = providerOrNull(key)
+                    ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
             provider.invoke()
         }
     }
@@ -38,8 +47,7 @@ class Graph internal constructor(private val parent: Graph?,
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false): T
-            = provider<T>(qualifier, generics).invoke()
+    inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false): T = provider<T>(qualifier, generics).invoke()
 
     /**
      * Retrieve an optional instance of `T`.
@@ -48,8 +56,7 @@ class Graph internal constructor(private val parent: Graph?,
      * @param generics Preserve generic type parameters.
      * @return An instance of `T` or null if provider doesn't exist.
      */
-    inline fun <reified T : Any> instanceOrNull(qualifier: Any? = null, generics: Boolean = false): T?
-            = providerOrNull<T>(qualifier, generics)?.invoke()
+    inline fun <reified T : Any> instanceOrNull(qualifier: Any? = null, generics: Boolean = false): T? = providerOrNull<T>(qualifier, generics)?.invoke()
 
     /**
      * Retrieve a non-optional provider function that returns `T`.
@@ -60,8 +67,8 @@ class Graph internal constructor(private val parent: Graph?,
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> provider(qualifier: Any? = null, generics: Boolean = false): () -> T
-            = providerOrNull(qualifier, generics) ?: throw EntryNotFoundException("Provider for class `${T::class}` and qualifier `$qualifier` does not exist.")
+    inline fun <reified T : Any> provider(qualifier: Any? = null, generics: Boolean = false): () -> T = providerOrNull(qualifier, generics)
+            ?: throw EntryNotFoundException("Provider for class `${T::class}` and qualifier `$qualifier` does not exist.")
 
     /**
      * Retrieve an optional provider function that returns `T`.
@@ -84,8 +91,8 @@ class Graph internal constructor(private val parent: Graph?,
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified A : Any, reified R : Any> factory(qualifier: Any? = null, generics: Boolean = false): (A) -> R
-            = factoryOrNull(qualifier, generics) ?: throw EntryNotFoundException("Factory `(${A::class}) -> ${R::class}` does not exist.")
+    inline fun <reified A : Any, reified R : Any> factory(qualifier: Any? = null, generics: Boolean = false): (A) -> R = factoryOrNull(qualifier, generics)
+            ?: throw EntryNotFoundException("Factory `(${A::class}) -> ${R::class}` does not exist.")
 
     /**
      * Retrieve an optional factory function that takes an argument of type `A` and returns `R`.
@@ -140,13 +147,13 @@ class Graph internal constructor(private val parent: Graph?,
 
             cache?.get(key)?.let { return it }
 
-            val entry = dependencies[key] ?: return parent?.providerOrNull(key)
+            val entry = component.dependencies[key] ?: return parent?.providerOrNull(key)
             return entry.bind(this).also { cache?.set(key, it) }
         }
     }
 
     private fun keys(): Set<DependencyKey> {
-        val keys = dependencies.keys
+        val keys = component.dependencies.keys
         return parent?.keys()?.let { keys + it } ?: keys
     }
 

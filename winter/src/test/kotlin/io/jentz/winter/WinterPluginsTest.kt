@@ -19,7 +19,7 @@ class WinterPluginsTest {
         }
     }
 
-    val testComponent = component { provider { Bean() } }
+    private val testComponent = component { provider { Bean() } }
 
     @Before
     fun beforeEach() {
