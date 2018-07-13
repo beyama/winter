@@ -2,7 +2,7 @@
 
 [![Kotlin 1.1.51](https://img.shields.io/badge/Kotlin-1.1-blue.svg)](http://kotlinlang.org)
 [![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.jentz.winter%22)
-[![Travis](https://img.shields.io/travis/beyama/winter.svg)](https://travis-ci.org/beyama/winter/builds)
+[![Travis](https://travis-ci.org/beyama/winter.svg)](https://travis-ci.org/beyama/winter/builds)
 [![MIT License](https://img.shields.io/github/license/beyama/winter.svg)](https://github.com/beyama/winter/blob/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/beyama/winter.svg)](https://github.com/beyama/winter/issues)
 
@@ -23,11 +23,11 @@ See also the [API documentation for Winter](https://beyama.github.io/winter/java
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.0.2'
+  implementation 'io.jentz.winter:winter:0.0.4'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.0.2'
+  implementation 'io.jentz.winter:winter-android:0.0.4'
   // Optional JSR-330 support
-  kapt 'io.jentz.winter:winter-compiler:0.0.2'
+  kapt 'io.jentz.winter:winter-compiler:0.0.4'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
