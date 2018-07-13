@@ -8,7 +8,7 @@ import org.junit.Test
 
 class ComponentTest {
 
-    private val testComponent = component {
+    private val testComponent = component("root") {
         provider { ServiceDependencyImpl("") }
         provider(qualifier = "name") { ServiceDependencyImpl("") }
         provider(generics = true) { GenericDependencyImpl(1) }
@@ -103,6 +103,16 @@ class ComponentTest {
         assertSame(instanceB, derived.init().instance())
     }
 
+    @Test
+    fun `#derive should copy the qualifier of the component it is derived from when no qualifier is given`() {
+        assertEquals("root", testComponent.derive { }.qualifier)
+    }
+
+    @Test
+    fun `#derive should set the new qualifier if one is given`() {
+        assertEquals("derived", testComponent.derive("derived") { }.qualifier)
+    }
+
     @Test(expected = EntryNotFoundException::class)
     fun `#subcomponent should throw an exception if entry doesn't exist`() {
         component {}.subcomponent("a")
@@ -112,9 +122,9 @@ class ComponentTest {
     fun `#subcomponent with one qualifier should return the corresponding subcomponent`() {
         val c = component {
             subcomponent("s1") {}
-            subcomponent("s2") { constant(42) }
+            subcomponent("s2") {}
         }
-        assertEquals(42, c.subcomponent("s2").constantValue(typeKey<Int>()))
+        assertEquals("s2", c.subcomponent("s2").qualifier)
     }
 
     @Test
@@ -122,13 +132,25 @@ class ComponentTest {
         val c = component {
             subcomponent("1") {
                 subcomponent("1.1") {
-                    subcomponent("1.1.1") {
-                        constant(42)
-                    }
+                    subcomponent("1.1.1") {}
                 }
             }
         }
-        assertEquals(42, c.subcomponent("1", "1.1", "1.1.1").constantValue(typeKey<Int>()))
+        assertEquals("1.1.1", c.subcomponent("1", "1.1", "1.1.1").qualifier)
+    }
+
+    @Test
+    fun `#init without builder block should return graph with component`() {
+        val c = component("root") { }
+        assertSame(c, c.init().component)
+    }
+
+    @Test
+    fun `#init with builder block should return graph with right component qualifier`() {
+        val c = component("root") { }
+        val graph = c.init { }
+        assertEquals("root", graph.component.qualifier)
+        assertNotSame(c, graph.component)
     }
 
     @Test
@@ -210,6 +232,12 @@ class ComponentTest {
     fun `ComponentBuilder#subcomponent should throw exception when deriveExisting and override is true`() {
         val base = component { subcomponent("sub") {} }
         base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
+    }
+
+    @Test
+    fun `ComponentBuilder#subcomponent should set qualifier to resulting subcomponent`() {
+        val subcomponent = component { subcomponent("sub") {} }.subcomponent("sub")
+        assertEquals("sub", subcomponent.qualifier)
     }
 
     @Test(expected = WinterException::class)

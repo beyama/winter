@@ -5,7 +5,7 @@ import io.jentz.winter.internal.*
 /**
  * Component builder DSL.
  */
-class ComponentBuilder internal constructor() {
+class ComponentBuilder internal constructor(val qualifier: Any?) {
     private val registry: MutableMap<DependencyKey, ComponentEntry<*>> = mutableMapOf()
     private var subcomponentBuilders: MutableMap<DependencyKey, ComponentBuilder>? = null
 
@@ -271,7 +271,7 @@ class ComponentBuilder internal constructor() {
         val constant = registry.remove(key) as? ConstantEntry<*>
         val existingSubcomponent = constant?.value as? Component
 
-        return ComponentBuilder().also { builder ->
+        return ComponentBuilder(key.qualifier).also { builder ->
             existingSubcomponent?.let { builder.include(it) }
             builders[key] = builder
         }
@@ -279,6 +279,6 @@ class ComponentBuilder internal constructor() {
 
     internal fun build(): Component {
         subcomponentBuilders?.mapValuesTo(registry) { ConstantEntry(it.value.build()) }
-        return Component(registry.toMap())
+        return Component(qualifier, registry.toMap())
     }
 }
