@@ -21,15 +21,22 @@ import io.jentz.winter.internal.ConstantEntry
  * val graph = derived.init { constant<Application>(myAndroidApplication) }
  * ```
  */
-class Component internal constructor(internal val dependencies: Map<DependencyKey, ComponentEntry<*>>) {
+class Component internal constructor(
+        /**
+         * The components qualifier (null for root components and the sub-components qualifier for sub-components).
+         */
+        val qualifier: Any?,
+        internal val dependencies: Map<DependencyKey, ComponentEntry<*>>
+) {
 
     /**
      * Create an extended copy of this component.
      *
+     * @param qualifier An optional qualifier (default: [qualifier]).
      * @param block A builder block that is called in the context of a [ComponentBuilder].
      * @return A new [Component] that contains all provider of the base component plus the one defined in the builder block.
      */
-    fun derive(block: ComponentBuilderBlock) = component {
+    fun derive(qualifier: Any? = this.qualifier, block: ComponentBuilderBlock) = component(qualifier) {
         include(this@Component)
         block()
     }
