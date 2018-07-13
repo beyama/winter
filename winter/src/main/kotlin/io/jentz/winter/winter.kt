@@ -105,7 +105,7 @@ internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
 
 internal fun initializeGraph(parentGraph: Graph?, component: Component, block: ComponentBuilderBlock?): Graph {
     val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
-        io.jentz.winter.component {
+        io.jentz.winter.component(component.qualifier) {
             include(component)
             block?.invoke(this)
             WinterPlugins.runInitializingComponentPlugins(parentGraph, this)

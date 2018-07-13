@@ -140,6 +140,20 @@ class ComponentTest {
     }
 
     @Test
+    fun `#init without builder block should return graph with component`() {
+        val c = component("root") { }
+        assertSame(c, c.init().component)
+    }
+
+    @Test
+    fun `#init with builder block should return graph with right component qualifier`() {
+        val c = component("root") { }
+        val graph = c.init { }
+        assertEquals("root", graph.component.qualifier)
+        assertNotSame(c, graph.component)
+    }
+
+    @Test
     fun `ComponentBuilder#include with subcomponent include mode 'DoNotInclude' should not include subcomponents`() {
         val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
         val c2 = component { include(c1, subcomponentIncludeMode = ComponentBuilder.SubcomponentIncludeMode.DoNotInclude) }
