@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="../../../style.css">
 </HEAD>
 <BODY>
-<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.internal</a>&nbsp;/&nbsp;<a href=".">CompoundTypeKey</a><br/>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.internal</a>&nbsp;/&nbsp;<a href="./index.html">CompoundTypeKey</a><br/>
 <br/>
 <h1>CompoundTypeKey</h1>
-<code><span class="keyword">class </span><span class="identifier">CompoundTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../io.jentz.winter/-dependency-key.html"><span class="identifier">DependencyKey</span></a></code>
+<code><span class="keyword">class </span><span class="identifier">CompoundTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../../io.jentz.winter/-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -17,7 +17,7 @@
 <p><a href="-init-.html">&lt;init&gt;</a></p>
 </td>
 <td>
-<code><span class="identifier">CompoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/firstType">firstType</span><span class="symbol">:</span>&nbsp;<span class="identifier">Class</span><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/secondType">secondType</span><span class="symbol">:</span>&nbsp;<span class="identifier">Class</span><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">)</span></code></td>
+<code><span class="identifier">CompoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/firstType">firstType</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/secondType">secondType</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$<init>(java.lang.Class((kotlin.Any)), java.lang.Class((kotlin.Any)), kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">)</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -29,7 +29,7 @@
 <p><a href="first-type.html">firstType</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">firstType</span><span class="symbol">: </span><span class="identifier">Class</span><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">firstType</span><span class="symbol">: </span><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
@@ -43,7 +43,7 @@
 <p><a href="second-type.html">secondType</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">secondType</span><span class="symbol">: </span><span class="identifier">Class</span><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">secondType</span><span class="symbol">: </span><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -70,6 +70,16 @@
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">toString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="type-equals.html">typeEquals</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">typeEquals</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.internal.CompoundTypeKey$typeEquals(io.jentz.winter.DependencyKey)/other">other</span><span class="symbol">:</span>&nbsp;<a href="../../io.jentz.winter/-dependency-key/index.html"><span class="identifier">DependencyKey</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Test if <a href="type-equals.html#io.jentz.winter.internal.CompoundTypeKey$typeEquals(io.jentz.winter.DependencyKey)/other">other</a> has the same type.
+Like <a href="equals.html">equals</a> without looking onto the <a href="qualifier.html">qualifier</a>.</p>
+</td>
 </tr>
 </tbody>
 </table>

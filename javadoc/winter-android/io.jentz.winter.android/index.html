@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../../style.css">
 </HEAD>
 <BODY>
-<a href="../index.html">winter-android</a>&nbsp;/&nbsp;<a href=".">io.jentz.winter.android</a><br/>
+<a href="../index.html">winter-android</a>&nbsp;/&nbsp;<a href="./index.html">io.jentz.winter.android</a><br/>
 <br/>
 <h2>Package io.jentz.winter.android</h2>
 <h3>Types</h3>
@@ -20,6 +20,25 @@
 <p>Retrieves application and activity graphs and injects into core Android types.</p>
 </td>
 </tr>
+<tr>
+<td>
+<p><a href="-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">DependencyGraphContextWrapper</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/ContextWrapper.html"><span class="identifier">ContextWrapper</span></a></code>
+<p>A <a href="https://developer.android.com/reference/android/content/ContextWrapper.html">ContextWrapper</a> that holds a reference to a <a href="#">Graph</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SimpleAndroidInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-android-injection/-adapter/index.html"><span class="identifier">Adapter</span></a></code>
+<p>Simple extensible injection adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with an
+"activity" named subcomponent.</p>
+</td>
+</tr>
 </tbody>
 </table>
 <h3>Extensions for External Classes</h3>
@@ -28,13 +47,6 @@
 <tr>
 <td>
 <p><a href="android.view.-view/index.html">android.view.View</a></p>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="io.jentz.winter.-injector/index.html">io.jentz.winter.Injector</a></p>
 </td>
 <td>
 </td>

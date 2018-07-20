@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../../style.css">
 </HEAD>
 <BODY>
-<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href=".">io.jentz.winter</a><br/>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="./index.html">io.jentz.winter</a><br/>
 <br/>
 <h2>Package io.jentz.winter</h2>
 <h3>Public Winter API</h3>
@@ -44,7 +44,7 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-dependency-key.html">DependencyKey</a></p>
+<p><a href="-dependency-key/index.html">DependencyKey</a></p>
 </td>
 <td>
 <code><span class="keyword">interface </span><span class="identifier">DependencyKey</span></code>
@@ -81,7 +81,9 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="-injector/index.html">Injector</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">Injector</span></code></td>
+<code><span class="keyword">class </span><span class="identifier">Injector</span></code>
+<p>The Injector provides a was to inject dependencies into properties via Kotlins property delegates.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -159,7 +161,7 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="-factory-block.html">FactoryBlock</a></p>
 </td>
 <td>
-<code><span class="keyword">typealias </span><span class="identifier">FactoryBlock</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span></code>
+<code><span class="keyword">typealias </span><span class="identifier">FactoryBlock</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="-factory-block.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-factory-block.html#R"><span class="identifier">R</span></a></code>
 <p>Factory function with <a href="-graph/index.html">Graph</a> as receiver used in <a href="-component-builder/index.html">ComponentBuilder</a> factory register methods.</p>
 </td>
 </tr>
@@ -195,7 +197,7 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="-provider-block.html">ProviderBlock</a></p>
 </td>
 <td>
-<code><span class="keyword">typealias </span><span class="identifier">ProviderBlock</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code>
+<code><span class="keyword">typealias </span><span class="identifier">ProviderBlock</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-provider-block.html#T"><span class="identifier">T</span></a></code>
 <p>Provider function with <a href="-graph/index.html">Graph</a> as receiver used in <a href="-component-builder/index.html">ComponentBuilder</a> register methods.</p>
 </td>
 </tr>
@@ -256,7 +258,7 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="component.html">component</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$component(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder/index.html"><span class="identifier">ComponentBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-component/index.html"><span class="identifier">Component</span></a></code>
+<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-component/index.html"><span class="identifier">Component</span></a></code>
 <p>Create an instance of <a href="-component/index.html">Component</a>.</p>
 </td>
 </tr>
@@ -265,8 +267,17 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="compound-type-key.html">compoundTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key.html">DependencyKey</a> for type <a href="#">T0</a> and <a href="#">T1</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
+<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for type <a href="compound-type-key.html#T0">T0</a> and <a href="compound-type-key.html#T1">T1</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="graph.html">graph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">graph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$graph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$graph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create an ad-hoc instance of <a href="-graph/index.html">Graph</a>.</p>
 </td>
 </tr>
 <tr>
@@ -274,8 +285,8 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="members-injector-key.html">membersInjectorKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key.html">DependencyKey</a> for <a href="../io.jentz.winter.internal/-members-injector/index.html">MembersInjector</a> of type <a href="#">T</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
+<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for <a href="../io.jentz.winter.internal/-members-injector/index.html">MembersInjector</a> of type <a href="members-injector-key.html#T">T</a>.</p>
 </td>
 </tr>
 <tr>
@@ -283,36 +294,36 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="memorize.html">memorize</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorize</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorize(kotlin.Function0((io.jentz.winter.memorize.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorize</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorize(kotlin.Function0((io.jentz.winter.memorize.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize.html#T"><span class="identifier">T</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="memorize-soft.html">memorizeSoft</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeSoft</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeSoft(kotlin.Function0((io.jentz.winter.memorizeSoft.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeSoft</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeSoft(kotlin.Function0((io.jentz.winter.memorizeSoft.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-soft.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-soft.html#T"><span class="identifier">T</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="memorize-weak.html">memorizeWeak</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeWeak</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeWeak(kotlin.Function0((io.jentz.winter.memorizeWeak.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">T</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeWeak</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeWeak(kotlin.Function0((io.jentz.winter.memorizeWeak.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-weak.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-weak.html#T"><span class="identifier">T</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="multiton.html">multiton</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">multiton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$multiton(kotlin.Function1((io.jentz.winter.multiton.A, io.jentz.winter.multiton.R)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">multiton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$multiton(kotlin.Function1((io.jentz.winter.multiton.A, io.jentz.winter.multiton.R)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="multiton.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="multiton.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><a href="multiton.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="multiton.html#R"><span class="identifier">R</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="type-key.html">typeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key.html">DependencyKey</a> for type <a href="#">T</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
+<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for type <a href="type-key.html#T">T</a>.</p>
 </td>
 </tr>
 </tbody>

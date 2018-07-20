@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../../../style.css">
 </HEAD>
 <BODY>
-<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href=".">Component</a><br/>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">Component</a><br/>
 <br/>
 <h1>Component</h1>
 <code><span class="keyword">class </span><span class="identifier">Component</span></code>
@@ -21,6 +21,20 @@ val derived = appComponent.derive {
 }
 val graph = derived.init { constant&lt;Application&gt;(myAndroidApplication) }
 </code></pre>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="qualifier.html">qualifier</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">qualifier</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span></code>
+<p>The components qualifier (null for root components and the sub-components qualifier for sub-components).</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3>Functions</h3>
 <table>
 <tbody>
@@ -29,7 +43,7 @@ val graph = derived.init { constant&lt;Application&gt;(myAndroidApplication) }
 <p><a href="derive.html">derive</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">derive</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Component</span></code>
+<code><span class="keyword">fun </span><span class="identifier">derive</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;this.qualifier<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Component</span></a></code>
 <p>Create an extended copy of this component.</p>
 </td>
 </tr>
@@ -47,7 +61,7 @@ val graph = derived.init { constant&lt;Application&gt;(myAndroidApplication) }
 <p><a href="subcomponent.html">subcomponent</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">subcomponent</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.Component$subcomponent(kotlin.Array((kotlin.Any)))/qualifiers">qualifiers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Component</span></code>
+<code><span class="keyword">fun </span><span class="identifier">subcomponent</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.Component$subcomponent(kotlin.Array((kotlin.Any)))/qualifiers">qualifiers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Component</span></a></code>
 <p>Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.</p>
 </td>
 </tr>

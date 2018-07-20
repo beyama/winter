@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="../../../style.css">
 </HEAD>
 <BODY>
-<a href="../../index.html">winter-compiler</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.compiler</a>&nbsp;/&nbsp;<a href=".">WinterProcessor</a><br/>
+<a href="../../index.html">winter-compiler</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.compiler</a>&nbsp;/&nbsp;<a href="./index.html">WinterProcessor</a><br/>
 <br/>
 <h1>WinterProcessor</h1>
-<code><span class="keyword">class </span><span class="identifier">WinterProcessor</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">AbstractProcessor</span></code>
+<code><span class="keyword">class </span><span class="identifier">WinterProcessor</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/AbstractProcessor.html"><span class="identifier">AbstractProcessor</span></a></code>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -43,21 +43,21 @@
 <p><a href="get-supported-source-version.html">getSupportedSourceVersion</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">getSupportedSourceVersion</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">SourceVersion</span></code></td>
+<code><span class="keyword">fun </span><span class="identifier">getSupportedSourceVersion</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="http://docs.oracle.com/javase/6/docs/api/javax/lang/model/SourceVersion.html"><span class="identifier">SourceVersion</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="init.html">init</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$init(javax.annotation.processing.ProcessingEnvironment)/processingEnv">processingEnv</span><span class="symbol">:</span>&nbsp;<span class="identifier">ProcessingEnvironment</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$init(javax.annotation.processing.ProcessingEnvironment)/processingEnv">processingEnv</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/ProcessingEnvironment.html"><span class="identifier">ProcessingEnvironment</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="process.html">process</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">process</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$process(kotlin.collections.MutableSet((javax.lang.model.element.TypeElement)), javax.annotation.processing.RoundEnvironment)/annotations">annotations</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-set/index.html"><span class="identifier">MutableSet</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">TypeElement</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$process(kotlin.collections.MutableSet((javax.lang.model.element.TypeElement)), javax.annotation.processing.RoundEnvironment)/roundEnv">roundEnv</span><span class="symbol">:</span>&nbsp;<span class="identifier">RoundEnvironment</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">process</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$process(kotlin.collections.MutableSet((javax.lang.model.element.TypeElement)), javax.annotation.processing.RoundEnvironment)/annotations">annotations</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-set/index.html"><span class="identifier">MutableSet</span></a><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/javax/lang/model/element/TypeElement.html"><span class="identifier">TypeElement</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.WinterProcessor$process(kotlin.collections.MutableSet((javax.lang.model.element.TypeElement)), javax.annotation.processing.RoundEnvironment)/roundEnv">roundEnv</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/javax/annotation/processing/RoundEnvironment.html"><span class="identifier">RoundEnvironment</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 </tbody>
 </table>

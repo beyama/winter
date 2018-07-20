@@ -3,10 +3,10 @@ $dokka.linkExtension:html
 $dokka.location:io.jentz.winter.android$factory(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/factory.html
 $dokka.location:io.jentz.winter.android$factoryOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/factory-or-null.html
 $dokka.location:io.jentz.winter.android$graph#android.view.Viewio.jentz.winter.android/android.view.-view/graph.html
-$dokka.location:io.jentz.winter.android$inject(io.jentz.winter.Injector, android.content.Context)io.jentz.winter.android/io.jentz.winter.-injector/inject.html
-$dokka.location:io.jentz.winter.android$inject(io.jentz.winter.Injector, android.view.View)io.jentz.winter.android/io.jentz.winter.-injector/inject.html
 $dokka.location:io.jentz.winter.android$instance(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance.html
 $dokka.location:io.jentz.winter.android$instanceOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance-or-null.html
+$dokka.location:io.jentz.winter.android$instancesOfType(android.view.View, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instances-of-type.html
 $dokka.location:io.jentz.winter.android$provider(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider.html
 $dokka.location:io.jentz.winter.android$providerOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider-or-null.html
+$dokka.location:io.jentz.winter.android$providersOfType(android.view.View, kotlin.Boolean)io.jentz.winter.android/android.view.-view/providers-of-type.html
 io.jentz.winter.android

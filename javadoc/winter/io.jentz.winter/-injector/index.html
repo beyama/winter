@@ -5,68 +5,32 @@
 <link rel="stylesheet" href="../../../style.css">
 </HEAD>
 <BODY>
-<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href=".">Injector</a><br/>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">Injector</a><br/>
 <br/>
 <h1>Injector</h1>
 <code><span class="keyword">class </span><span class="identifier">Injector</span></code>
+<p>The Injector provides a was to inject dependencies into properties via Kotlins property delegates.</p>
+<p>E.g.</p>
+<pre><code>class MyClass {
+  private val injector = Injector()
+  private val eagerService: Service1 by injector.instance()
+  private val lazyService: Service2 by injector.lazyInstance()
+
+  fun onCreate() {
+    injector.inject(Application.graph)
+  }
+
+}
+</code></pre>
 <h3>Types</h3>
 <table>
 <tbody>
 <tr>
 <td>
-<p><a href="-abstract-eager-property/index.html">AbstractEagerProperty</a></p>
-</td>
-<td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractEagerProperty</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-abstract-lazy-property/index.html">AbstractLazyProperty</a></p>
-</td>
-<td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractLazyProperty</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
 <p><a href="-injected-property/index.html">InjectedProperty</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">InjectedProperty</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.properties/-read-only-property/index.html"><span class="identifier">ReadOnlyProperty</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">,</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-instance/index.html">Instance</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">Instance</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-eager-property/index.html"><span class="identifier">AbstractEagerProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-instance-or-null/index.html">InstanceOrNull</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">InstanceOrNull</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-eager-property/index.html"><span class="identifier">AbstractEagerProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-lazy-instance/index.html">LazyInstance</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">LazyInstance</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-lazy-property/index.html"><span class="identifier">AbstractLazyProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-lazy-instance-or-null/index.html">LazyInstanceOrNull</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">LazyInstanceOrNull</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-lazy-property/index.html"><span class="identifier">AbstractLazyProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-map-property/index.html">MapProperty</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">MapProperty</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">I</span><span class="symbol">, </span><span class="keyword">out</span>&nbsp;<span class="identifier">O</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">O</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">InjectedProperty</span><span class="symbol">&lt;</span><span class="keyword">out</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.properties/-read-only-property/index.html"><span class="identifier">ReadOnlyProperty</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">,</span>&nbsp;<a href="-injected-property/index.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -78,7 +42,9 @@
 <p><a href="-init-.html">&lt;init&gt;</a></p>
 </td>
 <td>
-<code><span class="identifier">Injector</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+<code><span class="identifier">Injector</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>The Injector provides a was to inject dependencies into properties via Kotlins property delegates.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -90,7 +56,7 @@
 <p><a href="injected.html">injected</a></p>
 </td>
 <td>
-<code><span class="keyword">var </span><span class="identifier">injected</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+<code><span class="keyword">val </span><span class="identifier">injected</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -102,14 +68,18 @@
 <p><a href="factory.html">factory</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">factory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$factory(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$factory(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">factory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$factory(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$factory(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="symbol">(</span><a href="factory.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="factory.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for a factory of type (A) -&gt; R.</p>
+</td>
 </tr>
 <tr>
 <td>
 <p><a href="factory-or-null.html">factoryOrNull</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">factoryOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$factoryOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$factoryOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="symbol">(</span><span class="identifier">A</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<span class="identifier">R</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">factoryOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$factoryOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$factoryOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="symbol">(</span><a href="factory-or-null.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="factory-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for an optional factory of type (A) -&gt; R.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -123,28 +93,81 @@
 <p><a href="instance.html">instance</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$instance(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$instance(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$instance(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$instance(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="instance.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for an instance of type <code>T</code>.</p>
+</td>
 </tr>
 <tr>
 <td>
 <p><a href="instance-or-null.html">instanceOrNull</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">instanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$instanceOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$instanceOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">instanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$instanceOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$instanceOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="instance-or-null.html#T"><span class="identifier">T</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for an optional instance of type <code>T</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="instances-of-type.html">instancesOfType</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instancesOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$instancesOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><a href="instances-of-type.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a> of instances of type <code>T</code>.</p>
+</td>
 </tr>
 <tr>
 <td>
 <p><a href="lazy-instance.html">lazyInstance</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">lazyInstance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$lazyInstance(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$lazyInstance(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">lazyInstance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$lazyInstance(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$lazyInstance(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="lazy-instance.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span></code>
+<p>Creates and registers a lazy property delegate for an instance of type <code>T</code>.</p>
+</td>
 </tr>
 <tr>
 <td>
 <p><a href="lazy-instance-or-null.html">lazyInstanceOrNull</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">lazyInstanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$lazyInstanceOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$lazyInstanceOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">lazyInstanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$lazyInstanceOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$lazyInstanceOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="lazy-instance-or-null.html#T"><span class="identifier">T</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a lazy property delegate for an optional instance of type <code>T</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="lazy-instances-of-type.html">lazyInstancesOfType</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">lazyInstancesOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$lazyInstancesOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><a href="lazy-instances-of-type.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a lazy property delegate for a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a> of instances of type <code>T</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="provider.html">provider</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">provider</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$provider(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$provider(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">Provider</span><span class="symbol">&lt;</span><a href="provider.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-function0/index.html">Provider</a> of type <code>T</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="provider-or-null.html">providerOrNull</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">providerOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$providerOrNull(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Injector$providerOrNull(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><span class="identifier">Provider</span><span class="symbol">&lt;</span><a href="provider-or-null.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for an optional <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-function0/index.html">Provider</a> of type <code>T</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="providers-of-type.html">providersOfType</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">providersOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Injector$providersOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-injected-property/index.html"><span class="identifier">InjectedProperty</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><span class="identifier">Provider</span><span class="symbol">&lt;</span><a href="providers-of-type.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code>
+<p>Creates and registers a property delegate for a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a> of <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-function0/index.html">providers</a> of type <code>T</code>.</p>
+</td>
 </tr>
 </tbody>
 </table>

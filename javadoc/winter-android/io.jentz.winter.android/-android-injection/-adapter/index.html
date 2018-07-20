@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../../../../style.css">
 </HEAD>
 <BODY>
-<a href="../../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="../index.html">AndroidInjection</a>&nbsp;/&nbsp;<a href=".">Adapter</a><br/>
+<a href="../../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="../index.html">AndroidInjection</a>&nbsp;/&nbsp;<a href="./index.html">Adapter</a><br/>
 <br/>
 <h1>Adapter</h1>
 <code><span class="keyword">interface </span><span class="identifier">Adapter</span></code>
@@ -15,38 +15,29 @@
 <tbody>
 <tr>
 <td>
-<p><a href="create-activity-graph.html">createActivityGraph</a></p>
+<p><a href="create-graph.html">createGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">createActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$createActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/app/Activity.html"><span class="identifier">Activity</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
-<p>Create and return the activity dependency grapgh for the given <a href="create-activity-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$createActivityGraph(android.app.Activity)/activity">activity</a>.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="dispose-activity-graph.html">disposeActivityGraph</a></p>
-</td>
-<td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">disposeActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$disposeActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/app/Activity.html"><span class="identifier">Activity</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Dispose the dependency graph of the given <a href="dispose-activity-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$disposeActivityGraph(android.app.Activity)/activity">activity</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$createGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Create dependency graph for <a href="create-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$createGraph(kotlin.Any)/instance">instance</a>.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="get-activity-graph.html">getActivityGraph</a></p>
+<p><a href="dispose-graph.html">disposeGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$getActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/app/Activity.html"><span class="identifier">Activity</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
-<p>Get the activity dependency graph for the given <a href="get-activity-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$getActivityGraph(android.app.Activity)/activity">activity</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">disposeGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$disposeGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Dispose the dependency graph of the given <a href="dispose-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$disposeGraph(kotlin.Any)/instance">instance</a>.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="get-application-graph.html">getApplicationGraph</a></p>
+<p><a href="get-graph.html">getGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getApplicationGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$getApplicationGraph(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
-<p>Get the application dependency graph.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection.Adapter$getGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>Get dependency graph for <a href="get-graph.html#io.jentz.winter.android.AndroidInjection.Adapter$getGraph(kotlin.Any)/instance">instance</a>.</p>
 </td>
 </tr>
 </tbody>
@@ -56,23 +47,12 @@
 <tbody>
 <tr>
 <td>
-<p><a href="../-presentation-adapter/index.html">PresentationAdapter</a></p>
+<p><a href="../../-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">PresentationAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Adapter</span></code>
-<p>Adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with a "presentation" named
-subcomponent that has a "activity" named subcomponent. The adapter adds the activity instance to the activity
-dependency graph.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="../-simple-adapter/index.html">SimpleAdapter</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">SimpleAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Adapter</span></code>
-<p>Adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with an "activity" named
-subcomponent. The adapter adds the activity instance to the activity dependency graph.</p>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SimpleAndroidInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">Adapter</span></a></code>
+<p>Simple extensible injection adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with an
+"activity" named subcomponent.</p>
 </td>
 </tr>
 </tbody>
