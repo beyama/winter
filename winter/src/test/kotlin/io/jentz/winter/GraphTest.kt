@@ -89,6 +89,12 @@ class GraphTest {
         graph.instanceOrNull<String>()
     }
 
+    @Test
+    fun `#instance with argument should call factory`() {
+        val graph = graph { factory { i: Int -> i.toString()  } }
+        assertEquals("12", graph.instance<Int, String>(argument = 12))
+    }
+
     @Test(expected = EntryNotFoundException::class)
     fun `#provider should throw a EntryNotFoundException when provider does not exist`() {
         emptyGraph.provider<Any>()
@@ -151,7 +157,7 @@ class GraphTest {
     @Test
     fun `singleton block should only get called once`() {
         val atomicInteger = AtomicInteger(0)
-        val graph = graph { provider(scope = singleton) { atomicInteger.getAndIncrement() } }
+        val graph = graph { singleton { atomicInteger.getAndIncrement() } }
         (0 until 5).forEach { graph.instance<Int>() }
         assertEquals(1, atomicInteger.get())
     }
@@ -160,8 +166,8 @@ class GraphTest {
     fun `singleton block should have access to graph`() {
         val graph = graph {
             constant("foo")
-            provider<ServiceDependency> { ServiceDependencyImpl(instance()) }
-            provider<Service>(scope = singleton) { ServiceImpl(instance()) }
+            prototype<ServiceDependency> { ServiceDependencyImpl(instance()) }
+            singleton<Service> { ServiceImpl(instance()) }
         }
 
         assertEquals("foo", graph.instance<Service>().dependency.aValue)
@@ -192,7 +198,7 @@ class GraphTest {
     @Test
     fun `multiton block should only get called once per argument`() {
         val atomicInteger = AtomicInteger(0)
-        val graph = graph { factory(scope = multiton) { add: Int -> atomicInteger.getAndAdd(add) } }
+        val graph = graph { multiton { add: Int -> atomicInteger.getAndAdd(add) } }
 
         (0 until 5).forEach { graph.factory<Int, Int>().invoke(4) }
         (0 until 5).forEach { graph.factory<Int, Int>().invoke(6) }
@@ -205,7 +211,7 @@ class GraphTest {
         val graph = graph {
             constant("Hello %s!")
             factory<String, ServiceDependency> { arg: String -> ServiceDependencyImpl(instance<String>().format(arg)) }
-            factory<String, Service>(scope = multiton) { name: String ->
+            multiton<String, Service> { name: String ->
                 ServiceImpl(factory<String, ServiceDependency>().invoke(name))
             }
         }
@@ -284,6 +290,58 @@ class GraphTest {
         (0..3).forEach { graph.dispose() }
         WinterPlugins.resetGraphDisposePlugins()
         assertEquals(1, count)
+    }
+
+    interface PostConstruct {
+        fun afterInit(graph: Graph)
+    }
+
+    class Parent(val child: Child)
+
+    class Child : PostConstruct {
+        lateinit var parent: Parent
+
+        override fun afterInit(graph: Graph) {
+            parent = graph.instance()
+        }
+    }
+
+    class Self {
+        lateinit var self: Self
+    }
+
+    @Test
+    fun `#initCompleted`() {
+        val graph = graph {
+            singleton { Parent(instance()) }
+            singleton(postConstruct = { it.parent = instance() }) { Child() }
+        }
+        val parent: Parent = graph.instance()
+        assertSame(parent, parent.child.parent)
+    }
+
+    @Test
+    fun `#self referencing`() {
+        val graph = graph {
+            singleton(postConstruct = { it.self = instance() }) { Self() }
+        }
+        val self: Self = graph.instance()
+        assertSame(self, self.self)
+    }
+
+    @Test
+    fun `#PostConstruct`() {
+        WinterPlugins.addPostConstructPlugin { graph, _, instance ->
+            if (instance is PostConstruct) {
+                instance.afterInit(graph)
+            }
+        }
+        val graph = graph {
+            singleton { Parent(instance()) }
+            singleton { Child() }
+        }
+        val parent: Parent = graph.instance()
+        assertSame(parent, parent.child.parent)
     }
 
 }

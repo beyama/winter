@@ -1,9 +1,11 @@
 package io.jentz.winter
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 /**
  * Plugin that is called after an instance was created.
  */
-typealias PostConstructPlugin = (graph: Graph, scope: ProviderScope, instance: Any) -> Unit
+typealias PostConstructPlugin = (graph: Graph, scope: Scope, instance: Any) -> Unit
 
 /**
  * Plugin that is called during an component initialization.
@@ -19,10 +21,9 @@ typealias GraphDisposePlugin = (graph: Graph) -> Unit
  * Utility class to hook into certain graph lifecycle.
  */
 object WinterPlugins {
-
-    private val postConstructPlugins = mutableListOf<PostConstructPlugin>()
-    private val initializingComponentPlugins = mutableListOf<InitializingComponentPlugin>()
-    private val graphDisposePlugins = mutableListOf<GraphDisposePlugin>()
+    private val postConstructPlugins = CopyOnWriteArrayList<PostConstructPlugin>()
+    private val initializingComponentPlugins = CopyOnWriteArrayList<InitializingComponentPlugin>()
+    private val graphDisposePlugins = CopyOnWriteArrayList<GraphDisposePlugin>()
 
     internal val hasInitializingComponentPlugins get() = initializingComponentPlugins.isNotEmpty()
 
@@ -47,7 +48,7 @@ object WinterPlugins {
         postConstructPlugins.clear()
     }
 
-    internal fun runPostConstructPlugins(graph: Graph, scope: ProviderScope, instance: Any) {
+    internal fun runPostConstructPlugins(graph: Graph, scope: Scope, instance: Any) {
         postConstructPlugins.forEach { it(graph, scope, instance) }
     }
 

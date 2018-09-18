@@ -115,15 +115,3 @@ internal fun initializeGraph(parentGraph: Graph?, component: Component, block: C
     }
     return Graph(parentGraph, baseComponent)
 }
-
-internal fun <T : Any> setupProviderBlock(key: DependencyKey, scope: ProviderScope, block: ProviderBlock<T>): UnboundProvider<T> {
-    return { graph ->
-        val instance = graph.evaluate(key, block)
-        WinterPlugins.runPostConstructPlugins(graph, scope, instance)
-        instance
-    }
-}
-
-internal fun <A : Any, R : Any> setupFactoryBlock(key: DependencyKey, block: FactoryBlock<A, R>): UnboundFactory<A, R> {
-    return { graph: Graph, a: A -> graph.evaluate(key, { block(graph, a) }) }
-}

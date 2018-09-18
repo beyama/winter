@@ -1,9 +1,9 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package io.jentz.winter
 
 import io.jentz.winter.internal.CompoundTypeKey
-import io.jentz.winter.internal.ConstantEntry
 import io.jentz.winter.internal.MembersInjector
-import java.util.*
 
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
@@ -22,21 +22,24 @@ class Graph internal constructor(
         val component: Component
 ) {
 
-    private var cache: MutableMap<DependencyKey, Provider<*>>? = mutableMapOf()
-    private val stack = Stack<DependencyKey>()
+    private var cache: MutableMap<DependencyKey, BoundService<*, *>>? = mutableMapOf()
+    private val stack = mutableListOf<Any?>()
+    private var stackSize = 0
 
     var isDisposed = false
         private set
 
     init {
         @Suppress("UNCHECKED_CAST")
-        val entry = component.dependencies[eagerDependenciesKey] as? ConstantEntry<Set<DependencyKey>>
+        val entry = component.dependencies[eagerDependenciesKey] as? ConstantService<Set<DependencyKey>>
         entry?.value?.forEach { key ->
-            val provider = providerOrNull(key)
+            @Suppress("UNCHECKED_CAST")
+            val service = serviceOrNull<Unit, Any>(key) as? BoundService<Unit, *>
                     ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
-            provider.invoke()
+            service.instance(Unit)
         }
     }
+
 
     /**
      * Retrieve a non-optional instance of `T`.
@@ -47,7 +50,16 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> instance(qualifier: Any? = null, generics: Boolean = false): T = provider<T>(qualifier, generics).invoke()
+    inline fun <reified T : Any> instance(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): T = service<Unit, T>(typeKey<T>(qualifier, generics)).instance(Unit)
+
+    inline fun <reified A, reified R : Any> instance(
+            argument: A,
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): R = service<A, R>(compoundTypeKey<A, R>(qualifier, generics)).instance(argument)
 
     /**
      * Retrieve an optional instance of `T`.
@@ -56,7 +68,16 @@ class Graph internal constructor(
      * @param generics Preserve generic type parameters.
      * @return An instance of `T` or null if provider doesn't exist.
      */
-    inline fun <reified T : Any> instanceOrNull(qualifier: Any? = null, generics: Boolean = false): T? = providerOrNull<T>(qualifier, generics)?.invoke()
+    inline fun <reified T : Any> instanceOrNull(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): T? = serviceOrNull<Unit, T>(typeKey<T>(qualifier, generics))?.instance(Unit)
+
+    inline fun <reified A, reified R : Any> instanceOrNull(
+            argument: A,
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): R? = serviceOrNull<A, R>(compoundTypeKey<A, R>(qualifier, generics))?.instance(argument)
 
     /**
      * Retrieve a non-optional provider function that returns `T`.
@@ -67,8 +88,22 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> provider(qualifier: Any? = null, generics: Boolean = false): () -> T = providerOrNull(qualifier, generics)
-            ?: throw EntryNotFoundException("Provider for class `${T::class}` and qualifier `$qualifier` does not exist.")
+    inline fun <reified T : Any> provider(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): () -> T {
+        val service = service<Unit, T>(typeKey<T>(qualifier, generics))
+        return { service.instance(Unit) }
+    }
+
+    inline fun <reified A, reified R : Any> provider(
+            argument: A,
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): () -> R {
+        val service = service<A, R>(compoundTypeKey<A, R>(qualifier, generics))
+        return { service.instance(argument) }
+    }
 
     /**
      * Retrieve an optional provider function that returns `T`.
@@ -77,9 +112,21 @@ class Graph internal constructor(
      * @param generics Preserve generic type parameters.
      * @return The provider that returns `T` or null if provider doesn't exist.
      */
-    inline fun <reified T : Any> providerOrNull(qualifier: Any? = null, generics: Boolean = false): (() -> T)? {
-        @Suppress("UNCHECKED_CAST")
-        return providerOrNull(typeKey<T>(qualifier, generics)) as? () -> T
+    inline fun <reified T : Any> providerOrNull(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): (() -> T)? {
+        val service = serviceOrNull<Unit, T>(typeKey<T>(qualifier, generics)) ?: return null
+        return { service.instance(Unit) }
+    }
+
+    inline fun <reified A, reified R : Any> providerOrNull(
+            argument: A,
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): (() -> R)? {
+        val service = serviceOrNull<A, R>(compoundTypeKey<A, R>(qualifier, generics)) ?: return null
+        return { service.instance(argument) }
     }
 
     /**
@@ -91,8 +138,14 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified A : Any, reified R : Any> factory(qualifier: Any? = null, generics: Boolean = false): (A) -> R = factoryOrNull(qualifier, generics)
-            ?: throw EntryNotFoundException("Factory `(${A::class}) -> ${R::class}` does not exist.")
+    inline fun <reified A : Any, reified R : Any> factory(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): (A) -> R {
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        val service = service<A, R>(key)
+        return { argument: A -> service.instance(argument) }
+    }
 
     /**
      * Retrieve an optional factory function that takes an argument of type `A` and returns `R`.
@@ -104,8 +157,9 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified A : Any, reified R : Any> factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
-        @Suppress("UNCHECKED_CAST")
-        return providerOrNull(compoundTypeKey<A, R>(qualifier, generics))?.invoke() as? (A) -> R
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        val service = serviceOrNull<A, R>(key) ?: return null
+        return { argument: A -> service.instance(argument) }
     }
 
     /**
@@ -115,8 +169,16 @@ class Graph internal constructor(
      * @return A [Set] of [providers][Provider] of type `T`.
      */
     inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
+        return providersOfType(typeKeyOfType<T>(generics))
+    }
+
+    @PublishedApi
+    internal fun <T : Any> providersOfType(key: DependencyKey): Set<Provider<T>> {
         @Suppress("UNCHECKED_CAST")
-        return providersOfType(typeKeyOfType<T>(generics)) as Set<Provider<T>>
+        return servicesOfType(key)
+                .mapIndexedTo(mutableSetOf()) { _, service ->
+                    { service.instance(Unit) }
+                } as Set<Provider<T>>
     }
 
     /**
@@ -130,28 +192,6 @@ class Graph internal constructor(
         return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
 
-    /**
-     * Retrieve a non-optional provider by [key][DependencyKey].
-     */
-    @PublishedApi
-    internal fun provider(key: DependencyKey): Provider<*> =
-            providerOrNull(key) ?: throw EntryNotFoundException("Provider with key `$key` does not exist.")
-
-    /**
-     * Retrieve an optional provider by [key][DependencyKey].
-     */
-    @PublishedApi
-    internal fun providerOrNull(key: DependencyKey): Provider<*>? {
-        synchronized(this) {
-            ensureNotDisposed()
-
-            cache?.get(key)?.let { return it }
-
-            val entry = component.dependencies[key] ?: return parent?.providerOrNull(key)
-            return entry.bind(this).also { cache?.set(key, it) }
-        }
-    }
-
     private fun keys(): Set<DependencyKey> {
         val keys = component.dependencies.keys
         return parent?.keys()?.let { keys + it } ?: keys
@@ -159,47 +199,114 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun instancesOfType(key: DependencyKey): Set<*> =
-            providersOfType(key).mapIndexedTo(mutableSetOf()) { _, provider -> provider.invoke() }
+            servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
 
     @PublishedApi
-    internal fun providersOfType(key: DependencyKey): Set<Provider<*>> {
+    @Suppress("UNCHECKED_CAST")
+    internal fun servicesOfType(key: DependencyKey): Set<BoundService<Unit, *>> {
         synchronized(this) {
             ensureNotDisposed()
 
             cache?.get(key)?.let {
-                @Suppress("UNCHECKED_CAST")
-                return it() as Set<Provider<*>>
+                return (it as ConstantService<Set<BoundService<Unit, *>>>).value
             }
 
             return keys()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
-                    .mapIndexedTo(mutableSetOf()) { _, key -> provider(key) }
-                    .also { cache?.put(key, { it }) }
+                    .mapIndexedTo(mutableSetOf()) { _, key -> service<Unit, Any>(key) }
+                    .also { cache?.put(key, ConstantService(key, it)) }
         }
     }
 
-    internal fun <T> evaluate(key: DependencyKey, unboundProvider: UnboundProvider<T>): T {
+
+    @PublishedApi
+    @Suppress("UNCHECKED_CAST")
+    internal fun <A, R : Any> serviceOrNull(key: DependencyKey): BoundService<A, R>? {
         synchronized(this) {
             ensureNotDisposed()
 
-            if (stack.contains(key)) {
+            cache?.get(key)?.let { return it as BoundService<A, R> }
+
+            val unboundService = component.dependencies[key] ?: return parent?.serviceOrNull(key)
+
+            val boundService = unboundService.bind(this) as BoundService<A, R>
+            cache?.set(key, boundService)
+            return boundService
+        }
+    }
+
+    @PublishedApi
+    internal inline fun <A, R : Any> service(key: DependencyKey): BoundService<A, R> {
+        return serviceOrNull(key)
+                ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
+    }
+
+    internal inline fun <A, R : Any> evaluate(
+            service: BoundService<A, R>,
+            argument: A,
+            block: () -> R
+    ): R {
+        ensureNotDisposed()
+
+        val key = service.key
+
+        // check if key is already on the stack
+        for (i in 0 until stack.size step 3) {
+            if (stack[i + 2] == null && (stack[i] as BoundService<*, *>).key == key) {
                 throw CyclicDependencyException("Cyclic dependency for key `$key`.")
             }
-            try {
-                stack.push(key)
-                return unboundProvider(this)
-            } catch (e: EntryNotFoundException) {
-                val stackInfo = stack.joinToString(" -> ")
-                throw DependencyResolutionException("Error while resolving dependencies of $key (dependency stack: $stackInfo)", e)
-            } catch (e: WinterException) {
-                throw e
-            } catch (t: Throwable) {
-                val stackInfo = stack.joinToString(" -> ")
-                throw DependencyResolutionException("Error while invoking provider block of $key (dependency stack: $stackInfo)", t)
-            } finally {
-                stack.pop()
+        }
+
+        val serviceIndex = stack.size
+        val argumentIndex = serviceIndex + 1
+        val instanceIndex = argumentIndex + 1
+
+        try {
+            // push service
+            stack.add(serviceIndex, service)
+            // push argument
+            stack.add(argumentIndex, argument)
+            // set slot for instance to null
+            stack.add(instanceIndex, null)
+            stackSize += 1
+            // create instance and add it to stack
+            val instance = block()
+            stack[instanceIndex] = instance
+            return instance
+        } catch (e: EntryNotFoundException) {
+            drainStack()
+            val stackInfo = stack.joinToString(" -> ")
+            throw DependencyResolutionException("Error while resolving dependencies of $key (dependency stack: $stackInfo)", e)
+        } catch (e: WinterException) {
+            throw e
+        } catch (t: Throwable) {
+            drainStack()
+            val stackInfo = stack.joinToString(" -> ")
+            throw DependencyResolutionException("Error while invoking provider block of $key (dependency stack: $stackInfo)", t)
+        } finally {
+            // decrement stack size
+            stackSize -= 1
+        }
+    }
+
+    internal fun postConstruct() {
+        // post init if stack size == 0
+        if (stackSize == 0) {
+            drainStack()
+        }
+    }
+
+    private fun drainStack() {
+        for (i in stack.size - 1 downTo 0 step 3) {
+            val instance = stack[i]
+            val argument = stack[i - 1]
+            val service = stack[i - 2] as BoundService<*, *>
+
+            if (instance != null && argument != null) {
+                service.postConstruct(argument, instance)
             }
         }
+        stack.clear()
     }
 
     /**
@@ -218,12 +325,13 @@ class Graph internal constructor(
         var cls: Class<*>? = instance.javaClass
 
         while (cls != null) {
+            val key = CompoundTypeKey(MembersInjector::class.java, cls, null)
             @Suppress("UNCHECKED_CAST")
-            val provider = providerOrNull(CompoundTypeKey(MembersInjector::class.java, cls, null)) as? () -> MembersInjector<Any>
+            val service = serviceOrNull<Unit, MembersInjector<T>>(key)
 
-            if (provider != null) {
+            if (service != null) {
                 found = true
-                val injector = provider()
+                val injector = service.instance(Unit)
                 injector.injectMembers(this, instance)
             }
 

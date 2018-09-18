@@ -43,7 +43,7 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified T : Any?> providerOrNull(qualifier: Any? = null, generics: Boolean = false) =
+    inline fun <reified T : Any> providerOrNull(qualifier: Any? = null, generics: Boolean = false) =
             register(ProviderOrNullProperty<T>(typeKey<T>(qualifier, generics)))
 
     /**
@@ -63,8 +63,10 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified T : Any?> instanceOrNull(qualifier: Any? = null, generics: Boolean = false) =
-            register(InstanceOrNullProperty<T>(typeKey<T>(qualifier, generics)))
+    inline fun <reified T : Any> instanceOrNull(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): InjectedProperty<T?> = register(InstanceOrNullProperty<T>(typeKey<T>(qualifier, generics)))
 
     /**
      * Creates and registers a lazy property delegate for an instance of type `T`.
@@ -87,8 +89,10 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified T : Any?> lazyInstanceOrNull(qualifier: Any? = null, generics: Boolean = false) =
-            register(LazyInstanceOrNullProperty<T>(typeKey<T>(qualifier, generics)))
+    inline fun <reified T : Any> lazyInstanceOrNull(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): InjectedProperty<T?> = register(LazyInstanceOrNullProperty(typeKey<T>(qualifier, generics)))
 
     /**
      * Creates and registers a property delegate for a [Set] of [providers][Provider] of type `T`.
@@ -141,7 +145,8 @@ class Injector {
 
     @PublishedApi
     internal fun <T> register(propertyInjector: InjectedProperty<T>): InjectedProperty<T> {
-        val injectors = propertyInjectors ?: throw IllegalStateException("Injector is already injected.")
+        val injectors = propertyInjectors
+                ?: throw IllegalStateException("Injector is already injected.")
         injectors.add(propertyInjector)
         return propertyInjector
     }
@@ -190,7 +195,8 @@ class Injector {
     internal abstract class AbstractLazyProperty<out T> : InjectedProperty<T>() {
         private var graph: Graph? = null
         private val memorized = memorize {
-            val graph = graph ?: throw UninitializedPropertyAccessException("Property not initialized.")
+            val graph = graph
+                    ?: throw UninitializedPropertyAccessException("Property not initialized.")
             this.graph = null
             getValue(graph)
         }
@@ -209,8 +215,10 @@ class Injector {
         private var base: InjectedProperty<I>? = base
         private var mapper: ((I) -> O)? = mapper
         private val memorized = memorize {
-            val fn = this.mapper ?: throw IllegalStateException("BUG: PropertyMapper mapper == null")
-            val property = this.base ?: throw IllegalStateException("BUG: PropertyMapper base == null")
+            val fn = this.mapper
+                    ?: throw IllegalStateException("BUG: PropertyMapper mapper == null")
+            val property = this.base
+                    ?: throw IllegalStateException("BUG: PropertyMapper base == null")
             fn(property.value).also {
                 this.base = null
                 this.mapper = null
@@ -228,43 +236,49 @@ class Injector {
     @PublishedApi
     internal class ProviderProperty<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<Provider<T>>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): Provider<T> = graph.provider(key) as Provider<T>
+        override fun getValue(graph: Graph): Provider<T> {
+            val service = graph.service<Unit, T>(key)
+            return { service.instance(Unit) }
+        }
     }
 
     @PublishedApi
-    internal class ProviderOrNullProperty<out T : Any?>(private val key: DependencyKey) : AbstractEagerProperty<Provider<T>?>() {
+    internal class ProviderOrNullProperty<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<Provider<T>?>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): Provider<T>? = graph.providerOrNull(key) as? Provider<T>
+        override fun getValue(graph: Graph): Provider<T>? {
+            val service = graph.serviceOrNull<Unit, T>(key) ?: return null
+            return { service.instance(Unit) }
+        }
     }
 
     @PublishedApi
     internal class InstanceProperty<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
+        override fun getValue(graph: Graph): T = graph.service<Unit, T>(key).instance(Unit)
     }
 
     @PublishedApi
-    internal class InstanceOrNullProperty<out T : Any?>(private val key: DependencyKey) : AbstractEagerProperty<T?>() {
+    internal class InstanceOrNullProperty<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
+        override fun getValue(graph: Graph): T? = graph.serviceOrNull<Unit, T>(key)?.instance(Unit)
     }
 
     @PublishedApi
     internal class LazyInstanceProperty<out T : Any>(private val key: DependencyKey) : AbstractLazyProperty<T>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T = graph.provider(key).invoke() as T
+        override fun getValue(graph: Graph): T = graph.service<Unit, T>(key).instance(Unit)
     }
 
     @PublishedApi
-    internal class LazyInstanceOrNullProperty<out T : Any?>(private val key: DependencyKey) : AbstractLazyProperty<T?>() {
+    internal class LazyInstanceOrNullProperty<out T : Any>(private val key: DependencyKey) : AbstractLazyProperty<T?>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): T? = graph.providerOrNull(key)?.invoke() as? T
+        override fun getValue(graph: Graph): T? = graph.serviceOrNull<Unit, T>(key)?.instance(Unit)
     }
 
     @PublishedApi
     internal class ProvidersOfTypeProperty<out T : Any>(private val key: DependencyKey) : AbstractEagerProperty<Set<Provider<T>>>() {
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph): Set<Provider<T>> = graph.providersOfType(key) as Set<Provider<T>>
+        override fun getValue(graph: Graph): Set<Provider<T>> = graph.providersOfType(key)
     }
 
     @PublishedApi

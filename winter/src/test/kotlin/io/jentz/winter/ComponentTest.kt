@@ -1,8 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.ConstantEntry
-import io.jentz.winter.internal.FactoryEntry
-import io.jentz.winter.internal.UnboundProviderEntry
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -27,37 +24,37 @@ class ComponentTest {
     @Test
     fun `Component configured with provider should contain provider in its dependency map`() {
         val component = component { provider { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is UnboundProviderEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is UnboundPrototypeService<*>)
     }
 
     @Test
     fun `Component configured with provider and qualifier should contain provider in its dependency map`() {
         val component = component { provider("name") { ServiceDependencyImpl("") } }
-        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is UnboundProviderEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is UnboundPrototypeService<*>)
     }
 
     @Test
     fun `Component configured with factory should contain factory in its dependency map`() {
         val component = component { factory { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>()] is FactoryEntry<*, *>)
+        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>()] is UnboundFactoryService<*, *>)
     }
 
     @Test
     fun `Component configured with factory and qualifier should contain factory in its dependency map`() {
         val component = component { factory("name") { arg: String -> ServiceDependencyImpl(arg) } }
-        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>("name")] is FactoryEntry<*, *>)
+        assertTrue(component.dependencies[compoundTypeKey<String, ServiceDependencyImpl>("name")] is UnboundFactoryService<*, *>)
     }
 
     @Test
     fun `Component configured with constant should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl("")) }
-        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is ConstantEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is ConstantService<*>)
     }
 
     @Test
     fun `Component configured with constant and qualifier should contain constant in its dependency map`() {
         val component = component { constant(ServiceDependencyImpl(""), qualifier = "name") }
-        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is ConstantEntry<*>)
+        assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is ConstantService<*>)
     }
 
     @Test(expected = WinterException::class)
@@ -296,7 +293,7 @@ class ComponentTest {
 
     private val Component.size get() = dependencies.size
 
-    private fun Component.constant(key: DependencyKey) = dependencies[key] as ConstantEntry<*>
+    private fun Component.constant(key: DependencyKey) = dependencies[key] as ConstantService<*>
 
     private fun Component.constantValue(key: DependencyKey) = constant(key).value
 
