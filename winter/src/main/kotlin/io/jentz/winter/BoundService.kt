@@ -154,9 +154,9 @@ internal class BoundFactoryService<A, R : Any>(
     override val key: DependencyKey
         get() = unboundService.key
 
-    override fun instance(arg: A): R {
-        return graph.evaluate(this, arg) { unboundService.block(graph, arg) }
-    }
+    override fun instance(arg: A): R = graph
+            .evaluate(this, arg) { unboundService.block(graph, arg) }
+            .also { graph.postConstruct() }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -183,6 +183,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
             val instance = graph.evaluate(this, arg) { unboundService.block(graph, arg) }
             map[arg] = instance
+            graph.postConstruct()
             return instance
         }
     }

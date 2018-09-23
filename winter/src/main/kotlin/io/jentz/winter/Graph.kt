@@ -370,6 +370,7 @@ class Graph internal constructor(
 
             try {
                 WinterPlugins.runGraphDisposePlugins(this)
+                cache?.values?.forEach { boundService -> boundService.dispose() }
             } finally {
                 isDisposed = true
                 cache = null

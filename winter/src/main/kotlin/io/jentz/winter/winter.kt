@@ -27,17 +27,22 @@ fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
 fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph = component(qualifier, block).init()
 
 /**
- * Provider function with [Graph] as receiver used in [ComponentBuilder] register methods.
+ * Provider block function signature used in [ComponentBuilder] register methods.
  */
 typealias ProviderBlock<T> = Graph.() -> T
 
 /**
- * Function signature alias for provider not bound to a dependency graph.
+ * Provider post construct callback function signature.
  */
-internal typealias UnboundProvider<T> = (Graph) -> T
+typealias ProviderPostContruct<T> = Graph.(T) -> Unit
 
 /**
- * Function signature alias for provider bound to a dependency graph.
+ * Provider dispose callback function signature.
+ */
+typealias ProviderDispose<T> = (T) -> Unit
+
+/**
+ * Function signature for provider bound to a dependency graph.
  */
 internal typealias Provider<T> = () -> T
 
@@ -47,9 +52,14 @@ internal typealias Provider<T> = () -> T
 typealias FactoryBlock<A, R> = Graph.(A) -> R
 
 /**
- * Function signature alias for factories not bound to a dependency graph.
+ * Factory post construct callback function signature.
  */
-internal typealias UnboundFactory<A, R> = (Graph, A) -> R
+typealias FactoryPostContruct<A, R> = Graph.(A, R) -> Unit
+
+/**
+ * Factory dispose callback function signature.
+ */
+typealias FactoryDispose<A, R> = (A, R) -> Unit
 
 /**
  * Returns [DependencyKey] for [MembersInjector] of type [T].
