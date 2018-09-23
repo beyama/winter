@@ -18,9 +18,11 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey
         get() = unboundService.key
 
-    override fun instance(arg: Unit): T = graph
-            .evaluate(this, arg) { unboundService.factory(graph) }
-            .also { graph.postConstruct() }
+    override fun instance(arg: Unit): T {
+        val instance = graph.evaluate(this, arg) { unboundService.factory(graph) }
+        graph.postConstruct()
+        return instance
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -77,9 +79,11 @@ internal class BoundSingletonService<T : Any>(
 
     override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.factory(graph) }
-            .also { this.instance = it }
+    override fun initialize(): T {
+        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
+        this.instance = instance
+        return instance
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -106,9 +110,11 @@ internal class BoundWeakSingletonService<T : Any>(
     override val instance: Any
         get() = reference?.get() ?: UNINITIALIZED_VALUE
 
-    override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.factory(graph) }
-            .also { this.reference = WeakReference(it) }
+    override fun initialize(): T {
+        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
+        reference = WeakReference(instance)
+        return instance
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -131,9 +137,11 @@ internal class BoundSoftSingletonService<T : Any>(
     override val instance: Any
         get() = reference?.get() ?: UNINITIALIZED_VALUE
 
-    override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.factory(graph) }
-            .also { this.reference = SoftReference(it) }
+    override fun initialize(): T {
+        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
+        reference = SoftReference(instance)
+        return instance
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -154,9 +162,11 @@ internal class BoundFactoryService<A, R : Any>(
     override val key: TypeKey
         get() = unboundService.key
 
-    override fun instance(arg: A): R = graph
-            .evaluate(this, arg) { unboundService.factory(graph, arg) }
-            .also { graph.postConstruct() }
+    override fun instance(arg: A): R {
+        val instance = graph.evaluate(this, arg) { unboundService.factory(graph, arg) }
+        graph.postConstruct()
+        return instance
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
