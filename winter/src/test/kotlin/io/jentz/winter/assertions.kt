@@ -14,6 +14,26 @@ inline fun <T> expectValueToChange(from: T, to: T, valueProvider: () -> T, block
     if (b != to) fail("Expected change from ${formatValue(from)} to ${formatValue(to)} but was ${formatValue(b)}")
 }
 
+fun Graph.shouldHaveService(key: TypeKey, alsoCheckParent: Boolean = false) {
+    if (!component.dependencies.containsKey(key)) {
+        val parent = this.parent
+        if (parent == null || !alsoCheckParent) {
+            fail("Graph doesn't contain service with key <$key>")
+        }
+        parent.shouldHaveService(key, alsoCheckParent)
+    }
+}
+
+fun Graph.shouldNotHaveService(key: TypeKey, alsoCheckParent: Boolean = false) {
+    if (component.dependencies.containsKey(key)) {
+        val parent = this.parent
+        if (parent == null || !alsoCheckParent) {
+            fail("Graph was expected to not contain service with key <$key> but it does.")
+        }
+        parent.shouldNotHaveService(key, alsoCheckParent)
+    }
+}
+
 fun fail(message: String): Nothing {
     throw AssertionFailedError(message)
 }

@@ -1,6 +1,6 @@
 package io.jentz.winter
 
-internal interface UnboundService<A, R : Any> {
+interface UnboundService<A, R : Any> {
     val key: TypeKey
     fun bind(graph: Graph): BoundService<A, R>
 }
@@ -85,9 +85,11 @@ internal class ConstantService<R : Any>(
         val value: R
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
+    override val scope: Scope get() = Scope.Prototype
+
     override fun bind(graph: Graph): BoundService<Unit, R> = this
 
-    override fun instance(arg: Unit): R = value
+    override fun instance(argument: Unit): R = value
 
     override fun postConstruct(arg: Any, instance: Any) {
     }
@@ -102,9 +104,11 @@ internal class ProviderService<R : Any>(
         val provider: Provider<R>
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
+    override val scope: Scope get() = Scope.Prototype
+
     override fun bind(graph: Graph): BoundService<Unit, R> = this
 
-    override fun instance(arg: Unit): R = provider()
+    override fun instance(argument: Unit): R = provider()
 
     override fun postConstruct(arg: Any, instance: Any) {
     }

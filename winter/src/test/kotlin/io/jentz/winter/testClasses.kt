@@ -54,6 +54,7 @@ internal class BoundReferenceService<R : Any>(
     var postConstructLastArguments: Pair<Any, Any>? = null
     var disposeCalled = 0
 
+    override val scope: Scope get() = Scope("referenceTest")
 
     override fun postConstruct(arg: Any, instance: Any) {
         postConstructCalledCount += 1

@@ -5,7 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 /**
  * Plugin that is called after an instance was created.
  */
-typealias PostConstructPlugin = (graph: Graph, scope: Scope, instance: Any) -> Unit
+typealias PostConstructPlugin = (graph: Graph, scope: Scope, argument: Any, instance: Any) -> Unit
 
 /**
  * Plugin that is called during an component initialization.
@@ -48,8 +48,8 @@ object WinterPlugins {
         postConstructPlugins.clear()
     }
 
-    internal fun runPostConstructPlugins(graph: Graph, scope: Scope, instance: Any) {
-        postConstructPlugins.forEach { it(graph, scope, instance) }
+    internal fun runPostConstructPlugins(graph: Graph, scope: Scope, argument: Any, instance: Any) {
+        postConstructPlugins.forEach { it(graph, scope, argument, instance) }
     }
 
     /**

@@ -18,6 +18,11 @@ class GraphTest {
 
     private val instance = Any()
 
+    @BeforeEach
+    fun beforeEach() {
+        WinterPlugins.resetPostConstructPlugins()
+    }
+
     @Nested
     @DisplayName("Prototype scope")
     inner class PrototypeScope {
@@ -40,7 +45,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke post construct block with instance`() {
+        fun `should invoke post construct callback with instance`() {
             var called = false
             graph {
                 prototype(postConstruct = {
@@ -48,7 +53,22 @@ class GraphTest {
                     called = true
                 }) { instance }
             }.instance<Any>()
-            called.shouldBe(true)
+            called.shouldBeTrue()
+        }
+
+        @Test
+        fun `should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { prototype { instance } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.Prototype)
+                argument.shouldBe(Unit)
+                i.shouldBeSameInstanceAs(instance)
+                called = true
+            }
+            testGraph.instance<Any>()
+            called.shouldBeTrue()
         }
 
     }
@@ -79,13 +99,28 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke post construct block with instance`() {
+        fun `should invoke post construct callback with instance`() {
             val parent = testComponent.init().instance<Parent>()
             parent.child.parent.shouldBeSameInstanceAs(parent)
         }
 
         @Test
-        fun `should invoke dispose block with instance`() {
+        fun `should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { singleton { instance } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.Singleton)
+                argument.shouldBe(Unit)
+                i.shouldBeSameInstanceAs(instance)
+                called = true
+            }
+            testGraph.instance<Any>()
+            called.shouldBeTrue()
+        }
+
+        @Test
+        fun `should invoke dispose callback with instance`() {
             val graph = testComponent.init()
             val parent: Parent = graph.instance()
             val child: Child = graph.instance()
@@ -158,6 +193,21 @@ class GraphTest {
         }
 
         @Test
+        fun `#softSingleton should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { softSingleton { instance } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.SoftSingleton)
+                argument.shouldBe(Unit)
+                i.shouldBeSameInstanceAs(instance)
+                called = true
+            }
+            testGraph.instance<Any>()
+            called.shouldBeTrue()
+        }
+
+        @Test
         fun `#weakSingleton should return instance returned by factory`() {
             graph {
                 weakSingleton { instance }
@@ -177,6 +227,21 @@ class GraphTest {
             postConstructCalledCount.shouldBe(1)
         }
 
+        @Test
+        fun `#weakSingleton should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { weakSingleton { instance } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.WeakSingleton)
+                argument.shouldBe(Unit)
+                i.shouldBeSameInstanceAs(instance)
+                called = true
+            }
+            testGraph.instance<Any>()
+            called.shouldBeTrue()
+        }
+
     }
 
     @Nested
@@ -184,14 +249,14 @@ class GraphTest {
     inner class FactoryScope {
 
         @Test
-        fun `should return instance returned by the factory block`() {
+        fun `should return instance returned by the factory`() {
             graph {
                 factory { i: Int -> i.toString() }
             }.instance<Int, String>(42).shouldBe("42")
         }
 
         @Test
-        fun `should invoke factory block for every lookup`() {
+        fun `should invoke factory for every lookup`() {
             var count = 0
             val graph = graph {
                 factory { i: Int ->
@@ -206,7 +271,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke postConstruct block with argument and instance`() {
+        fun `should invoke postConstruct callback with argument and instance`() {
             var called = false
             graph {
                 factory(
@@ -217,7 +282,22 @@ class GraphTest {
                         }
                 ) { i: Int -> i.toString() }
             }.instance<Int, String>(42)
-            called.shouldBe(true)
+            called.shouldBeTrue()
+        }
+
+        @Test
+        fun `should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { factory { i: Int -> i.toString() } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.PrototypeFactory)
+                argument.shouldBe(42)
+                i.shouldBe("42")
+                called = true
+            }
+            testGraph.instance<Int, String>(42)
+            called.shouldBeTrue()
         }
 
     }
@@ -227,14 +307,14 @@ class GraphTest {
     inner class MultitonScope {
 
         @Test
-        fun `should return instance returned by factory block`() {
+        fun `should return instance returned by factory`() {
             graph {
                 multiton { c: Color -> Widget(c) }
             }.instance<Color, Widget>(Color.BLUE).color.shouldBe(Color.BLUE)
         }
 
         @Test
-        fun `should invoke factory block only on the first lookup with new argument`() {
+        fun `should invoke factory only on the first lookup with new argument`() {
             val graph = graph {
                 multiton { c: Color -> Widget(c) }
             }
@@ -247,7 +327,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke post construct block with instance and argument`() {
+        fun `should invoke post construct callback with instance and argument`() {
             var called = false
             graph {
                 multiton(
@@ -258,11 +338,26 @@ class GraphTest {
                         }
                 ) { c: Color -> Widget(c) }
             }.instance<Color, Widget>(Color.GREEN)
-            called.shouldBe(true)
+            called.shouldBeTrue()
         }
 
         @Test
-        fun `should invoke dispose block with instance and argument for each constructed instance`() {
+        fun `should run post construct plugins`() {
+            var called = false
+            val testGraph = graph { multiton { i: Int -> i.toString() } }
+            WinterPlugins.addPostConstructPlugin { graph, scope, argument, i ->
+                graph.shouldBeSameInstanceAs(testGraph)
+                scope.shouldBeSameInstanceAs(Scope.MultitonFactory)
+                argument.shouldBe(42)
+                i.shouldBe("42")
+                called = true
+            }
+            testGraph.instance<Int, String>(42)
+            called.shouldBeTrue()
+        }
+
+        @Test
+        fun `should invoke dispose callback with instance and argument for each constructed instance`() {
             var count = 0
             val graph = graph {
                 multiton(

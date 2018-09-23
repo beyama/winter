@@ -6,10 +6,10 @@ import org.junit.Test
 class ComponentTest {
 
     private val testComponent = component("root") {
-        provider { ServiceDependencyImpl("") }
-        provider(qualifier = "name") { ServiceDependencyImpl("") }
-        provider(generics = true) { GenericDependencyImpl(1) }
-        provider(generics = true, qualifier = "name") { GenericDependencyImpl(1) }
+        prototype { ServiceDependencyImpl("") }
+        prototype("name") { ServiceDependencyImpl("") }
+        prototype(null, true) { GenericDependencyImpl(1) }
+        prototype("name", true) { GenericDependencyImpl(1) }
         factory { string: String -> ServiceDependencyImpl(string) }
         factory(qualifier = "name") { string: String -> ServiceDependencyImpl(string) }
         factory(generics = true) { int: Int -> GenericDependencyImpl(int) }
@@ -23,13 +23,13 @@ class ComponentTest {
 
     @Test
     fun `Component configured with provider should contain provider in its dependency map`() {
-        val component = component { provider { ServiceDependencyImpl("") } }
+        val component = component { prototype { ServiceDependencyImpl("") } }
         assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>()] is UnboundPrototypeService<*>)
     }
 
     @Test
     fun `Component configured with provider and qualifier should contain provider in its dependency map`() {
-        val component = component { provider("name") { ServiceDependencyImpl("") } }
+        val component = component { prototype("name") { ServiceDependencyImpl("") } }
         assertTrue(component.dependencies[typeKey<ServiceDependencyImpl>("name")] is UnboundPrototypeService<*>)
     }
 
@@ -67,7 +67,7 @@ class ComponentTest {
 
     @Test
     fun `#derive with empty block should create a copy of the component`() {
-        val component = component { provider { ServiceDependencyImpl("") } }
+        val component = component { prototype { ServiceDependencyImpl("") } }
         val derived = component.derive { }
         assertNotSame(component, derived)
         assertNotSame(component.dependencies, derived.dependencies)
@@ -76,8 +76,8 @@ class ComponentTest {
 
     @Test
     fun `#derive with block should add provider to newly created component`() {
-        val component = component { provider { ServiceDependencyImpl("") } }
-        val derived = component.derive { provider("name") { ServiceDependencyImpl("") } }
+        val component = component { prototype { ServiceDependencyImpl("") } }
+        val derived = component.derive { prototype("name") { ServiceDependencyImpl("") } }
         assertEquals(1, component.dependencies.size)
         assertEquals(2, derived.dependencies.size)
         assertTrue(derived.has(typeKey<ServiceDependencyImpl>("name")))
@@ -85,16 +85,16 @@ class ComponentTest {
 
     @Test(expected = WinterException::class)
     fun `#derive should throw an exception when configured with an entry that already exists in the component derived from`() {
-        val component = component { provider { ServiceDependencyImpl("") } }
-        component.derive { provider { ServiceDependencyImpl("") } }
+        val component = component { prototype { ServiceDependencyImpl("") } }
+        component.derive { prototype { ServiceDependencyImpl("") } }
     }
 
     @Test
     fun `#derive should be able to override existing provider entries`() {
         val instanceA = Any()
         val instanceB = Any()
-        val component = component { provider { instanceA } }
-        val derived = component.derive { provider(override = true) { instanceB } }
+        val component = component { prototype { instanceA } }
+        val derived = component.derive { prototype(null, false, true) { instanceB } }
 
         assertEquals(1, derived.dependencies.size)
         assertSame(instanceB, derived.init().instance())

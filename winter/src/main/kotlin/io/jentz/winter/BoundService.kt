@@ -5,7 +5,8 @@ import java.lang.ref.WeakReference
 
 interface BoundService<A, R : Any> {
     val key: TypeKey
-    fun instance(arg: A): R
+    val scope: Scope
+    fun instance(argument: A): R
     fun postConstruct(arg: Any, instance: Any)
     fun dispose()
 }
@@ -15,11 +16,12 @@ internal class BoundPrototypeService<T : Any>(
         private val unboundService: UnboundPrototypeService<T>
 ) : BoundService<Unit, T> {
 
-    override val key: TypeKey
-        get() = unboundService.key
+    override val scope: Scope get() = Scope.Prototype
 
-    override fun instance(arg: Unit): T {
-        val instance = graph.evaluate(this, arg) { unboundService.factory(graph) }
+    override val key: TypeKey get() = unboundService.key
+
+    override fun instance(argument: Unit): T {
+        val instance = graph.evaluate(this, argument) { unboundService.factory(graph) }
         graph.postConstruct()
         return instance
     }
@@ -27,7 +29,7 @@ internal class BoundPrototypeService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, Scope.Prototype, instance)
+        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -43,10 +45,9 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
 
     protected abstract val unboundService: UnboundService<Unit, T>
 
-    final override val key: TypeKey
-        get() = unboundService.key
+    final override val key: TypeKey get() = unboundService.key
 
-    final override fun instance(arg: Unit): T {
+    final override fun instance(argument: Unit): T {
         val v1 = instance
         if (v1 !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
@@ -77,6 +78,8 @@ internal class BoundSingletonService<T : Any>(
         override val unboundService: UnboundSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
+    override val scope: Scope get() = Scope.Singleton
+
     override var instance: Any = UNINITIALIZED_VALUE
 
     override fun initialize(): T {
@@ -88,7 +91,7 @@ internal class BoundSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, Scope.Singleton, instance)
+        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -105,10 +108,11 @@ internal class BoundWeakSingletonService<T : Any>(
         override val unboundService: UnboundWeakSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
-    private var reference: WeakReference<T>? = null
+    override val scope: Scope get() = Scope.WeakSingleton
 
-    override val instance: Any
-        get() = reference?.get() ?: UNINITIALIZED_VALUE
+    override val instance: Any get() = reference?.get() ?: UNINITIALIZED_VALUE
+
+    private var reference: WeakReference<T>? = null
 
     override fun initialize(): T {
         val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
@@ -119,7 +123,7 @@ internal class BoundWeakSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, Scope.WeakSingleton, instance)
+        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -132,10 +136,11 @@ internal class BoundSoftSingletonService<T : Any>(
         override val unboundService: UnboundSoftSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
-    private var reference: SoftReference<T>? = null
+    override val instance: Any get() = reference?.get() ?: UNINITIALIZED_VALUE
 
-    override val instance: Any
-        get() = reference?.get() ?: UNINITIALIZED_VALUE
+    override val scope: Scope get() = Scope.SoftSingleton
+
+    private var reference: SoftReference<T>? = null
 
     override fun initialize(): T {
         val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
@@ -146,7 +151,7 @@ internal class BoundSoftSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, Scope.SoftSingleton, instance)
+        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -159,11 +164,12 @@ internal class BoundFactoryService<A, R : Any>(
         private val unboundService: UnboundFactoryService<A, R>
 ) : BoundService<A, R> {
 
-    override val key: TypeKey
-        get() = unboundService.key
+    override val key: TypeKey get() = unboundService.key
 
-    override fun instance(arg: A): R {
-        val instance = graph.evaluate(this, arg) { unboundService.factory(graph, arg) }
+    override val scope: Scope get() = Scope.PrototypeFactory
+
+    override fun instance(argument: A): R {
+        val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
         graph.postConstruct()
         return instance
     }
@@ -171,6 +177,7 @@ internal class BoundFactoryService<A, R : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
+        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
@@ -182,17 +189,18 @@ internal class BoundMultitonFactoryService<A, R : Any>(
         private val unboundService: UnboundMultitonFactoryService<A, R>
 ) : BoundService<A, R> {
 
+    override val key: TypeKey get() = unboundService.key
+
+    override val scope: Scope get() = Scope.MultitonFactory
+
     private val map = mutableMapOf<A, R>()
 
-    override val key: TypeKey
-        get() = unboundService.key
-
-    override fun instance(arg: A): R {
+    override fun instance(argument: A): R {
         synchronized(map) {
-            map[arg]?.let { return it }
+            map[argument]?.let { return it }
 
-            val instance = graph.evaluate(this, arg) { unboundService.factory(graph, arg) }
-            map[arg] = instance
+            val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
+            map[argument] = instance
             graph.postConstruct()
             return instance
         }
@@ -201,6 +209,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
+        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
