@@ -23,14 +23,14 @@ class GraphTest {
     inner class PrototypeScope {
 
         @Test
-        fun `should return instance returned by provider block`() {
+        fun `should return instance returned by factory function`() {
             graph {
                 prototype { instance }
             }.instance<Any>().shouldBeSameInstanceAs(instance)
         }
 
         @Test
-        fun `should invoke provider block for every lookup`() {
+        fun `should invoke factory function for every lookup`() {
             var count = 0
             val graph = graph { prototype { count += 1; count } }
             (1..5).forEach {
@@ -67,12 +67,12 @@ class GraphTest {
         }
 
         @Test
-        fun `should return instance returned by provider block`() {
+        fun `should return instance returned by factory function`() {
             testComponent.init().instance<Any>().shouldBeSameInstanceAs(instance)
         }
 
         @Test
-        fun `should invoke provider block only on the first lookup`() {
+        fun `should invoke factory function only on the first lookup`() {
             var count = 0
             val graph = graph { singleton { count += 1; count } }
             (1..5).forEach { graph.instance<Int>().shouldBe(1) }
@@ -109,28 +109,14 @@ class GraphTest {
     inner class ReferenceScope {
 
         @Test
-        fun `should return instance returned by provider block`() {
+        fun `should return instance returned by factory function`() {
             graph {
                 reference { instance }
             }.instance<Any>().shouldBeSameInstanceAs(instance)
         }
 
         @Test
-        fun `#softSingleton should return instance returned by provider block`() {
-            graph {
-                softSingleton { instance }
-            }.instance<Any>().shouldBeSameInstanceAs(instance)
-        }
-
-        @Test
-        fun `#weakSingleton should return instance returned by provider block`() {
-            graph {
-                weakSingleton { instance }
-            }.instance<Any>().shouldBeSameInstanceAs(instance)
-        }
-
-        @Test
-        fun `should invoke provider block only when reference is null`() {
+        fun `should invoke factory function only when reference is null`() {
             var count = 0
             val graph = graph { reference { count += 1; count } }
             val service = graph.service<Unit, Int>(typeKey<Int>()) as BoundReferenceService
@@ -143,12 +129,52 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke post construct block with instance`() {
+        fun `should invoke post construct callback with instance`() {
             val graph = graph { reference { "test" } }
             val service = graph.service<Unit, String>(typeKey<String>()) as BoundReferenceService
             graph.instance<String>()
             service.postConstructCalledCount.shouldBe(1)
             service.postConstructLastArguments.shouldBe(Unit to "test")
+        }
+
+        @Test
+        fun `#softSingleton should return instance returned by factory function`() {
+            graph {
+                softSingleton { instance }
+            }.instance<Any>().shouldBeSameInstanceAs(instance)
+        }
+
+        @Test
+        fun `#softSingleton should invoke post construct callback with instance`() {
+            var postConstructCalledCount = 0
+            val graph = graph {
+                softSingleton(postConstruct = {
+                    it.shouldBeSameInstanceAs(instance)
+                    postConstructCalledCount += 1
+                }) { instance }
+            }
+            graph.instance<Any>()
+            postConstructCalledCount.shouldBe(1)
+        }
+
+        @Test
+        fun `#weakSingleton should return instance returned by factory`() {
+            graph {
+                weakSingleton { instance }
+            }.instance<Any>().shouldBeSameInstanceAs(instance)
+        }
+
+        @Test
+        fun `#weakSingleton should invoke post construct callback with instance`() {
+            var postConstructCalledCount = 0
+            val graph = graph {
+                weakSingleton(postConstruct = {
+                    it.shouldBeSameInstanceAs(instance)
+                    postConstructCalledCount += 1
+                }) { instance }
+            }
+            graph.instance<Any>()
+            postConstructCalledCount.shouldBe(1)
         }
 
     }
@@ -304,7 +330,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception if provider doesn't exist`() {
+        fun `should throw an exception if dependency doesn't exist`() {
             shouldThrow<EntryNotFoundException> { emptyGraph.instance() }
         }
 
@@ -367,7 +393,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should return null if provider doesn't exist`() {
+        fun `should return null if dependency doesn't exist`() {
             emptyGraph.instanceOrNull<Any>().shouldBe(null)
         }
 
@@ -435,7 +461,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception if provider doesn't exist`() {
+        fun `should throw an exception if dependency doesn't exist`() {
             shouldThrow<EntryNotFoundException> { emptyGraph.provider<Any>() }
         }
 
@@ -507,7 +533,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should return null if provider doesn't exist`() {
+        fun `should return null if dependency doesn't exist`() {
             emptyGraph.providerOrNull<Any>().shouldBe(null)
         }
 
@@ -679,7 +705,7 @@ class GraphTest {
     inner class CyclicDependencies {
 
         @Test
-        fun `should detect cyclic dependencies for provider`() {
+        fun `should detect cyclic dependencies`() {
             shouldThrow<CyclicDependencyException> {
                 graph {
                     singleton { Parent(instance()) }
@@ -689,7 +715,7 @@ class GraphTest {
         }
 
         @Test
-        fun `should detect cyclic dependencies for self referencing provider`() {
+        fun `should detect cyclic dependencies for self referencing factory`() {
             shouldThrow<CyclicDependencyException> {
                 graph {
                     prototype {

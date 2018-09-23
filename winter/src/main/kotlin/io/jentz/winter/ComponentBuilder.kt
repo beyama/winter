@@ -69,136 +69,136 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     /**
-     * Register a provider for instances of type [T].
+     * Register a prototype scoped factory for instances of type [R].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param block The provider block.
+     * @param factory The factory for type [R].
      */
     @Deprecated(
             message = "Use prototype instead",
-            replaceWith = ReplaceWith("prototype(qualifier,generics,override,block)")
+            replaceWith = ReplaceWith("prototype(qualifier,generics,override,factory)")
     )
-    inline fun <reified T : Any> provider(
+    inline fun <reified R : Any> provider(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline block: ProviderBlock<T>
+            noinline factory: GFactory0<R>
     ) {
-        prototype(qualifier, generics, override, null, block)
+        prototype(qualifier, generics, override, null, factory)
     }
 
     /**
-     * Register a prototype scoped provider for an instance of type [T].
+     * Register a prototype scoped factory for an instance of type [R].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
      * @param postConstruct A post construct callback.
-     * @param block The provider block.
+     * @param factory The factory for type [R].
      */
-    inline fun <reified T : Any> prototype(
+    inline fun <reified R : Any> prototype(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: ProviderPostContruct<T>? = null,
-            noinline block: ProviderBlock<T>
+            noinline postConstruct: GFactoryCallback1<R>? = null,
+            noinline factory: GFactory0<R>
     ) {
-        val key = typeKey<T>(qualifier, generics)
-        val service = UnboundPrototypeService(key, block, postConstruct)
+        val key = typeKey<R>(qualifier, generics)
+        val service = UnboundPrototypeService(key, factory, postConstruct)
         register(service, override)
     }
 
     /**
-     * Register a singleton scoped provider for an instance of type [T].
+     * Register a singleton scoped factory for an instance of type [R].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
      * @param postConstruct A post construct callback.
      * @param dispose A callback that gets called when the dependency graph gets disposed.
-     * @param block The provider block.
+     * @param factory The factory for type [R].
      */
-    inline fun <reified T : Any> singleton(
+    inline fun <reified R : Any> singleton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: ProviderPostContruct<T>? = null,
-            noinline dispose: ProviderDispose<T>? = null,
-            noinline block: ProviderBlock<T>
+            noinline postConstruct: GFactoryCallback1<R>? = null,
+            noinline dispose: GFactoryCallback1<R>? = null,
+            noinline factory: GFactory0<R>
     ) {
-        val key = typeKey<T>(qualifier, generics)
-        val service = UnboundSingletonService(key, block, postConstruct, dispose)
+        val key = typeKey<R>(qualifier, generics)
+        val service = UnboundSingletonService(key, factory, postConstruct, dispose)
         register(service, override)
     }
 
     /**
-     * Register an eager singleton scoped provider for an instance of type [T].
+     * Register an eager singleton scoped factory for an instance of type [R].
      *
      * This behaves exactly like [singleton] but the instance will be created as soon as the
      * dependency graph is initialize.
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
      * @param postConstruct A post construct callback.
      * @param dispose A callback that gets called when the dependency graph gets disposed.
-     * @param block The provider block.
+     * @param factory The factory for [R].
      */
-    inline fun <reified T : Any> eagerSingleton(
+    inline fun <reified R : Any> eagerSingleton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: ProviderPostContruct<T>? = null,
-            noinline dispose: ProviderDispose<T>? = null,
-            noinline block: ProviderBlock<T>
+            noinline postConstruct: GFactoryCallback1<R>? = null,
+            noinline dispose: GFactoryCallback1<R>? = null,
+            noinline factory: GFactory0<R>
     ) {
-        val key = typeKey<T>(qualifier, generics)
-        val service = UnboundSingletonService(key, block, postConstruct, dispose)
+        val key = typeKey<R>(qualifier, generics)
+        val service = UnboundSingletonService(key, factory, postConstruct, dispose)
         register(service, override)
         eagerDependencies += key
     }
 
     /**
-     * Register a weak singleton scoped provider for an instance of type [T].
+     * Register a weak singleton scoped factory for an instance of type [R].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
      * @param postConstruct A post construct callback.
-     * @param block The provider block.
+     * @param factory The factory for type [R].
      */
-    inline fun <reified T : Any> weakSingleton(
+    inline fun <reified R : Any> weakSingleton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: ProviderPostContruct<T>? = null,
-            noinline block: ProviderBlock<T>
+            noinline postConstruct: GFactoryCallback1<R>? = null,
+            noinline factory: GFactory0<R>
     ) {
-        val key = typeKey<T>(qualifier, generics)
-        val service = UnboundWeakSingletonService(key, block, postConstruct)
+        val key = typeKey<R>(qualifier, generics)
+        val service = UnboundWeakSingletonService(key, factory, postConstruct)
         register(service, override)
     }
 
     /**
-     * Register a soft singleton scoped provider for an instance of type [T].
+     * Register a soft singleton scoped factory for an instance of type [R].
      *
      * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [T].
+     * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
      * @param postConstruct A post construct callback.
-     * @param block The provider block.
+     * @param factory The factory for type [R].
      */
-    inline fun <reified T : Any> softSingleton(
+    inline fun <reified R : Any> softSingleton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: ProviderPostContruct<T>? = null,
-            noinline block: ProviderBlock<T>
+            noinline postConstruct: GFactoryCallback1<R>? = null,
+            noinline factory: GFactory0<R>
     ) {
-        val key = typeKey<T>(qualifier, generics)
-        val service = UnboundSoftSingletonService(key, block, postConstruct)
+        val key = typeKey<R>(qualifier, generics)
+        val service = UnboundSoftSingletonService(key, factory, postConstruct)
         register(service, override)
     }
 
@@ -209,17 +209,17 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * @param generics If true this will preserve generic information of [A] and [R].
      * @param override If true this will override a existing factory of this type.
      * @param postConstruct A post construct callback.
-     * @param block The factory block.
+     * @param factory The factory factory.
      */
     inline fun <reified A : Any, reified R : Any> factory(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: FactoryPostContruct<A, R>? = null,
-            noinline block: FactoryBlock<A, R>
+            noinline postConstruct: GFactoryCallback2<A, R>? = null,
+            noinline factory: GFactory1<A, R>
     ) {
         val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = UnboundFactoryService(key, block, postConstruct)
+        val service = UnboundFactoryService(key, factory, postConstruct)
         register(service, override)
     }
 
@@ -234,18 +234,18 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * @param override If true this will override a existing factory of this type.
      * @param postConstruct A post construct callback.
      * @param dispose A callback that gets called when the dependency graph gets disposed.
-     * @param block The factory block.
+     * @param factory The factory factory.
      */
     inline fun <reified A : Any, reified R : Any> multiton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline postConstruct: FactoryPostContruct<A, R>? = null,
-            noinline dispose: FactoryDispose<A, R>? = null,
-            noinline block: FactoryBlock<A, R>
+            noinline postConstruct: GFactoryCallback2<A, R>? = null,
+            noinline dispose: GFactoryCallback2<A, R>? = null,
+            noinline factory: GFactory1<A, R>
     ) {
         val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = UnboundMultitonFactoryService(key, block, postConstruct, dispose)
+        val service = UnboundMultitonFactoryService(key, factory, postConstruct, dispose)
         register(service, override)
     }
 

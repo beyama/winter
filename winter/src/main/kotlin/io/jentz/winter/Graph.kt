@@ -26,6 +26,9 @@ class Graph internal constructor(
     private val stack = mutableListOf<Any?>()
     private var stackSize = 0
 
+    /**
+     * Indicates if the graph is disposed.
+     */
     var isDisposed = false
         private set
 
@@ -42,90 +45,143 @@ class Graph internal constructor(
 
 
     /**
-     * Retrieve a non-optional instance of `T`.
+     * Retrieve a non-optional instance of `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserve generic type parameters.
-     * @return An instance of `T`
+     * @return An instance of `R`
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> instance(
+    inline fun <reified R : Any> instance(
             qualifier: Any? = null,
             generics: Boolean = false
-    ): T = service<Unit, T>(typeKey<T>(qualifier, generics)).instance(Unit)
+    ): R {
+        val key = typeKey<R>(qualifier, generics)
+        return service<Unit, R>(key).instance(Unit)
+    }
 
+    /**
+     * Retrieve a factory of type `(A) -> R` and apply [argument] to it.
+     *
+     * @param argument The argument for the factory to retrieve.
+     * @param qualifier An optional qualifier of the dependency.
+     * @return The result of applying [argument] to the retrieved factory.
+     *
+     * @throws EntryNotFoundException
+     */
     inline fun <reified A, reified R : Any> instance(
             argument: A,
             qualifier: Any? = null,
             generics: Boolean = false
-    ): R = service<A, R>(compoundTypeKey<A, R>(qualifier, generics)).instance(argument)
+    ): R {
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        return service<A, R>(key).instance(argument)
+    }
 
     /**
-     * Retrieve an optional instance of `T`.
+     * Retrieve an optional instance of `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserve generic type parameters.
-     * @return An instance of `T` or null if provider doesn't exist.
+     * @return An instance of `R` or null if provider doesn't exist.
      */
-    inline fun <reified T : Any> instanceOrNull(
+    inline fun <reified R : Any> instanceOrNull(
             qualifier: Any? = null,
             generics: Boolean = false
-    ): T? = serviceOrNull<Unit, T>(typeKey<T>(qualifier, generics))?.instance(Unit)
+    ): R? {
+        val key = typeKey<R>(qualifier, generics)
+        return serviceOrNull<Unit, R>(key)?.instance(Unit)
+    }
 
+    /**
+     * Retrieve an optional factory of type `(A) -> R` and apply [argument] to it.
+     *
+     * @param argument The argument for the factory to retrieve.
+     * @param qualifier An optional qualifier of the dependency.
+     * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
+     *
+     */
     inline fun <reified A, reified R : Any> instanceOrNull(
             argument: A,
             qualifier: Any? = null,
             generics: Boolean = false
-    ): R? = serviceOrNull<A, R>(compoundTypeKey<A, R>(qualifier, generics))?.instance(argument)
+    ): R? {
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        return serviceOrNull<A, R>(key)?.instance(argument)
+    }
 
     /**
-     * Retrieve a non-optional provider function that returns `T`.
+     * Retrieves a non-optional provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserve generic type parameters.
-     * @return The provider that returns `T`
+     * @return The provider function.
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified T : Any> provider(
+    inline fun <reified R : Any> provider(
             qualifier: Any? = null,
             generics: Boolean = false
-    ): () -> T {
-        val service = service<Unit, T>(typeKey<T>(qualifier, generics))
+    ): Provider<R> {
+        val key = typeKey<R>(qualifier, generics)
+        val service = service<Unit, R>(key)
         return { service.instance(Unit) }
     }
 
+    /**
+     * Retrieves a factory of type `(A) -> R` and creates and returns a
+     * [provider][Provider] that applies the given [argument] to the factory when called.
+     *
+     * @param argument The argument for the factory to retrieve.
+     * @param qualifier An optional qualifier of the dependency.
+     * @return The provider function.
+     *
+     * @throws EntryNotFoundException
+     */
     inline fun <reified A, reified R : Any> provider(
             argument: A,
             qualifier: Any? = null,
             generics: Boolean = false
-    ): () -> R {
-        val service = service<A, R>(compoundTypeKey<A, R>(qualifier, generics))
+    ): Provider<R> {
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        val service = service<A, R>(key)
         return { service.instance(argument) }
     }
 
     /**
-     * Retrieve an optional provider function that returns `T`.
+     * Retrieve an optional provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserve generic type parameters.
-     * @return The provider that returns `T` or null if provider doesn't exist.
+     * @return The provider that returns `R` or null if provider doesn't exist.
      */
-    inline fun <reified T : Any> providerOrNull(
+    inline fun <reified R : Any> providerOrNull(
             qualifier: Any? = null,
             generics: Boolean = false
-    ): (() -> T)? {
-        val service = serviceOrNull<Unit, T>(typeKey<T>(qualifier, generics)) ?: return null
+    ): Provider<R>? {
+        val key = typeKey<R>(qualifier, generics)
+        val service = serviceOrNull<Unit, R>(key) ?: return null
         return { service.instance(Unit) }
     }
 
+    /**
+     * Retrieves an optional factory of type `(A) -> R` and creates and returns a
+     * [provider][Provider] that applies the given [argument] to the factory when called.
+     *
+     * @param argument The argument for the factory to retrieve.
+     * @param qualifier An optional qualifier of the dependency.
+     * @return The provider function or null if factory doesn't exist.
+     *
+     * @throws EntryNotFoundException
+     */
     inline fun <reified A, reified R : Any> providerOrNull(
             argument: A,
             qualifier: Any? = null,
             generics: Boolean = false
-    ): (() -> R)? {
-        val service = serviceOrNull<A, R>(compoundTypeKey<A, R>(qualifier, generics)) ?: return null
+    ): Provider<R>? {
+        val key = compoundTypeKey<A, R>(qualifier, generics)
+        val service = serviceOrNull<A, R>(key) ?: return null
         return { service.instance(argument) }
     }
 
@@ -141,7 +197,7 @@ class Graph internal constructor(
     inline fun <reified A : Any, reified R : Any> factory(
             qualifier: Any? = null,
             generics: Boolean = false
-    ): (A) -> R {
+    ): Factory<A, R> {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = service<A, R>(key)
         return { argument: A -> service.instance(argument) }
@@ -156,7 +212,10 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified A : Any, reified R : Any> factoryOrNull(qualifier: Any? = null, generics: Boolean = false): ((A) -> R)? {
+    inline fun <reified A : Any, reified R : Any> factoryOrNull(
+            qualifier: Any? = null,
+            generics: Boolean = false
+    ): Factory<A, R>? {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = serviceOrNull<A, R>(key) ?: return null
         return { argument: A -> service.instance(argument) }
@@ -361,6 +420,8 @@ class Graph internal constructor(
 
     /**
      * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
+     * All resources get released and every retrieval method will throw an excpetion if called
+     * after disposing.
      *
      * Subsequent calls are ignored.
      */

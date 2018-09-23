@@ -6,50 +6,50 @@ internal interface UnboundService<A, R : Any> {
 }
 
 @PublishedApi
-internal class UnboundPrototypeService<T : Any>(
+internal class UnboundPrototypeService<R : Any>(
         override val key: DependencyKey,
-        val block: Graph.() -> T,
-        val postConstruct: (Graph.(T) -> Unit)?
-) : UnboundService<Unit, T> {
+        val factory: GFactory0<R>,
+        val postConstruct: GFactoryCallback1<R>?
+) : UnboundService<Unit, R> {
 
-    override fun bind(graph: Graph): BoundService<Unit, T> {
+    override fun bind(graph: Graph): BoundService<Unit, R> {
         return BoundPrototypeService(graph, this)
     }
 }
 
 @PublishedApi
-internal class UnboundSingletonService<T : Any>(
+internal class UnboundSingletonService<R : Any>(
         override val key: DependencyKey,
-        val block: Graph.() -> T,
-        val postConstruct: (Graph.(T) -> Unit)?,
-        val dispose: ((T) -> Unit)?
-) : UnboundService<Unit, T> {
+        val factory: GFactory0<R>,
+        val postConstruct: GFactoryCallback1<R>?,
+        val dispose: GFactoryCallback1<R>?
+) : UnboundService<Unit, R> {
 
-    override fun bind(graph: Graph): BoundService<Unit, T> {
+    override fun bind(graph: Graph): BoundService<Unit, R> {
         return BoundSingletonService(graph, this)
     }
 }
 
 @PublishedApi
-internal class UnboundWeakSingletonService<T : Any>(
+internal class UnboundWeakSingletonService<R : Any>(
         override val key: DependencyKey,
-        val block: Graph.() -> T,
-        val postConstruct: (Graph.(T) -> Unit)?
-) : UnboundService<Unit, T> {
+        val factory: GFactory0<R>,
+        val postConstruct: GFactoryCallback1<R>?
+) : UnboundService<Unit, R> {
 
-    override fun bind(graph: Graph): BoundService<Unit, T> {
+    override fun bind(graph: Graph): BoundService<Unit, R> {
         return BoundWeakSingletonService(graph, this)
     }
 }
 
 @PublishedApi
-internal class UnboundSoftSingletonService<T : Any>(
+internal class UnboundSoftSingletonService<R : Any>(
         override val key: DependencyKey,
-        val block: Graph.() -> T,
-        val postConstruct: (Graph.(T) -> Unit)?
-) : UnboundService<Unit, T> {
+        val factory: GFactory0<R>,
+        val postConstruct: GFactoryCallback1<R>?
+) : UnboundService<Unit, R> {
 
-    override fun bind(graph: Graph): BoundService<Unit, T> {
+    override fun bind(graph: Graph): BoundService<Unit, R> {
         return BoundSoftSingletonService(graph, this)
     }
 }
@@ -57,8 +57,8 @@ internal class UnboundSoftSingletonService<T : Any>(
 @PublishedApi
 internal class UnboundFactoryService<A, R : Any>(
         override val key: DependencyKey,
-        val block: Graph.(A) -> R,
-        val postConstruct: (Graph.(A, R) -> Unit)?
+        val factory: GFactory1<A, R>,
+        val postConstruct: GFactoryCallback2<A, R>?
 ) : UnboundService<A, R> {
 
     override fun bind(graph: Graph): BoundService<A, R> {
@@ -69,9 +69,9 @@ internal class UnboundFactoryService<A, R : Any>(
 @PublishedApi
 internal class UnboundMultitonFactoryService<A, R : Any>(
         override val key: DependencyKey,
-        val block: Graph.(A) -> R,
-        val postConstruct: (Graph.(A, R) -> Unit)?,
-        val dispose: ((A, R) -> Unit)?
+        val factory: GFactory1<A, R>,
+        val postConstruct: GFactoryCallback2<A, R>?,
+        val dispose: GFactoryCallback2<A, R>?
 ) : UnboundService<A, R> {
 
     override fun bind(graph: Graph): BoundService<A, R> {

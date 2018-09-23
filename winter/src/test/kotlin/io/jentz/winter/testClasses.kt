@@ -45,10 +45,10 @@ internal class UnboundReferenceService<T : Any>(
     }
 }
 
-internal class BoundReferenceService<T : Any>(
+internal class BoundReferenceService<R : Any>(
         graph: Graph,
-        override val unboundService: UnboundReferenceService<T>
-) : AbstractBoundSingletonService<T>(graph) {
+        override val unboundService: UnboundReferenceService<R>
+) : AbstractBoundSingletonService<R>(graph) {
 
     var postConstructCalledCount = 0
     var postConstructLastArguments: Pair<Any, Any>? = null
@@ -66,7 +66,7 @@ internal class BoundReferenceService<T : Any>(
 
     public override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun initialize(): T {
+    override fun initialize(): R {
         val instance = graph.evaluate(this, Unit) { unboundService.block(graph) }
         this.instance = instance
         graph.postConstruct()
@@ -74,6 +74,6 @@ internal class BoundReferenceService<T : Any>(
     }
 }
 
-internal inline fun <reified T : Any> ComponentBuilder.reference(noinline block: ProviderBlock<T>) {
-    register(UnboundReferenceService(typeKey<T>(), block), false)
+internal inline fun <reified R : Any> ComponentBuilder.reference(noinline block: GFactory0<R>) {
+    register(UnboundReferenceService(typeKey<R>(), block), false)
 }

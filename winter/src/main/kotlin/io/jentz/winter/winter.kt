@@ -27,39 +27,36 @@ fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
 fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph = component(qualifier, block).init()
 
 /**
- * Provider block function signature used in [ComponentBuilder] register methods.
+ * No argument factory function signature with [Graph] as receiver.
  */
-typealias ProviderBlock<T> = Graph.() -> T
+typealias GFactory0<R> = Graph.() -> R
 
 /**
- * Provider post construct callback function signature.
+ * One argument factory function signature with [Graph] as receiver.
  */
-typealias ProviderPostContruct<T> = Graph.(T) -> Unit
+typealias GFactory1<A, R> = Graph.(A) -> R
 
 /**
- * Provider dispose callback function signature.
+ * One argument factory callback function signature with [Graph] as receiver.
+ * Used for post-construct and dispose callbacks.
  */
-typealias ProviderDispose<T> = (T) -> Unit
+typealias GFactoryCallback1<R> = Graph.(R) -> Unit
 
 /**
- * Function signature for provider bound to a dependency graph.
+ * Two arguments factory callback function signature with [Graph] as receiver.
+ * Used for post-construct and dispose callbacks.
  */
-internal typealias Provider<T> = () -> T
+typealias GFactoryCallback2<A, R> = Graph.(A, R) -> Unit
 
 /**
- * Factory function with [Graph] as receiver used in [ComponentBuilder] factory register methods.
+ * Provider function signature.
  */
-typealias FactoryBlock<A, R> = Graph.(A) -> R
+typealias Provider<R> = () -> R
 
 /**
- * Factory post construct callback function signature.
+ * Factory function signature.
  */
-typealias FactoryPostContruct<A, R> = Graph.(A, R) -> Unit
-
-/**
- * Factory dispose callback function signature.
- */
-typealias FactoryDispose<A, R> = (A, R) -> Unit
+typealias Factory<A, R> = (A) -> R
 
 /**
  * Returns [DependencyKey] for [MembersInjector] of type [T].

@@ -19,7 +19,7 @@ internal class BoundPrototypeService<T : Any>(
         get() = unboundService.key
 
     override fun instance(arg: Unit): T = graph
-            .evaluate(this, arg) { unboundService.block(graph) }
+            .evaluate(this, arg) { unboundService.factory(graph) }
             .also { graph.postConstruct() }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -78,7 +78,7 @@ internal class BoundSingletonService<T : Any>(
     override var instance: Any = UNINITIALIZED_VALUE
 
     override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.block(graph) }
+            .evaluate(this, Unit) { unboundService.factory(graph) }
             .also { this.instance = it }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -91,7 +91,7 @@ internal class BoundSingletonService<T : Any>(
         val instance = instance
         if (instance !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
-            unboundService.dispose?.invoke(instance as T)
+            unboundService.dispose?.invoke(graph, instance as T)
         }
     }
 }
@@ -107,7 +107,7 @@ internal class BoundWeakSingletonService<T : Any>(
         get() = reference?.get() ?: UNINITIALIZED_VALUE
 
     override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.block(graph) }
+            .evaluate(this, Unit) { unboundService.factory(graph) }
             .also { this.reference = WeakReference(it) }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -132,7 +132,7 @@ internal class BoundSoftSingletonService<T : Any>(
         get() = reference?.get() ?: UNINITIALIZED_VALUE
 
     override fun initialize(): T = graph
-            .evaluate(this, Unit) { unboundService.block(graph) }
+            .evaluate(this, Unit) { unboundService.factory(graph) }
             .also { this.reference = SoftReference(it) }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -155,7 +155,7 @@ internal class BoundFactoryService<A, R : Any>(
         get() = unboundService.key
 
     override fun instance(arg: A): R = graph
-            .evaluate(this, arg) { unboundService.block(graph, arg) }
+            .evaluate(this, arg) { unboundService.factory(graph, arg) }
             .also { graph.postConstruct() }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -181,7 +181,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
         synchronized(map) {
             map[arg]?.let { return it }
 
-            val instance = graph.evaluate(this, arg) { unboundService.block(graph, arg) }
+            val instance = graph.evaluate(this, arg) { unboundService.factory(graph, arg) }
             map[arg] = instance
             graph.postConstruct()
             return instance
@@ -195,7 +195,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
     override fun dispose() {
         unboundService.dispose?.let { fn ->
-            map.forEach { argument, instance -> fn(argument, instance) }
+            map.forEach { argument, instance -> fn(graph, argument, instance) }
         }
     }
 }
