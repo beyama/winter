@@ -15,7 +15,7 @@ const val OPTION_PRINT_SOURCES = "winterPrintSources" // for printf-debugging du
 val graphClassName = ClassName("io.jentz.winter", "Graph")
 val componentClassName = ClassName("io.jentz.winter", "Component")
 val factoryInterfaceName = ClassName("io.jentz.winter", "Factory")
-val injectorInterfaceName = ClassName("io.jentz.winter.internal", "MembersInjector")
+val injectorInterfaceName = ClassName("io.jentz.winter", "MembersInjector")
 val providerInterfaceName = ClassName("javax.inject", "Provider")
 val lazyInterfaceName = ClassName("kotlin", "Lazy")
 

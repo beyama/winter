@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.MembersInjector
-
 /**
  * Component builder DSL.
  */

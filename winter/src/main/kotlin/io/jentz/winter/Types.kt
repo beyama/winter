@@ -1,4 +1,4 @@
-package io.jentz.winter.internal
+package io.jentz.winter
 
 import java.lang.reflect.*
 

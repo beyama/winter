@@ -1,6 +1,5 @@
-package io.jentz.winter.internal
+package io.jentz.winter
 
-import io.jentz.winter.DependencyKey
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 

@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.*
-
 /**
  * Function signature alias for component builder DSL blocks.
  */

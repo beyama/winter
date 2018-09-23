@@ -2,9 +2,6 @@
 
 package io.jentz.winter
 
-import io.jentz.winter.internal.CompoundTypeKey
-import io.jentz.winter.internal.MembersInjector
-
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
  *
