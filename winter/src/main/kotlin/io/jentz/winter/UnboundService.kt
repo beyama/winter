@@ -80,14 +80,31 @@ internal class UnboundMultitonFactoryService<A, R : Any>(
 }
 
 @PublishedApi
-internal class ConstantService<T : Any>(
+internal class ConstantService<R : Any>(
         override val key: DependencyKey,
-        val value: T
-) : UnboundService<Unit, T>, BoundService<Unit, T> {
+        val value: R
+) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
-    override fun bind(graph: Graph): BoundService<Unit, T> = this
+    override fun bind(graph: Graph): BoundService<Unit, R> = this
 
-    override fun instance(arg: Unit): T = value
+    override fun instance(arg: Unit): R = value
+
+    override fun postConstruct(arg: Any, instance: Any) {
+    }
+
+    override fun dispose() {
+    }
+}
+
+@PublishedApi
+internal class ProviderService<R : Any>(
+        override val key: DependencyKey,
+        val provider: Provider<R>
+) : UnboundService<Unit, R>, BoundService<Unit, R> {
+
+    override fun bind(graph: Graph): BoundService<Unit, R> = this
+
+    override fun instance(arg: Unit): R = provider()
 
     override fun postConstruct(arg: Any, instance: Any) {
     }

@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+import io.jentz.winter.internal.MembersInjector
+
 /**
  * Component builder DSL.
  */
@@ -269,11 +271,12 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     /**
-     * Register a members injector for [T].
+     * Register a members injector for [R].
      */
-//    inline fun <reified T : Any> membersInjector(noinline provider: Provider<MembersInjector<T>>) {
-//        registerProvider(membersInjectorKey<T>(), false, provider)
-//    }
+    inline fun <reified R : Any> membersInjector(noinline provider: Provider<MembersInjector<R>>) {
+        val key = membersInjectorKey<R>()
+        register(ProviderService(key, provider), false)
+    }
 
     /**
      * Register a subcomponent.

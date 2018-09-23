@@ -57,10 +57,10 @@ class ComponentModel {
     fun isEmpty() = factories.isEmpty() && injectors.isEmpty()
 
     private fun generateProvider(model: FactoryModel) =
-            CodeBlock.of("provider<%T> { %T().createInstance(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
+            CodeBlock.of("provider<%T> { %T().invoke(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
 
     private fun generateSingleton(model: FactoryModel) =
-            CodeBlock.of("singleton<%T> { %T().createInstance(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
+            CodeBlock.of("singleton<%T> { %T().invoke(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
 
     private fun escapeGeneratedClassName(className: ClassName) = ClassName(className.packageName(), "`${className.simpleName()}`")
 
