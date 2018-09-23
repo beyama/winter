@@ -289,12 +289,12 @@ class ComponentTest {
         assertFalse(component.has(key))
     }
 
-    private fun Component.has(key: DependencyKey) = dependencies.containsKey(key)
+    private fun Component.has(key: TypeKey) = dependencies.containsKey(key)
 
     private val Component.size get() = dependencies.size
 
-    private fun Component.constant(key: DependencyKey) = dependencies[key] as ConstantService<*>
+    private fun Component.constant(key: TypeKey) = dependencies[key] as ConstantService<*>
 
-    private fun Component.constantValue(key: DependencyKey) = constant(key).value
+    private fun Component.constantValue(key: TypeKey) = constant(key).value
 
 }

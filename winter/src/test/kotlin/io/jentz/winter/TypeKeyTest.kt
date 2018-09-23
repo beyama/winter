@@ -3,7 +3,7 @@ package io.jentz.winter
 import org.junit.Assert.*
 import org.junit.Test
 
-class DependencyKeyTest {
+class TypeKeyTest {
 
     interface TestInterface
     class TestClass

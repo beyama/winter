@@ -19,7 +19,7 @@ class Graph internal constructor(
         val component: Component
 ) {
 
-    private var cache: MutableMap<DependencyKey, BoundService<*, *>>? = mutableMapOf()
+    private var cache: MutableMap<TypeKey, BoundService<*, *>>? = mutableMapOf()
     private val stack = mutableListOf<Any?>()
     private var stackSize = 0
 
@@ -31,7 +31,7 @@ class Graph internal constructor(
 
     init {
         @Suppress("UNCHECKED_CAST")
-        val entry = component.dependencies[eagerDependenciesKey] as? ConstantService<Set<DependencyKey>>
+        val entry = component.dependencies[eagerDependenciesKey] as? ConstantService<Set<TypeKey>>
         entry?.value?.forEach { key ->
             @Suppress("UNCHECKED_CAST")
             val service = serviceOrNull<Unit, Any>(key) as? BoundService<Unit, *>
@@ -229,7 +229,7 @@ class Graph internal constructor(
     }
 
     @PublishedApi
-    internal fun <T : Any> providersOfType(key: DependencyKey): Set<Provider<T>> {
+    internal fun <T : Any> providersOfType(key: TypeKey): Set<Provider<T>> {
         @Suppress("UNCHECKED_CAST")
         return servicesOfType(key)
                 .mapIndexedTo(mutableSetOf()) { _, service ->
@@ -248,18 +248,18 @@ class Graph internal constructor(
         return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
 
-    private fun keys(): Set<DependencyKey> {
+    private fun keys(): Set<TypeKey> {
         val keys = component.dependencies.keys
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
     @PublishedApi
-    internal fun instancesOfType(key: DependencyKey): Set<*> =
+    internal fun instancesOfType(key: TypeKey): Set<*> =
             servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
 
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
-    internal fun servicesOfType(key: DependencyKey): Set<BoundService<Unit, *>> {
+    internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> {
         synchronized(this) {
             ensureNotDisposed()
 
@@ -277,7 +277,7 @@ class Graph internal constructor(
 
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
-    internal fun <A, R : Any> serviceOrNull(key: DependencyKey): BoundService<A, R>? {
+    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? {
         synchronized(this) {
             ensureNotDisposed()
 
@@ -292,7 +292,7 @@ class Graph internal constructor(
     }
 
     @PublishedApi
-    internal inline fun <A, R : Any> service(key: DependencyKey): BoundService<A, R> {
+    internal inline fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
         return serviceOrNull(key)
                 ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
     }
@@ -381,7 +381,7 @@ class Graph internal constructor(
         var cls: Class<*>? = instance.javaClass
 
         while (cls != null) {
-            val key = CompoundTypeKey(MembersInjector::class.java, cls, null)
+            val key = CompoundClassTypeKey(MembersInjector::class.java, cls, null)
             @Suppress("UNCHECKED_CAST")
             val service = serviceOrNull<Unit, MembersInjector<T>>(key)
 

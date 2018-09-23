@@ -23,7 +23,7 @@ class Component internal constructor(
          * The components qualifier (null for root components and the sub-components qualifier for sub-components).
          */
         val qualifier: Any?,
-        internal val dependencies: Map<DependencyKey, UnboundService<*, *>>
+        internal val dependencies: Map<TypeKey, UnboundService<*, *>>
 ) {
 
     /**

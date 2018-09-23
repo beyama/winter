@@ -3,18 +3,32 @@ package io.jentz.winter
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class TypeKey(val type: Class<*>, override val qualifier: Any?) : DependencyKey {
+/**
+ * Interface for all type keys.
+ */
+interface TypeKey {
+
+    val qualifier: Any?
+
+    /**
+     * Test if [other] has the same type.
+     * Like [equals] without looking onto the [qualifier].
+     */
+    fun typeEquals(other: TypeKey): Boolean
+}
+
+class ClassTypeKey(val type: Class<*>, override val qualifier: Any?) : TypeKey {
     private var _hashCode = 0
 
-    override fun typeEquals(other: DependencyKey): Boolean {
+    override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is GenericTypeKey<*>) return Types.equals(type, other.type)
-        if (other !is TypeKey) return false
+        if (other is GenericClassTypeKey<*>) return Types.equals(type, other.type)
+        if (other !is ClassTypeKey) return false
         return other.type == type
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is DependencyKey && other.qualifier == qualifier && typeEquals(other)
+        return other is TypeKey && other.qualifier == qualifier && typeEquals(other)
     }
 
     override fun hashCode(): Int {
@@ -24,23 +38,23 @@ class TypeKey(val type: Class<*>, override val qualifier: Any?) : DependencyKey 
         return _hashCode
     }
 
-    override fun toString(): String = "TypeKey($type qualifier = $qualifier)"
+    override fun toString(): String = "ClassTypeKey($type qualifier = $qualifier)"
 }
 
 @Suppress("unused")
-abstract class GenericTypeKey<T>(override val qualifier: Any?) : DependencyKey {
+abstract class GenericClassTypeKey<T>(override val qualifier: Any?) : TypeKey {
     private var _hashCode = 0
     val type: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
 
-    override fun typeEquals(other: DependencyKey): Boolean {
+    override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is TypeKey) return Types.equals(other.type, type)
-        if (other is GenericTypeKey<*>) return Types.equals(type, other.type)
+        if (other is ClassTypeKey) return Types.equals(other.type, type)
+        if (other is GenericClassTypeKey<*>) return Types.equals(type, other.type)
         return false
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is DependencyKey && other.qualifier == qualifier && typeEquals(other)
+        return other is TypeKey && other.qualifier == qualifier && typeEquals(other)
     }
 
     override fun hashCode(): Int {
@@ -51,22 +65,22 @@ abstract class GenericTypeKey<T>(override val qualifier: Any?) : DependencyKey {
         return _hashCode
     }
 
-    override fun toString(): String = "GenericTypeKey($type qualifier = $qualifier)"
+    override fun toString(): String = "GenericClassTypeKey($type qualifier = $qualifier)"
 }
 
-class CompoundTypeKey(val firstType: Class<*>, val secondType: Class<*>, override val qualifier: Any?) : DependencyKey {
+class CompoundClassTypeKey(val firstType: Class<*>, val secondType: Class<*>, override val qualifier: Any?) : TypeKey {
     private var _hashCode = 0
 
-    override fun typeEquals(other: DependencyKey): Boolean {
+    override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is GenericCompoundTypeKey<*, *>)
+        if (other is GenericCompoundClassTypeKey<*, *>)
             return Types.equals(other.firstType, firstType) && Types.equals(other.secondType, secondType)
-        if (other !is CompoundTypeKey) return false
+        if (other !is CompoundClassTypeKey) return false
         return other.firstType == firstType && other.secondType == secondType
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is DependencyKey && other.qualifier == qualifier && typeEquals(other)
+        return other is TypeKey && other.qualifier == qualifier && typeEquals(other)
     }
 
     override fun hashCode(): Int {
@@ -76,25 +90,25 @@ class CompoundTypeKey(val firstType: Class<*>, val secondType: Class<*>, overrid
         return _hashCode
     }
 
-    override fun toString(): String = "CompoundTypeKey($firstType $secondType qualifier = $qualifier)"
+    override fun toString(): String = "CompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
 }
 
 @Suppress("unused")
-abstract class GenericCompoundTypeKey<T0, T1>(override val qualifier: Any?) : DependencyKey {
+abstract class GenericCompoundClassTypeKey<T0, T1>(override val qualifier: Any?) : TypeKey {
     private var _hashCode = 0
     val firstType: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
     val secondType: Type = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[1]
 
-    override fun typeEquals(other: DependencyKey): Boolean {
+    override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is CompoundTypeKey)
+        if (other is CompoundClassTypeKey)
             return Types.equals(other.firstType, firstType) && Types.equals(other.secondType, secondType)
-        if (other !is GenericCompoundTypeKey<*, *>) return false
+        if (other !is GenericCompoundClassTypeKey<*, *>) return false
         return Types.equals(firstType, other.firstType) && Types.equals(secondType, other.secondType)
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is DependencyKey && other.qualifier == qualifier && typeEquals(other)
+        return other is TypeKey && other.qualifier == qualifier && typeEquals(other)
     }
 
     override fun hashCode(): Int {
@@ -106,5 +120,5 @@ abstract class GenericCompoundTypeKey<T0, T1>(override val qualifier: Any?) : De
         return _hashCode
     }
 
-    override fun toString(): String = "GenericCompoundTypeKey($firstType $secondType qualifier = $qualifier)"
+    override fun toString(): String = "GenericCompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
 }

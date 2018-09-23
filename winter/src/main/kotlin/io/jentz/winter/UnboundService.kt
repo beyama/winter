@@ -1,13 +1,13 @@
 package io.jentz.winter
 
 internal interface UnboundService<A, R : Any> {
-    val key: DependencyKey
+    val key: TypeKey
     fun bind(graph: Graph): BoundService<A, R>
 }
 
 @PublishedApi
 internal class UnboundPrototypeService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory0<R>,
         val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -19,7 +19,7 @@ internal class UnboundPrototypeService<R : Any>(
 
 @PublishedApi
 internal class UnboundSingletonService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory0<R>,
         val postConstruct: GFactoryCallback1<R>?,
         val dispose: GFactoryCallback1<R>?
@@ -32,7 +32,7 @@ internal class UnboundSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundWeakSingletonService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory0<R>,
         val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -44,7 +44,7 @@ internal class UnboundWeakSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundSoftSingletonService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory0<R>,
         val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -56,7 +56,7 @@ internal class UnboundSoftSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundFactoryService<A, R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory1<A, R>,
         val postConstruct: GFactoryCallback2<A, R>?
 ) : UnboundService<A, R> {
@@ -68,7 +68,7 @@ internal class UnboundFactoryService<A, R : Any>(
 
 @PublishedApi
 internal class UnboundMultitonFactoryService<A, R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val factory: GFactory1<A, R>,
         val postConstruct: GFactoryCallback2<A, R>?,
         val dispose: GFactoryCallback2<A, R>?
@@ -81,7 +81,7 @@ internal class UnboundMultitonFactoryService<A, R : Any>(
 
 @PublishedApi
 internal class ConstantService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val value: R
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
@@ -98,7 +98,7 @@ internal class ConstantService<R : Any>(
 
 @PublishedApi
 internal class ProviderService<R : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val provider: Provider<R>
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 

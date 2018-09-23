@@ -57,29 +57,29 @@ typealias Provider<R> = () -> R
 typealias Factory<A, R> = (A) -> R
 
 /**
- * Returns [DependencyKey] for [MembersInjector] of type [T].
+ * Returns [TypeKey] for [MembersInjector] of type [T].
  *
  * Used in conjunction with JSR-330 annotation processor.
  */
 inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>, T>()
 
 /**
- * Returns [DependencyKey] for type [T].
+ * Returns [TypeKey] for type [T].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates a type key that also takes generic type parameters into account.
  */
-inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-        if (generics) object : GenericTypeKey<T>(qualifier) {} else TypeKey(T::class.java, qualifier)
+inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
+        if (generics) object : GenericClassTypeKey<T>(qualifier) {} else ClassTypeKey(T::class.java, qualifier)
 
 /**
- * Returns [DependencyKey] for type [T0] and [T1].
+ * Returns [TypeKey] for type [T0] and [T1].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates compound type key that also takes generic type parameters into account.
  */
-inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-        if (generics) object : GenericCompoundTypeKey<T0, T1>(qualifier) {} else CompoundTypeKey(T0::class.java, T1::class.java, qualifier)
+inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
+        if (generics) object : GenericCompoundClassTypeKey<T0, T1>(qualifier) {} else CompoundClassTypeKey(T0::class.java, T1::class.java, qualifier)
 
 /**
  * This is used internally to created dependency keys to search for all entries of the given type.
@@ -88,20 +88,6 @@ inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, gene
 @PublishedApi
 internal inline fun <reified T> typeKeyOfType(generics: Boolean) =
         typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
-
-/**
- * Interface for all dependency key types.
- */
-interface DependencyKey {
-
-    val qualifier: Any?
-
-    /**
-     * Test if [other] has the same type.
-     * Like [equals] without looking onto the [qualifier].
-     */
-    fun typeEquals(other: DependencyKey): Boolean
-}
 
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.

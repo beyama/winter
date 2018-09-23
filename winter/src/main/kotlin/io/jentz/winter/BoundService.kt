@@ -4,7 +4,7 @@ import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
 interface BoundService<A, R : Any> {
-    val key: DependencyKey
+    val key: TypeKey
     fun instance(arg: A): R
     fun postConstruct(arg: Any, instance: Any)
     fun dispose()
@@ -15,7 +15,7 @@ internal class BoundPrototypeService<T : Any>(
         private val unboundService: UnboundPrototypeService<T>
 ) : BoundService<Unit, T> {
 
-    override val key: DependencyKey
+    override val key: TypeKey
         get() = unboundService.key
 
     override fun instance(arg: Unit): T = graph
@@ -41,7 +41,7 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
 
     protected abstract val unboundService: UnboundService<Unit, T>
 
-    final override val key: DependencyKey
+    final override val key: TypeKey
         get() = unboundService.key
 
     final override fun instance(arg: Unit): T {
@@ -151,7 +151,7 @@ internal class BoundFactoryService<A, R : Any>(
         private val unboundService: UnboundFactoryService<A, R>
 ) : BoundService<A, R> {
 
-    override val key: DependencyKey
+    override val key: TypeKey
         get() = unboundService.key
 
     override fun instance(arg: A): R = graph
@@ -174,7 +174,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
     private val map = mutableMapOf<A, R>()
 
-    override val key: DependencyKey
+    override val key: TypeKey
         get() = unboundService.key
 
     override fun instance(arg: A): R {

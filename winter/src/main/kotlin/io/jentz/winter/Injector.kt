@@ -294,7 +294,7 @@ class Injector {
 
     @PublishedApi
     internal abstract class AbstractEagerProperty<in A, out R>(
-            private val key: DependencyKey,
+            private val key: TypeKey,
             private val argument: A
     ) : InjectedProperty<R>() {
         private var _value: Any? = UNINITIALIZED_VALUE
@@ -312,12 +312,12 @@ class Injector {
             _value = getValue(graph, key, argument)
         }
 
-        protected abstract fun getValue(graph: Graph, key: DependencyKey, argument: A): R
+        protected abstract fun getValue(graph: Graph, key: TypeKey, argument: A): R
     }
 
     @PublishedApi
     internal abstract class AbstractLazyProperty<A, R>(
-            private val key: DependencyKey,
+            private val key: TypeKey,
             private val argument: A
     ) : InjectedProperty<R>() {
         private var graph: Graph? = null
@@ -335,10 +335,10 @@ class Injector {
 
         final override val value: R get() = memorized()
 
-        protected open fun resolveService(graph: Graph, key: DependencyKey) {
+        protected open fun resolveService(graph: Graph, key: TypeKey) {
         }
 
-        protected abstract fun getValue(graph: Graph, key: DependencyKey, argument: A): R
+        protected abstract fun getValue(graph: Graph, key: TypeKey, argument: A): R
     }
 
     @PublishedApi
@@ -369,11 +369,11 @@ class Injector {
 
     @PublishedApi
     internal class ProviderProperty<in A, out R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractEagerProperty<A, Provider<R>>(key, argument) {
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): Provider<R> {
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R> {
             val service = graph.service<A, R>(key)
             return { service.instance(argument) }
         }
@@ -382,11 +382,11 @@ class Injector {
 
     @PublishedApi
     internal class ProviderOrNullProperty<in A, out R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractEagerProperty<A, Provider<R>?>(key, argument) {
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): Provider<R>? {
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R>? {
             val service = graph.serviceOrNull<A, R>(key) ?: return null
             return { service.instance(argument) }
         }
@@ -395,87 +395,87 @@ class Injector {
 
     @PublishedApi
     internal class InstanceProperty<in A, out R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractEagerProperty<A, R>(key, argument) {
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): R =
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
                 graph.service<A, R>(key).instance(argument)
 
     }
 
     @PublishedApi
     internal class InstanceOrNullProperty<in A, out R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractEagerProperty<A, R?>(key, argument) {
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): R? =
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
                 graph.serviceOrNull<A, R>(key)?.instance(argument)
 
     }
 
     @PublishedApi
     internal class LazyInstanceProperty<A, R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractLazyProperty<A, R>(key, argument) {
 
         private var service: BoundService<A, R>? = null
 
-        override fun resolveService(graph: Graph, key: DependencyKey) {
+        override fun resolveService(graph: Graph, key: TypeKey) {
             service = graph.service(key)
         }
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): R =
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
                 service!!.instance(argument)
     }
 
     @PublishedApi
     internal class LazyInstanceOrNullProperty<A, R : Any>(
-            key: DependencyKey,
+            key: TypeKey,
             argument: A
     ) : AbstractLazyProperty<A, R?>(key, argument) {
 
         private var service: BoundService<A, R>? = null
 
-        override fun resolveService(graph: Graph, key: DependencyKey) {
+        override fun resolveService(graph: Graph, key: TypeKey) {
             service = graph.serviceOrNull(key)
         }
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: A): R? =
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
                 service?.instance(argument)
 
     }
 
     @PublishedApi
     internal class ProvidersOfTypeProperty<out T : Any>(
-            key: DependencyKey
+            key: TypeKey
     ) : AbstractEagerProperty<Unit, Set<Provider<T>>>(key, Unit) {
 
-        override fun getValue(graph: Graph, key: DependencyKey, argument: Unit): Set<Provider<T>> =
+        override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<Provider<T>> =
                 graph.providersOfType(key)
 
     }
 
     @PublishedApi
     internal class InstancesOfTypeProperty<out T : Any>(
-            key: DependencyKey
+            key: TypeKey
     ) : AbstractEagerProperty<Unit, Set<T>>(key, Unit) {
 
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph, key: DependencyKey, argument: Unit): Set<T> =
+        override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
                 graph.instancesOfType(key) as Set<T>
 
     }
 
     @PublishedApi
     internal class LazyInstancesOfTypeProperty<T : Any>(
-            key: DependencyKey
+            key: TypeKey
     ) : AbstractLazyProperty<Unit, Set<T>>(key, Unit) {
 
         @Suppress("UNCHECKED_CAST")
-        override fun getValue(graph: Graph, key: DependencyKey, argument: Unit): Set<T> =
+        override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
                 graph.instancesOfType(key) as Set<T>
 
     }

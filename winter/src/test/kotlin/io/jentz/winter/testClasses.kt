@@ -36,7 +36,7 @@ class GenericDependencyImpl<out T>(override val aValue: T?) : GenericDependency<
  */
 
 internal class UnboundReferenceService<T : Any>(
-        override val key: DependencyKey,
+        override val key: TypeKey,
         val block: Graph.() -> T
 ) : UnboundService<Unit, T> {
 
