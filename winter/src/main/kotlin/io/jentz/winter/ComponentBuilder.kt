@@ -27,15 +27,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         Merge
     }
 
-    @Suppress("UNCHECKED_CAST")
-    @PublishedApi
-    internal var eagerDependencies: Set<TypeKey>
-        get() = (registry[eagerDependenciesKey] as? ConstantService<Set<TypeKey>>)
-                ?.let { return it.value }
-                ?: emptySet()
-        set(value) {
-            registry[eagerDependenciesKey] = ConstantService(eagerDependenciesKey, value)
-        }
+    private var eagerDependencies: Set<TypeKey>? = null
 
     /**
      * Include dependency from the given component into the new component.
@@ -52,7 +44,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
                 k === eagerDependenciesKey -> {
                     @Suppress("UNCHECKED_CAST")
                     val entry = v as ConstantService<Set<TypeKey>>
-                    eagerDependencies += entry.value
+                    entry.value.forEach(this::addEagerDependency)
                 }
                 v is ConstantService<*> && v.value is Component -> {
                     @Suppress("UNCHECKED_CAST")
@@ -157,7 +149,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundSingletonService(key, factory, postConstruct, dispose)
         register(service, override)
-        eagerDependencies += key
+        addEagerDependency(key)
     }
 
     /**
@@ -313,8 +305,12 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         getOrCreateSubcomponentBuilder(key).also(block)
     }
 
-    @PublishedApi
-    internal fun register(service: UnboundService<*, *>, override: Boolean) {
+    /**
+     * Register a [UnboundService].
+     *
+     * Don't use that except if you add your own [UnboundService] implementations.
+     */
+    fun register(service: UnboundService<*, *>, override: Boolean) {
         val key = service.key
         val alreadyExists = registry.containsKey(key)
 
@@ -338,7 +334,17 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
             throw EntryNotFoundException("Can't remove entry with key `$key` because it doesn't exist.")
         }
         registry.remove(key)
-        eagerDependencies -= key
+        removeEagerDependency(key)
+    }
+
+    @PublishedApi
+    internal fun addEagerDependency(key: TypeKey) {
+        eagerDependencies = (eagerDependencies ?: mutableSetOf()) + key
+    }
+
+    private fun removeEagerDependency(key: TypeKey) {
+        val eagerDependencies = this.eagerDependencies ?: return
+        this.eagerDependencies = eagerDependencies - key
     }
 
     private fun registerSubcomponent(key: TypeKey,
@@ -379,6 +385,9 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
 
     internal fun build(): Component {
         subcomponentBuilders?.mapValuesTo(registry) { ConstantService(it.key, it.value.build()) }
+        eagerDependencies
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { register(ConstantService(eagerDependenciesKey, it), false) }
         return Component(qualifier, registry.toMap())
     }
 }

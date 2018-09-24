@@ -18,18 +18,6 @@ enum class Color { RED, GREEN, BLUE }
 
 class Widget(val color: Color)
 
-interface ServiceDependency {
-    val aValue: String?
-}
-
-interface GenericDependency<out T> {
-    val aValue: T?
-}
-
-class ServiceDependencyImpl(override val aValue: String? = null) : ServiceDependency
-
-class GenericDependencyImpl<out T>(override val aValue: T?) : GenericDependency<T>
-
 /**
  * We can't really test Soft- and WeakReferences so this is a version that is baked by a field
  * instead of a reference so we have control and not the GC.

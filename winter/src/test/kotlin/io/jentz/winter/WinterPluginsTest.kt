@@ -61,7 +61,7 @@ class WinterPluginsTest {
         WinterPlugins.addInitializingComponentPlugin { _, builder ->
             builder.prototype { "" }
         }
-        graph {}.shouldHaveService(typeKey<String>())
+        graph {}.shouldContainService(typeKey<String>())
     }
 
     @Test
@@ -79,9 +79,9 @@ class WinterPluginsTest {
     fun `#removeInitializingComponentPlugin should remove the given initializing component plugin`() {
         val plugin: InitializingComponentPlugin = { _, builder -> builder.prototype { "" } }
         WinterPlugins.addInitializingComponentPlugin(plugin)
-        testComponent.init().shouldHaveService(typeKey<String>())
+        testComponent.init().shouldContainService(typeKey<String>())
         WinterPlugins.removeInitializingComponentPlugin(plugin)
-        testComponent.init().shouldNotHaveService(typeKey<String>())
+        testComponent.init().shouldNotContainService(typeKey<String>())
     }
 
     @Test
