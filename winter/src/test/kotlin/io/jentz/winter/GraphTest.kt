@@ -141,7 +141,7 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("Reference scope (WeakSingleton and SoftSingleton")
+    @DisplayName("Reference scope (WeakSingleton and SoftSingleton)")
     inner class ReferenceScope {
 
         @Test
@@ -373,6 +373,45 @@ class GraphTest {
             graph.instance<Color, Widget>(Color.GREEN)
             graph.instance<Color, Widget>(Color.BLUE)
             expectValueToChange(0, 3, { count }) { graph.dispose() }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Alias service")
+    inner class AliasService {
+
+        @Test
+        fun `should bind aliased service only once`() {
+            val graph = graph {
+                prototype { Heater() }
+                prototype { Thermosiphon(instance()) }
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            }
+            graph.service<Unit, Pump>(typeKey<Pump>())
+                    .shouldBeSameInstanceAs(graph.service<Unit, Thermosiphon>(typeKey<Thermosiphon>()))
+        }
+
+        @Test
+        fun `should allow aliases to aliases`() {
+            graph {
+                prototype { Heater() }
+                prototype { Thermosiphon(instance()) }
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                alias(typeKey<Pump>(), typeKey<Any>())
+            }.instance<Any>().shouldBeInstanceOf<Thermosiphon>()
+        }
+
+        @Test
+        fun `#bind should throw proper exception when aliased service doesn't exist anymore`() {
+            shouldThrow<WinterException> {
+                graph {
+                    prototype { Heater() }
+                    prototype { Thermosiphon(instance()) }
+                    alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                    remove(typeKey<Thermosiphon>())
+                }.service<Unit, Pump>(typeKey<Pump>())
+            }.message.shouldBe("Error resolving alias `${typeKey<Pump>()}` pointing to `${typeKey<Thermosiphon>()}`.")
         }
 
     }

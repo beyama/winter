@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
@@ -206,10 +207,48 @@ class ComponentBuilderTest {
 
     @Test
     fun `#remove should unregister eager singleton`() {
-        val c1 = component { eagerSingleton { Heater() } }
+        val c = component { eagerSingleton { Heater() } }
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
-        c1.dependencies.size.shouldBe(2)
-        c1.derive { remove(typeKey<Heater>()) }.dependencies.size.shouldBe(0)
+        c.dependencies.size.shouldBe(2)
+        c.derive { remove(typeKey<Heater>()) }.dependencies.size.shouldBe(0)
+    }
+
+    @Test
+    fun `#alias should register alias service`() {
+        component {
+            prototype { Heater() }
+            prototype { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should throw an exception if from key doesn't exist`() {
+        shouldThrow<EntryNotFoundException> {
+            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
+        }
+    }
+
+    @Test
+    fun `#alias should override existing entry if override is true`() {
+        component {
+            prototype { Heater() }
+            prototype { Thermosiphon(instance()) }
+            singleton<Pump> { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
+        }.shouldContainServiceOfType<AliasService>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should throw an exception if to key already exists and override is false (default)`() {
+        shouldThrow<WinterException> {
+            component {
+                prototype { Heater() }
+                prototype { Thermosiphon(instance()) }
+                prototype<Pump> { Thermosiphon(instance()) }
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            }
+        }
     }
 
 }

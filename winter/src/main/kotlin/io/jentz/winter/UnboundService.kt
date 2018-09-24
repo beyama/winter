@@ -128,3 +128,21 @@ internal class ProviderService<R : Any>(
     override fun dispose() {
     }
 }
+
+@PublishedApi
+internal class AliasService(
+        private val targetKey: TypeKey,
+        private val newKey: TypeKey
+) : UnboundService<Any, Any> {
+
+    override val key: TypeKey get() = newKey
+
+    override fun bind(graph: Graph): BoundService<Any, Any> {
+        try {
+            return graph.service(targetKey)
+        } catch (t: Throwable) {
+            throw WinterException("Error resolving alias `$newKey` pointing to `$targetKey`.", t)
+        }
+    }
+
+}

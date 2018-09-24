@@ -247,7 +247,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * @param value The value of this constant provider.
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [T].
-     * @param override If true this will override a existing provider of this type.
+     * @param override If true this will override an existing factory of this type.
      */
     inline fun <reified T : Any> constant(
             value: T,
@@ -331,10 +331,27 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      */
     fun remove(key: TypeKey, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
-            throw EntryNotFoundException("Can't remove entry with key `$key` because it doesn't exist.")
+            throw EntryNotFoundException("Entry with key `$key` doesn't exist.")
         }
         registry.remove(key)
         removeEagerDependency(key)
+    }
+
+    /**
+     * Create an alias entry.
+     *
+     * Be careful this method will not check if a type cast is possible.
+     *
+     * @param targetKey The [TypeKey] of an entry an alias should be created for.
+     * @param newKey The alias [TypeKey].
+     * @param override If true this will override an existing factory of type [newKey] (default: false).
+     *
+     * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
+     * @throws WinterException If [newKey] entry already exists and [override] is false.
+     */
+    fun alias(targetKey: TypeKey, newKey: TypeKey, override: Boolean = false) {
+        registry[targetKey] ?: throw EntryNotFoundException("Entry with key `$targetKey` doesn't exist.")
+        register(AliasService(targetKey, newKey), override)
     }
 
     @PublishedApi
