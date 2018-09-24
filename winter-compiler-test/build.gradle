@@ -2,7 +2,6 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 
 kapt {
-    generateStubs = true
     arguments {
         arg("winterGeneratedComponentPackage", "io.jentz.winter.compilertest")
         arg("winterPrintSources", "true")
@@ -10,7 +9,7 @@ kapt {
 }
 
 sourceSets {
-    main.java.srcDirs += 'build/kotlin-classes/main'
+    main.java.srcDirs += 'build/classes/kotlin/main'
 }
 
 dependencies {
