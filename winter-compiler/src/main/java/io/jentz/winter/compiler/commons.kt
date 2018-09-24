@@ -124,7 +124,7 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
 }
 
 fun generatedAnnotation() = AnnotationSpec.builder(generatedAnnotationName)
-        .addMember("value", "%S", WinterProcessor::class.java.name)
+        .addMember("value", "[%S]", WinterProcessor::class.java.name)
         .addMember("date", "%S", iso8601Format.format(Date()))
         .build()
 
