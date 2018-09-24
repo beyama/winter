@@ -138,7 +138,7 @@ class TestGeneratedComponent {
     @Test
     fun `Test lazy injection`() {
         val atomic = AtomicInteger(0)
-        val graph = generatedComponent.init { provider { atomic.incrementAndGet() } }
+        val graph = generatedComponent.init { prototype { atomic.incrementAndGet() } }
         val instance: LazyInjection = graph.instance()
         assertEquals(1, instance.field.value)
         assertEquals(1, instance.field.value)
