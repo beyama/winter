@@ -20,8 +20,12 @@ class Graph internal constructor(
 ) {
 
     private var cache: MutableMap<TypeKey, BoundService<*, *>>? = mutableMapOf()
-    private val stack = mutableListOf<Any?>()
-    private var stackSize = 0
+
+    @PublishedApi
+    internal val stack: MutableList<Any?> = mutableListOf()
+
+    @PublishedApi
+    internal var stackSize = 0
 
     /**
      * Indicates if the graph is disposed.
@@ -292,12 +296,16 @@ class Graph internal constructor(
     }
 
     @PublishedApi
-    internal inline fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
+    internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
         return serviceOrNull(key)
                 ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
     }
 
-    internal inline fun <A, R : Any> evaluate(
+    /**
+     * This is called from [BoundService.instance] when a new instance is created.
+     * Don't use this method except in custom [BoundService] implementations.
+     */
+    inline fun <A, R : Any> evaluate(
             service: BoundService<A, R>,
             argument: A,
             block: () -> R
@@ -322,7 +330,7 @@ class Graph internal constructor(
             stack.add(serviceIndex, service)
             // push argument
             stack.add(argumentIndex, argument)
-            // set slot for instance to null
+            // add slot for instance
             stack.add(instanceIndex, null)
             stackSize += 1
             // create instance and add it to stack
@@ -345,24 +353,31 @@ class Graph internal constructor(
         }
     }
 
-    internal fun postConstruct() {
-        // post init if stack size == 0
+    /**
+     * This is called from [BoundService.instance] after a new instance was created.
+     * Don't use this method except in custom [BoundService] implementations.
+     */
+    inline fun postConstruct() {
         if (stackSize == 0) {
             drainStack()
         }
     }
 
-    private fun drainStack() {
-        for (i in stack.size - 1 downTo 0 step 3) {
-            val instance = stack[i]
-            val argument = stack[i - 1]
-            val service = stack[i - 2] as BoundService<*, *>
+    @PublishedApi
+    internal fun drainStack() {
+        try {
+            for (i in stack.size - 1 downTo 0 step 3) {
+                val instance = stack[i]
+                val argument = stack[i - 1]
+                val service = stack[i - 2] as BoundService<*, *>
 
-            if (instance != null && argument != null) {
-                service.postConstruct(argument, instance)
+                if (instance != null && argument != null) {
+                    service.postConstruct(argument, instance)
+                }
             }
+        } finally {
+            stack.clear()
         }
-        stack.clear()
     }
 
     /**
@@ -436,7 +451,8 @@ class Graph internal constructor(
         }
     }
 
-    private fun ensureNotDisposed() {
+    @PublishedApi
+    internal fun ensureNotDisposed() {
         if (isDisposed) throw WinterException("Graph is already disposed.")
     }
 

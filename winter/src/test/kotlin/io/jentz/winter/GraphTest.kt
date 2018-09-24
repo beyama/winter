@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.matchers.collections.shouldHaveSize
@@ -793,6 +794,19 @@ class GraphTest {
                 (0..3).forEach { graph.dispose() }
             }
         }
+
+        @Test
+        fun `#dispose should run graph dispose plugins before marking graph as disposed`() {
+            var called = false
+            val graph = graph {}
+            WinterPlugins.addGraphDisposePlugin {
+                called = true
+                it.isDisposed.shouldBeFalse()
+            }
+            graph.dispose()
+            called.shouldBeTrue()
+        }
+
     }
 
     @Nested

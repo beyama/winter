@@ -1,7 +1,19 @@
 package io.jentz.winter
 
+/**
+ * Interface for service entries registered in a [Component].
+ *
+ * Custom implementations can be added to a [Component] by using [ComponentBuilder.register].
+ */
 interface UnboundService<A, R : Any> {
+    /**
+     * The [TypeKey] of the type this service is providing.
+     */
     val key: TypeKey
+
+    /**
+     * Binds this unbound service a given [graph] and returns a [BoundService].
+     */
     fun bind(graph: Graph): BoundService<A, R>
 }
 

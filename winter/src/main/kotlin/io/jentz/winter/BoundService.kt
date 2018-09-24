@@ -3,11 +3,54 @@ package io.jentz.winter
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 
+/**
+ * Interface for bound service entries in a [Graph].
+ */
 interface BoundService<A, R : Any> {
+    /**
+     * The [TypeKey] of the type this service is providing.
+     */
     val key: TypeKey
+
+    /**
+     * A scope that is unique for this type of service e.g. Scope("myCustomScope").
+     */
     val scope: Scope
+
+    /**
+     * This is called every time an instance is requested from the [Graph].
+     *
+     * If this service has to create a new instance to satisfy this request it must do the
+     * initialization in the block of [Graph.evaluate] and then call [Graph.postConstruct]
+     * afterwards.
+     *
+     *
+     * @param argument The argument for this request.
+     * @return An instance of type `R`.
+     */
     fun instance(argument: A): R
+
+    /**
+     * This is called after a new instance was created but not until the complete dependency request
+     * is completed.
+     *
+     * For example:
+     * ```
+     * graph {
+     *   singleton { Parent(child = instance()) }
+     *   singleton { Child() }
+     * }
+     * ```
+     * When Parent is requested, Child has to be created but the [postConstruct] method of the
+     * Child service is called after Parent is initialized. This way we can resolve cyclic
+     * dependencies in post-construct callbacks.
+     *
+     */
     fun postConstruct(arg: Any, instance: Any)
+
+    /**
+     * This is called for each [BoundService] in a [Graph] when [Graph.dispose] is called.
+     */
     fun dispose()
 }
 
