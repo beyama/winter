@@ -14,11 +14,13 @@ sourceSets {
 }
 
 dependencies {
-    compile project(":winter")
+    implementation project(":winter")
+
     kapt project(':winter-compiler')
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'javax.inject:javax.inject:1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'javax.inject:javax.inject:1'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.vintage:junit-vintage-engine:$junitVersion"
 }
