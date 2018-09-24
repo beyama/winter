@@ -6,6 +6,8 @@ class Heater
 
 class Thermosiphon(val heater: Heater) : Pump
 
+class RotaryPump : Pump
+
 class CoffeeMaker(val heater: Heater, val pump: Pump)
 
 class Parent(val child: Child)

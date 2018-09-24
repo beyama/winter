@@ -72,6 +72,15 @@ class GraphTest {
             called.shouldBeTrue()
         }
 
+        @Test
+        fun `should allow resolution of nested dependencies`() {
+            graph {
+                prototype { Heater() }
+                prototype<Pump> { Thermosiphon(instance()) }
+                prototype { CoffeeMaker(instance(), instance()) }
+            }.instance<CoffeeMaker>()
+        }
+
     }
 
     @Nested
@@ -138,6 +147,17 @@ class GraphTest {
             graph.service<Unit, Any>(typeKey<Any>()).shouldBeInstanceOf<BoundSingletonService<*>>()
         }
 
+        @Test
+        fun `should allow resolution of nested dependencies`() {
+            graph {
+                singleton { Heater() }
+                singleton<Pump> { Thermosiphon(instance()) }
+                singleton { CoffeeMaker(instance(), instance()) }
+            }.let {
+                it.instance<CoffeeMaker>().heater.shouldBeSameInstanceAs(it.instance<Heater>())
+            }
+        }
+
     }
 
     @Nested
@@ -171,6 +191,17 @@ class GraphTest {
             graph.instance<String>()
             service.postConstructCalledCount.shouldBe(1)
             service.postConstructLastArguments.shouldBe(Unit to "test")
+        }
+
+        @Test
+        fun `should allow resolution of nested dependencies`() {
+            graph {
+                reference { Heater() }
+                reference<Pump> { Thermosiphon(instance()) }
+                reference { CoffeeMaker(instance(), instance()) }
+            }.let {
+                it.instance<CoffeeMaker>().heater.shouldBeSameInstanceAs(it.instance<Heater>())
+            }
         }
 
         @Test
@@ -301,6 +332,23 @@ class GraphTest {
             called.shouldBeTrue()
         }
 
+        @Test
+        fun `should allow resolution of nested dependencies`() {
+            graph {
+                prototype { Heater() }
+                factory { type: String ->
+                    when (type) {
+                        "rotary" -> RotaryPump()
+                        "thermo" -> Thermosiphon(instance())
+                        else -> throw IllegalArgumentException()
+                    }
+                }
+                factory { pumpType: String ->
+                    CoffeeMaker(instance(), instance(argument = pumpType))
+                }
+            }.instance<String, CoffeeMaker>("thermo").pump.shouldBeInstanceOf<Thermosiphon>()
+        }
+
     }
 
     @Nested
@@ -373,6 +421,26 @@ class GraphTest {
             graph.instance<Color, Widget>(Color.GREEN)
             graph.instance<Color, Widget>(Color.BLUE)
             expectValueToChange(0, 3, { count }) { graph.dispose() }
+        }
+
+        @Test
+        fun `should allow resolution of nested dependencies`() {
+            graph {
+                prototype { Heater() }
+                multiton { type: String ->
+                    when (type) {
+                        "rotary" -> RotaryPump()
+                        "thermo" -> Thermosiphon(instance())
+                        else -> throw IllegalArgumentException()
+                    }
+                }
+                factory { pumpType: String ->
+                    CoffeeMaker(instance(), instance(argument = pumpType))
+                }
+            }.let {
+                it.instance<String, CoffeeMaker>("thermo").pump
+                        .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
+            }
         }
 
     }
