@@ -19,6 +19,16 @@ android {
     }
 }
 
+dependencies {
+    api project(":winter")
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.mockito:mockito-core:2.19.0"
+    testImplementation "com.nhaarman:mockito-kotlin:1.5.0"
+}
+
 task androidJavadocJar(type: Jar) {
     classifier = 'javadoc'
     from dokka
@@ -43,18 +53,6 @@ dokka {
         url = "https://github.com/beyama/winter/blob/master/winter-android/src/main/kotlin"
         suffix = "#L"
     }
-}
-
-dependencies {
-    api project(":winter")
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.vintage:junit-vintage-engine:$junitVersion"
-    testImplementation "io.kotlintest:kotlintest-assertions:3.1.10"
-    testImplementation "org.mockito:mockito-core:2.19.0"
-    testImplementation "com.nhaarman:mockito-kotlin:1.5.0"
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

@@ -12,6 +12,25 @@ sourceSets {
     main.java.srcDirs += 'build/classes/kotlin/main'
 }
 
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
 dependencies {
     implementation project(":winter")
 
@@ -20,6 +39,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'javax.inject:javax.inject:1'
 
+    testImplementation "junit:junit:4.12"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "org.junit.vintage:junit-vintage-engine:$junitVersion"
+    testImplementation "io.kotlintest:kotlintest-assertions:3.1.10"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$junitVersion"
 }
