@@ -1,6 +1,6 @@
 # Package io.jentz.winter
 
-### Public Winter API
+### Winter API
 
 The building blocks of Winter are the `components` and the `graphs`.
 
@@ -18,11 +18,3 @@ the blueprints for the `graph`.
 Graphs are used to retrieve and instantiate dependencies defined in `components`.
 
 Think of Graphs as instances of `components`.
-
-
-# Package io.jentz.winter.internal
-
-### Internal parts of Winter
-
-This is subject to change and shouldn't be used outside of Winter.
-The API inside this package may change between patch level version changes.
