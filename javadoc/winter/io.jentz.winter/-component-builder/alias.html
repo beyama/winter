@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ComponentBuilder.alias - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">ComponentBuilder</a>&nbsp;/&nbsp;<a href="./alias.html">alias</a><br/>
+<br/>
+<h1>alias</h1>
+<a name="io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)"></a>
+<code><span class="keyword">fun </span><span class="identifier">alias</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/targetKey">targetKey</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/newKey">newKey</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Create an alias entry.</p>
+<p>Be careful this method will not check if a type cast is possible.</p>
+<h3>Parameters</h3>
+<p><a name="targetKey"></a>
+<code>targetKey</code> - The <a href="../-type-key/index.html">TypeKey</a> of an entry an alias should be created for.</p>
+<p><a name="newKey"></a>
+<code>newKey</code> - The alias <a href="../-type-key/index.html">TypeKey</a>.</p>
+<p><a name="override"></a>
+<code>override</code> - If true this will override an existing factory of type <a href="alias.html#io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/newKey">newKey</a> (default: false).</p>
+<h3>Exceptions</h3>
+<p><a name="EntryNotFoundException"></a>
+<code>EntryNotFoundException</code> - If <a href="alias.html#io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/targetKey">targetKey</a> entry doesn't exist.</p>
+<p><a name="WinterException"></a>
+<code>WinterException</code> - If <a href="alias.html#io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/newKey">newKey</a> entry already exists and <a href="alias.html#io.jentz.winter.ComponentBuilder$alias(io.jentz.winter.TypeKey, io.jentz.winter.TypeKey, kotlin.Boolean)/override">override</a> is false.</p>
+</BODY>
+</HTML>

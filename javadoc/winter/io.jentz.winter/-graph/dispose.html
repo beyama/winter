@@ -10,7 +10,9 @@
 <h1>dispose</h1>
 <a name="io.jentz.winter.Graph$dispose()"></a>
 <code><span class="keyword">fun </span><span class="identifier">dispose</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Runs <a href="../-graph-dispose-plugin.html">graph dispose plugins</a> and marks this graph as disposed.</p>
+<p>Runs <a href="../-graph-dispose-plugin.html">graph dispose plugins</a> and marks this graph as disposed.
+All resources get released and every retrieval method will throw an excpetion if called
+after disposing.</p>
 <p>Subsequent calls are ignored.</p>
 </BODY>
 </HTML>

@@ -16,6 +16,7 @@
   private val injector = Injector()
   private val eagerService: Service1 by injector.instance()
   private val lazyService: Service2 by injector.lazyInstance()
+  private val fromFactory: Widget by injector.instance(Color.BLUE)
 
   fun onCreate() {
     injector.inject(Application.graph)

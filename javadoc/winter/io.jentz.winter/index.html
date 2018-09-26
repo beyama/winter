@@ -8,7 +8,7 @@
 <a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="./index.html">io.jentz.winter</a><br/>
 <br/>
 <h2>Package io.jentz.winter</h2>
-<h3>Public Winter API</h3>
+<h3>Winter API</h3>
 <p>The building blocks of Winter are the <code>components</code> and the <code>graphs</code>.</p>
 <h4>Components</h4>
 <p>Components store the dependency provider; basically the dependency definitions provided to Winter - they are
@@ -23,6 +23,22 @@ the blueprints for the <code>graph</code>.</p>
 <h3>Types</h3>
 <table>
 <tbody>
+<tr>
+<td>
+<p><a href="-bound-service/index.html">BoundService</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">BoundService</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
+<p>Interface for bound service entries in a <a href="-graph/index.html">Graph</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-class-type-key/index.html">ClassTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+</tr>
 <tr>
 <td>
 <p><a href="-component/index.html">Component</a></p>
@@ -44,19 +60,24 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-dependency-key/index.html">DependencyKey</a></p>
+<p><a href="-compound-class-type-key/index.html">CompoundClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">interface </span><span class="identifier">DependencyKey</span></code>
-<p>Interface for all dependency key types.</p>
-</td>
+<code><span class="keyword">class </span><span class="identifier">CompoundClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
 </tr>
 <tr>
 <td>
-<p><a href="-factory-scope/index.html">FactoryScope</a></p>
+<p><a href="-generic-class-type-key/index.html">GenericClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">interface </span><span class="identifier">FactoryScope</span></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-generic-compound-class-type-key/index.html">GenericCompoundClassTypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -87,10 +108,35 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-provider-scope/index.html">ProviderScope</a></p>
+<p><a href="-members-injector/index.html">MembersInjector</a></p>
 </td>
 <td>
-<code><span class="keyword">interface </span><span class="identifier">ProviderScope</span></code></td>
+<code><span class="keyword">interface </span><span class="identifier">MembersInjector</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">T</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-scope/index.html">Scope</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">Scope</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-type-key/index.html">TypeKey</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">TypeKey</span></code>
+<p>Interface for all type keys.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-unbound-service/index.html">UnboundService</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">UnboundService</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
+<p>Interface for service entries registered in a <a href="-component/index.html">Component</a>.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -158,11 +204,49 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-factory-block.html">FactoryBlock</a></p>
+<p><a href="-factory.html">Factory</a></p>
 </td>
 <td>
-<code><span class="keyword">typealias </span><span class="identifier">FactoryBlock</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="-factory-block.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-factory-block.html#R"><span class="identifier">R</span></a></code>
-<p>Factory function with <a href="-graph/index.html">Graph</a> as receiver used in <a href="-component-builder/index.html">ComponentBuilder</a> factory register methods.</p>
+<code><span class="keyword">typealias </span><span class="identifier">Factory</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><a href="-factory.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-factory.html#R"><span class="identifier">R</span></a></code>
+<p>Factory function signature.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-g-factory0.html">GFactory0</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">GFactory0</span><span class="symbol">&lt;</span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-g-factory0.html#R"><span class="identifier">R</span></a></code>
+<p>No argument factory function signature with <a href="-graph/index.html">Graph</a> as receiver.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-g-factory1.html">GFactory1</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">GFactory1</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="-g-factory1.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-g-factory1.html#R"><span class="identifier">R</span></a></code>
+<p>One argument factory function signature with <a href="-graph/index.html">Graph</a> as receiver.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-g-factory-callback1.html">GFactoryCallback1</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">GFactoryCallback1</span><span class="symbol">&lt;</span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="-g-factory-callback1.html#R"><span class="identifier">R</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>One argument factory callback function signature with <a href="-graph/index.html">Graph</a> as receiver.
+Used for post-construct and dispose callbacks.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-g-factory-callback2.html">GFactoryCallback2</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">GFactoryCallback2</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="-g-factory-callback2.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="-g-factory-callback2.html#R"><span class="identifier">R</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Two arguments factory callback function signature with <a href="-graph/index.html">Graph</a> as receiver.
+Used for post-construct and dispose callbacks.</p>
 </td>
 </tr>
 <tr>
@@ -188,65 +272,18 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="-post-construct-plugin.html">PostConstructPlugin</a></p>
 </td>
 <td>
-<code><span class="keyword">typealias </span><span class="identifier">PostConstructPlugin</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="identifier">graph</span><span class="symbol">:</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">scope</span><span class="symbol">:</span>&nbsp;<a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<code><span class="keyword">typealias </span><span class="identifier">PostConstructPlugin</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="identifier">graph</span><span class="symbol">:</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">scope</span><span class="symbol">:</span>&nbsp;<a href="-scope/index.html"><span class="identifier">Scope</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">argument</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Plugin that is called after an instance was created.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="-provider-block.html">ProviderBlock</a></p>
+<p><a href="-provider.html">Provider</a></p>
 </td>
 <td>
-<code><span class="keyword">typealias </span><span class="identifier">ProviderBlock</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-provider-block.html#T"><span class="identifier">T</span></a></code>
-<p>Provider function with <a href="-graph/index.html">Graph</a> as receiver used in <a href="-component-builder/index.html">ComponentBuilder</a> register methods.</p>
+<code><span class="keyword">typealias </span><span class="identifier">Provider</span><span class="symbol">&lt;</span><span class="identifier">R</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="-provider.html#R"><span class="identifier">R</span></a></code>
+<p>Provider function signature.</p>
 </td>
-</tr>
-</tbody>
-</table>
-<h3>Properties</h3>
-<table>
-<tbody>
-<tr>
-<td>
-<p><a href="multiton.html">multiton</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">multiton</span><span class="symbol">: </span><a href="-factory-scope/index.html"><span class="identifier">FactoryScope</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="prototype.html">prototype</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">prototype</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="prototype-factory.html">prototypeFactory</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">prototypeFactory</span><span class="symbol">: </span><a href="-factory-scope/index.html"><span class="identifier">FactoryScope</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="singleton.html">singleton</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">singleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="soft-singleton.html">softSingleton</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">softSingleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="weak-singleton.html">weakSingleton</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">weakSingleton</span><span class="symbol">: </span><a href="-provider-scope/index.html"><span class="identifier">ProviderScope</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -267,8 +304,8 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="compound-type-key.html">compoundTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for type <a href="compound-type-key.html#T0">T0</a> and <a href="compound-type-key.html#T1">T1</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="compound-type-key.html#T0">T0</a> and <a href="compound-type-key.html#T1">T1</a>.</p>
 </td>
 </tr>
 <tr>
@@ -285,8 +322,8 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="members-injector-key.html">membersInjectorKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for <a href="../io.jentz.winter.internal/-members-injector/index.html">MembersInjector</a> of type <a href="members-injector-key.html#T">T</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for <a href="-members-injector/index.html">MembersInjector</a> of type <a href="members-injector-key.html#T">T</a>.</p>
 </td>
 </tr>
 <tr>
@@ -298,32 +335,11 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="memorize-soft.html">memorizeSoft</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeSoft</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeSoft(kotlin.Function0((io.jentz.winter.memorizeSoft.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-soft.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-soft.html#T"><span class="identifier">T</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="memorize-weak.html">memorizeWeak</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorizeWeak</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorizeWeak(kotlin.Function0((io.jentz.winter.memorizeWeak.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-weak.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize-weak.html#T"><span class="identifier">T</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="multiton.html">multiton</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span><span class="symbol">&gt;</span> <span class="identifier">multiton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$multiton(kotlin.Function1((io.jentz.winter.multiton.A, io.jentz.winter.multiton.R)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="multiton.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="multiton.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><a href="multiton.html#A"><span class="identifier">A</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="multiton.html#R"><span class="identifier">R</span></a></code></td>
-</tr>
-<tr>
-<td>
 <p><a href="type-key.html">typeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-dependency-key/index.html"><span class="identifier">DependencyKey</span></a></code>
-<p>Returns <a href="-dependency-key/index.html">DependencyKey</a> for type <a href="type-key.html#T">T</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="type-key.html#T">T</a>.</p>
 </td>
 </tr>
 </tbody>

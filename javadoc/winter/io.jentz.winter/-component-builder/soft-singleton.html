@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ComponentBuilder.softSingleton - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">ComponentBuilder</a>&nbsp;/&nbsp;<a href="./soft-singleton.html">softSingleton</a><br/>
+<br/>
+<h1>softSingleton</h1>
+<a name="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">softSingleton</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="keyword">noinline</span> <span class="identifier" id="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))/postConstruct">postConstruct</span><span class="symbol">:</span>&nbsp;<a href="../-g-factory-callback1.html"><span class="identifier">GFactoryCallback1</span></a><span class="symbol">&lt;</span><a href="soft-singleton.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="keyword">noinline</span> <span class="identifier" id="io.jentz.winter.ComponentBuilder$softSingleton(kotlin.Any, kotlin.Boolean, kotlin.Boolean, kotlin.Function2((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R, kotlin.Unit)), kotlin.Function1((io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder.softSingleton.R)))/factory">factory</span><span class="symbol">:</span>&nbsp;<a href="../-g-factory0.html"><span class="identifier">GFactory0</span></a><span class="symbol">&lt;</span><a href="soft-singleton.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register a soft singleton scoped factory for an instance of type <a href="soft-singleton.html#R">R</a>.</p>
+<h3>Parameters</h3>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier.</p>
+<p><a name="generics"></a>
+<code>generics</code> - If true this will preserve generic information of <a href="soft-singleton.html#R">R</a>.</p>
+<p><a name="override"></a>
+<code>override</code> - If true this will override a existing provider of this type.</p>
+<p><a name="postConstruct"></a>
+<code>postConstruct</code> - A post construct callback.</p>
+<p><a name="factory"></a>
+<code>factory</code> - The factory for type <a href="soft-singleton.html#R">R</a>.</p>
+</BODY>
+</HTML>
