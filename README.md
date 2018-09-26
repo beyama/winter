@@ -128,7 +128,7 @@ the property the first time. This is useful in cases where the creation
 is computationally expensive but may not be required in some cases.
 
 ## Graph Registry
-The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).
+Initialization graph registry creates and holds dependency graphs in a tree (directed acyclic graph).
 
 This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
 
@@ -165,7 +165,72 @@ class MyActivity : Activity() {
 
 ## Android Support
 
-*TODO:* AndroidInjection, view-extensions
+### AndroidInjection
+
+It is considered the best way to use constructor based injection to have a consistent state after initialisation and proper encapsulation. 
+But on the Android platform some of our classes are instantiated by the framework, like Activities, Fragments, Views and Services, 
+and property injection is our only solution.
+We don't want knowledge of how to create a dependency graph in our classes and therefor `AndroidInjection` was created.
+`AndroidInjection` allows us to create, get and dispose a dependency graph without having knowledge about the details.
+The actual strategy to create, get and dispose a graph is part of an adapter.
+
+Here a basic example with the provided `SimpleAndroidInjectionAdapter`:
+
+```kotlin
+class MyApplication : Application() {
+  override fun onCreate() {
+    
+    GraphRegistry.applicationComponent = component {
+      singleton<GitHubApi> { GitHubApiImpl() }
+ 
+      singleton { RepoListViewModel(instance()) }
+
+      subcomponent("activity") {
+         singleton { Glide.with(instance<Activity>()) }
+      }
+    }
+
+    AndroidInjection.createGraph(this)
+  }
+}
+
+class MyActivity : Activity() {
+  private val injector = Injector()
+  private val viewModel: RepoListViewModel by injector.instance()
+  private val glide: RequestManager by injector.instance()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    AndroidInjection.createGraphAndInject(this, injector)
+    super.onCreate(savedInstanceState)
+  }
+
+  override fun onDestroy() {
+    AndroidInjection.disposeGraph(this)
+    super.onDestroy()
+  }
+
+}
+```
+
+The default `SimpleAndroidInjectionAdapter` is backed by `GraphRegistry` and can be easily extended.
+
+### View extensions
+
+There is an inline view extension for every Graph retrieval method, like `instance`, `provider` or `factory`. 
+Those extensions are just sugar and under the hood nothing else than `AndroidInjection.get(this).instance`. 
+But be aware that you can't use does methods if use the graphical layout editor.
+
+A simple example:
+
+```kotlin
+class HomeScreen @JvmOverloads constructor(
+  context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : CoordinatorLayout(context, attrs, defStyleAttr) {
+
+  private val viewModel: HomeViewModel = instance()
+
+}
+```
 
 ## Advanced Usage
 
