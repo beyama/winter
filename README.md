@@ -128,7 +128,7 @@ the property the first time. This is useful in cases where the creation
 is computationally expensive but may not be required in some cases.
 
 ## Graph Registry
-Initialization graph registry creates and holds dependency graphs in a tree (directed acyclic graph).
+The graph registry creates and manages dependency graphs in a tree (directed acyclic graph).
 
 This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
 
