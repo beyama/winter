@@ -4,9 +4,34 @@ apply plugin: 'org.jetbrains.dokka'
 version = VERSION_NAME
 group = GROUP
 
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "io.kotlintest:kotlintest-assertions:3.1.10"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$junitVersion"
 }
 
 task javadocJar(type: Jar) {

@@ -1,25 +1,70 @@
 package io.jentz.winter
 
-interface ServiceDependency {
-    val aValue: String?
+interface Pump
+
+class Heater
+
+class Thermosiphon(val heater: Heater) : Pump
+
+class RotaryPump : Pump
+
+class CoffeeMaker(val heater: Heater, val pump: Pump)
+
+class Parent(val child: Child)
+
+class Child {
+    var parent: Parent? = null
 }
 
-interface Service {
-    val dependency: ServiceDependency
+enum class Color { RED, GREEN, BLUE }
+
+class Widget(val color: Color)
+
+/**
+ * We can't really test Soft- and WeakReferences so this is a version that is baked by a field
+ * instead of a reference so we have control and not the GC.
+ */
+
+internal class UnboundReferenceService<T : Any>(
+        override val key: TypeKey,
+        val block: Graph.() -> T
+) : UnboundService<Unit, T> {
+
+    override fun bind(graph: Graph): BoundService<Unit, T> {
+        return BoundReferenceService(graph, this)
+    }
 }
 
-interface GenericDependency<out T> {
-    val aValue: T?
+internal class BoundReferenceService<R : Any>(
+        graph: Graph,
+        override val unboundService: UnboundReferenceService<R>
+) : AbstractBoundSingletonService<R>(graph) {
+
+    var postConstructCalledCount = 0
+    var postConstructLastArguments: Pair<Any, Any>? = null
+    var disposeCalled = 0
+
+    override val scope: Scope get() = Scope("referenceTest")
+
+    override fun postConstruct(arg: Any, instance: Any) {
+        postConstructCalledCount += 1
+        postConstructLastArguments = arg to instance
+    }
+
+    override fun dispose() {
+        disposeCalled += 1
+    }
+
+    public override var instance: Any = UNINITIALIZED_VALUE
+
+    override fun initialize(): R {
+        val instance = graph.evaluate(this, Unit) { unboundService.block(graph) }
+        this.instance = instance
+        graph.postConstruct()
+        return instance
+    }
 }
 
-interface GenericService<out T> {
-    val dependency: GenericDependency<T>
+internal inline fun <reified R : Any> ComponentBuilder.reference(noinline block: GFactory0<R>) {
+    register(UnboundReferenceService(typeKey<R>(), block), false)
 }
-
-class ServiceDependencyImpl(override val aValue: String? = null) : ServiceDependency
-
-class ServiceImpl(override val dependency: ServiceDependency) : Service
-
-class GenericDependencyImpl<out T>(override val aValue: T?) : GenericDependency<T>
-
-class GenericServiceImpl<out T>(override val dependency: GenericDependency<T>) : GenericService<T>

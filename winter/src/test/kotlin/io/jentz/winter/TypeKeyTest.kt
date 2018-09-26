@@ -1,11 +1,9 @@
-package io.jentz.winter.internal
+package io.jentz.winter
 
-import io.jentz.winter.compoundTypeKey
-import io.jentz.winter.typeKey
 import org.junit.Assert.*
 import org.junit.Test
 
-class DependencyKeyTest {
+class TypeKeyTest {
 
     interface TestInterface
     class TestClass
