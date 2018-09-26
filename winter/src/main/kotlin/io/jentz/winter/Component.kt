@@ -1,8 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.ComponentEntry
-import io.jentz.winter.internal.ConstantEntry
-
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
  * [graph][Graph].
@@ -26,7 +23,7 @@ class Component internal constructor(
          * The components qualifier (null for root components and the sub-components qualifier for sub-components).
          */
         val qualifier: Any?,
-        internal val dependencies: Map<DependencyKey, ComponentEntry<*>>
+        internal val dependencies: Map<TypeKey, UnboundService<*, *>>
 ) {
 
     /**
@@ -55,7 +52,7 @@ class Component internal constructor(
     fun subcomponent(vararg qualifiers: Any): Component {
         var component: Component = this
         qualifiers.forEach { qualifier ->
-            val constant = component.dependencies[typeKey<Component>(qualifier)] as? ConstantEntry<*>
+            val constant = component.dependencies[typeKey<Component>(qualifier)] as? ConstantService<*>
             if (constant == null) {
                 val path = qualifiers.joinToString(", ")
                 throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")

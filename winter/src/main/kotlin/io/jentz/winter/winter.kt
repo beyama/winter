@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.internal.*
-
 /**
  * Function signature alias for component builder DSL blocks.
  */
@@ -27,54 +25,61 @@ fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
 fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph = component(qualifier, block).init()
 
 /**
- * Provider function with [Graph] as receiver used in [ComponentBuilder] register methods.
+ * No argument factory function signature with [Graph] as receiver.
  */
-typealias ProviderBlock<T> = Graph.() -> T
+typealias GFactory0<R> = Graph.() -> R
 
 /**
- * Function signature alias for provider not bound to a dependency graph.
+ * One argument factory function signature with [Graph] as receiver.
  */
-internal typealias UnboundProvider<T> = (Graph) -> T
+typealias GFactory1<A, R> = Graph.(A) -> R
 
 /**
- * Function signature alias for provider bound to a dependency graph.
+ * One argument factory callback function signature with [Graph] as receiver.
+ * Used for post-construct and dispose callbacks.
  */
-internal typealias Provider<T> = () -> T
+typealias GFactoryCallback1<R> = Graph.(R) -> Unit
 
 /**
- * Factory function with [Graph] as receiver used in [ComponentBuilder] factory register methods.
+ * Two arguments factory callback function signature with [Graph] as receiver.
+ * Used for post-construct and dispose callbacks.
  */
-typealias FactoryBlock<A, R> = Graph.(A) -> R
+typealias GFactoryCallback2<A, R> = Graph.(A, R) -> Unit
 
 /**
- * Function signature alias for factories not bound to a dependency graph.
+ * Provider function signature.
  */
-internal typealias UnboundFactory<A, R> = (Graph, A) -> R
+typealias Provider<R> = () -> R
 
 /**
- * Returns [DependencyKey] for [MembersInjector] of type [T].
+ * Factory function signature.
+ */
+typealias Factory<A, R> = (A) -> R
+
+/**
+ * Returns [TypeKey] for [MembersInjector] of type [T].
  *
  * Used in conjunction with JSR-330 annotation processor.
  */
 inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>, T>()
 
 /**
- * Returns [DependencyKey] for type [T].
+ * Returns [TypeKey] for type [T].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates a type key that also takes generic type parameters into account.
  */
-inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-        if (generics) object : GenericTypeKey<T>(qualifier) {} else TypeKey(T::class.java, qualifier)
+inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
+        if (generics) object : GenericClassTypeKey<T>(qualifier) {} else ClassTypeKey(T::class.java, qualifier)
 
 /**
- * Returns [DependencyKey] for type [T0] and [T1].
+ * Returns [TypeKey] for type [T0] and [T1].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates compound type key that also takes generic type parameters into account.
  */
-inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, generics: Boolean = false): DependencyKey =
-        if (generics) object : GenericCompoundTypeKey<T0, T1>(qualifier) {} else CompoundTypeKey(T0::class.java, T1::class.java, qualifier)
+inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
+        if (generics) object : GenericCompoundClassTypeKey<T0, T1>(qualifier) {} else CompoundClassTypeKey(T0::class.java, T1::class.java, qualifier)
 
 /**
  * This is used internally to created dependency keys to search for all entries of the given type.
@@ -83,20 +88,6 @@ inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, gene
 @PublishedApi
 internal inline fun <reified T> typeKeyOfType(generics: Boolean) =
         typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
-
-/**
- * Interface for all dependency key types.
- */
-interface DependencyKey {
-
-    val qualifier: Any?
-
-    /**
-     * Test if [other] has the same type.
-     * Like [equals] without looking onto the [qualifier].
-     */
-    fun typeEquals(other: DependencyKey): Boolean
-}
 
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
@@ -114,16 +105,4 @@ internal fun initializeGraph(parentGraph: Graph?, component: Component, block: C
         component
     }
     return Graph(parentGraph, baseComponent)
-}
-
-internal fun <T : Any> setupProviderBlock(key: DependencyKey, scope: ProviderScope, block: ProviderBlock<T>): UnboundProvider<T> {
-    return { graph ->
-        val instance = graph.evaluate(key, block)
-        WinterPlugins.runPostConstructPlugins(graph, scope, instance)
-        instance
-    }
-}
-
-internal fun <A : Any, R : Any> setupFactoryBlock(key: DependencyKey, block: FactoryBlock<A, R>): UnboundFactory<A, R> {
-    return { graph: Graph, a: A -> graph.evaluate(key, { block(graph, a) }) }
 }

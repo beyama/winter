@@ -14,15 +14,15 @@ const val OPTION_PRINT_SOURCES = "winterPrintSources" // for printf-debugging du
 
 val graphClassName = ClassName("io.jentz.winter", "Graph")
 val componentClassName = ClassName("io.jentz.winter", "Component")
-val factoryInterfaceName = ClassName("io.jentz.winter.internal", "Factory")
-val injectorInterfaceName = ClassName("io.jentz.winter.internal", "MembersInjector")
+val factoryInterfaceName = ClassName("io.jentz.winter", "Factory")
+val injectorInterfaceName = ClassName("io.jentz.winter", "MembersInjector")
 val providerInterfaceName = ClassName("javax.inject", "Provider")
 val lazyInterfaceName = ClassName("kotlin", "Lazy")
 
 val generatedAnnotationName = ClassName("javax.annotation", "Generated")
 
-val generatedFactoryPostfix = "\$\$Factory"
-val generatedInjectorPostfix = "\$\$MembersInjector"
+const val generatedFactoryPostfix = "\$\$Factory"
+const val generatedInjectorPostfix = "\$\$MembersInjector"
 
 val iso8601Format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'").apply { timeZone = TimeZone.getTimeZone("UTC"); }
 
@@ -124,7 +124,7 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
 }
 
 fun generatedAnnotation() = AnnotationSpec.builder(generatedAnnotationName)
-        .addMember("value", "%S", WinterProcessor::class.java.name)
+        .addMember("value", "[%S]", WinterProcessor::class.java.name)
         .addMember("date", "%S", iso8601Format.format(Date()))
         .build()
 

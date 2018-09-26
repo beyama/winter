@@ -11,7 +11,7 @@ class ComponentModel {
     val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
     fun generate(packageName: String, generatedAnnotationAvailable: Boolean): FileSpec {
-        val grouped = factories.groupBy { it.scope ?: "__provider__" }
+        val grouped = factories.groupBy { it.scope ?: "__prototype__" }
 
         val componentBuilder = CodeBlock.builder().beginControlFlow("component")
 
@@ -22,7 +22,7 @@ class ComponentModel {
 
         grouped.forEach { (scope, factories) ->
             when (scope) {
-                "__provider__" -> factories.forEach { componentBuilder.add(generateProvider(it)) }
+                "__prototype__" -> factories.forEach { componentBuilder.add(generatePrototype(it)) }
                 "javax.inject.Singleton" -> factories.forEach { componentBuilder.add(generateSingleton(it)) }
                 else -> {
                     componentBuilder
@@ -56,11 +56,11 @@ class ComponentModel {
 
     fun isEmpty() = factories.isEmpty() && injectors.isEmpty()
 
-    private fun generateProvider(model: FactoryModel) =
-            CodeBlock.of("provider<%T> { %T().createInstance(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
+    private fun generatePrototype(model: FactoryModel) =
+            CodeBlock.of("prototype<%T> { %T().invoke(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
 
     private fun generateSingleton(model: FactoryModel) =
-            CodeBlock.of("singleton<%T> { %T().createInstance(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
+            CodeBlock.of("singleton<%T> { %T().invoke(this) }\n", model.typeName, escapeGeneratedClassName(model.generatedClassName))
 
     private fun escapeGeneratedClassName(className: ClassName) = ClassName(className.packageName(), "`${className.simpleName()}`")
 

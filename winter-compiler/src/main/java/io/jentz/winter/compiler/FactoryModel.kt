@@ -8,7 +8,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-class FactoryModel(val constructor: ExecutableElement) {
+class FactoryModel(private val constructor: ExecutableElement) {
     val typeElement = (constructor.enclosingElement as TypeElement)
     val typeName = typeElement.asClassName()
     val generatedClassName = ClassName(
@@ -79,9 +79,9 @@ class FactoryModel(val constructor: ExecutableElement) {
                                         it.addKdoc(generatedComment())
                                     }
                                 }
-                                .addSuperinterface(ParameterizedTypeName.get(factoryInterfaceName, typeName))
+                                .addSuperinterface(ParameterizedTypeName.get(factoryInterfaceName, graphClassName, typeName))
                                 .addFunction(
-                                        FunSpec.builder("createInstance")
+                                        FunSpec.builder("invoke")
                                                 .addModifiers(KModifier.OVERRIDE)
                                                 .addParameter("graph", graphClassName)
                                                 .returns(typeName)
