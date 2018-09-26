@@ -1,6 +1,6 @@
 # Winter
 
-[![Kotlin 1.1.51](https://img.shields.io/badge/Kotlin-1.1-blue.svg)](http://kotlinlang.org)
+[![Kotlin 1.1.71](https://img.shields.io/badge/Kotlin-1.1-blue.svg)](http://kotlinlang.org)
 [![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.jentz.winter%22)
 [![Travis](https://travis-ci.org/beyama/winter.svg)](https://travis-ci.org/beyama/winter/builds)
 [![MIT License](https://img.shields.io/github/license/beyama/winter.svg)](https://github.com/beyama/winter/blob/master/LICENSE)
@@ -8,8 +8,7 @@
 
 ## Kotlin Dependency Injection
 
-Winter is a fast and intuitive dependency injection and service locator
-library for Kotlin on Android and the JVM.
+Winter is a fast and intuitive dependency injection library for Kotlin on Android and the JVM.
 
 It offers an idiomatic Kotlin API as well as optional JSR-330 support
 with annotation processor.
@@ -23,16 +22,16 @@ See also the [API documentation for Winter](https://beyama.github.io/winter/java
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.0.4'
+  implementation 'io.jentz.winter:winter:0.1.0'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.0.4'
+  implementation 'io.jentz.winter:winter-android:0.1.0'
   // Optional JSR-330 support
-  kapt 'io.jentz.winter:winter-compiler:0.0.4'
+  implementation 'javax.inject:javax.inject:1'
+  kapt 'io.jentz.winter:winter-compiler:0.1.0'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
 kapt {
-  generateStubs = true
   arguments {
     // This tells the Winter compiler under which package name it should store 
     // the generated component. See the advanced section for more details.
@@ -113,7 +112,7 @@ class MyActivity : Activity() {
     // injection of a non-optional factory
     private val factory: (Int) -> ProducedInstance by injector.factory()
     // injection of an optional factory
-    private val factory: (Int) -> ProducedInstance by injector.lazyFactory()
+    private val factory: (Int) -> ProducedInstance by injector.factoryOrNull()
 
     override fun onCreate(savedInstanceState: Bundle?) {
       // ... create or get the dependency graph
@@ -121,13 +120,56 @@ class MyActivity : Activity() {
       super.onCreate(savedInstanceState)
     }
 }
+```
 
 Lazy injection means that the actual retrieval and therefore the actual
 instantiation of a dependency is deferred to the point where you access
 the property the first time. This is useful in cases where the creation
 is computationally expensive but may not be required in some cases.
 
+## Graph Registry
+The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).
+
+This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
+
+For example:
+```kotlin
+GraphRegistry.applicationComponent = myApplicationComponent
+
+// create the application dependency graph on application start
+class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+    GraphRegistry.open() { constant<Application> { this@MyApplication }
+  }
+}
+// you can now retrieve the application dependency graph by calling
+GraphRegistry.get()
+
+// create and dispose a sub-graph of the application graph
+class MyActivity : Activity() {
+  override onCreate() {
+    super.onCreate()
+    // initialize subcomponent with name "activity" and register it with identifier this
+    GraphRegistry.open("activity", identifier = this) { constant<Activity>(this@MyActivity) } 
+  }
+  
+  override onDestroy() {
+    super.onDestroy()
+    // dispose the "activity" sub-graph with identifier this
+    GraphRegistry.close(this)
+  }
+  
+}
 ```
+
+## Android Support
+
+*TODO:* AndroidInjection, view-extensions
+
+## Advanced Usage
+
+*TODO:* mixing components, usage of factories, type erasure, qualifier
 
 ## JSR-330 Annotation Processor
 
@@ -141,14 +183,6 @@ setter or fields.
 
 And it generates a component containing all those factories and
 members-injectors to avoid the usage of reflection.
-
-## Android Support
-
-*TODO:* AndroidInjection, view-extensions
-
-## Advanced Usage
-
-*TODO:* mixing components, usage of factories, type erasure, qualifier
 
 ## License
 
