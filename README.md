@@ -163,6 +163,8 @@ class MyActivity : Activity() {
 }
 ```
 
+If you close (dispose) a graph it will also close all registered child graphs.
+
 ## Android Support
 
 ### AndroidInjection
