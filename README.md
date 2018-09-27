@@ -97,7 +97,6 @@ dependency graph to the injector e.g. Activity#onCreate on Android.
 I give you a simple example:
 
 ```kotlin
-
 class MyActivity : Activity() {
 
     private val injector = Injector()
@@ -127,6 +126,8 @@ instantiation of a dependency is deferred to the point where you access
 the property the first time. This is useful in cases where the creation
 is computationally expensive but may not be required in some cases.
 
+For more details see [Injector API docs](https://beyama.github.io/winter/javadoc/winter/io.jentz.winter/-injector/index.html)
+
 ## Graph Registry
 The graph registry creates and manages dependency graphs in a tree (directed acyclic graph).
 
@@ -148,13 +149,13 @@ GraphRegistry.get()
 
 // create and dispose a sub-graph of the application graph
 class MyActivity : Activity() {
-  override onCreate() {
+  override fun onCreate() {
     super.onCreate()
     // initialize subcomponent with name "activity" and register it with identifier this
     GraphRegistry.open("activity", identifier = this) { constant<Activity>(this@MyActivity) } 
   }
   
-  override onDestroy() {
+  override fun onDestroy() {
     super.onDestroy()
     // dispose the "activity" sub-graph with identifier this
     GraphRegistry.close(this)
@@ -164,6 +165,8 @@ class MyActivity : Activity() {
 ```
 
 If you close (dispose) a graph it will also close all registered child graphs.
+
+For more details see [GraphRegistry API docs](https://beyama.github.io/winter/javadoc/winter/io.jentz.winter/-graph-registry/index.html)
 
 ## Android Support
 
@@ -216,6 +219,8 @@ class MyActivity : Activity() {
 
 The default `SimpleAndroidInjectionAdapter` is backed by `GraphRegistry` and can be easily extended.
 
+For more details see [AndroidInjection API docs](https://beyama.github.io/winter/javadoc/winter-android/io.jentz.winter.android/-android-injection/index.html).
+
 ### View extensions
 
 There is an inline view extension for every Graph retrieval method, like `instance`, `provider` or `factory`. 
@@ -233,6 +238,8 @@ class HomeScreen @JvmOverloads constructor(
 
 }
 ```
+
+For more details see [View Extensions API docs](https://beyama.github.io/winter/javadoc/winter-android/io.jentz.winter.android/android.view.-view/index.html).
 
 ## Advanced Usage
 
