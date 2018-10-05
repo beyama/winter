@@ -259,7 +259,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
     override fun dispose() {
         unboundService.dispose?.let { fn ->
-            map.forEach { argument, instance -> fn(graph, argument, instance) }
+            map.entries.forEach { (argument, instance) -> fn(graph, argument, instance) }
         }
     }
 }
