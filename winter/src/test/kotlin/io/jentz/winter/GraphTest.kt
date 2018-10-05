@@ -10,6 +10,8 @@ import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -18,6 +20,18 @@ class GraphTest {
     private val emptyGraph = graph {}
 
     private val instance = Any()
+
+    private lateinit var executor: ExecutorService
+
+    @BeforeAll
+    fun beforeAll() {
+        executor = Executors.newFixedThreadPool(8)
+    }
+
+    @AfterAll
+    fun afterAll() {
+        executor.shutdown()
+    }
 
     @BeforeEach
     fun beforeEach() {
@@ -79,6 +93,19 @@ class GraphTest {
                 prototype<Pump> { Thermosiphon(instance()) }
                 prototype { CoffeeMaker(instance(), instance()) }
             }.instance<CoffeeMaker>()
+        }
+
+        @Test
+        fun `should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    prototype(qualifier = value) { value }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int>(qualifier = it).shouldBe(it) }
+            }.forEach { it.get() }
         }
 
     }
@@ -156,6 +183,19 @@ class GraphTest {
             }.let {
                 it.instance<CoffeeMaker>().heater.shouldBeSameInstanceAs(it.instance<Heater>())
             }
+        }
+
+        @Test
+        fun `should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    singleton(qualifier = value) { value }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int>(qualifier = it).shouldBe(it) }
+            }.forEach { it.get() }
         }
 
     }
@@ -240,6 +280,19 @@ class GraphTest {
         }
 
         @Test
+        fun `#softSingleton should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    softSingleton(qualifier = value) { value }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int>(qualifier = it).shouldBe(it) }
+            }.forEach { it.get() }
+        }
+
+        @Test
         fun `#weakSingleton should return instance returned by factory`() {
             graph {
                 weakSingleton { instance }
@@ -272,6 +325,19 @@ class GraphTest {
             }
             testGraph.instance<Any>()
             called.shouldBeTrue()
+        }
+
+        @Test
+        fun `#weakSingleton should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    weakSingleton(qualifier = value) { value }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int>(qualifier = it).shouldBe(it) }
+            }.forEach { it.get() }
         }
 
     }
@@ -347,6 +413,19 @@ class GraphTest {
                     CoffeeMaker(instance(), instance(argument = pumpType))
                 }
             }.instance<String, CoffeeMaker>("thermo").pump.shouldBeInstanceOf<Thermosiphon>()
+        }
+
+        @Test
+        fun `should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    factory<Int, String>(qualifier = value) { i -> i.toString() }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString()) }
+            }.forEach { it.get() }
         }
 
     }
@@ -441,6 +520,19 @@ class GraphTest {
                 it.instance<String, CoffeeMaker>("thermo").pump
                         .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
             }
+        }
+
+        @Test
+        fun `should be thread safe`() {
+            val graph = graph {
+                (0..100).forEach { value ->
+                    multiton<Int, String>(qualifier = value) { i -> i.toString() }
+                }
+            }
+
+            (0..100).map {
+                executor.submit { graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString()) }
+            }.forEach { it.get() }
         }
 
     }

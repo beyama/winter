@@ -308,6 +308,8 @@ class Graph internal constructor(
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
+     *
+     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
     inline fun <A, R : Any> evaluate(
             service: BoundService<A, R>,
@@ -360,6 +362,8 @@ class Graph internal constructor(
     /**
      * This is called from [BoundService.instance] after a new instance was created.
      * Don't use this method except in custom [BoundService] implementations.
+     *
+     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
     inline fun postConstruct() {
         if (stackSize == 0) {
