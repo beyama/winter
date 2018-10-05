@@ -5,7 +5,7 @@
  */
 package io.jentz.winter.android
 
-import android.view.View
+import android.content.ComponentCallbacks2
 import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
@@ -15,7 +15,7 @@ import io.jentz.winter.Injection
  * Return the graph associated with `this`.
  * This is sugar for calling "Injection.getGraph(this)".
  */
-inline val View.dependencyGraph: Graph get() = Injection.getGraph(this)
+inline val ComponentCallbacks2.dependencyGraph: Graph get() = Injection.getGraph(this)
 
 /**
  * Retrieve a non-optional instance of [R].
@@ -26,7 +26,7 @@ inline val View.dependencyGraph: Graph get() = Injection.getGraph(this)
  *
  * @throws EntryNotFoundException
  */
-inline fun <reified R : Any> View.instance(
+inline fun <reified R : Any> ComponentCallbacks2.instance(
         qualifier: Any? = null,
         generics: Boolean = false
 ): R = dependencyGraph.instance(qualifier, generics)
@@ -41,7 +41,7 @@ inline fun <reified R : Any> View.instance(
  *
  * @throws EntryNotFoundException
  */
-inline fun <reified A, reified R : Any> View.instance(
+inline fun <reified A, reified R : Any> ComponentCallbacks2.instance(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -54,7 +54,7 @@ inline fun <reified A, reified R : Any> View.instance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return An instance of [R] or null if provider doesn't exist.
  */
-inline fun <reified R : Any> View.instanceOrNull(
+inline fun <reified R : Any> ComponentCallbacks2.instanceOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
 ): R? = dependencyGraph.instanceOrNull(qualifier, generics)
@@ -68,7 +68,7 @@ inline fun <reified R : Any> View.instanceOrNull(
  * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
  *
  */
-inline fun <reified A, reified R : Any> View.instanceOrNull(
+inline fun <reified A, reified R : Any> ComponentCallbacks2.instanceOrNull(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -81,7 +81,7 @@ inline fun <reified A, reified R : Any> View.instanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
-inline fun <reified R : Any> View.lazyInstance(
+inline fun <reified R : Any> ComponentCallbacks2.lazyInstance(
         qualifier: Any? = null,
         generics: Boolean = false
 ): Lazy<R> = lazy { dependencyGraph.instance<R>(qualifier, generics) }
@@ -94,7 +94,7 @@ inline fun <reified R : Any> View.lazyInstance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
-inline fun <reified A, reified R : Any> View.lazyInstance(
+inline fun <reified A, reified R : Any> ComponentCallbacks2.lazyInstance(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -107,7 +107,7 @@ inline fun <reified A, reified R : Any> View.lazyInstance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
-inline fun <reified R : Any> View.lazyInstanceOrNull(
+inline fun <reified R : Any> ComponentCallbacks2.lazyInstanceOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
 ): Lazy<R?> = lazy { dependencyGraph.instanceOrNull<R>(qualifier, generics) }
@@ -120,7 +120,7 @@ inline fun <reified R : Any> View.lazyInstanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
-inline fun <reified A, reified R : Any> View.lazyInstanceOrNull(
+inline fun <reified A, reified R : Any> ComponentCallbacks2.lazyInstanceOrNull(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -135,7 +135,7 @@ inline fun <reified A, reified R : Any> View.lazyInstanceOrNull(
  *
  * @throws EntryNotFoundException
  */
-inline fun <reified R : Any> View.provider(
+inline fun <reified R : Any> ComponentCallbacks2.provider(
         qualifier: Any? = null, 
         generics: Boolean = false
 ): () -> R = dependencyGraph.provider(qualifier, generics)
@@ -147,7 +147,7 @@ inline fun <reified R : Any> View.provider(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider that returns [R] or null if provider doesn't exist.
  */
-inline fun <reified R : Any> View.providerOrNull(
+inline fun <reified R : Any> ComponentCallbacks2.providerOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
 ): (() -> R)? = dependencyGraph.providerOrNull(qualifier, generics)
@@ -161,7 +161,7 @@ inline fun <reified R : Any> View.providerOrNull(
  *
  * @throws EntryNotFoundException
  */
-inline fun <reified A : Any, reified R : Any> View.factory(
+inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factory(
         qualifier: Any? = null, 
         generics: Boolean = false
 ): (A) -> R = dependencyGraph.factory(qualifier, generics)
@@ -175,7 +175,7 @@ inline fun <reified A : Any, reified R : Any> View.factory(
  *
  * @throws EntryNotFoundException
  */
-inline fun <reified A : Any, reified R : Any> View.factoryOrNull(
+inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factoryOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
 ): ((A) -> R)? = dependencyGraph.factoryOrNull(qualifier, generics)
@@ -186,7 +186,7 @@ inline fun <reified A : Any, reified R : Any> View.factoryOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return A [Set] of providers of type `() -> R`.
  */
-inline fun <reified R : Any> View.providersOfType(
+inline fun <reified R : Any> ComponentCallbacks2.providersOfType(
         generics: Boolean = false
 ): Set<() -> R> = dependencyGraph.providersOfType(generics)
 
@@ -196,6 +196,6 @@ inline fun <reified R : Any> View.providersOfType(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return A [Set] of instances of type [R].
  */
-inline fun <reified R : Any> View.instancesOfType(
+inline fun <reified R : Any> ComponentCallbacks2.instancesOfType(
         generics: Boolean = false
 ): Set<R> = dependencyGraph.instancesOfType(generics)
