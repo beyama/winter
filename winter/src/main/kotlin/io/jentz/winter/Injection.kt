@@ -1,22 +1,26 @@
-package io.jentz.winter.android
-
-import android.content.Context
-import io.jentz.winter.Graph
-import io.jentz.winter.Injection
-import io.jentz.winter.Injector
-import io.jentz.winter.MembersInjector
-import io.jentz.winter.android.AndroidInjection.Adapter
+package io.jentz.winter
 
 /**
- * Retrieves application and activity graphs and injects into core Android types.
+ * Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+ * constructor injection. This takes the burden off of the class to know how exactly a graph
+ * or parent graph is stored and how to create and store a new graph.
  *
- * An application specific graph creation and retrieval strategy can be provided by setting a custom [Adapter].
+ * An application specific graph creation and retrieval strategy can be provided by setting a
+ * custom [Adapter].
  *
- * Example using the default [SimpleAndroidInjectionAdapter]:
+ * ```
+ * Injection.adapter = MyCustomAdapter()
+ * ```
+ *
+ * Example using the included SimpleAndroidInjectionAdapter:
  *
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
+ *     super.onCreate()
+ *
+ *     Injection.adapter = SimpleAndroidInjectionAdapter()
+ *
  *     GraphRegistry.applicationComponent = component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
@@ -27,7 +31,7 @@ import io.jentz.winter.android.AndroidInjection.Adapter
  *       }
  *     }
  *
- *     AndroidInjection.createGraph(this)
+ *     Injection.createGraph(this)
  *   }
  * }
  *
@@ -36,42 +40,77 @@ import io.jentz.winter.android.AndroidInjection.Adapter
  *   private val viewModel: RepoListViewModel by injector.instance()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     AndroidInjection.createGraphAndInject(this, injector)
+ *     Injection.createGraphAndInject(this, injector)
  *     super.onCreate(savedInstanceState)
  *   }
  *
  *   override fun onDestroy() {
- *     AndroidInjection.disposeGraph(this)
+ *     Injection.disposeGraph(this)
  *     super.onDestroy()
  *   }
  *
  * }
  * ```
- *
- * To register a custom graph creation and retrieval strategy a custom [AndroidInjection.Adapter] can be registered by
- * setting the [AndroidInjection.adapter] property.
- *
- * ```
- * AndroidInjection.adapter = MyCustomAdapter()
- * ```
  */
-@Deprecated(
-        message = "Use io.jentz.winter.Injection instead",
-        replaceWith = ReplaceWith("Injection", "io.jentz.winter.Injection")
-)
-object AndroidInjection {
+object Injection {
 
     /**
-     * Adapter interface for Android application specific graph creation and retrieval strategy.
+     * Adapter interface to provide application specific graph creation and retrieval strategy.
      */
-    @Deprecated("Use io.jentz.winter.Injection.Adapter")
-    interface Adapter : Injection.Adapter
+    interface Adapter {
+
+        /**
+         * Get dependency graph for [instance].
+         *
+         * @param instance The instance to get the graph for.
+         * @return The graph for [instance].
+         * @throws [io.jentz.winter.WinterException] if no graph for [instance] exists.
+         *
+         */
+        fun getGraph(instance: Any): Graph
+
+        /**
+         * Create dependency graph for [instance].
+         *
+         * The adapter implementation is responsible for storing the created graph.
+         *
+         * @param instance The instance to create a dependency graph for.
+         * @return The newly created graph
+         * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
+         *
+         */
+        fun createGraph(instance: Any): Graph
+
+        /**
+         * Dispose the dependency graph of the given [instance].
+         *
+         * @param instance The instance to dispose the graph for.
+         * @throws [io.jentz.winter.WinterException] if no graph for this [instance] type exists.
+         */
+        fun disposeGraph(instance: Any)
+    }
+
+    /**
+     * Simple adapter for application with only one dependency graph.
+     *
+     * Register your application component on [GraphRegistry.applicationComponent].
+     */
+    class ApplicationGraphOnlyAdapter : Adapter {
+        override fun getGraph(instance: Any): Graph = GraphRegistry.get()
+
+        override fun createGraph(instance: Any): Graph = GraphRegistry.create()
+
+        override fun disposeGraph(instance: Any) {
+            GraphRegistry.close()
+        }
+    }
 
     /**
      * Set the application specific [adapter][Adapter].
-     * The default adapter is the [SimpleAndroidInjectionAdapter].
+     *
+     * Default adapter is [ApplicationGraphOnlyAdapter].
      */
-    var adapter: Injection.Adapter = SimpleAndroidInjectionAdapter()
+    var adapter: Adapter = ApplicationGraphOnlyAdapter()
 
     /**
      * Create and return dependency graph for [instance].
@@ -92,7 +131,8 @@ object AndroidInjection {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic
-    fun createGraphAndInject(instance: Any, injector: Injector): Graph = createGraph(instance).also(injector::inject)
+    fun createGraphAndInject(instance: Any, injector: Injector): Graph =
+            createGraph(instance).also(injector::inject)
 
     /**
      * Create and return dependency graph for [instance] and also pass the graph to the given [injector].
@@ -118,18 +158,6 @@ object AndroidInjection {
      */
     @JvmStatic
     fun getGraph(instance: Any): Graph = adapter.getGraph(instance)
-
-    /**
-     * Get application dependency graph.
-     *
-     * Alias for `AndroidInjection.getGraph(context.applicationContext)`.
-     *
-     * @param context The context to get the application graph from.
-     * @return The application dependency graph.
-     * @throws [io.jentz.winter.WinterException] if application dependency graph doesn't exist.
-     */
-    @JvmStatic
-    fun getApplicationGraph(context: Context): Graph = getGraph(context.applicationContext)
 
     /**
      * Dispose the dependency graph of the given [instance].
