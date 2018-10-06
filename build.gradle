@@ -1,6 +1,39 @@
 buildscript {
-    ext.kotlin_version = '1.2.71'
-    ext.dokka_version = '0.9.17'
+    ext.versions = [
+            'minSdk'        : 14,
+            'compileSdk'    : 28,
+            'supportLibrary': '28.0.0',
+            'androidTools'  : '27.0.3',
+            'kotlin'        : '1.2.71',
+            'dokka'         : '0.9.17',
+            'junit5'        : '5.3.1',
+            'mockito'       : '2.19.0',
+            'mockitoKotlin' : '1.5.0'
+    ]
+
+    ext.deps = [
+            'kotlin'     : [
+                    'stdlib': "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
+            ],
+            'support'    : [
+                    'test': [
+                            'runner': 'com.android.support.test:runner:1.0.1'
+                    ]
+            ],
+            'junit'      : [
+                    'junit4'       : "junit:junit:4.12",
+                    'jupiterApi'   : "org.junit.jupiter:junit-jupiter-api:${versions.junit5}",
+                    'jupiterEngine': "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}",
+                    'vintageEngine': "org.junit.vintage:junit-vintage-engine:${versions.junit5}"
+            ],
+            'kotlintest' : "io.kotlintest:kotlintest-assertions:3.1.10",
+            'mockito'    : [
+                    'core'  : "org.mockito:mockito-core:${versions.mockito}",
+                    'kotlin': "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}"
+            ],
+            'javaxInject': 'javax.inject:javax.inject:1',
+            'kotlinpoet' : 'com.squareup:kotlinpoet:0.5.0'
+    ]
 
     repositories {
         jcenter()
@@ -8,21 +41,15 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokka_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${versions.dokka}"
     }
 }
 
 
 
 allprojects {
-    ext {
-        junitVersion = '5.3.1'
-        mockitoVersion = '2.19.0'
-        mockitoKotlinVersion = '1.5.0'
-    }
-
     repositories {
         jcenter()
         google()
