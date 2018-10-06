@@ -8,8 +8,10 @@ package <%= @target_package %>
 import <%= @import %>
 <% if @target_package != 'io.jentz.winter' -%>
 import io.jentz.winter.EntryNotFoundException
+import io.jentz.winter.Factory
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
+import io.jentz.winter.Provider
 <% end %>
 
 /**
@@ -139,7 +141,24 @@ inline fun <reified A, reified R : Any> <%= @class_name %>.lazyInstanceOrNull(
 inline fun <reified R : Any> <%= @class_name %>.provider(
         qualifier: Any? = null, 
         generics: Boolean = false
-): () -> R = dependencyGraph.provider(qualifier, generics)
+): Provider<R> = dependencyGraph.provider(qualifier, generics)
+
+/**
+ * Retrieve a factory of type `(A) -> R` and create and return a
+ * [provider][Provider] that applies the given [argument] to the factory when called.
+ *
+ * @param argument The argument for the factory to retrieve.
+ * @param qualifier An optional qualifier of the dependency.
+ * @param generics Preserves generic type parameters if set to true (default = false).
+ * @return The provider function.
+ *
+ * @throws EntryNotFoundException
+ */
+inline fun <reified A, reified R : Any> <%= @class_name %>.provider(
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
+): Provider<R> = dependencyGraph.provider(argument, qualifier, generics)
 
 /**
  * Retrieve an optional provider function that returns [R].
@@ -151,7 +170,22 @@ inline fun <reified R : Any> <%= @class_name %>.provider(
 inline fun <reified R : Any> <%= @class_name %>.providerOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
-): (() -> R)? = dependencyGraph.providerOrNull(qualifier, generics)
+): Provider<R>? = dependencyGraph.providerOrNull(qualifier, generics)
+
+/**
+ * Retrieve an optional factory of type `(A) -> R` and create and return a
+ * [provider][Provider] that applies the given [argument] to the factory when called.
+ *
+ * @param argument The argument for the factory to retrieve.
+ * @param qualifier An optional qualifier of the dependency.
+ * @param generics Preserves generic type parameters if set to true (default = false).
+ * @return The provider function or null if factory doesn't exist.
+ */
+inline fun <reified A, reified R : Any> <%= @class_name %>.providerOrNull(
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
+): Provider<R>? = dependencyGraph.providerOrNull(argument, qualifier, generics)
 
 /**
  * Retrieve a non-optional factory function that takes an argument of type [A] and returns [R].
@@ -165,7 +199,7 @@ inline fun <reified R : Any> <%= @class_name %>.providerOrNull(
 inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factory(
         qualifier: Any? = null, 
         generics: Boolean = false
-): (A) -> R = dependencyGraph.factory(qualifier, generics)
+): Factory<A, R> = dependencyGraph.factory(qualifier, generics)
 
 /**
  * Retrieve an optional factory function that takes an argument of type [A] and returns [R].
@@ -179,7 +213,7 @@ inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factory(
 inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factoryOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
-): ((A) -> R)? = dependencyGraph.factoryOrNull(qualifier, generics)
+): Factory<A, R>? = dependencyGraph.factoryOrNull(qualifier, generics)
 
 /**
  * Retrieve all providers of type [R].
@@ -189,7 +223,7 @@ inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factoryOrNull(
  */
 inline fun <reified R : Any> <%= @class_name %>.providersOfType(
         generics: Boolean = false
-): Set<() -> R> = dependencyGraph.providersOfType(generics)
+): Set<Provider<R>> = dependencyGraph.providersOfType(generics)
 
 /**
  * Retrieve all instances of type [R].

@@ -7,8 +7,10 @@ package io.jentz.winter.android
 
 import android.content.ComponentCallbacks2
 import io.jentz.winter.EntryNotFoundException
+import io.jentz.winter.Factory
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
+import io.jentz.winter.Provider
 
 
 /**
@@ -138,7 +140,24 @@ inline fun <reified A, reified R : Any> ComponentCallbacks2.lazyInstanceOrNull(
 inline fun <reified R : Any> ComponentCallbacks2.provider(
         qualifier: Any? = null, 
         generics: Boolean = false
-): () -> R = dependencyGraph.provider(qualifier, generics)
+): Provider<R> = dependencyGraph.provider(qualifier, generics)
+
+/**
+ * Retrieve a factory of type `(A) -> R` and create and return a
+ * [provider][Provider] that applies the given [argument] to the factory when called.
+ *
+ * @param argument The argument for the factory to retrieve.
+ * @param qualifier An optional qualifier of the dependency.
+ * @param generics Preserves generic type parameters if set to true (default = false).
+ * @return The provider function.
+ *
+ * @throws EntryNotFoundException
+ */
+inline fun <reified A, reified R : Any> ComponentCallbacks2.provider(
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
+): Provider<R> = dependencyGraph.provider(argument, qualifier, generics)
 
 /**
  * Retrieve an optional provider function that returns [R].
@@ -150,7 +169,22 @@ inline fun <reified R : Any> ComponentCallbacks2.provider(
 inline fun <reified R : Any> ComponentCallbacks2.providerOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
-): (() -> R)? = dependencyGraph.providerOrNull(qualifier, generics)
+): Provider<R>? = dependencyGraph.providerOrNull(qualifier, generics)
+
+/**
+ * Retrieve an optional factory of type `(A) -> R` and create and return a
+ * [provider][Provider] that applies the given [argument] to the factory when called.
+ *
+ * @param argument The argument for the factory to retrieve.
+ * @param qualifier An optional qualifier of the dependency.
+ * @param generics Preserves generic type parameters if set to true (default = false).
+ * @return The provider function or null if factory doesn't exist.
+ */
+inline fun <reified A, reified R : Any> ComponentCallbacks2.providerOrNull(
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
+): Provider<R>? = dependencyGraph.providerOrNull(argument, qualifier, generics)
 
 /**
  * Retrieve a non-optional factory function that takes an argument of type [A] and returns [R].
@@ -164,7 +198,7 @@ inline fun <reified R : Any> ComponentCallbacks2.providerOrNull(
 inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factory(
         qualifier: Any? = null, 
         generics: Boolean = false
-): (A) -> R = dependencyGraph.factory(qualifier, generics)
+): Factory<A, R> = dependencyGraph.factory(qualifier, generics)
 
 /**
  * Retrieve an optional factory function that takes an argument of type [A] and returns [R].
@@ -178,7 +212,7 @@ inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factory(
 inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factoryOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
-): ((A) -> R)? = dependencyGraph.factoryOrNull(qualifier, generics)
+): Factory<A, R>? = dependencyGraph.factoryOrNull(qualifier, generics)
 
 /**
  * Retrieve all providers of type [R].
@@ -188,7 +222,7 @@ inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factoryOrNull(
  */
 inline fun <reified R : Any> ComponentCallbacks2.providersOfType(
         generics: Boolean = false
-): Set<() -> R> = dependencyGraph.providersOfType(generics)
+): Set<Provider<R>> = dependencyGraph.providersOfType(generics)
 
 /**
  * Retrieve all instances of type [R].
