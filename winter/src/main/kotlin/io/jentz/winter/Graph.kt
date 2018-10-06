@@ -177,8 +177,6 @@ class Graph internal constructor(
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The provider function or null if factory doesn't exist.
-     *
-     * @throws EntryNotFoundException
      */
     inline fun <reified A, reified R : Any> providerOrNull(
             argument: A,
@@ -214,8 +212,6 @@ class Graph internal constructor(
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
-     *
-     * @throws EntryNotFoundException
      */
     inline fun <reified A : Any, reified R : Any> factoryOrNull(
             qualifier: Any? = null,
