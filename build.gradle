@@ -13,12 +13,25 @@ buildscript {
 
     ext.deps = [
             'kotlin'     : [
-                    'stdlib': "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
+                    'stdlib': "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+            ],
+            'androidx'   : [
+                    'coreKtx'     : 'androidx.core:core-ktx:1.0.0-alpha1',
+                    'recyclerview': 'androidx.recyclerview:recyclerview:1.0.0',
+                    'compat'      : 'androidx.appcompat:appcompat:1.0.0',
+                    'test': [
+                            'runner'      : 'androidx.test:runner:1.1.0-alpha3',
+                            'rules'       : 'androidx.test:rules:1.1.0-alpha3',
+                            'espressoCore': 'androidx.test.espresso:espresso-contrib:3.1.0-alpha3'
+                    ]
             ],
             'support'    : [
                     'test': [
-                            'runner': 'com.android.support.test:runner:1.0.1'
+                            'runner'      : 'com.android.support.test:runner:1.0.2',
+                            'rules'       : 'com.android.support.test:rules:1.0.2',
+                            'espressoCore': 'com.android.support.test.espresso:espresso-core:3.0.2'
                     ]
+
             ],
             'junit'      : [
                     'junit4'       : "junit:junit:4.12",
@@ -32,7 +45,11 @@ buildscript {
                     'kotlin': "com.nhaarman:mockito-kotlin:${versions.mockitoKotlin}"
             ],
             'javaxInject': 'javax.inject:javax.inject:1',
-            'kotlinpoet' : 'com.squareup:kotlinpoet:0.5.0'
+            'kotlinpoet' : 'com.squareup:kotlinpoet:0.5.0',
+            'rx'         : [
+                    'rxjava'   : 'io.reactivex.rxjava2:rxjava:2.2.2',
+                    'rxandroid': 'io.reactivex.rxjava2:rxandroid:2.1.0'
+            ]
     ]
 
     repositories {
@@ -44,6 +61,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${versions.dokka}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
     }
 }
 
