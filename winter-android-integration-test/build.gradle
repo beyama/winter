@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation project(':winter-android')
+    implementation project(':winter-rxjava2')
 
     kapt project(':winter-compiler')
     implementation deps.javaxInject

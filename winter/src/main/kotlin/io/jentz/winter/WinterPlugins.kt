@@ -98,6 +98,15 @@ object WinterPlugins {
         graphDisposePlugins.clear()
     }
 
+    /**
+     * Remove all plugins.
+     */
+    fun resetAll() {
+        resetInitializingComponentPlugins()
+        resetPostConstructPlugins()
+        resetGraphDisposePlugins()
+    }
+
     internal fun runGraphDisposePlugins(graph: Graph) {
         graphDisposePlugins.forEach { it(graph) }
     }

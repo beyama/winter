@@ -102,4 +102,16 @@ class WinterPluginsTest {
         called.shouldBeFalse()
     }
 
+    @Test
+    fun `#resetAll should remove all plugins`() {
+        WinterPlugins.addInitializingComponentPlugin { _, _ -> throw Error() }
+        WinterPlugins.addPostConstructPlugin { _, _, _, _ -> throw Error() }
+        WinterPlugins.addGraphDisposePlugin { _ -> throw Error() }
+        WinterPlugins.resetAll()
+        graph { prototype { Any() } }.apply {
+            instance<Any>()
+            dispose()
+        }
+    }
+
 }

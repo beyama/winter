@@ -12,13 +12,14 @@ import io.jentz.winter.android.test.scope.ActivityScope
 import io.jentz.winter.android.test.scope.ApplicationScope
 import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.component
+import io.jentz.winter.rxjava2.WinterDisposablePlugin
 
 class IntegrationTestApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
-        installWinterDisposablePlugin()
+        WinterDisposablePlugin.install()
 
         Injection.adapter = AndroidPresentationScopeAdapter()
 
