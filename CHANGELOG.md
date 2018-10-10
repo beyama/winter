@@ -9,6 +9,7 @@ Version 0.2.0
 * Deprecates AndroidInjection in favour of core Injection
 * New ComponentCallbacks2 extension methods
 * New View extension methods
+* New RxJava2 module with WinterDisposablePlugin
 * Fix: Make singleton, factory & multiton scopes thread safe
 
 Version 0.1.0
