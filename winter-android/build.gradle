@@ -6,27 +6,33 @@ version = VERSION_NAME
 group = GROUP
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.androidTools
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion versions.minSdk
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
         test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 }
 
 dependencies {
     api project(":winter")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation deps.kotlin.stdlib
 
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.mockito:mockito-core:2.19.0"
-    testImplementation "com.nhaarman:mockito-kotlin:1.5.0"
+    testImplementation deps.junit.junit4
+    testImplementation deps.mockito.core
+    testImplementation deps.mockito.kotlin
+
+    androidTestImplementation deps.junit.junit4
+    androidTestImplementation deps.kotlintest
+    androidTestImplementation deps.support.test.runner
 }
 
 task androidJavadocJar(type: Jar) {

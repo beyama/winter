@@ -1,0 +1,63 @@
+apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.dokka'
+
+version = VERSION_NAME
+group = GROUP
+
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
+dependencies {
+    api project(':winter')
+    implementation deps.kotlin.stdlib
+    implementation deps.rx.rxjava
+
+    testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlintest
+
+    testRuntimeOnly deps.junit.jupiterEngine
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from dokka
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    includes = ['dokka-packages.md']
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-rxjava2/src/main/kotlin"
+        suffix = "#L"
+    }
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

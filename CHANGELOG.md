@@ -1,7 +1,18 @@
-Change Log
-==========
+Changelog
+=========
 
-Version 0.0.5
+Version 0.2.0
+-------------
+
+* Breaking: View.graph extension renamed to dependencyGraph
+* New Injection class in core (extracted from AndroidInjection)
+* Deprecates AndroidInjection in favour of core Injection
+* New ComponentCallbacks2 extension methods
+* New View extension methods
+* New RxJava2 module with WinterDisposablePlugin
+* Fix: Make singleton, factory & multiton scopes thread safe
+
+Version 0.1.0
 -------------
 
 * Init complete and dispose callbacks for factories

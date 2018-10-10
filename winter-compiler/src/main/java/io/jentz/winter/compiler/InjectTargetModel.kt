@@ -1,7 +1,6 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.CodeBlock
-import javax.inject.Named
 import javax.lang.model.element.*
 
 sealed class InjectTargetModel {

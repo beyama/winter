@@ -49,7 +49,7 @@ class Graph internal constructor(
      * Retrieve a non-optional instance of `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return An instance of `R`
      *
      * @throws EntryNotFoundException
@@ -67,6 +67,7 @@ class Graph internal constructor(
      *
      * @param argument The argument for the factory to retrieve.
      * @param qualifier An optional qualifier of the dependency.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The result of applying [argument] to the retrieved factory.
      *
      * @throws EntryNotFoundException
@@ -84,7 +85,7 @@ class Graph internal constructor(
      * Retrieve an optional instance of `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return An instance of `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> instanceOrNull(
@@ -100,6 +101,7 @@ class Graph internal constructor(
      *
      * @param argument The argument for the factory to retrieve.
      * @param qualifier An optional qualifier of the dependency.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
      *
      */
@@ -116,7 +118,7 @@ class Graph internal constructor(
      * Retrieves a non-optional provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The provider function.
      *
      * @throws EntryNotFoundException
@@ -136,6 +138,7 @@ class Graph internal constructor(
      *
      * @param argument The argument for the factory to retrieve.
      * @param qualifier An optional qualifier of the dependency.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The provider function.
      *
      * @throws EntryNotFoundException
@@ -154,7 +157,7 @@ class Graph internal constructor(
      * Retrieve an optional provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> providerOrNull(
@@ -172,9 +175,8 @@ class Graph internal constructor(
      *
      * @param argument The argument for the factory to retrieve.
      * @param qualifier An optional qualifier of the dependency.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The provider function or null if factory doesn't exist.
-     *
-     * @throws EntryNotFoundException
      */
     inline fun <reified A, reified R : Any> providerOrNull(
             argument: A,
@@ -190,7 +192,7 @@ class Graph internal constructor(
      * Retrieve a non-optional factory function that takes an argument of type `A` and returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The factory that takes `A` and returns `R`
      *
      * @throws EntryNotFoundException
@@ -208,10 +210,8 @@ class Graph internal constructor(
      * Retrieve an optional factory function that takes an argument of type `A` and returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
-     *
-     * @throws EntryNotFoundException
      */
     inline fun <reified A : Any, reified R : Any> factoryOrNull(
             qualifier: Any? = null,
@@ -225,7 +225,7 @@ class Graph internal constructor(
     /**
      * Retrieve all providers of type `T`.
      *
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return A [Set] of [providers][Provider] of type `T`.
      */
     inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
@@ -244,7 +244,7 @@ class Graph internal constructor(
     /**
      * Retrieve all instances of type `T`.
      *
-     * @param generics Preserve generic type parameters.
+     * @param generics Preserves generic type parameters if set to true (default = false).
      * @return A [Set] of instances of type `T`.
      */
     inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> {
@@ -304,6 +304,8 @@ class Graph internal constructor(
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
+     *
+     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
     inline fun <A, R : Any> evaluate(
             service: BoundService<A, R>,
@@ -356,6 +358,8 @@ class Graph internal constructor(
     /**
      * This is called from [BoundService.instance] after a new instance was created.
      * Don't use this method except in custom [BoundService] implementations.
+     *
+     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
     inline fun postConstruct() {
         if (stackSize == 0) {

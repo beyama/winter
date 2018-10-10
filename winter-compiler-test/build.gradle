@@ -36,13 +36,13 @@ dependencies {
 
     kapt project(':winter-compiler')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation deps.kotlin.stdlib
     implementation 'javax.inject:javax.inject:1'
 
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testImplementation "io.kotlintest:kotlintest-assertions:3.1.10"
+    testImplementation deps.junit.junit4
+    testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlintest
 
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$junitVersion"
+    testRuntimeOnly deps.junit.jupiterEngine
+    testRuntimeOnly deps.junit.vintageEngine
 }

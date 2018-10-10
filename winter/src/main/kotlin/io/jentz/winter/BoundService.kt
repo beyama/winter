@@ -64,9 +64,11 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey get() = unboundService.key
 
     override fun instance(argument: Unit): T {
-        val instance = graph.evaluate(this, argument) { unboundService.factory(graph) }
-        graph.postConstruct()
-        return instance
+        synchronized(graph) {
+            val instance = graph.evaluate(this, argument) { unboundService.factory(graph) }
+            graph.postConstruct()
+            return instance
+        }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -97,18 +99,16 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
             return instance as T
         }
 
-        synchronized(this) {
+        synchronized(graph) {
             val v2 = instance
             if (instance !== io.jentz.winter.UNINITIALIZED_VALUE) {
                 @Suppress("UNCHECKED_CAST")
                 return v2 as T
             }
 
-            synchronized(graph) {
-                val typedValue = initialize()
-                graph.postConstruct()
-                return typedValue
-            }
+            val typedValue = initialize()
+            graph.postConstruct()
+            return typedValue
         }
     }
 
@@ -212,9 +212,11 @@ internal class BoundFactoryService<A, R : Any>(
     override val scope: Scope get() = Scope.PrototypeFactory
 
     override fun instance(argument: A): R {
-        val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
-        graph.postConstruct()
-        return instance
+        synchronized(graph) {
+            val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
+            graph.postConstruct()
+            return instance
+        }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -239,7 +241,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
     private val map = mutableMapOf<A, R>()
 
     override fun instance(argument: A): R {
-        synchronized(map) {
+        synchronized(graph) {
             map[argument]?.let { return it }
 
             val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
@@ -257,7 +259,7 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
     override fun dispose() {
         unboundService.dispose?.let { fn ->
-            map.forEach { argument, instance -> fn(graph, argument, instance) }
+            map.entries.forEach { (argument, instance) -> fn(graph, argument, instance) }
         }
     }
 }

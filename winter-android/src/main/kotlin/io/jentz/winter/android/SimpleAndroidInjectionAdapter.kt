@@ -2,10 +2,12 @@ package io.jentz.winter.android
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
+import io.jentz.winter.Injection
 import io.jentz.winter.WinterException
 
 /**
@@ -20,12 +22,13 @@ import io.jentz.winter.WinterException
  * [DependencyGraphContextWrapper] and [ContextWrapper].
  *
  */
-open class SimpleAndroidInjectionAdapter : AndroidInjection.Adapter {
+open class SimpleAndroidInjectionAdapter : Injection.Adapter {
 
     override fun createGraph(instance: Any): Graph {
         return when (instance) {
             is Application -> GraphRegistry.open {
                 constant(instance)
+                constant<Context>(instance)
             }
             is Activity -> GraphRegistry.open("activity", identifier = instance) {
                 constant(instance)

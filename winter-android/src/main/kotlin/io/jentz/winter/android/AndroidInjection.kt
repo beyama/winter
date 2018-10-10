@@ -2,9 +2,10 @@ package io.jentz.winter.android
 
 import android.content.Context
 import io.jentz.winter.Graph
+import io.jentz.winter.Injection
 import io.jentz.winter.Injector
-import io.jentz.winter.android.AndroidInjection.Adapter
 import io.jentz.winter.MembersInjector
+import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
  * Retrieves application and activity graphs and injects into core Android types.
@@ -54,49 +55,23 @@ import io.jentz.winter.MembersInjector
  * AndroidInjection.adapter = MyCustomAdapter()
  * ```
  */
+@Deprecated(
+        message = "Use io.jentz.winter.Injection instead",
+        replaceWith = ReplaceWith("Injection", "io.jentz.winter.Injection")
+)
 object AndroidInjection {
 
     /**
      * Adapter interface for Android application specific graph creation and retrieval strategy.
      */
-    interface Adapter {
-
-        /**
-         * Get dependency graph for [instance].
-         *
-         * @param instance The instance to get the graph for.
-         * @return The graph for [instance].
-         * @throws [io.jentz.winter.WinterException] if no graph for [instance] exists.
-         *
-         */
-        fun getGraph(instance: Any): Graph
-
-        /**
-         * Create dependency graph for [instance].
-         *
-         * The adapter implementation is responsible for storing the created graph.
-         *
-         * @param instance The instance to create a dependency graph for.
-         * @return The newly created graph
-         * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-         *
-         */
-        fun createGraph(instance: Any): Graph
-
-        /**
-         * Dispose the dependency graph of the given [instance].
-         *
-         * @param instance The instance to dispose the graph for.
-         * @throws [io.jentz.winter.WinterException] if no graph for this [instance] type exists.
-         */
-        fun disposeGraph(instance: Any)
-    }
+    @Deprecated("Use io.jentz.winter.Injection.Adapter")
+    interface Adapter : Injection.Adapter
 
     /**
      * Set the application specific [adapter][Adapter].
      * The default adapter is the [SimpleAndroidInjectionAdapter].
      */
-    var adapter: Adapter = SimpleAndroidInjectionAdapter()
+    var adapter: Injection.Adapter = SimpleAndroidInjectionAdapter()
 
     /**
      * Create and return dependency graph for [instance].
