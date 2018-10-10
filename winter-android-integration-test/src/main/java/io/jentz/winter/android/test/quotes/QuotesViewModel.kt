@@ -1,15 +1,15 @@
 package io.jentz.winter.android.test.quotes
 
-import io.jentz.winter.android.test.scope.PresentationScope
 import io.jentz.winter.android.test.model.Quote
 import io.jentz.winter.android.test.model.QuoteRepository
+import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-@PresentationScope
-class QuotesViewModel @Inject constructor(repository: QuoteRepository): Disposable {
+class QuotesViewModel(
+        repository: QuoteRepository
+) : ViewModel<QuotesViewState>, Disposable {
 
     private sealed class Result {
         object IsLoading : Result()
@@ -18,7 +18,7 @@ class QuotesViewModel @Inject constructor(repository: QuoteRepository): Disposab
 
     private var disposable: Disposable? = null
 
-    val viewStates: Flowable<QuotesViewState> = repository
+    private val viewStates: Flowable<QuotesViewState> = repository
             .getQuotes()
             .delay(FAKE_NETWORK_DELAY, TimeUnit.MILLISECONDS)
             .map<Result> { Result.Quotes(it) }
@@ -33,6 +33,8 @@ class QuotesViewModel @Inject constructor(repository: QuoteRepository): Disposab
             .replay(1)
             .autoConnect(1) { disposable = it }
 
+    override fun toFlowable(): Flowable<QuotesViewState> = viewStates
+
     override fun isDisposed(): Boolean = disposable?.isDisposed ?: false
 
     override fun dispose() {
@@ -40,6 +42,6 @@ class QuotesViewModel @Inject constructor(repository: QuoteRepository): Disposab
     }
 
     companion object {
-        const val FAKE_NETWORK_DELAY = 1000L
+        private const val FAKE_NETWORK_DELAY = 1000L
     }
 }

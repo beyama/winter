@@ -6,10 +6,11 @@ import io.jentz.winter.GraphRegistry
 import io.jentz.winter.Injection
 import io.jentz.winter.android.AndroidPresentationScopeAdapter
 import io.jentz.winter.android.generatedComponent
-import io.jentz.winter.android.test.quotes.QuoteFormater
+import io.jentz.winter.android.test.quotes.QuotesViewModel
+import io.jentz.winter.android.test.quotes.QuotesViewState
 import io.jentz.winter.android.test.scope.ActivityScope
 import io.jentz.winter.android.test.scope.ApplicationScope
-import io.jentz.winter.android.test.scope.PresentationScope
+import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.component
 
 class IntegrationTestApp : Application() {
@@ -26,7 +27,9 @@ class IntegrationTestApp : Application() {
             include(generatedComponent.subcomponent(ApplicationScope::class), subcomponentIncludeMode = DoNotInclude)
 
             subcomponent("presentation") {
-                include(generatedComponent.subcomponent(PresentationScope::class))
+                singleton<ViewModel<QuotesViewState>>(generics = true) {
+                    QuotesViewModel(instance())
+                }
 
                 subcomponent("activity") {
                     include(generatedComponent.subcomponent(ActivityScope::class))

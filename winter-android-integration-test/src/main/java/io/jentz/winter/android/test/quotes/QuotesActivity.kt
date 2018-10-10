@@ -11,6 +11,7 @@ import io.jentz.winter.Injection
 import io.jentz.winter.Injector
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.model.Quote
+import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_quotes.*
@@ -18,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_quotes.*
 class QuotesActivity : AppCompatActivity() {
 
     private val injector = Injector()
-    private val viewModel: QuotesViewModel by injector.instance()
+    private val viewModel: ViewModel<QuotesViewState> by injector.instance(generics = true)
     private lateinit var adapter: Adapter
     private var disposable: Disposable? = null
 
@@ -35,9 +36,14 @@ class QuotesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        disposable = viewModel.viewStates
+        disposable = viewModel.toFlowable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::render)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        disposable?.dispose()
     }
 
     override fun onDestroy() {
