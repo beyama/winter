@@ -5,6 +5,7 @@ import io.jentz.winter.Graph
 import io.jentz.winter.Injection
 import io.jentz.winter.Injector
 import io.jentz.winter.MembersInjector
+import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
  * Retrieves application and activity graphs and injects into core Android types.

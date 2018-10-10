@@ -2,7 +2,6 @@ package io.jentz.winter
 
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
