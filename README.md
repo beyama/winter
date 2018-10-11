@@ -2,7 +2,7 @@
 
 [![Kotlin 1.1.71](https://img.shields.io/badge/Kotlin-1.1-blue.svg)](http://kotlinlang.org)
 [![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.jentz.winter%22)
-[![Travis](https://travis-ci.org/beyama/winter.svg)](https://travis-ci.org/beyama/winter/builds)
+[![Travis](https://travis-ci.org/beyama/winter.svg?branch=develop)](https://travis-ci.org/beyama/winter/builds)
 [![MIT License](https://img.shields.io/github/license/beyama/winter.svg)](https://github.com/beyama/winter/blob/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/beyama/winter.svg)](https://github.com/beyama/winter/issues)
 
