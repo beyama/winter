@@ -3,7 +3,7 @@ buildscript {
             'minSdk'        : 14,
             'compileSdk'    : 28,
             'supportLibrary': '28.0.0',
-            'androidTools'  : '27.0.3',
+            'androidTools'  : '28.0.2',
             'kotlin'        : '1.2.71',
             'dokka'         : '0.9.17',
             'junit5'        : '5.3.1',
@@ -57,7 +57,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${versions.dokka}"
