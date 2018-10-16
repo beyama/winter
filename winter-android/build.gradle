@@ -1,6 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'org.jetbrains.dokka-android'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'org.jetbrains.dokka'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
+}
 
 version = VERSION_NAME
 group = GROUP
@@ -59,6 +62,10 @@ dokka {
         url = "https://github.com/beyama/winter/blob/master/winter-android/src/main/kotlin"
         suffix = "#L"
     }
+}
+
+detekt {
+    config = files(rootProject.file('detekt-config.yml'))
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

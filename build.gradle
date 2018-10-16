@@ -19,7 +19,7 @@ buildscript {
                     'coreKtx'     : 'androidx.core:core-ktx:1.0.0-alpha1',
                     'recyclerview': 'androidx.recyclerview:recyclerview:1.0.0',
                     'compat'      : 'androidx.appcompat:appcompat:1.0.0',
-                    'test': [
+                    'test'        : [
                             'runner'      : 'androidx.test:runner:1.1.0-alpha3',
                             'rules'       : 'androidx.test:rules:1.1.0-alpha3',
                             'espressoCore': 'androidx.test.espresso:espresso-contrib:3.1.0-alpha3'
