@@ -8,15 +8,15 @@ package io.jentz.winter
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
 class Graph internal constructor(
-        /**
-         * The parent [Graph] instance.
-         */
-        val parent: Graph?,
+    /**
+     * The parent [Graph] instance.
+     */
+    val parent: Graph?,
 
-        /**
-         * The component instance.
-         */
-        val component: Component
+    /**
+     * The component instance.
+     */
+    val component: Component
 ) {
 
     private var cache: MutableMap<TypeKey, BoundService<*, *>>? = mutableMapOf()
@@ -39,7 +39,9 @@ class Graph internal constructor(
         entry?.value?.forEach { key ->
             @Suppress("UNCHECKED_CAST")
             val service = serviceOrNull<Unit, Any>(key) as? BoundService<Unit, *>
-                    ?: throw EntryNotFoundException("BUG: Eager dependency with key `$key` doesn't exist.")
+                ?: throw EntryNotFoundException(
+                    "BUG: Eager dependency with key `$key` doesn't exist."
+                )
             service.instance(Unit)
         }
     }
@@ -55,8 +57,8 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any> instance(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): R {
         val key = typeKey<R>(qualifier, generics)
         return service<Unit, R>(key).instance(Unit)
@@ -73,9 +75,9 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified A, reified R : Any> instance(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): R {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         return service<A, R>(key).instance(argument)
@@ -89,8 +91,8 @@ class Graph internal constructor(
      * @return An instance of `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> instanceOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): R? {
         val key = typeKey<R>(qualifier, generics)
         return serviceOrNull<Unit, R>(key)?.instance(Unit)
@@ -102,13 +104,14 @@ class Graph internal constructor(
      * @param argument The argument for the factory to retrieve.
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
+     * @return The result of applying [argument] to the retrieved factory or null if factory
+     *         doesn't exist.
      *
      */
     inline fun <reified A, reified R : Any> instanceOrNull(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): R? {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         return serviceOrNull<A, R>(key)?.instance(argument)
@@ -124,8 +127,8 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any> provider(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Provider<R> {
         val key = typeKey<R>(qualifier, generics)
         val service = service<Unit, R>(key)
@@ -144,9 +147,9 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified A, reified R : Any> provider(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Provider<R> {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = service<A, R>(key)
@@ -161,8 +164,8 @@ class Graph internal constructor(
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> providerOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Provider<R>? {
         val key = typeKey<R>(qualifier, generics)
         val service = serviceOrNull<Unit, R>(key) ?: return null
@@ -179,9 +182,9 @@ class Graph internal constructor(
      * @return The provider function or null if factory doesn't exist.
      */
     inline fun <reified A, reified R : Any> providerOrNull(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Provider<R>? {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = serviceOrNull<A, R>(key) ?: return null
@@ -198,8 +201,8 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     inline fun <reified A : Any, reified R : Any> factory(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Factory<A, R> {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = service<A, R>(key)
@@ -214,8 +217,8 @@ class Graph internal constructor(
      * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
      */
     inline fun <reified A : Any, reified R : Any> factoryOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ): Factory<A, R>? {
         val key = compoundTypeKey<A, R>(qualifier, generics)
         val service = serviceOrNull<A, R>(key) ?: return null
@@ -236,9 +239,9 @@ class Graph internal constructor(
     internal fun <T : Any> providersOfType(key: TypeKey): Set<Provider<T>> {
         @Suppress("UNCHECKED_CAST")
         return servicesOfType(key)
-                .mapIndexedTo(mutableSetOf()) { _, service ->
-                    { service.instance(Unit) }
-                } as Set<Provider<T>>
+            .mapIndexedTo(mutableSetOf()) { _, service ->
+                { service.instance(Unit) }
+            } as Set<Provider<T>>
     }
 
     /**
@@ -259,7 +262,7 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun instancesOfType(key: TypeKey): Set<*> =
-            servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
+        servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
 
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
@@ -272,9 +275,9 @@ class Graph internal constructor(
             }
 
             return keys()
-                    .filterTo(mutableSetOf()) { it.typeEquals(key) }
-                    .mapIndexedTo(mutableSetOf()) { _, key -> service<Unit, Any>(key) }
-                    .also { cache?.put(key, ConstantService(key, it)) }
+                .filterTo(mutableSetOf()) { it.typeEquals(key) }
+                .mapIndexedTo(mutableSetOf()) { _, key -> service<Unit, Any>(key) }
+                .also { cache?.put(key, ConstantService(key, it)) }
         }
     }
 
@@ -298,7 +301,7 @@ class Graph internal constructor(
     @PublishedApi
     internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
         return serviceOrNull(key)
-                ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
+            ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
     }
 
     /**
@@ -308,9 +311,9 @@ class Graph internal constructor(
      * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
     inline fun <A, R : Any> evaluate(
-            service: BoundService<A, R>,
-            argument: A,
-            block: () -> R
+        service: BoundService<A, R>,
+        argument: A,
+        block: () -> R
     ): R {
         ensureNotDisposed()
 
@@ -342,13 +345,19 @@ class Graph internal constructor(
         } catch (e: EntryNotFoundException) {
             drainStack()
             val stackInfo = stack.joinToString(" -> ")
-            throw DependencyResolutionException("Error while resolving dependencies of $key (dependency stack: $stackInfo)", e)
+            throw DependencyResolutionException(
+                "Error while resolving dependencies of $key (dependency stack: $stackInfo)",
+                e
+            )
         } catch (e: WinterException) {
             throw e
         } catch (t: Throwable) {
             drainStack()
             val stackInfo = stack.joinToString(" -> ")
-            throw DependencyResolutionException("Error while invoking provider block of $key (dependency stack: $stackInfo)", t)
+            throw DependencyResolutionException(
+                "Error while invoking provider block of $key (dependency stack: $stackInfo)",
+                t
+            )
         } finally {
             // decrement stack size
             stackSize -= 1
