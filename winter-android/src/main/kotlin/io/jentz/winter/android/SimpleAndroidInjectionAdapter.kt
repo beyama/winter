@@ -11,11 +11,11 @@ import io.jentz.winter.Injection
 import io.jentz.winter.WinterException
 
 /**
- * Simple extensible injection adapter that operates on the [GraphRegistry] and requires a root component with an
- * "activity" named subcomponent.
+ * Simple extensible injection adapter that operates on the [GraphRegistry] and requires a root
+ * component with an "activity" named subcomponent.
  *
- * The adapters [createGraph] method registers the application instance on the application dependency graph and
- * the activity instance on the activity dependency graph.
+ * The adapters [createGraph] method registers the application instance on the application
+ * dependency graph and the activity instance on the activity dependency graph.
  *
  * The [createGraph] and [disposeGraph] methods support instances of [Application] and [Activity].
  * The retrieval method [getGraph] supports instances of [Application], [Activity], [View],

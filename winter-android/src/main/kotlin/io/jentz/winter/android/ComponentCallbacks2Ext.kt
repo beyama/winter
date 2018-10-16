@@ -1,12 +1,12 @@
 /**
  * GENERATED FILE - DO NOT EDIT!
  *
- * To change the content of this file edit inject_extension.erb and run 'ruby generate_inject_extensions.rb'.
+ * To change the content of this file edit inject_extension.erb and
+ * run 'ruby generate_inject_extensions.rb'.
  */
 package io.jentz.winter.android
 
 import android.content.ComponentCallbacks2
-import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.Factory
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
@@ -26,7 +26,7 @@ inline val ComponentCallbacks2.dependencyGraph: Graph get() = Injection.getGraph
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return An instance of [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> ComponentCallbacks2.instance(
         qualifier: Any? = null,
@@ -41,7 +41,7 @@ inline fun <reified R : Any> ComponentCallbacks2.instance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The result of applying [argument] to the retrieved factory.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> ComponentCallbacks2.instance(
         argument: A,
@@ -67,7 +67,8 @@ inline fun <reified R : Any> ComponentCallbacks2.instanceOrNull(
  * @param argument The argument for the factory to retrieve.
  * @param qualifier An optional qualifier of the dependency.
  * @param generics Preserves generic type parameters if set to true (default = false).
- * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
+ * @return The result of applying [argument] to the retrieved factory or null if factory doesn't
+           exist.
  *
  */
 inline fun <reified A, reified R : Any> ComponentCallbacks2.instanceOrNull(
@@ -135,7 +136,7 @@ inline fun <reified A, reified R : Any> ComponentCallbacks2.lazyInstanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider that returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> ComponentCallbacks2.provider(
         qualifier: Any? = null, 
@@ -151,7 +152,7 @@ inline fun <reified R : Any> ComponentCallbacks2.provider(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider function.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> ComponentCallbacks2.provider(
         argument: A,
@@ -193,7 +194,7 @@ inline fun <reified A, reified R : Any> ComponentCallbacks2.providerOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factory(
         qualifier: Any? = null, 
@@ -207,7 +208,7 @@ inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factory(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R] or null if factory provider doesn't exist.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> ComponentCallbacks2.factoryOrNull(
         qualifier: Any? = null, 

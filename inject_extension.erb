@@ -1,13 +1,13 @@
 /**
  * GENERATED FILE - DO NOT EDIT!
  *
- * To change the content of this file edit <%= @template_file_name %> and run 'ruby <%= @generator %>'.
+ * To change the content of this file edit <%= @template_file_name %> and
+ * run 'ruby <%= @generator %>'.
  */
 package <%= @target_package %>
 
 import <%= @import %>
 <% if @target_package != 'io.jentz.winter' -%>
-import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.Factory
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
@@ -27,7 +27,7 @@ inline val <%= @class_name %>.dependencyGraph: Graph get() = Injection.getGraph(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return An instance of [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> <%= @class_name %>.instance(
         qualifier: Any? = null,
@@ -42,7 +42,7 @@ inline fun <reified R : Any> <%= @class_name %>.instance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The result of applying [argument] to the retrieved factory.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> <%= @class_name %>.instance(
         argument: A,
@@ -68,7 +68,8 @@ inline fun <reified R : Any> <%= @class_name %>.instanceOrNull(
  * @param argument The argument for the factory to retrieve.
  * @param qualifier An optional qualifier of the dependency.
  * @param generics Preserves generic type parameters if set to true (default = false).
- * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
+ * @return The result of applying [argument] to the retrieved factory or null if factory doesn't
+           exist.
  *
  */
 inline fun <reified A, reified R : Any> <%= @class_name %>.instanceOrNull(
@@ -136,7 +137,7 @@ inline fun <reified A, reified R : Any> <%= @class_name %>.lazyInstanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider that returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> <%= @class_name %>.provider(
         qualifier: Any? = null, 
@@ -152,7 +153,7 @@ inline fun <reified R : Any> <%= @class_name %>.provider(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider function.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> <%= @class_name %>.provider(
         argument: A,
@@ -194,7 +195,7 @@ inline fun <reified A, reified R : Any> <%= @class_name %>.providerOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factory(
         qualifier: Any? = null, 
@@ -208,7 +209,7 @@ inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factory(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R] or null if factory provider doesn't exist.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> <%= @class_name %>.factoryOrNull(
         qualifier: Any? = null, 
