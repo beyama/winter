@@ -1,12 +1,13 @@
 package io.jentz.winter
 
 /**
- * The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
- * [graph][Graph].
+ * The Component stores the dependency providers which are than retrieved and instantiated by an
+ * instance of a [graph][Graph].
  *
  * Instances are build by calling [component] with a [builder][ComponentBuilder] block.
  *
- * Components are immutable but an extended variant can be created by calling [derive] with a builder block.
+ * Components are immutable but an extended variant can be created by calling [derive] with a
+ * builder block.
  *
  * ```
  * val appComponent = component {
@@ -19,11 +20,12 @@ package io.jentz.winter
  * ```
  */
 class Component internal constructor(
-        /**
-         * The components qualifier (null for root components and the sub-components qualifier for sub-components).
-         */
-        val qualifier: Any?,
-        internal val dependencies: Map<TypeKey, UnboundService<*, *>>
+    /**
+     * The components qualifier (null for root components and the sub-components qualifier for
+     * sub-components).
+     */
+    val qualifier: Any?,
+    internal val dependencies: Map<TypeKey, UnboundService<*, *>>
 ) {
 
     /**
@@ -31,9 +33,13 @@ class Component internal constructor(
      *
      * @param qualifier An optional qualifier (default: [qualifier]).
      * @param block A builder block that is called in the context of a [ComponentBuilder].
-     * @return A new [Component] that contains all provider of the base component plus the one defined in the builder block.
+     * @return A new [Component] that contains all provider of the base component plus the one
+     *         defined in the builder block.
      */
-    fun derive(qualifier: Any? = this.qualifier, block: ComponentBuilderBlock) = component(qualifier) {
+    fun derive(
+        qualifier: Any? = this.qualifier,
+        block: ComponentBuilderBlock
+    ) = component(qualifier) {
         include(this@Component)
         block()
     }
@@ -41,8 +47,8 @@ class Component internal constructor(
     /**
      * Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.
      *
-     * Main usage for this is to restructure components when using [ComponentBuilder.include] in conjunction
-     * with [ComponentBuilder.SubcomponentIncludeMode.DoNotInclude].
+     * Main usage for this is to restructure components when using [ComponentBuilder.include]
+     * in conjunction with [ComponentBuilder.SubcomponentIncludeMode.DoNotInclude].
      *
      * @param qualifiers The qualifier/path of qualifiers of the subcomponent
      * @return The subcomponent
@@ -52,7 +58,8 @@ class Component internal constructor(
     fun subcomponent(vararg qualifiers: Any): Component {
         var component: Component = this
         qualifiers.forEach { qualifier ->
-            val constant = component.dependencies[typeKey<Component>(qualifier)] as? ConstantService<*>
+            val constant =
+                component.dependencies[typeKey<Component>(qualifier)] as? ConstantService<*>
             if (constant == null) {
                 val path = qualifiers.joinToString(", ")
                 throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")
