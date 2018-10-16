@@ -4,7 +4,8 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 /**
- * The Injector provides a was to inject dependencies into properties via Kotlins property delegates.
+ * The Injector provides a was to inject dependencies into properties via Kotlins property
+ * delegates.
  *
  * E.g.
  * ```
@@ -35,8 +36,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> provider(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(ProviderProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -50,9 +51,9 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> provider(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(ProviderProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
 
     /**
@@ -63,8 +64,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> providerOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(ProviderOrNullProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -79,9 +80,9 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> providerOrNull(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(ProviderOrNullProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
 
     /**
@@ -92,8 +93,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> instance(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(InstanceProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -106,9 +107,9 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> instance(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(InstanceProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
 
     /**
@@ -119,8 +120,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> instanceOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(InstanceOrNullProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -134,9 +135,9 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> instanceOrNull(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(InstanceOrNullProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
 
     /**
@@ -149,8 +150,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> lazyInstance(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(LazyInstanceProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -166,9 +167,9 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> lazyInstance(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(LazyInstanceProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
 
     /**
@@ -181,8 +182,8 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> lazyInstanceOrNull(
-            qualifier: Any? = null,
-            generics: Boolean = false
+        qualifier: Any? = null,
+        generics: Boolean = false
     ) = register(LazyInstanceOrNullProperty<Unit, T>(typeKey<T>(qualifier, generics), Unit))
 
     /**
@@ -199,10 +200,15 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R : Any> lazyInstanceOrNull(
-            argument: A,
-            qualifier: Any? = null,
-            generics: Boolean = false
-    ) = register(LazyInstanceOrNullProperty<A, R>(compoundTypeKey<A, R>(qualifier, generics), argument))
+        argument: A,
+        qualifier: Any? = null,
+        generics: Boolean = false
+    ) = register(
+        LazyInstanceOrNullProperty<A, R>(
+            compoundTypeKey<A, R>(qualifier, generics),
+            argument
+        )
+    )
 
     /**
      * Creates and registers a property delegate for a [Set] of [providers][Provider] of type `T`.
@@ -211,7 +217,7 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> providersOfType(generics: Boolean = false) =
-            register(ProvidersOfTypeProperty<T>(typeKeyOfType<T>(generics)))
+        register(ProvidersOfTypeProperty<T>(typeKeyOfType<T>(generics)))
 
     /**
      * Creates and registers a property delegate for a [Set] of instances of type `T`.
@@ -220,7 +226,7 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> instancesOfType(generics: Boolean = false) =
-            register(InstancesOfTypeProperty<T>(typeKeyOfType<T>(generics)))
+        register(InstancesOfTypeProperty<T>(typeKeyOfType<T>(generics)))
 
     /**
      * Creates and registers a lazy property delegate for a [Set] of instances of type `T`.
@@ -231,7 +237,7 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified T : Any> lazyInstancesOfType(generics: Boolean = false) =
-            register(LazyInstancesOfTypeProperty<T>(typeKeyOfType<T>(generics)))
+        register(LazyInstancesOfTypeProperty<T>(typeKeyOfType<T>(generics)))
 
     /**
      * Creates and registers a property delegate for a factory of type (A) -> R.
@@ -241,7 +247,7 @@ class Injector {
      * @return The created [InjectedProperty].
      */
     inline fun <reified A, reified R> factory(qualifier: Any? = null, generics: Boolean = false) =
-            register(InstanceProperty<Unit, (A) -> R>(compoundTypeKey<A, R>(qualifier, generics), Unit))
+        register(InstanceProperty<Unit, (A) -> R>(compoundTypeKey<A, R>(qualifier, generics), Unit))
 
     /**
      * Creates and registers a property delegate for an optional factory of type (A) -> R.
@@ -250,13 +256,20 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified A, reified R> factoryOrNull(qualifier: Any? = null, generics: Boolean = false) =
-            register(InstanceOrNullProperty<Unit, (A) -> R>(compoundTypeKey<A, R>(qualifier, generics), Unit))
+    inline fun <reified A, reified R> factoryOrNull(
+        qualifier: Any? = null,
+        generics: Boolean = false
+    ) = register(
+        InstanceOrNullProperty<Unit, (A) -> R>(
+            compoundTypeKey<A, R>(qualifier, generics),
+            Unit
+        )
+    )
 
     @PublishedApi
     internal fun <T> register(propertyInjector: InjectedProperty<T>): InjectedProperty<T> {
         val injectors = propertyInjectors
-                ?: throw IllegalStateException("Injector is already injected.")
+            ?: throw IllegalStateException("Injector is already injected.")
         injectors.add(propertyInjector)
         return propertyInjector
     }
@@ -272,7 +285,7 @@ class Injector {
      */
     fun inject(graph: Graph) {
         val properties = propertyInjectors
-                ?: throw IllegalStateException("Graph was already injected.")
+            ?: throw IllegalStateException("Graph was already injected.")
         propertyInjectors = null
         properties.forEach { it.inject(graph) }
     }
@@ -294,8 +307,8 @@ class Injector {
 
     @PublishedApi
     internal abstract class AbstractEagerProperty<in A, out R>(
-            private val key: TypeKey,
-            private val argument: A
+        private val key: TypeKey,
+        private val argument: A
     ) : InjectedProperty<R>() {
         private var _value: Any? = UNINITIALIZED_VALUE
 
@@ -317,14 +330,14 @@ class Injector {
 
     @PublishedApi
     internal abstract class AbstractLazyProperty<A, R>(
-            private val key: TypeKey,
-            private val argument: A
+        private val key: TypeKey,
+        private val argument: A
     ) : InjectedProperty<R>() {
         private var graph: Graph? = null
 
         private val memorized = memorize {
             val graph = this.graph
-                    ?: throw UninitializedPropertyAccessException("Property not initialized.")
+                ?: throw UninitializedPropertyAccessException("Property not initialized.")
             getValue(graph, key, argument)
         }
 
@@ -343,16 +356,16 @@ class Injector {
 
     @PublishedApi
     internal class PropertyMapper<in I, out O>(
-            base: InjectedProperty<I>,
-            mapper: (I) -> O
+        base: InjectedProperty<I>,
+        mapper: (I) -> O
     ) : InjectedProperty<O>() {
         private var base: InjectedProperty<I>? = base
         private var mapper: ((I) -> O)? = mapper
         private val memorized = memorize {
             val fn = this.mapper
-                    ?: throw IllegalStateException("BUG: PropertyMapper mapper == null")
+                ?: throw IllegalStateException("BUG: PropertyMapper mapper == null")
             val property = this.base
-                    ?: throw IllegalStateException("BUG: PropertyMapper base == null")
+                ?: throw IllegalStateException("BUG: PropertyMapper base == null")
             fn(property.value).also {
                 this.base = null
                 this.mapper = null
@@ -369,8 +382,8 @@ class Injector {
 
     @PublishedApi
     internal class ProviderProperty<in A, out R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractEagerProperty<A, Provider<R>>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R> {
@@ -382,8 +395,8 @@ class Injector {
 
     @PublishedApi
     internal class ProviderOrNullProperty<in A, out R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractEagerProperty<A, Provider<R>?>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R>? {
@@ -395,30 +408,30 @@ class Injector {
 
     @PublishedApi
     internal class InstanceProperty<in A, out R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractEagerProperty<A, R>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
-                graph.service<A, R>(key).instance(argument)
+            graph.service<A, R>(key).instance(argument)
 
     }
 
     @PublishedApi
     internal class InstanceOrNullProperty<in A, out R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractEagerProperty<A, R?>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
-                graph.serviceOrNull<A, R>(key)?.instance(argument)
+            graph.serviceOrNull<A, R>(key)?.instance(argument)
 
     }
 
     @PublishedApi
     internal class LazyInstanceProperty<A, R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractLazyProperty<A, R>(key, argument) {
 
         private var service: BoundService<A, R>? = null
@@ -428,13 +441,13 @@ class Injector {
         }
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
-                service!!.instance(argument)
+            service!!.instance(argument)
     }
 
     @PublishedApi
     internal class LazyInstanceOrNullProperty<A, R : Any>(
-            key: TypeKey,
-            argument: A
+        key: TypeKey,
+        argument: A
     ) : AbstractLazyProperty<A, R?>(key, argument) {
 
         private var service: BoundService<A, R>? = null
@@ -444,39 +457,39 @@ class Injector {
         }
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
-                service?.instance(argument)
+            service?.instance(argument)
 
     }
 
     @PublishedApi
     internal class ProvidersOfTypeProperty<out T : Any>(
-            key: TypeKey
+        key: TypeKey
     ) : AbstractEagerProperty<Unit, Set<Provider<T>>>(key, Unit) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<Provider<T>> =
-                graph.providersOfType(key)
+            graph.providersOfType(key)
 
     }
 
     @PublishedApi
     internal class InstancesOfTypeProperty<out T : Any>(
-            key: TypeKey
+        key: TypeKey
     ) : AbstractEagerProperty<Unit, Set<T>>(key, Unit) {
 
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
-                graph.instancesOfType(key) as Set<T>
+            graph.instancesOfType(key) as Set<T>
 
     }
 
     @PublishedApi
     internal class LazyInstancesOfTypeProperty<T : Any>(
-            key: TypeKey
+        key: TypeKey
     ) : AbstractLazyProperty<Unit, Set<T>>(key, Unit) {
 
         @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
-                graph.instancesOfType(key) as Set<T>
+            graph.instancesOfType(key) as Set<T>
 
     }
 

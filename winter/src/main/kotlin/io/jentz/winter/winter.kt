@@ -12,8 +12,10 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  * @param block A builder block to register provider on the component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
-        ComponentBuilder(qualifier).apply(block).build()
+fun component(
+    qualifier: Any? = null,
+    block: ComponentBuilderBlock
+): Component = ComponentBuilder(qualifier).apply(block).build()
 
 /**
  * Create an ad-hoc instance of [Graph].
@@ -22,7 +24,8 @@ fun component(qualifier: Any? = null, block: ComponentBuilderBlock): Component =
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph = component(qualifier, block).init()
+fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph =
+    component(qualifier, block).init()
 
 /**
  * No argument factory function signature with [Graph] as receiver.
@@ -67,34 +70,52 @@ inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>
  * Returns [TypeKey] for type [T].
  *
  * @param qualifier An optional qualifier for this key.
- * @param generics If true this creates a type key that also takes generic type parameters into account.
+ * @param generics If true this creates a type key that also takes generic type parameters into
+ *                 account.
  */
 inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
-        if (generics) object : GenericClassTypeKey<T>(qualifier) {} else ClassTypeKey(T::class.java, qualifier)
+    if (generics) object : GenericClassTypeKey<T>(qualifier) {} else ClassTypeKey(
+        T::class.java,
+        qualifier
+    )
 
 /**
  * Returns [TypeKey] for type [T0] and [T1].
  *
  * @param qualifier An optional qualifier for this key.
- * @param generics If true this creates compound type key that also takes generic type parameters into account.
+ * @param generics If true this creates compound type key that also takes generic type parameters
+ *                 into account.
  */
-inline fun <reified T0, reified T1> compoundTypeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
-        if (generics) object : GenericCompoundClassTypeKey<T0, T1>(qualifier) {} else CompoundClassTypeKey(T0::class.java, T1::class.java, qualifier)
+inline fun <reified T0, reified T1> compoundTypeKey(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): TypeKey =
+    if (generics) object :
+        GenericCompoundClassTypeKey<T0, T1>(qualifier) {} else CompoundClassTypeKey(
+        T0::class.java,
+        T1::class.java,
+        qualifier
+    )
 
 /**
  * This is used internally to created dependency keys to search for all entries of the given type.
- * The qualifier is used to allow the usage of this key for caching to prevent clashes with normal dependency keys.
+ * The qualifier is used to allow the usage of this key for caching to prevent clashes with normal
+ * dependency keys.
  */
 @PublishedApi
 internal inline fun <reified T> typeKeyOfType(generics: Boolean) =
-        typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
+    typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
 
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
 internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
 
-internal fun initializeGraph(parentGraph: Graph?, component: Component, block: ComponentBuilderBlock?): Graph {
+internal fun initializeGraph(
+    parentGraph: Graph?,
+    component: Component,
+    block: ComponentBuilderBlock?
+): Graph {
     val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
         io.jentz.winter.component(component.qualifier) {
             include(component)

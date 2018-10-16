@@ -68,13 +68,19 @@ abstract class GenericClassTypeKey<T>(override val qualifier: Any?) : TypeKey {
     override fun toString(): String = "GenericClassTypeKey($type qualifier = $qualifier)"
 }
 
-class CompoundClassTypeKey(val firstType: Class<*>, val secondType: Class<*>, override val qualifier: Any?) : TypeKey {
+class CompoundClassTypeKey(
+    val firstType: Class<*>,
+    val secondType: Class<*>,
+    override val qualifier: Any?
+) : TypeKey {
     private var _hashCode = 0
 
     override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is GenericCompoundClassTypeKey<*, *>)
-            return Types.equals(other.firstType, firstType) && Types.equals(other.secondType, secondType)
+        if (other is GenericCompoundClassTypeKey<*, *>) {
+            return Types.equals(other.firstType, firstType)
+                    && Types.equals(other.secondType, secondType)
+        }
         if (other !is CompoundClassTypeKey) return false
         return other.firstType == firstType && other.secondType == secondType
     }
@@ -90,7 +96,8 @@ class CompoundClassTypeKey(val firstType: Class<*>, val secondType: Class<*>, ov
         return _hashCode
     }
 
-    override fun toString(): String = "CompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
+    override fun toString(): String =
+        "CompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
 }
 
 @Suppress("unused")
@@ -101,10 +108,13 @@ abstract class GenericCompoundClassTypeKey<T0, T1>(override val qualifier: Any?)
 
     override fun typeEquals(other: TypeKey): Boolean {
         if (other === this) return true
-        if (other is CompoundClassTypeKey)
-            return Types.equals(other.firstType, firstType) && Types.equals(other.secondType, secondType)
+        if (other is CompoundClassTypeKey) {
+            return Types.equals(other.firstType, firstType)
+                    && Types.equals(other.secondType, secondType)
+        }
         if (other !is GenericCompoundClassTypeKey<*, *>) return false
-        return Types.equals(firstType, other.firstType) && Types.equals(secondType, other.secondType)
+        return Types.equals(firstType, other.firstType)
+                && Types.equals(secondType, other.secondType)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -120,5 +130,6 @@ abstract class GenericCompoundClassTypeKey<T0, T1>(override val qualifier: Any?)
         return _hashCode
     }
 
-    override fun toString(): String = "GenericCompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
+    override fun toString(): String =
+        "GenericCompoundClassTypeKey($firstType $secondType qualifier = $qualifier)"
 }

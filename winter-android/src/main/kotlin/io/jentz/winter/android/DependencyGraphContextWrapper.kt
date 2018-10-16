@@ -15,6 +15,10 @@ class DependencyGraphContextWrapper(base: Context, val graph: Graph) : ContextWr
     }
 
     override fun getSystemService(name: String?): Any =
-            if (name == Context.LAYOUT_INFLATER_SERVICE) layoutInflater else super.getSystemService(name)
+        if (name == Context.LAYOUT_INFLATER_SERVICE) {
+            layoutInflater
+        } else {
+            super.getSystemService(name)
+        }
 
 }

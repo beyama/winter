@@ -1,12 +1,12 @@
 /**
  * GENERATED FILE - DO NOT EDIT!
  *
- * To change the content of this file edit inject_extension.erb and run 'ruby generate_inject_extensions.rb'.
+ * To change the content of this file edit inject_extension.erb and
+ * run 'ruby generate_inject_extensions.rb'.
  */
 package io.jentz.winter.android
 
 import android.view.View
-import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.Factory
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
@@ -26,7 +26,7 @@ inline val View.dependencyGraph: Graph get() = Injection.getGraph(this)
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return An instance of [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> View.instance(
         qualifier: Any? = null,
@@ -41,7 +41,7 @@ inline fun <reified R : Any> View.instance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The result of applying [argument] to the retrieved factory.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> View.instance(
         argument: A,
@@ -67,7 +67,8 @@ inline fun <reified R : Any> View.instanceOrNull(
  * @param argument The argument for the factory to retrieve.
  * @param qualifier An optional qualifier of the dependency.
  * @param generics Preserves generic type parameters if set to true (default = false).
- * @return The result of applying [argument] to the retrieved factory or null if factory doesn't exist.
+ * @return The result of applying [argument] to the retrieved factory or null if factory doesn't
+           exist.
  *
  */
 inline fun <reified A, reified R : Any> View.instanceOrNull(
@@ -135,7 +136,7 @@ inline fun <reified A, reified R : Any> View.lazyInstanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider that returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> View.provider(
         qualifier: Any? = null, 
@@ -151,7 +152,7 @@ inline fun <reified R : Any> View.provider(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider function.
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> View.provider(
         argument: A,
@@ -193,7 +194,7 @@ inline fun <reified A, reified R : Any> View.providerOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R]
  *
- * @throws EntryNotFoundException
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> View.factory(
         qualifier: Any? = null, 
@@ -206,6 +207,8 @@ inline fun <reified A : Any, reified R : Any> View.factory(
  * @param qualifier An optional qualifier of the dependency.
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The factory that takes [A] and returns [R] or null if factory provider doesn't exist.
+ *
+ * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> View.factoryOrNull(
         qualifier: Any? = null, 

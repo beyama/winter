@@ -10,7 +10,8 @@ import io.jentz.winter.android.AndroidInjection.Adapter
 /**
  * Retrieves application and activity graphs and injects into core Android types.
  *
- * An application specific graph creation and retrieval strategy can be provided by setting a custom [Adapter].
+ * An application specific graph creation and retrieval strategy can be provided by setting a custom
+ * [Adapter].
  *
  * Example using the default [SimpleAndroidInjectionAdapter]:
  *
@@ -48,7 +49,8 @@ import io.jentz.winter.android.AndroidInjection.Adapter
  * }
  * ```
  *
- * To register a custom graph creation and retrieval strategy a custom [AndroidInjection.Adapter] can be registered by
+ * To register a custom graph creation and retrieval strategy a custom [AndroidInjection.Adapter]
+ * can be registered by
  * setting the [AndroidInjection.adapter] property.
  *
  * ```
@@ -56,8 +58,8 @@ import io.jentz.winter.android.AndroidInjection.Adapter
  * ```
  */
 @Deprecated(
-        message = "Use io.jentz.winter.Injection instead",
-        replaceWith = ReplaceWith("Injection", "io.jentz.winter.Injection")
+    message = "Use io.jentz.winter.Injection instead",
+    replaceWith = ReplaceWith("Injection", "io.jentz.winter.Injection")
 )
 object AndroidInjection {
 
@@ -84,7 +86,8 @@ object AndroidInjection {
     fun createGraph(instance: Any): Graph = adapter.createGraph(instance)
 
     /**
-     * Create and return dependency graph for [instance] and also pass the graph to the given [injector].
+     * Create and return dependency graph for [instance] and also pass the graph to the given
+     * [injector].
      *
      * @param instance The instance for which a graph should be created.
      * @param injector The injector to inject into.
@@ -92,22 +95,25 @@ object AndroidInjection {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic
-    fun createGraphAndInject(instance: Any, injector: Injector): Graph = createGraph(instance).also(injector::inject)
+    fun createGraphAndInject(instance: Any, injector: Injector): Graph =
+        createGraph(instance).also(injector::inject)
 
     /**
-     * Create and return dependency graph for [instance] and also pass the graph to the given [injector].
+     * Create and return dependency graph for [instance] and also pass the graph to the given
+     * [injector].
      *
      * This is useful in conjunction with JSR330 `Inject` annotations.
      *
      * @param instance The instance to create a graph for and to inject into.
-     * @param injectSuperClasses  If true this will look for members injectors for super classes too.
+     * @param injectSuperClasses If true this will look for members injectors for super classes
+     *                           too.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic
     @JvmOverloads
     fun <T : Any> createGraphAndInject(instance: T, injectSuperClasses: Boolean = false): Graph =
-            createGraph(instance).also { graph -> graph.inject(instance, injectSuperClasses) }
+        createGraph(instance).also { graph -> graph.inject(instance, injectSuperClasses) }
 
     /**
      * Get dependency graph for [instance].
@@ -156,10 +162,12 @@ object AndroidInjection {
 
     /**
      * Inject into [instance] by using the dependency graph of the [instance].
-     * This uses [MembersInjector] and is useful in conjunction with Winters JSR330 annotation processor.
+     * This uses [MembersInjector] and is useful in conjunction with Winters JSR330 annotation
+     * processor.
      *
-     * @param instance The instance to retrieve the dependency graph for and inject dependencies into.
-     * @param injectSuperClasses  If true this will look for members injectors for super classes too.
+     * @param instance The instance to retrieve the dependency graph for and inject dependencies
+     *                 into.
+     * @param injectSuperClasses If true this will look for members injectors for super classes too.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic

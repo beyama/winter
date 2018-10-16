@@ -11,14 +11,15 @@ import io.jentz.winter.Injection
 import io.jentz.winter.WinterException
 
 /**
- * Android injection adapter that is backed by [GraphRegistry] and retains a `presentation` sub graph
- * during Activity re-creation (configuration changes).
+ * Android injection adapter that is backed by [GraphRegistry] and retains a `presentation` sub
+ * graph during Activity re-creation (configuration changes).
  *
  * It expects an application component like:
  *
  * ```
  * GraphRegistry = component {
- *   // this sub-graph outlives configuration changes and is only disposed when Activity isFinishing == true
+ *   // this sub-graph outlives configuration changes and is only disposed when Activity
+ *   // isFinishing == true
  *   subcomponent("presentation") {
  *     // this is recreated every time the Activity is recreated
  *     subcomponent("activity") {
