@@ -491,5 +491,5 @@ style:
   VarCouldBeVal:
     active: true
   WildcardImport:
-    active: true
+    active: false
     excludeImports: 'java.util.*,java.lang.reflect.*,kotlinx.android.synthetic.*,io.jentz.winter.*'
