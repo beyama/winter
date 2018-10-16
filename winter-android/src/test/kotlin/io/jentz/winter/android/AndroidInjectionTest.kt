@@ -17,6 +17,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
+@Suppress("DEPRECATION")
 @RunWith(MockitoJUnitRunner::class)
 class AndroidInjectionTest {
 
@@ -50,14 +51,14 @@ class AndroidInjectionTest {
 
     @Test
     fun `#createGraph should pass instace to Adapteer#createGraph and return the result`() {
-        whenever(adapter.createGraph(instance)).thenReturn(rootGraph)
+        whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
         assertSame(rootGraph, AndroidInjection.createGraph(instance))
     }
 
     @Test
     fun `#createGraphAndInject with injector argument should inject graph into injector`() {
         val injector = Injector()
-        whenever(adapter.createGraph(instance)).thenReturn(rootGraph)
+        whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
         assertSame(rootGraph, AndroidInjection.createGraphAndInject(instance, injector))
         assertTrue(injector.injected)
     }

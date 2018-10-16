@@ -17,9 +17,7 @@ class InjectionTest {
 
     private val instance = Any()
 
-    private val rootGraph = graph {
-        subcomponent("activity") {}
-    }
+    private val rootGraph = graph {}
 
     @BeforeEach
     fun beforeEach() {
@@ -35,16 +33,31 @@ class InjectionTest {
 
     @Test
     fun `#createGraph should pass instance to Adapter#createGraph and return the result`() {
-        whenever(adapter.createGraph(instance)).thenReturn(rootGraph)
+        whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
         Injection.createGraph(instance).shouldBeSameInstanceAs(rootGraph)
+    }
+
+    @Test
+    fun `#createGraph should pass builder block to Adapter#createGraph`() {
+        val block: ComponentBuilderBlock = {}
+        whenever(adapter.createGraph(instance, block)).thenReturn(rootGraph)
+        Injection.createGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
     }
 
     @Test
     fun `#createGraphAndInject with injector argument should inject graph into injector`() {
         val injector = Injector()
-        whenever(adapter.createGraph(instance)).thenReturn(rootGraph)
+        whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
         Injection.createGraphAndInject(instance, injector).shouldBeSameInstanceAs(rootGraph)
         injector.injected.shouldBeTrue()
+    }
+
+    @Test
+    fun `#createGraphAndInject should pass builder block to Adapter#createGraph`() {
+        val block: ComponentBuilderBlock = {}
+        val injector = Injector()
+        whenever(adapter.createGraph(instance, block)).thenReturn(rootGraph)
+        Injection.createGraphAndInject(instance, injector, block).shouldBeSameInstanceAs(rootGraph)
     }
 
     @Test
@@ -80,7 +93,7 @@ class InjectionTest {
         @Test
         fun `#createGraphAndInject with injection target should  create graph and call graph#inject on it`() {
             val graph = mock<Graph>()
-            whenever(adapter.createGraph(instance)).thenReturn(graph)
+            whenever(adapter.createGraph(instance, null)).thenReturn(graph)
 
             Injection.createGraphAndInject(instance, false)
             verify(graph, times(1)).inject(instance, false)

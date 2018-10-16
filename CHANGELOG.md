@@ -6,6 +6,7 @@ Version 0.2.0
 
 * Breaking: View.graph extension renamed to dependencyGraph
 * New Injection class in core (extracted from AndroidInjection)
+* New Injection#createGraph now takes an optional component builder block
 * Deprecates AndroidInjection in favour of core Injection
 * New ComponentCallbacks2 extension methods
 * New View extension methods

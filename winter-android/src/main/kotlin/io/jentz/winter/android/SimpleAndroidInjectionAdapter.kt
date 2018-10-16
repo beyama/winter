@@ -5,10 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import io.jentz.winter.Graph
-import io.jentz.winter.GraphRegistry
-import io.jentz.winter.Injection
-import io.jentz.winter.WinterException
+import io.jentz.winter.*
 
 /**
  * Simple extensible injection adapter that operates on the [GraphRegistry] and requires a root
@@ -24,16 +21,19 @@ import io.jentz.winter.WinterException
  */
 open class SimpleAndroidInjectionAdapter : Injection.Adapter {
 
-    override fun createGraph(instance: Any): Graph {
+    override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
         return when (instance) {
             is Application -> GraphRegistry.open {
                 constant(instance)
                 constant<Context>(instance)
+                builderBlock?.invoke(this)
             }
             is Activity -> GraphRegistry.open("activity", identifier = instance) {
                 constant(instance)
+                constant<Context>(instance)
+                builderBlock?.invoke(this)
             }
-            else -> throw WinterException("Can't create dependency graph for instance <$instance>")
+            else -> throw WinterException("Can't create dependency graph for instance <$instance>.")
         }
     }
 

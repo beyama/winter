@@ -5,7 +5,6 @@ import io.jentz.winter.Graph
 import io.jentz.winter.Injection
 import io.jentz.winter.Injector
 import io.jentz.winter.MembersInjector
-import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
  * Retrieves application and activity graphs and injects into core Android types.
@@ -83,7 +82,7 @@ object AndroidInjection {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic
-    fun createGraph(instance: Any): Graph = adapter.createGraph(instance)
+    fun createGraph(instance: Any): Graph = adapter.createGraph(instance, null)
 
     /**
      * Create and return dependency graph for [instance] and also pass the graph to the given
@@ -99,8 +98,7 @@ object AndroidInjection {
         createGraph(instance).also(injector::inject)
 
     /**
-     * Create and return dependency graph for [instance] and also pass the graph to the given
-     * [injector].
+     * Create and return dependency graph for [instance] and also inject member.
      *
      * This is useful in conjunction with JSR330 `Inject` annotations.
      *

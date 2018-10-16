@@ -5,10 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import io.jentz.winter.Graph
-import io.jentz.winter.GraphRegistry
-import io.jentz.winter.Injection
-import io.jentz.winter.WinterException
+import io.jentz.winter.*
 
 /**
  * Android injection adapter that is backed by [GraphRegistry] and retains a `presentation` sub
@@ -35,16 +32,20 @@ import io.jentz.winter.WinterException
  * The retrieval method [getGraph] supports instances of [Application], [Activity], [View],
  * [DependencyGraphContextWrapper] and [ContextWrapper].
  *
+ * The optional builder block for [createGraph] with an Activity is applied to the "activity"
+ * component init *NOT* the "presentation" component init.
+ *
  * [getGraph] called with an unknown type will return the application graph.
  *
  */
 open class AndroidPresentationScopeAdapter : Injection.Adapter {
 
-    override fun createGraph(instance: Any): Graph {
+    override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
         return when (instance) {
             is Application -> GraphRegistry.open {
                 constant(instance)
                 constant<Context>(instance)
+                builderBlock?.invoke(this)
             }
             is Activity -> {
                 val presentationIdentifier = presentationIdentifier(instance)
@@ -54,9 +55,10 @@ open class AndroidPresentationScopeAdapter : Injection.Adapter {
                 GraphRegistry.open(presentationIdentifier, "activity", identifier = instance) {
                     constant(instance)
                     constant<Context>(instance)
+                    builderBlock?.invoke(this)
                 }
             }
-            else -> throw WinterException("Can't create dependency graph for instance <$instance>")
+            else -> throw WinterException("Can't create dependency graph for instance <$instance>.")
         }
     }
 

@@ -32,6 +32,7 @@ dependencies {
     testImplementation deps.junit.junit4
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
+    testImplementation deps.kotlintest
 
     androidTestImplementation deps.junit.junit4
     androidTestImplementation deps.kotlintest
