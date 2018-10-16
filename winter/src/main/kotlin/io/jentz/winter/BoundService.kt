@@ -55,8 +55,8 @@ interface BoundService<A, R : Any> {
 }
 
 internal class BoundPrototypeService<T : Any>(
-        private val graph: Graph,
-        private val unboundService: UnboundPrototypeService<T>
+    private val graph: Graph,
+    private val unboundService: UnboundPrototypeService<T>
 ) : BoundService<Unit, T> {
 
     override val scope: Scope get() = Scope.Prototype
@@ -83,7 +83,7 @@ internal class BoundPrototypeService<T : Any>(
 }
 
 internal abstract class AbstractBoundSingletonService<T : Any>(
-        protected val graph: Graph
+    protected val graph: Graph
 ) : BoundService<Unit, T> {
 
     protected abstract val instance: Any
@@ -117,8 +117,8 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
 }
 
 internal class BoundSingletonService<T : Any>(
-        graph: Graph,
-        override val unboundService: UnboundSingletonService<T>
+    graph: Graph,
+    override val unboundService: UnboundSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
     override val scope: Scope get() = Scope.Singleton
@@ -147,8 +147,8 @@ internal class BoundSingletonService<T : Any>(
 }
 
 internal class BoundWeakSingletonService<T : Any>(
-        graph: Graph,
-        override val unboundService: UnboundWeakSingletonService<T>
+    graph: Graph,
+    override val unboundService: UnboundWeakSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
     override val scope: Scope get() = Scope.WeakSingleton
@@ -175,8 +175,8 @@ internal class BoundWeakSingletonService<T : Any>(
 }
 
 internal class BoundSoftSingletonService<T : Any>(
-        graph: Graph,
-        override val unboundService: UnboundSoftSingletonService<T>
+    graph: Graph,
+    override val unboundService: UnboundSoftSingletonService<T>
 ) : AbstractBoundSingletonService<T>(graph) {
 
     override val instance: Any get() = reference?.get() ?: UNINITIALIZED_VALUE
@@ -203,8 +203,8 @@ internal class BoundSoftSingletonService<T : Any>(
 }
 
 internal class BoundFactoryService<A, R : Any>(
-        private val graph: Graph,
-        private val unboundService: UnboundFactoryService<A, R>
+    private val graph: Graph,
+    private val unboundService: UnboundFactoryService<A, R>
 ) : BoundService<A, R> {
 
     override val key: TypeKey get() = unboundService.key
@@ -213,7 +213,8 @@ internal class BoundFactoryService<A, R : Any>(
 
     override fun instance(argument: A): R {
         synchronized(graph) {
-            val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
+            val instance =
+                graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
             graph.postConstruct()
             return instance
         }
@@ -230,8 +231,8 @@ internal class BoundFactoryService<A, R : Any>(
 }
 
 internal class BoundMultitonFactoryService<A, R : Any>(
-        private val graph: Graph,
-        private val unboundService: UnboundMultitonFactoryService<A, R>
+    private val graph: Graph,
+    private val unboundService: UnboundMultitonFactoryService<A, R>
 ) : BoundService<A, R> {
 
     override val key: TypeKey get() = unboundService.key
@@ -244,7 +245,9 @@ internal class BoundMultitonFactoryService<A, R : Any>(
         synchronized(graph) {
             map[argument]?.let { return it }
 
-            val instance = graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
+            val instance = graph.evaluate(this, argument) {
+                unboundService.factory(graph, argument)
+            }
             map[argument] = instance
             graph.postConstruct()
             return instance
