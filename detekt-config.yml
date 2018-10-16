@@ -148,7 +148,7 @@ empty-blocks:
 exceptions:
   active: true
   ExceptionRaisedInUnexpectedLocation:
-    active: false
+    active: true
     methodNames: 'toString,hashCode,equals,finalize'
   InstanceOfCheckForException:
     active: false
@@ -216,7 +216,7 @@ formatting:
     continuationIndentSize: 4
   MaximumLineLength:
     active: true
-    maxLineLength: 120
+    maxLineLength: 100
   ModifierOrdering:
     active: true
     autoCorrect: true
