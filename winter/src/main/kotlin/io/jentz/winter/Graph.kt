@@ -5,28 +5,20 @@ package io.jentz.winter
  *
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
-class Graph internal constructor(
-    /**
-     * The parent [Graph] instance.
-     */
-    val parent: Graph?,
-
-    /**
-     * The component instance.
-     */
-    val component: Component
-) {
+class Graph internal constructor(parent: Graph?, component: Component) {
 
     private sealed class State {
         data class Initialized(
-            val cache: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf(),
-            val stack: DependenciesStack
+            val component: Component,
+            val parent: Graph?,
+            val stack: DependenciesStack,
+            val cache: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
         ) : State()
 
         object Disposed : State()
     }
 
-    private var state: State = State.Initialized(stack = DependenciesStack(this))
+    private var state: State = State.Initialized(component, parent, DependenciesStack(this))
 
     private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
         return synchronized(this) {
@@ -37,6 +29,16 @@ class Graph internal constructor(
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
         fold({ throw WinterException("Graph is already disposed.") }, block)
+
+    /**
+     * The parent [Graph] instance or null if no parent exists.
+     */
+    val parent: Graph? get() = map { it.parent }
+
+    /**
+     * The [Component] instance.
+     */
+    val component: Component get() = map { it.component }
 
     /**
      * Indicates if the graph is disposed.
@@ -274,7 +276,7 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
-        map { (cache, _) ->
+        map { (_, _, _, cache) ->
             @Suppress("UNCHECKED_CAST")
             val service = cache.getOrPut(key) {
                 keys()
@@ -289,7 +291,7 @@ class Graph internal constructor(
     @PublishedApi
     internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
         @Suppress("UNCHECKED_CAST")
-        map { (cache, _) ->
+        map { (component, parent, _, cache) ->
             cache.getOrPut(key) {
                 component.dependencies[key]?.bind(this) ?: return parent?.serviceOrNull(key)
             } as? BoundService<A, R>
@@ -306,7 +308,7 @@ class Graph internal constructor(
      * Don't use this method except in custom [BoundService] implementations.
      */
     fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R =
-        map { (_, stack) -> stack.evaluate(service, argument) }
+        map { (_, _, stack, _) -> stack.evaluate(service, argument) }
 
     /**
      * Inject members of class [T].
@@ -362,7 +364,7 @@ class Graph internal constructor(
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { (cache, _) ->
+        fold({}) { (_, _, _, cache) ->
             try {
                 WinterPlugins.runGraphDisposePlugins(this)
                 cache.values.forEach { boundService -> boundService.dispose() }

@@ -968,6 +968,50 @@ class GraphTest {
     }
 
     @Nested
+    @DisplayName("Properties")
+    inner class Properties {
+
+        @Test
+        fun `#parent should return null when no parent graph exists`() {
+            val graph = graph { subcomponent("child") {} }
+            graph.parent.shouldBeNull()
+        }
+
+        @Test
+        fun `#parent should return parent graph`() {
+            val parent = graph { subcomponent("child") {} }
+            val child = parent.initSubcomponent("child")
+            child.parent.shouldBeSameInstanceAs(parent)
+        }
+
+        @Test
+        fun `#parent should throw an exception when graph is disposed`() {
+            val child = graph { subcomponent("child") {} }.initSubcomponent("child")
+            shouldThrow<WinterException> {
+                child.dispose()
+                child.parent
+            }.message.shouldBe("Graph is already disposed.")
+        }
+
+        @Test
+        fun `#component should return backing component`() {
+            val parent = graph { subcomponent("child") {} }
+            val child = parent.initSubcomponent("child")
+            child.component.shouldBeSameInstanceAs(parent.component.subcomponent("child"))
+        }
+
+        @Test
+        fun `#component should throw an exception when graph is disposed`() {
+            val child = graph { subcomponent("child") {} }.initSubcomponent("child")
+            shouldThrow<WinterException> {
+                child.dispose()
+                child.component
+            }.message.shouldBe("Graph is already disposed.")
+        }
+
+    }
+
+    @Nested
     @DisplayName("#dispose and #isDisposed")
     inner class DisposeMethod {
 
