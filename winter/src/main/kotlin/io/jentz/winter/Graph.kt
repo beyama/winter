@@ -358,28 +358,8 @@ class Graph internal constructor(
         } finally {
             // decrement stack size
             stackSize -= 1
+            if (stackSize == 0) drainStack()
         }
-    }
-
-    inline fun <A, R : Any> evaluate(
-        service: BoundService<A, R>,
-        argument: A,
-        block: (R) -> Unit
-    ): R {
-        return evaluate(service, argument).also { instance ->
-            block(instance)
-            postConstruct()
-        }
-    }
-
-    /**
-     * This is called from [BoundService.instance] after a new instance was created.
-     * Don't use this method except in custom [BoundService] implementations.
-     *
-     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
-     */
-    fun postConstruct() {
-        if (stackSize == 0) drainStack()
     }
 
     private fun drainStack() {
@@ -395,6 +375,7 @@ class Graph internal constructor(
             }
         } finally {
             stack.clear()
+            stackSize = 0
         }
     }
 

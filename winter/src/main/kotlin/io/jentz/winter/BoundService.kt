@@ -21,8 +21,7 @@ interface BoundService<A, R : Any> {
      * This is called every time an instance is requested from the [Graph].
      *
      * If this service has to create a new instance to satisfy this request it must do the
-     * initialization in the block of [Graph.evaluate] and then call [Graph.postConstruct]
-     * afterwards.
+     * initialization in [newInstance] by calling [Graph.evaluate].
      *
      *
      * @param argument The argument for this request.
@@ -32,6 +31,8 @@ interface BoundService<A, R : Any> {
 
     /**
      * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
+     *
+     * If you want to memorize the value this is the place to do it.
      *
      * @param argument The argument for the new instance.
      * @return The new instance of type `R`.
@@ -72,11 +73,7 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey get() = unboundService.key
 
     override fun instance(argument: Unit): T {
-        synchronized(graph) {
-            val instance = graph.evaluate(this, argument)
-            graph.postConstruct()
-            return instance
-        }
+        return synchronized(graph) { graph.evaluate(this, argument) }
     }
 
     override fun newInstance(argument: Unit): T = unboundService.factory(graph)
@@ -116,9 +113,7 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
                 return v2 as T
             }
 
-            val typedValue = graph.evaluate(this, Unit)
-            graph.postConstruct()
-            return typedValue
+            return graph.evaluate(this, Unit)
         }
     }
 
@@ -214,11 +209,7 @@ internal class BoundFactoryService<A, R : Any>(
     override val scope: Scope get() = Scope.PrototypeFactory
 
     override fun instance(argument: A): R {
-        synchronized(graph) {
-            val instance = graph.evaluate(this, argument)
-            graph.postConstruct()
-            return instance
-        }
+        return synchronized(graph) { graph.evaluate(this, argument) }
     }
 
     override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
@@ -245,17 +236,14 @@ internal class BoundMultitonFactoryService<A, R : Any>(
     private val map = mutableMapOf<A, R>()
 
     override fun instance(argument: A): R {
-        synchronized(graph) {
-            map[argument]?.let { return it }
-
-            val instance = graph.evaluate(this, argument)
-            map[argument] = instance
-            graph.postConstruct()
-            return instance
+        return synchronized(graph) {
+            map[argument] ?: graph.evaluate(this, argument)
         }
     }
 
-    override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
+    override fun newInstance(argument: A): R {
+        return unboundService.factory(graph, argument).also { map[argument] = it }
+    }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
