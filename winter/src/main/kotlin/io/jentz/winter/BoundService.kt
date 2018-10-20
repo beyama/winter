@@ -31,6 +31,14 @@ interface BoundService<A, R : Any> {
     fun instance(argument: A): R
 
     /**
+     * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
+     *
+     * @param argument The argument for the new instance.
+     * @return The new instance of type `R`.
+     */
+    fun newInstance(argument: A): R
+
+    /**
      * This is called after a new instance was created but not until the complete dependency request
      * is completed.
      *
@@ -65,11 +73,13 @@ internal class BoundPrototypeService<T : Any>(
 
     override fun instance(argument: Unit): T {
         synchronized(graph) {
-            val instance = graph.evaluate(this, argument) { unboundService.factory(graph) }
+            val instance = graph.evaluate(this, argument)
             graph.postConstruct()
             return instance
         }
     }
+
+    override fun newInstance(argument: Unit): T = unboundService.factory(graph)
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -106,13 +116,11 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
                 return v2 as T
             }
 
-            val typedValue = initialize()
+            val typedValue = graph.evaluate(this, Unit)
             graph.postConstruct()
             return typedValue
         }
     }
-
-    protected abstract fun initialize(): T
 
 }
 
@@ -125,10 +133,8 @@ internal class BoundSingletonService<T : Any>(
 
     override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        this.instance = instance
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { this.instance = it }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -157,10 +163,8 @@ internal class BoundWeakSingletonService<T : Any>(
 
     private var reference: WeakReference<T>? = null
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        reference = WeakReference(instance)
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { reference = WeakReference(it) }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -185,10 +189,8 @@ internal class BoundSoftSingletonService<T : Any>(
 
     private var reference: SoftReference<T>? = null
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        reference = SoftReference(instance)
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { reference = SoftReference(it) }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
@@ -213,12 +215,13 @@ internal class BoundFactoryService<A, R : Any>(
 
     override fun instance(argument: A): R {
         synchronized(graph) {
-            val instance =
-                graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
+            val instance = graph.evaluate(this, argument)
             graph.postConstruct()
             return instance
         }
     }
+
+    override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -245,14 +248,14 @@ internal class BoundMultitonFactoryService<A, R : Any>(
         synchronized(graph) {
             map[argument]?.let { return it }
 
-            val instance = graph.evaluate(this, argument) {
-                unboundService.factory(graph, argument)
-            }
+            val instance = graph.evaluate(this, argument)
             map[argument] = instance
             graph.postConstruct()
             return instance
         }
     }
+
+    override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")

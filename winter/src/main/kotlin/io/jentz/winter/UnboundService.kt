@@ -103,7 +103,12 @@ internal class ConstantService<R : Any>(
 
     override fun instance(argument: Unit): R = value
 
+    override fun newInstance(argument: Unit): R {
+        throw AssertionError("BUG: This method should not be called.")
+    }
+
     override fun postConstruct(arg: Any, instance: Any) {
+        throw AssertionError("BUG: This method should not be called.")
     }
 
     override fun dispose() {
@@ -122,7 +127,12 @@ internal class ProviderService<R : Any>(
 
     override fun instance(argument: Unit): R = provider()
 
+    override fun newInstance(argument: Unit): R {
+        throw AssertionError("BUG: This method should not be called.")
+    }
+
     override fun postConstruct(arg: Any, instance: Any) {
+        throw AssertionError("BUG: This method should not be called.")
     }
 
     override fun dispose() {

@@ -21,11 +21,9 @@ class Graph internal constructor(
 
     private var cache: MutableMap<TypeKey, BoundService<*, *>>? = mutableMapOf()
 
-    @PublishedApi
-    internal val stack: MutableList<Any?> = mutableListOf()
+    private val stack: MutableList<Any?> = mutableListOf()
 
-    @PublishedApi
-    internal var stackSize = 0
+    private var stackSize = 0
 
     /**
      * Indicates if the graph is disposed.
@@ -310,10 +308,9 @@ class Graph internal constructor(
      *
      * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
-    inline fun <A, R : Any> evaluate(
+    fun <A, R : Any> evaluate(
         service: BoundService<A, R>,
-        argument: A,
-        block: () -> R
+        argument: A
     ): R {
         ensureNotDisposed()
 
@@ -339,7 +336,7 @@ class Graph internal constructor(
             stack.add(instanceIndex, null)
             stackSize += 1
             // create instance and add it to stack
-            val instance = block()
+            val instance = service.newInstance(argument)
             stack[instanceIndex] = instance
             return instance
         } catch (e: EntryNotFoundException) {
@@ -364,20 +361,28 @@ class Graph internal constructor(
         }
     }
 
+    inline fun <A, R : Any> evaluate(
+        service: BoundService<A, R>,
+        argument: A,
+        block: (R) -> Unit
+    ): R {
+        return evaluate(service, argument).also { instance ->
+            block(instance)
+            postConstruct()
+        }
+    }
+
     /**
      * This is called from [BoundService.instance] after a new instance was created.
      * Don't use this method except in custom [BoundService] implementations.
      *
      * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
-    inline fun postConstruct() {
-        if (stackSize == 0) {
-            drainStack()
-        }
+    fun postConstruct() {
+        if (stackSize == 0) drainStack()
     }
 
-    @PublishedApi
-    internal fun drainStack() {
+    private fun drainStack() {
         try {
             for (i in stack.size - 1 downTo 0 step 3) {
                 val instance = stack[i]
