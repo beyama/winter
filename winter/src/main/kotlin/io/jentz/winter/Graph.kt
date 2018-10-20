@@ -371,6 +371,7 @@ class Graph internal constructor(
 
                 if (instance != null && argument != null) {
                     service.postConstruct(argument, instance)
+                    WinterPlugins.runPostConstructPlugins(this, service.scope, argument, instance)
                 }
             }
         } finally {

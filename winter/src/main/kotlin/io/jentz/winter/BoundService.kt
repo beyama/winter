@@ -81,7 +81,6 @@ internal class BoundPrototypeService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -135,7 +134,6 @@ internal class BoundSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -165,7 +163,6 @@ internal class BoundWeakSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -191,7 +188,6 @@ internal class BoundSoftSingletonService<T : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -217,7 +213,6 @@ internal class BoundFactoryService<A, R : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
-        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
@@ -248,7 +243,6 @@ internal class BoundMultitonFactoryService<A, R : Any>(
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
-        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
