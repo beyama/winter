@@ -267,7 +267,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
     }
 
     private fun keys(): Set<TypeKey> {
-        val keys = component.dependencies.keys
+        val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
@@ -294,7 +294,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
         @Suppress("UNCHECKED_CAST")
         map { (component, parent, _, cache) ->
             cache.getOrPut(key) {
-                component.dependencies[key]?.bind(this) ?: return parent?.serviceOrNull(key)
+                component[key]?.bind(this) ?: return parent?.serviceOrNull(key)
             } as? BoundService<A, R>
         }
 

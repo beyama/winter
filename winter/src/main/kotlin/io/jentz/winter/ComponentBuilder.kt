@@ -42,7 +42,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         override: Boolean = true,
         subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
     ) {
-        component.dependencies.forEach { (k, v) ->
+        component.forEach { (k, v) ->
             when {
                 k === eagerDependenciesKey -> {
                     @Suppress("UNCHECKED_CAST")
@@ -51,11 +51,8 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
                 }
                 v is ConstantService<*> && v.value is Component -> {
                     @Suppress("UNCHECKED_CAST")
-                    registerSubcomponent(
-                        k,
-                        v as ConstantService<Component>,
-                        subcomponentIncludeMode
-                    )
+                    val service = v as ConstantService<Component>
+                    registerSubcomponent(k, service, subcomponentIncludeMode)
                 }
                 else -> {
                     if (!override && registry.containsKey(k)) {

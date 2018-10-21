@@ -25,7 +25,7 @@ class Component internal constructor(
      * sub-components).
      */
     val qualifier: Any?,
-    internal val dependencies: Map<TypeKey, UnboundService<*, *>>
+    private val dependencies: Map<TypeKey, UnboundService<*, *>>
 ) {
 
     /**
@@ -36,6 +36,7 @@ class Component internal constructor(
      * @return A new [Component] that contains all provider of the base component plus the one
      *         defined in the builder block.
      */
+    @JvmOverloads
     fun derive(
         qualifier: Any? = this.qualifier,
         block: ComponentBuilderBlock
@@ -75,8 +76,23 @@ class Component internal constructor(
      * @param block An optional builder block to extend the component before creating the graph.
      * @return An instance of [Graph] backed by this component.
      */
+    @JvmOverloads
     fun init(block: ComponentBuilderBlock? = null): Graph {
         return initializeGraph(null, this, block)
     }
+
+    internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
+        dependencies.forEach(block)
+    }
+
+    internal fun keys(): Set<TypeKey> = dependencies.keys
+
+    internal operator fun get(key: TypeKey): UnboundService<*, *>? = dependencies[key]
+
+    internal val size: Int get() = dependencies.size
+
+    internal fun isEmpty(): Boolean = dependencies.isEmpty()
+
+    internal fun containsKey(typeKey: TypeKey): Boolean = dependencies.containsKey(typeKey)
 
 }
