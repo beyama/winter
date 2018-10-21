@@ -58,11 +58,11 @@ class Component internal constructor(
     fun subcomponent(vararg qualifiers: Any): Component {
         var component: Component = this
         qualifiers.forEach { qualifier ->
-            val constant =
-                component.dependencies[typeKey<Component>(qualifier)] as? ConstantService<*>
+            val key = typeKey<Component>(qualifier)
+            val constant = component.dependencies[key] as? ConstantService<*>
             if (constant == null) {
-                val path = qualifiers.joinToString(", ")
-                throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")
+                val path = qualifiers.joinToString(".")
+                throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
             }
             component = constant.value as Component
         }

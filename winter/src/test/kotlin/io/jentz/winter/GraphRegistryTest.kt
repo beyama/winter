@@ -6,7 +6,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.lang.IllegalArgumentException
 
 class GraphRegistryTest {
 
@@ -43,7 +42,7 @@ class GraphRegistryTest {
     @Test
     fun `#get should throw an exception if dependency graph in path doesn't exist`() {
         openAll("presentation")
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.get(*viewPath)
         }.message.shouldBe("No graph in path `presentation.view` found.")
     }
@@ -94,7 +93,7 @@ class GraphRegistryTest {
 
     @Test
     fun `#create should throw an exception when root graph isn't open but a non-empty path is given`() {
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.create(*viewPath)
         }.message.shouldBe("GraphRegistry.create with path `presentation.view` called but root graph isn't open.")
     }
@@ -102,7 +101,7 @@ class GraphRegistryTest {
     @Test
     fun `#create should throw an exception when parent graph isn't open`() {
         GraphRegistry.open()
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.create("presentation", "view")
         }.message.shouldBe("GraphRegistry.create can't open `presentation.view` because `presentation` is not open.")
     }
@@ -117,7 +116,7 @@ class GraphRegistryTest {
 
     @Test
     fun `#open should throw an exception when root graph isn't open but path is given`() {
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.open(*viewPath)
         }.message.shouldBe("GraphRegistry.open with path `presentation.view` called but root graph isn't initialized.")
     }
@@ -157,7 +156,7 @@ class GraphRegistryTest {
     @Test
     fun `#open should throw an exception when parent graph isn't open`() {
         GraphRegistry.open()
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.open("presentation", "view")
         }.message.shouldBe("GraphRegistry.open can't open `presentation.view` because `presentation` is not open.")
     }
@@ -194,15 +193,15 @@ class GraphRegistryTest {
 
     @Test
     fun `#close without path should throw an exception if root dependency graph isn't initialized`() {
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.close()
-        }.message.shouldBe("GraphRegistry.close called but it is nothing open.")
+        }.message.shouldBe("GraphRegistry.close called but no graph is open.")
     }
 
     @Test
     fun `#close with path should throw an exception if dependency graph in path doesn't exist`() {
         GraphRegistry.open()
-        shouldThrow<EntryNotFoundException> {
+        shouldThrow<WinterException> {
             GraphRegistry.close("presentation")
         }.message.shouldBe("GraphRegistry.close can't close `presentation` because it doesn't exist.")
     }

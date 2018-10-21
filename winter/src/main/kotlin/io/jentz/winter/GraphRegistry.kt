@@ -189,16 +189,14 @@ object GraphRegistry {
      * @param path The path of the graph.
      * @return The graph that is stored in [path].
      *
-     * @throws WinterException When nothing is open.
-     * @throws EntryNotFoundException When no graph was found in [path].
-     *
+     * @throws WinterException When no graph is open or when no graph was found in [path].
      */
     @JvmStatic
     fun get(vararg path: Any): Graph = foldInitialized<Graph>({
         throw WinterException("GraphRegistry.get called but there is no open graph.")
     }) {
         it.root.getNodeOrNull(path)?.graph
-            ?: throw EntryNotFoundException("No graph in path `${pathToString(path)}` found.")
+            ?: throw WinterException("No graph in path `${pathToString(path)}` found.")
     }
 
     /**
@@ -217,8 +215,7 @@ object GraphRegistry {
      *
      * @return The created [Graph].
      *
-     * @throws WinterException When application component is not set.
-     * @throws EntryNotFoundException When path can't be resolved.
+     * @throws WinterException When application component is not set or path can not be resolved.
      */
     @JvmStatic
     fun create(
@@ -233,7 +230,7 @@ object GraphRegistry {
             }
             is State.ApplicationComponentSet -> {
                 if (path.isNotEmpty()) {
-                    throw EntryNotFoundException(
+                    throw WinterException(
                         "GraphRegistry.create with path `${pathToString(path)}` called but root " +
                                 "graph isn't open."
                     )
@@ -242,7 +239,7 @@ object GraphRegistry {
             }
             is State.Initialized -> {
                 val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
-                    ?: throw EntryNotFoundException(
+                    ?: throw WinterException(
                         "GraphRegistry.create can't open `${pathToString(path)}` because " +
                                 "`${pathToString(path, path.lastIndex)}` is not open."
                     )
@@ -263,8 +260,7 @@ object GraphRegistry {
      *
      * @return The newly created and registered graph.
      *
-     * @throws WinterException When application component is not set.
-     * @throws EntryNotFoundException When path can't be resolved.
+     * @throws WinterException When application component is not set or path can not be resolved.
      * @throws IllegalArgumentException When [path] is empty (root) but [identifier] is given.
      */
     @JvmStatic
@@ -281,7 +277,7 @@ object GraphRegistry {
             }
             is State.ApplicationComponentSet -> {
                 if (path.isNotEmpty()) {
-                    throw EntryNotFoundException(
+                    throw WinterException(
                         "GraphRegistry.open with path `${pathToString(path)}` called but root " +
                                 "graph isn't initialized."
                     )
@@ -307,7 +303,7 @@ object GraphRegistry {
                     )
                 }
                 val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
-                    ?: throw EntryNotFoundException(
+                    ?: throw WinterException(
                         "GraphRegistry.open can't open `${pathToString(path)}` because " +
                                 "`${pathToString(path, path.lastIndex)}` is not open."
                     )
@@ -335,15 +331,15 @@ object GraphRegistry {
      *
      * @param path The path of the graph to dispose.
      *
-     * @throws EntryNotFoundException When no graph was found in path.
+     * @throws WinterException When no graph was found in path.
      */
     @JvmStatic
     fun close(vararg path: Any) {
         foldInitialized({
-            throw EntryNotFoundException("GraphRegistry.close called but it is nothing open.")
+            throw WinterException("GraphRegistry.close called but no graph is open.")
         }) {
             val node = it.root.getNodeOrNull(path)
-                ?: throw EntryNotFoundException(
+                ?: throw WinterException(
                     "GraphRegistry.close can't close `${pathToString(path)}` because it doesn't " +
                             "exist."
                 )

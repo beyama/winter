@@ -10,6 +10,7 @@ import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.*
+import java.lang.Error
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -118,8 +119,8 @@ class GraphTest {
             singleton { instance }
             singleton { Parent(instance()) }
             singleton(
-                    postConstruct = { it.parent = instance() },
-                    dispose = { it.parent = null }
+                postConstruct = { it.parent = instance() },
+                dispose = { it.parent = null }
             ) { Child() }
         }
 
@@ -373,11 +374,11 @@ class GraphTest {
             var called = false
             graph {
                 factory(
-                        postConstruct = { a, r ->
-                            called = true
-                            a.shouldBe(42)
-                            r.shouldBe("42")
-                        }
+                    postConstruct = { a, r ->
+                        called = true
+                        a.shouldBe(42)
+                        r.shouldBe("42")
+                    }
                 ) { i: Int -> i.toString() }
             }.instance<Int, String>(42)
             called.shouldBeTrue()
@@ -424,7 +425,9 @@ class GraphTest {
             }
 
             (0..100).map {
-                executor.submit { graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString()) }
+                executor.submit {
+                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
+                }
             }.forEach { it.get() }
         }
 
@@ -459,11 +462,11 @@ class GraphTest {
             var called = false
             graph {
                 multiton(
-                        postConstruct = { a, r ->
-                            called = true
-                            a.shouldBe(Color.GREEN)
-                            r.shouldBeInstanceOf<Widget>()
-                        }
+                    postConstruct = { a, r ->
+                        called = true
+                        a.shouldBe(Color.GREEN)
+                        r.shouldBeInstanceOf<Widget>()
+                    }
                 ) { c: Color -> Widget(c) }
             }.instance<Color, Widget>(Color.GREEN)
             called.shouldBeTrue()
@@ -489,11 +492,11 @@ class GraphTest {
             var count = 0
             val graph = graph {
                 multiton(
-                        dispose = { a, r ->
-                            count += 1
-                            a.shouldBeInstanceOf<Color>()
-                            r.shouldBeInstanceOf<Widget>()
-                        }
+                    dispose = { a, r ->
+                        count += 1
+                        a.shouldBeInstanceOf<Color>()
+                        r.shouldBeInstanceOf<Widget>()
+                    }
                 ) { c: Color -> Widget(c) }
             }
             graph.instance<Color, Widget>(Color.RED)
@@ -518,7 +521,7 @@ class GraphTest {
                 }
             }.let {
                 it.instance<String, CoffeeMaker>("thermo").pump
-                        .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
+                    .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
             }
         }
 
@@ -531,7 +534,9 @@ class GraphTest {
             }
 
             (0..100).map {
-                executor.submit { graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString()) }
+                executor.submit {
+                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
+                }
             }.forEach { it.get() }
         }
 
@@ -549,7 +554,7 @@ class GraphTest {
                 alias(typeKey<Thermosiphon>(), typeKey<Pump>())
             }
             graph.service<Unit, Pump>(typeKey<Pump>())
-                    .shouldBeSameInstanceAs(graph.service<Unit, Thermosiphon>(typeKey<Thermosiphon>()))
+                .shouldBeSameInstanceAs(graph.service<Unit, Thermosiphon>(typeKey<Thermosiphon>()))
         }
 
         @Test
@@ -824,7 +829,8 @@ class GraphTest {
         fun `should resolve instance from factory with generics`() {
             graph {
                 factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.providerOrNull<Int, Map<Int, String>>(1, generics = true)?.invoke().shouldBe(mapOf(1 to "1"))
+            }.providerOrNull<Int, Map<Int, String>>(1, generics = true)?.invoke()
+                .shouldBe(mapOf(1 to "1"))
         }
 
         @Test
@@ -907,7 +913,8 @@ class GraphTest {
         fun `should resolve factory by generic class`() {
             graph {
                 factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.factoryOrNull<Int, Map<Int, String>>(generics = true)?.invoke(5).shouldBe(mapOf(5 to "5"))
+            }.factoryOrNull<Int, Map<Int, String>>(generics = true)?.invoke(5)
+                .shouldBe(mapOf(5 to "5"))
         }
 
         @Test
@@ -1085,6 +1092,86 @@ class GraphTest {
                     factory { arg: Int -> factory<Int, Int>().invoke(arg) }
                 }.factory<Int, Int>().invoke(42)
             }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Exception while resolving")
+    inner class Exceptions {
+
+        @Test
+        fun `should have the right message when dependency wasn't found with one level of nesting`() {
+            shouldThrow<DependencyResolutionException> {
+                graph {
+                    prototype { CoffeeMaker(instance(), instance()) }
+                }.instance<CoffeeMaker>()
+            }.message.shouldBe(
+                "Error while resolving dependency with key: " +
+                        "ClassTypeKey(class io.jentz.winter.CoffeeMaker qualifier = null) " +
+                        "reason: could not find dependency with key " +
+                        "ClassTypeKey(class io.jentz.winter.Heater qualifier = null)"
+            )
+        }
+
+        @Test
+        fun `should have the right message when dependency wasn't found with two levels of nesting`() {
+            shouldThrow<DependencyResolutionException> {
+                graph {
+                    prototype { Heater() }
+                    prototype<Pump> { Thermosiphon(instance("doesn't exist")) }
+                    prototype { CoffeeMaker(instance(), instance()) }
+                }.instance<CoffeeMaker>()
+            }.message.shouldBe(
+                "Error while resolving dependency with key: " +
+                        "ClassTypeKey(interface io.jentz.winter.Pump qualifier = null) " +
+                        "reason: could not find dependency with key " +
+                        "ClassTypeKey(class io.jentz.winter.Heater qualifier = doesn't exist)"
+            )
+        }
+
+        @Test
+        fun `should have the right message when factory of dependency throws an exception`() {
+            shouldThrow<DependencyResolutionException> {
+                graph {
+                    prototype { Heater() }
+                    prototype<Pump> { throw Error("Boom!") }
+                    prototype { CoffeeMaker(instance(), instance()) }
+                }.instance<CoffeeMaker>()
+            }.let {
+                it.message.shouldBe(
+                    "Factory of dependency with key " +
+                            "ClassTypeKey(interface io.jentz.winter.Pump qualifier = null) " +
+                            "threw an exception on invocation."
+                )
+                it.cause?.message.shouldBe("Boom!")
+            }
+        }
+
+        @Test
+        fun `should trigger post callbacks for dependencies that are resolved without error`() {
+            var called = false
+            shouldThrow<DependencyResolutionException> {
+                graph {
+                    prototype(
+                        postConstruct = { called = true }
+                    ) { Heater() }
+                    prototype<Pump> { throw Error("Boom!") }
+                    prototype { CoffeeMaker(instance(), instance()) }
+                }.instance<CoffeeMaker>()
+            }
+            called.shouldBeTrue()
+        }
+
+        @Test
+        fun `should not result in a invalid state`() {
+            val graph = graph {
+                prototype { Heater() }
+                prototype<Pump> { throw Error("Boom!") }
+                prototype { CoffeeMaker(instance(), instance()) }
+            }
+            shouldThrow<DependencyResolutionException> { graph.instance<CoffeeMaker>() }
+            graph.instance<Heater>().shouldBeInstanceOf<Heater>()
         }
 
     }

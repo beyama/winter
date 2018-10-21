@@ -34,22 +34,20 @@ internal class DependenciesStack(private val graph: Graph) {
             return instance
         } catch (e: EntryNotFoundException) {
             drainStack()
-            val stackInfo = stack.joinToString(" -> ")
             throw DependencyResolutionException(
-                "Error while resolving dependencies of $key (dependency stack: $stackInfo)",
+                "Error while resolving dependency with key: $key " +
+                        "reason: could not find dependency with key ${e.key}",
                 e
             )
         } catch (e: WinterException) {
             throw e
         } catch (t: Throwable) {
             drainStack()
-            val stackInfo = stack.joinToString(" -> ")
             throw DependencyResolutionException(
-                "Error while invoking provider block of $key (dependency stack: $stackInfo)",
+                "Factory of dependency with key $key threw an exception on invocation.",
                 t
             )
         } finally {
-            // decrement stack size
             stackSize -= 1
             if (stackSize == 0) drainStack()
         }

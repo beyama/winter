@@ -50,6 +50,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
         eagerDependencies?.instance(Unit)?.forEach { key ->
             val service = serviceOrNull<Unit, Any>(key)
                 ?: throw EntryNotFoundException(
+                    key,
                     "BUG: Eager dependency with key `$key` doesn't exist."
                 )
             service.instance(Unit)
@@ -300,7 +301,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
     @PublishedApi
     internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
         return serviceOrNull(key)
-            ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
+            ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
     }
 
     /**

@@ -346,7 +346,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      */
     fun remove(key: TypeKey, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
-            throw EntryNotFoundException("Entry with key `$key` doesn't exist.")
+            throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
         }
         registry.remove(key)
         removeEagerDependency(key)
@@ -366,7 +366,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      */
     fun alias(targetKey: TypeKey, newKey: TypeKey, override: Boolean = false) {
         registry[targetKey]
-            ?: throw EntryNotFoundException("Entry with key `$targetKey` doesn't exist.")
+            ?: throw EntryNotFoundException(targetKey, "Entry with key `$targetKey` doesn't exist.")
         register(AliasService(targetKey, newKey), override)
     }
 
