@@ -5,7 +5,11 @@ package io.jentz.winter
  *
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
-class Graph internal constructor(parent: Graph?, component: Component) {
+class Graph internal constructor(
+    parent: Graph?,
+    component: Component,
+    block: ComponentBuilderBlock?
+) {
 
     private sealed class State {
         data class Initialized(
@@ -18,7 +22,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
         object Disposed : State()
     }
 
-    private var state: State = State.Initialized(component, parent, DependenciesStack(this))
+    private var state: State
 
     private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
         return synchronized(this) {
@@ -46,6 +50,18 @@ class Graph internal constructor(parent: Graph?, component: Component) {
     val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
+        val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
+            component(component.qualifier) {
+                include(component)
+                block?.invoke(this)
+                WinterPlugins.runInitializingComponentPlugins(parent, this)
+            }
+        } else {
+            component
+        }
+
+        state = State.Initialized(baseComponent, parent, DependenciesStack(this))
+
         val eagerDependencies = serviceOrNull<Unit, Set<TypeKey>>(eagerDependenciesKey)
         eagerDependencies?.instance(Unit)?.forEach { key ->
             val service = serviceOrNull<Unit, Any>(key)
@@ -355,7 +371,7 @@ class Graph internal constructor(parent: Graph?, component: Component) {
      * @param block An optional builder block to register provider on the subcomponent.
      */
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        map { initializeGraph(this, instance(qualifier), block) }
+        map { Graph(this, instance(qualifier), block) }
 
     /**
      * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.

@@ -74,10 +74,11 @@ inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>
  *                 account.
  */
 inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
-    if (generics) object : GenericClassTypeKey<T>(qualifier) {} else ClassTypeKey(
-        T::class.java,
-        qualifier
-    )
+    if (generics) {
+        object : GenericClassTypeKey<T>(qualifier) {}
+    } else {
+        ClassTypeKey(T::class.java, qualifier)
+    }
 
 /**
  * Returns [TypeKey] for type [T0] and [T1].
@@ -110,20 +111,3 @@ internal inline fun <reified T> typeKeyOfType(generics: Boolean) =
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
 internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
-
-internal fun initializeGraph(
-    parentGraph: Graph?,
-    component: Component,
-    block: ComponentBuilderBlock?
-): Graph {
-    val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
-        io.jentz.winter.component(component.qualifier) {
-            include(component)
-            block?.invoke(this)
-            WinterPlugins.runInitializingComponentPlugins(parentGraph, this)
-        }
-    } else {
-        component
-    }
-    return Graph(parentGraph, baseComponent)
-}

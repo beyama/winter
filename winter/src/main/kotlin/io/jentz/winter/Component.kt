@@ -78,7 +78,7 @@ class Component internal constructor(
      */
     @JvmOverloads
     fun init(block: ComponentBuilderBlock? = null): Graph {
-        return initializeGraph(null, this, block)
+        return Graph(null, this, block)
     }
 
     internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
