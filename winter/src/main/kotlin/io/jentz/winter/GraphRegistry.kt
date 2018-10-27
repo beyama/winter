@@ -343,10 +343,29 @@ object GraphRegistry {
                     "GraphRegistry.close can't close `${pathToString(path)}` because it doesn't " +
                             "exist."
                 )
-            node.dispose()
-            if (it.root === node) {
-                this.state = State.ApplicationComponentSet(it.applicationComponent)
-            }
+            disposeNode(it, node)
+        }
+    }
+
+    /**
+     * Remove and dispose the dependency graph and its children stored in [path] if it is open.
+     *
+     * @param path The path of the graph to dispose.
+     *
+     * @return true if given [path] was open otherwise false.
+     */
+    @JvmStatic
+    fun closeIfOpen(vararg path: Any): Boolean =
+        foldInitialized({ false }) { state ->
+            val node = state.root.getNodeOrNull(path) ?: return false
+            disposeNode(state, node)
+            true
+        }
+
+    private fun disposeNode(state: State.Initialized, node: Node) {
+        node.dispose()
+        if (state.root === node) {
+            this.state = State.ApplicationComponentSet(state.applicationComponent)
         }
     }
 

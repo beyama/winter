@@ -19,7 +19,7 @@ class GraphRegistryTest {
 
     @BeforeEach
     fun beforeEach() {
-        if (GraphRegistry.has()) GraphRegistry.close()
+        GraphRegistry.closeIfOpen()
         GraphRegistry.applicationComponent = mvpComponent
     }
 
@@ -241,6 +241,23 @@ class GraphRegistryTest {
         GraphRegistry.close("presentation")
         root.isDisposed.shouldBeFalse()
         listOf(presentation, view).all { it.isDisposed }.shouldBeTrue()
+    }
+
+    @Test
+    fun `#closeIfOpen should do nothing if nothing is open in path`() {
+        GraphRegistry.closeIfOpen().shouldBeFalse()
+        GraphRegistry.closeIfOpen("presentation").shouldBeFalse()
+    }
+
+    @Test
+    fun `#closeIfOpen should close existing path`() {
+        val view = openAll(*viewPath)
+        GraphRegistry.closeIfOpen(*viewPath).shouldBeTrue()
+        view.isDisposed.shouldBeTrue()
+
+        val root = GraphRegistry.get()
+        GraphRegistry.closeIfOpen().shouldBeTrue()
+        root.isDisposed.shouldBeTrue()
     }
 
     private fun openAll(vararg pathTokens: Any): Graph {
