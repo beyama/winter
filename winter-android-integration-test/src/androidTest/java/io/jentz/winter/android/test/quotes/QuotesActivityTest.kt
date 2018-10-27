@@ -11,10 +11,14 @@ import androidx.test.runner.AndroidJUnit4
 import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
-import io.jentz.winter.android.test.*
+import io.jentz.winter.android.test.R
+import io.jentz.winter.android.test.isDisplayed
+import io.jentz.winter.android.test.isNotDisplayed
 import io.jentz.winter.android.test.model.QuoteRepository
 import io.jentz.winter.android.test.viewmodel.TestViewModel
 import io.jentz.winter.android.test.viewmodel.ViewModel
+import io.jentz.winter.android.test.waitForIt
+import io.jentz.winter.junit4.WinterTestRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.Rule

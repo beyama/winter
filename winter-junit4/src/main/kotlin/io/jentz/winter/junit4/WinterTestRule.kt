@@ -1,4 +1,4 @@
-package io.jentz.winter.android.test
+package io.jentz.winter.junit4
 
 import io.jentz.winter.*
 import org.junit.rules.TestRule
