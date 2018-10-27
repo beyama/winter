@@ -8,8 +8,12 @@ version = VERSION_NAME
 group = GROUP
 
 dependencies {
+    implementation deps.kotlin.stdlib
+
     api project(':winter')
     api deps.junit.junit4
+
+    testImplementation deps.kotlintest
 }
 
 task javadocJar(type: Jar) {
@@ -33,7 +37,7 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/beyama/winter/blob/master/winter-rxjava2/src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-junit4/src/main/kotlin"
         suffix = "#L"
     }
 }

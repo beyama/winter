@@ -8,8 +8,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.isDisplayed
@@ -33,10 +31,12 @@ class QuotesActivityTest {
     val activityTestRule = ActivityTestRule<QuotesActivity>(QuotesActivity::class.java, true, false)
 
     @get:Rule
-    val winterTestRule = object : WinterTestRule() {
-        override fun onGraphInitialization(parentGraph: Graph?, builder: ComponentBuilder) {
-            if (builder.qualifier == "presentation") {
-                builder.singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
+    val winterTestRule = WinterTestRule.initializingComponent { _, builder ->
+        if (builder.qualifier == "presentation") {
+            builder.apply {
+                singleton<ViewModel<QuotesViewState>>(generics = true, override = true) {
+                    viewModel
+                }
             }
         }
     }
@@ -57,7 +57,12 @@ class QuotesActivityTest {
 
         onView(withId(R.id.progressIndicatorView)).isDisplayed()
 
-        viewModel.downstream.onNext(QuotesViewState(isLoading = false, quotes = QuoteRepository.quotes))
+        viewModel.downstream.onNext(
+            QuotesViewState(
+                isLoading = false,
+                quotes = QuoteRepository.quotes
+            )
+        )
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
@@ -87,6 +92,5 @@ class QuotesActivityTest {
         // WinterDisposablePlugin should dispose view model when graph gets disposed
         viewModel.isDisposed.shouldBeTrue()
     }
-
 
 }
