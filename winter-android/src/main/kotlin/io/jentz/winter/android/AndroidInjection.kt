@@ -17,7 +17,7 @@ import io.jentz.winter.MembersInjector
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
- *     GraphRegistry.applicationComponent = component {
+ *     GraphRegistry.component = component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
  *       singleton { RepoListViewModel(instance()) }

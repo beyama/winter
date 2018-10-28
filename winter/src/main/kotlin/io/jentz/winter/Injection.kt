@@ -21,7 +21,7 @@ package io.jentz.winter
  *
  *     Injection.adapter = SimpleAndroidInjectionAdapter()
  *
- *     GraphRegistry.applicationComponent = component {
+ *     GraphRegistry.component = component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
  *       singleton { RepoListViewModel(instance()) }
@@ -94,7 +94,7 @@ object Injection {
     /**
      * Simple adapter for application with only one dependency graph.
      *
-     * Register your application component on [GraphRegistry.applicationComponent].
+     * Register your application component on [GraphRegistry.component].
      */
     class ApplicationGraphOnlyAdapter : Adapter {
         override fun getGraph(instance: Any): Graph = GraphRegistry.get()

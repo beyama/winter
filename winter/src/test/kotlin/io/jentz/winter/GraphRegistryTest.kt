@@ -20,7 +20,7 @@ class GraphRegistryTest {
     @BeforeEach
     fun beforeEach() {
         GraphRegistry.closeIfOpen()
-        GraphRegistry.applicationComponent = mvpComponent
+        GraphRegistry.component = mvpComponent
     }
 
     @Test
@@ -28,7 +28,7 @@ class GraphRegistryTest {
         openAll(*viewPath)
         val root = GraphRegistry.get()
         expectValueToChange(false, true, root::isDisposed) {
-            GraphRegistry.applicationComponent = mvpComponent
+            GraphRegistry.component = mvpComponent
         }
     }
 
@@ -63,10 +63,10 @@ class GraphRegistryTest {
 
     @Test
     fun `#create without arguments should throw an exception if root component is not set`() {
-        GraphRegistry.applicationComponent = null
+        GraphRegistry.component = null
         shouldThrow<WinterException> {
             GraphRegistry.create()
-        }.message.shouldBe("GraphRegistry.create called but there is no application component set.")
+        }.message.shouldBe("No component set.")
     }
 
     @Test
@@ -95,7 +95,7 @@ class GraphRegistryTest {
     fun `#create should throw an exception when root graph isn't open but a non-empty path is given`() {
         shouldThrow<WinterException> {
             GraphRegistry.create(*viewPath)
-        }.message.shouldBe("GraphRegistry.create with path `presentation.view` called but root graph isn't open.")
+        }.message.shouldBe("Cannot create `presentation.view` because root graph is not open.")
     }
 
     @Test
@@ -103,22 +103,22 @@ class GraphRegistryTest {
         GraphRegistry.open()
         shouldThrow<WinterException> {
             GraphRegistry.create("presentation", "view")
-        }.message.shouldBe("GraphRegistry.create can't open `presentation.view` because `presentation` is not open.")
+        }.message.shouldBe("Cannot create `presentation.view` because `presentation` is not open.")
     }
 
     @Test
     fun `#open without arguments should throw an exception if root component is not set`() {
-        GraphRegistry.applicationComponent = null
+        GraphRegistry.component = null
         shouldThrow<WinterException> {
             GraphRegistry.open()
-        }.message.shouldBe("GraphRegistry.open called but there is no application component set.")
+        }.message.shouldBe("No component set.")
     }
 
     @Test
     fun `#open should throw an exception when root graph isn't open but path is given`() {
         shouldThrow<WinterException> {
             GraphRegistry.open(*viewPath)
-        }.message.shouldBe("GraphRegistry.open with path `presentation.view` called but root graph isn't initialized.")
+        }.message.shouldBe("Cannot open path `presentation.view` because root graph is not opened.")
     }
 
     @Test
@@ -126,14 +126,14 @@ class GraphRegistryTest {
         GraphRegistry.open()
         shouldThrow<WinterException> {
             GraphRegistry.open()
-        }.message.shouldBe("GraphRegistry.open can't open root graph because it is already open.")
+        }.message.shouldBe("Cannot open root graph because it is already open.")
     }
 
     @Test
     fun `#open without path but identifier should throw an exception`() {
         shouldThrow<IllegalArgumentException> {
-            GraphRegistry.open(identifier = "root2")
-        }.message.shouldBe("GraphRegistry.open must not be called with identifier for root graph.")
+            GraphRegistry.open(identifier = "root")
+        }.message.shouldBe("Argument `identifier` for root graph is not supported.")
     }
 
     @Test
@@ -141,7 +141,7 @@ class GraphRegistryTest {
         openAll(*viewPath)
         shouldThrow<WinterException> {
             GraphRegistry.open(*viewPath)
-        }.message.shouldBe("GraphRegistry.open can't open 'presentation.view' because it already exists.")
+        }.message.shouldBe("Cannot open `presentation.view` because it is already open.")
     }
 
     @Test
@@ -150,7 +150,7 @@ class GraphRegistryTest {
         GraphRegistry.open(*viewPath, identifier = "foo")
         shouldThrow<WinterException> {
             GraphRegistry.open(*viewPath, identifier = "foo")
-        }.message.shouldBe("GraphRegistry.open can't open 'presentation.foo' because it already exists.")
+        }.message.shouldBe("Cannot open `presentation.foo` because it is already open.")
     }
 
     @Test
@@ -195,7 +195,7 @@ class GraphRegistryTest {
     fun `#close without path should throw an exception if root dependency graph isn't initialized`() {
         shouldThrow<WinterException> {
             GraphRegistry.close()
-        }.message.shouldBe("GraphRegistry.close called but no graph is open.")
+        }.message.shouldBe("Cannot close because noting is open.")
     }
 
     @Test
@@ -203,7 +203,7 @@ class GraphRegistryTest {
         GraphRegistry.open()
         shouldThrow<WinterException> {
             GraphRegistry.close("presentation")
-        }.message.shouldBe("GraphRegistry.close can't close `presentation` because it doesn't exist.")
+        }.message.shouldBe("Cannot close `presentation` because it doesn't exist.")
     }
 
     @Test

@@ -5,18 +5,14 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import io.jentz.winter.GraphRegistry
 import io.jentz.winter.WinterException
 import io.jentz.winter.component
 import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,7 +39,7 @@ class SimpleAndroidInjectionAdapterTest {
     @Before
     fun beforeEach() {
         if (GraphRegistry.has()) GraphRegistry.close()
-        GraphRegistry.applicationComponent = applicationComponent
+        GraphRegistry.component = applicationComponent
     }
 
     @Test

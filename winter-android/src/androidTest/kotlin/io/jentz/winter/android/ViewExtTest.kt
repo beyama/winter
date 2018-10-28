@@ -27,7 +27,7 @@ class ViewExtTest {
     @Before
     fun beforeEach() {
         Injection.adapter = SimpleAndroidInjectionAdapter()
-        GraphRegistry.applicationComponent = applicationComponent
+        GraphRegistry.component = applicationComponent
         GraphRegistry.open()
     }
 

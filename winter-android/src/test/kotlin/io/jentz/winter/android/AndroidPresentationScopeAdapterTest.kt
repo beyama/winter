@@ -41,7 +41,7 @@ class AndroidPresentationScopeAdapterTest {
     @Before
     fun beforeEach() {
         if (GraphRegistry.has()) GraphRegistry.close()
-        GraphRegistry.applicationComponent = applicationComponent
+        GraphRegistry.component = applicationComponent
     }
 
     @Test

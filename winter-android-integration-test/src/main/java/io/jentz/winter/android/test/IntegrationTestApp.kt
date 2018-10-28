@@ -23,7 +23,7 @@ class IntegrationTestApp : Application() {
 
         Injection.adapter = AndroidPresentationScopeAdapter()
 
-        GraphRegistry.applicationComponent = component {
+        GraphRegistry.component = component {
             include(generatedComponent, subcomponentIncludeMode = DoNotInclude)
             include(generatedComponent.subcomponent(ApplicationScope::class), subcomponentIncludeMode = DoNotInclude)
 
