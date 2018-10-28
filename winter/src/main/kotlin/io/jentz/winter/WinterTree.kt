@@ -2,6 +2,39 @@ package io.jentz.winter
 
 import io.jentz.winter.WinterTree.State.*
 
+/**
+ * WinterTree manages dependency graphs in a tree (directed acyclic graph).
+ * Graphs a opened, accessed and closed by paths.
+ *
+ * Example:
+ * ```
+ * val tree = WinterTree()
+ * tree.component = component {
+ *   // ... the component definition
+ * }
+ * // open the root graph (initialize the trees component)
+ * tree.open()
+ * // or supply a builder block to extend the resulting graph
+ * tree.open { constant<Application>(myApplication) }
+ * // the root graph can then be accessed by calling
+ * tree.get()
+ * // to open a subcomponent call
+ * tree.open("subcomponent name")
+ * // this graph can be accessed by calling
+ * tree.get("subcomponent name")
+ * // or you can provide an optional identifier for the graph
+ * tree.open("subcomponent name", identifier = "other name")
+ * // then you can access the the graph by calling
+ * tree.get("other name")
+ * // to open a subcomponent of this call
+ * tree.open("subcomponent name", "sub-subcomponent name")
+ * // respectively
+ * tree.open("other name", "sub-subcomponent name")
+ * ```
+ * For more examples and documentation see the standalone implementation [GraphRegistry].
+ *
+ * @see GraphRegistry
+ */
 open class WinterTree {
 
     private class Node(

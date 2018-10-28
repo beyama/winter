@@ -96,5 +96,7 @@ package io.jentz.winter
  * GraphRegistry.get()               // Get the root dependency graph
  * GraphRegistry.get("presentation") // Get the presentation dependency graph
  * ```
+ *
+ * @see WinterTree
  */
 object GraphRegistry : WinterTree()
