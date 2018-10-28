@@ -8,13 +8,13 @@ import android.view.View
 import io.jentz.winter.*
 
 /**
- * Android injection adapter that is backed by [GraphRegistry] and retains a `presentation` sub
+ * Android injection adapter that operates on a [WinterTree] and retains a `presentation` sub
  * graph during Activity re-creation (configuration changes).
  *
  * It expects an application component like:
  *
  * ```
- * GraphRegistry = component {
+ * val applicationComponent = component {
  *   // this sub-graph outlives configuration changes and is only disposed when Activity
  *   // isFinishing == true
  *   subcomponent("presentation") {
@@ -23,6 +23,7 @@ import io.jentz.winter.*
  *     }
  *   }
  * }
+ * Injection.adapter = AndroidPresentationScopeAdapter(applicationComponent)
  * ```
  *
  * The adapter registers the [Application] as [Context] and [Application] on the application graph
@@ -38,21 +39,26 @@ import io.jentz.winter.*
  * [getGraph] called with an unknown type will return the application graph.
  *
  */
-open class AndroidPresentationScopeAdapter : Injection.Adapter {
+open class AndroidPresentationScopeAdapter(
+    component: Component
+) : Injection.Adapter {
+
+    val tree = WinterTree().also { it.component = component }
 
     override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
         return when (instance) {
-            is Application -> GraphRegistry.open {
+            is Application -> tree.open {
+                constant(tree)
                 constant(instance)
                 constant<Context>(instance)
                 builderBlock?.invoke(this)
             }
             is Activity -> {
                 val presentationIdentifier = presentationIdentifier(instance)
-                if (!GraphRegistry.has(presentationIdentifier)) {
-                    GraphRegistry.open("presentation", identifier = presentationIdentifier)
+                if (!tree.has(presentationIdentifier)) {
+                    tree.open("presentation", identifier = presentationIdentifier)
                 }
-                GraphRegistry.open(presentationIdentifier, "activity", identifier = instance) {
+                tree.open(presentationIdentifier, "activity", identifier = instance) {
                     constant(instance)
                     constant<Context>(instance)
                     builderBlock?.invoke(this)
@@ -65,22 +71,22 @@ open class AndroidPresentationScopeAdapter : Injection.Adapter {
     override fun getGraph(instance: Any): Graph {
         return when (instance) {
             is DependencyGraphContextWrapper -> instance.graph
-            is Application -> GraphRegistry.get()
-            is Activity -> GraphRegistry.get(presentationIdentifier(instance), instance)
+            is Application -> tree.get()
+            is Activity -> tree.get(presentationIdentifier(instance), instance)
             is View -> getGraph(instance.context)
             is ContextWrapper -> getGraph(instance.baseContext)
-            else -> GraphRegistry.get()
+            else -> tree.get()
         }
     }
 
     override fun disposeGraph(instance: Any) {
         when (instance) {
-            is Application -> GraphRegistry.close()
+            is Application -> tree.close()
             is Activity -> {
                 if (instance.isFinishing) {
-                    GraphRegistry.close(presentationIdentifier(instance))
+                    tree.close(presentationIdentifier(instance))
                 } else {
-                    GraphRegistry.close(presentationIdentifier(instance), instance)
+                    tree.close(presentationIdentifier(instance), instance)
                 }
             }
         }

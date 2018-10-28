@@ -8,7 +8,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
-import io.jentz.winter.GraphRegistry
+import io.jentz.winter.Injection
+import io.jentz.winter.WinterTree
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.isDisplayed
 import io.jentz.winter.android.test.isNotDisplayed
@@ -49,9 +50,10 @@ class QuotesActivityTest {
 
         val activity = activityTestRule.activity
 
-        GraphRegistry.has(QuotesActivity::class.java.name, activity).shouldBeTrue()
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java.name)
-        val activityGraph = GraphRegistry.get(QuotesActivity::class.java.name, activity)
+        val tree: WinterTree = Injection.getGraph(activity).instance()
+        tree.has(QuotesActivity::class.java.name, activity).shouldBeTrue()
+        val presentationGraph = tree.get(QuotesActivity::class.java.name)
+        val activityGraph = tree.get(QuotesActivity::class.java.name, activity)
 
         viewModel.downstream.onNext(QuotesViewState(isLoading = true))
 
@@ -79,7 +81,8 @@ class QuotesActivityTest {
     fun should_dispose_presentation_scope_and_dispose_view_model_when_activity_finishes() {
         activityTestRule.launchActivity(Intent())
 
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java.name)
+        val tree: WinterTree = Injection.getGraph(activityTestRule.activity).instance()
+        val presentationGraph = tree.get(QuotesActivity::class.java.name)
 
         presentationGraph.isDisposed.shouldBeFalse()
         viewModel.isDisposed.shouldBeFalse()
