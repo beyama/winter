@@ -35,7 +35,11 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     /**
      * Include dependency from the given component into the new component.
      *
-     * @param component The component to include the dependency provider from.
+     * @param component The component to include the dependencies from.
+     * @param override Set to false to throw an exception if a dependency already exists
+     *                 otherwise it will be replaced.
+     * @param subcomponentIncludeMode Defines the behaviour when a subcomponent with the same
+     *                                qualifier already exists.
      */
     fun include(
         component: Component,
