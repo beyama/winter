@@ -2,6 +2,8 @@ package io.jentz.winter
 
 internal class DependenciesStack(private val graph: Graph) {
 
+    private val plugins = graph.application.plugins
+
     private val stack: MutableList<Any?> = mutableListOf()
 
     private var stackSize = 0
@@ -62,7 +64,7 @@ internal class DependenciesStack(private val graph: Graph) {
 
                 if (instance != null && argument != null) {
                     service.postConstruct(argument, instance)
-                    WinterPlugins.runPostConstructPlugins(graph, service.scope, argument, instance)
+                    plugins.runPostConstruct(graph, service.scope, argument, instance)
                 }
             }
         } finally {

@@ -1,6 +1,6 @@
 package io.jentz.winter.rxjava2
 
-import io.jentz.winter.WinterPlugins
+import io.jentz.winter.Winter
 import io.jentz.winter.graph
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -19,19 +19,19 @@ class WinterDisposablePluginTest {
 
     @BeforeEach
     fun beforeEach() {
-        WinterDisposablePlugin.install()
+        Winter.installDisposablePlugin()
     }
 
     @AfterEach
     fun afterEach() {
-        WinterDisposablePlugin.uninstall()
+        Winter.uninstallDisposablePlugin()
     }
 
     @Test
     fun `should install and uninstall plugin`() {
         graph { }.instanceOrNull<CompositeDisposable>().shouldBeInstanceOf<CompositeDisposable>()
 
-        WinterDisposablePlugin.uninstall()
+        Winter.uninstallDisposablePlugin()
 
         graph { }.instanceOrNull<CompositeDisposable>().shouldBe(null)
     }

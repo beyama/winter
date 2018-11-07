@@ -7,35 +7,27 @@ import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class GraphRegistryTest {
+class WinterTreeTest {
 
-    private val mvpComponent = component("root") {
+    private val testApplication = WinterApplication("root") {
         subcomponent("presentation") {
             subcomponent("view") {}
         }
     }
 
+    private val tree = WinterTree(testApplication)
+
     private val viewPath = arrayOf("presentation", "view")
 
     @BeforeEach
     fun beforeEach() {
-        GraphRegistry.closeIfOpen()
-        GraphRegistry.component = mvpComponent
-    }
-
-    @Test
-    fun `#applicationComponent should dispose existing root graph if new component is set`() {
-        openAll(*viewPath)
-        val root = GraphRegistry.get()
-        expectValueToChange(false, true, root::isDisposed) {
-            GraphRegistry.component = mvpComponent
-        }
+        tree.closeIfOpen()
     }
 
     @Test
     fun `#get without arguments should throw an exception if root dependency graph isn't initialized`() {
         shouldThrow<WinterException> {
-            GraphRegistry.get()
+            tree.get()
         }.message.shouldBe("GraphRegistry.get called but there is no open graph.")
     }
 
@@ -43,96 +35,80 @@ class GraphRegistryTest {
     fun `#get should throw an exception if dependency graph in path doesn't exist`() {
         openAll("presentation")
         shouldThrow<WinterException> {
-            GraphRegistry.get(*viewPath)
+            tree.get(*viewPath)
         }.message.shouldBe("No graph in path `presentation.view` found.")
     }
 
     @Test
     fun `#has without arguments should return false if root dependency graph isn't initialized otherwise true`() {
-        expectValueToChange(false, true, { GraphRegistry.has() }) {
-            GraphRegistry.open()
+        expectValueToChange(false, true, { tree.has() }) {
+            tree.open()
         }
     }
 
     @Test
     fun `#has with path should return false if dependency graph in path isn't present otherwise true`() {
-        expectValueToChange(false, true, { GraphRegistry.has(*viewPath) }) {
+        expectValueToChange(false, true, { tree.has(*viewPath) }) {
             openAll(*viewPath)
         }
     }
 
     @Test
-    fun `#create without arguments should throw an exception if root component is not set`() {
-        GraphRegistry.component = null
-        shouldThrow<WinterException> {
-            GraphRegistry.create()
-        }.message.shouldBe("No component set.")
-    }
-
-    @Test
     fun `#create without path should initialize and return root dependency graph`() {
-        GraphRegistry.create().component.qualifier.shouldBe("root")
+        tree.create().component.qualifier.shouldBe("root")
     }
 
     @Test
     fun `#create should initialize and return subcomponent by path`() {
         openAll("presentation")
-        GraphRegistry.create(*viewPath).component.qualifier.shouldBe("view")
+        tree.create(*viewPath).component.qualifier.shouldBe("view")
     }
 
     @Test
     fun `#create without path should pass the builder block to the root component init method`() {
-        GraphRegistry.create { constant(42) }.instance<Int>().shouldBe(42)
+        tree.create { constant(42) }.instance<Int>().shouldBe(42)
     }
 
     @Test
     fun `#create should should pass the builder block to the subcomponent init method`() {
         openAll("presentation")
-        GraphRegistry.create(*viewPath) { constant(42) }.instance<Int>().shouldBe(42)
+        tree.create(*viewPath) { constant(42) }.instance<Int>().shouldBe(42)
     }
 
     @Test
     fun `#create should throw an exception when root graph isn't open but a non-empty path is given`() {
         shouldThrow<WinterException> {
-            GraphRegistry.create(*viewPath)
+            tree.create(*viewPath)
         }.message.shouldBe("Cannot create `presentation.view` because root graph is not open.")
     }
 
     @Test
     fun `#create should throw an exception when parent graph isn't open`() {
-        GraphRegistry.open()
+        tree.open()
         shouldThrow<WinterException> {
-            GraphRegistry.create("presentation", "view")
+            tree.create("presentation", "view")
         }.message.shouldBe("Cannot create `presentation.view` because `presentation` is not open.")
-    }
-
-    @Test
-    fun `#open without arguments should throw an exception if root component is not set`() {
-        GraphRegistry.component = null
-        shouldThrow<WinterException> {
-            GraphRegistry.open()
-        }.message.shouldBe("No component set.")
     }
 
     @Test
     fun `#open should throw an exception when root graph isn't open but path is given`() {
         shouldThrow<WinterException> {
-            GraphRegistry.open(*viewPath)
+            tree.open(*viewPath)
         }.message.shouldBe("Cannot open path `presentation.view` because root graph is not opened.")
     }
 
     @Test
     fun `#open without arguments should throw an exception if root dependency dependency graph is already initialized`() {
-        GraphRegistry.open()
+        tree.open()
         shouldThrow<WinterException> {
-            GraphRegistry.open()
+            tree.open()
         }.message.shouldBe("Cannot open root graph because it is already open.")
     }
 
     @Test
     fun `#open without path but identifier should throw an exception`() {
         shouldThrow<IllegalArgumentException> {
-            GraphRegistry.open(identifier = "root")
+            tree.open(identifier = "root")
         }.message.shouldBe("Argument `identifier` for root graph is not supported.")
     }
 
@@ -140,132 +116,132 @@ class GraphRegistryTest {
     fun `#open should throw an exception if dependency graph in path already exists`() {
         openAll(*viewPath)
         shouldThrow<WinterException> {
-            GraphRegistry.open(*viewPath)
+            tree.open(*viewPath)
         }.message.shouldBe("Cannot open `presentation.view` because it is already open.")
     }
 
     @Test
     fun `#open with identifier should throw an exception if dependency graph in path already exists`() {
         openAll("presentation")
-        GraphRegistry.open(*viewPath, identifier = "foo")
+        tree.open(*viewPath, identifier = "foo")
         shouldThrow<WinterException> {
-            GraphRegistry.open(*viewPath, identifier = "foo")
+            tree.open(*viewPath, identifier = "foo")
         }.message.shouldBe("Cannot open `presentation.foo` because it is already open.")
     }
 
     @Test
     fun `#open should throw an exception when parent graph isn't open`() {
-        GraphRegistry.open()
+        tree.open()
         shouldThrow<WinterException> {
-            GraphRegistry.open("presentation", "view")
+            tree.open("presentation", "view")
         }.message.shouldBe("GraphRegistry.open can't open `presentation.view` because `presentation` is not open.")
     }
 
     @Test
     fun `#open without arguments should initialize and return root dependency graph`() {
-        GraphRegistry.open().component.qualifier.shouldBe("root")
+        tree.open().component.qualifier.shouldBe("root")
     }
 
     @Test
     fun `#open should initialize and return subcomponent by path`() {
         openAll("presentation")
-        GraphRegistry.open(*viewPath).component.qualifier.shouldBe("view")
+        tree.open(*viewPath).component.qualifier.shouldBe("view")
     }
 
     @Test
     fun `#open without path should pass the builder block to the root component init method`() {
-        GraphRegistry.open { constant(42) }.instance<Int>().shouldBe(42)
+        tree.open { constant(42) }.instance<Int>().shouldBe(42)
     }
 
     @Test
     fun `#open should should pass the builder block to the subcomponent init method`() {
         openAll("presentation")
-        GraphRegistry.open(*viewPath) { constant(42) }.instance<Int>().shouldBe(42)
+        tree.open(*viewPath) { constant(42) }.instance<Int>().shouldBe(42)
     }
 
     @Test
     fun `#open with identifier should initialize subcomponent by path and register it under the given identifier`() {
         openAll("presentation")
-        val graph1 = GraphRegistry.open("presentation", "view", identifier = "view0")
+        val graph1 = tree.open("presentation", "view", identifier = "view0")
         graph1.component.qualifier.shouldBe("view")
-        GraphRegistry.has("presentation", "view0")
+        tree.has("presentation", "view0")
     }
 
     @Test
     fun `#close without path should throw an exception if root dependency graph isn't initialized`() {
         shouldThrow<WinterException> {
-            GraphRegistry.close()
+            tree.close()
         }.message.shouldBe("Cannot close because noting is open.")
     }
 
     @Test
     fun `#close with path should throw an exception if dependency graph in path doesn't exist`() {
-        GraphRegistry.open()
+        tree.open()
         shouldThrow<WinterException> {
-            GraphRegistry.close("presentation")
+            tree.close("presentation")
         }.message.shouldBe("Cannot close `presentation` because it doesn't exist.")
     }
 
     @Test
     fun `#close without path should close and dispose root dependency graph`() {
-        val root = GraphRegistry.open()
-        GraphRegistry.close()
+        val root = tree.open()
+        tree.close()
         root.isDisposed.shouldBeTrue()
-        GraphRegistry.has().shouldBeFalse()
+        tree.has().shouldBeFalse()
     }
 
     @Test
     fun `#close with path should close and dispose sub dependency graphs by path`() {
         val graph = openAll(*viewPath)
-        GraphRegistry.close(*viewPath)
+        tree.close(*viewPath)
         graph.isDisposed.shouldBeTrue()
-        GraphRegistry.has(*viewPath).shouldBeFalse()
+        tree.has(*viewPath).shouldBeFalse()
     }
 
     @Test
     fun `#close without path should dispose child dependency graphs and the root dependency graph itself`() {
-        val root = GraphRegistry.open()
-        val presentation = GraphRegistry.open("presentation")
-        val view = GraphRegistry.open(*viewPath)
+        val root = tree.open()
+        val presentation = tree.open("presentation")
+        val view = tree.open(*viewPath)
 
-        GraphRegistry.close()
+        tree.close()
         listOf(root, presentation, view).all { it.isDisposed }.shouldBeTrue()
     }
 
     @Test
     fun `#close with path should dispose child dependency graphs and the dependency graph itself`() {
-        val root = GraphRegistry.open()
-        val presentation = GraphRegistry.open("presentation")
-        val view = GraphRegistry.open(*viewPath)
+        val root = tree.open()
+        val presentation = tree.open("presentation")
+        val view = tree.open(*viewPath)
 
-        GraphRegistry.close("presentation")
+        tree.close("presentation")
         root.isDisposed.shouldBeFalse()
         listOf(presentation, view).all { it.isDisposed }.shouldBeTrue()
     }
 
     @Test
     fun `#closeIfOpen should do nothing if nothing is open in path`() {
-        GraphRegistry.closeIfOpen().shouldBeFalse()
-        GraphRegistry.closeIfOpen("presentation").shouldBeFalse()
+        tree.closeIfOpen().shouldBeFalse()
+        tree.closeIfOpen("presentation").shouldBeFalse()
     }
 
     @Test
     fun `#closeIfOpen should close existing path`() {
         val view = openAll(*viewPath)
-        GraphRegistry.closeIfOpen(*viewPath).shouldBeTrue()
+        tree.closeIfOpen(*viewPath).shouldBeTrue()
         view.isDisposed.shouldBeTrue()
 
-        val root = GraphRegistry.get()
-        GraphRegistry.closeIfOpen().shouldBeTrue()
+        val root = tree.get()
+        tree.closeIfOpen().shouldBeTrue()
         root.isDisposed.shouldBeTrue()
     }
 
     private fun openAll(vararg pathTokens: Any): Graph {
         (-1..pathTokens.lastIndex)
-                .map { pathTokens.slice(0..it).toTypedArray() }
-                .filterNot { GraphRegistry.has(*it) }
-                .forEach { GraphRegistry.open(*it) }
-        return GraphRegistry.get(*pathTokens)
+            .map { pathTokens.slice(0..it).toTypedArray() }
+            .filterNot { tree.has(*it) }
+            .forEach { tree.open(*it) }
+        return tree.get(*pathTokens)
     }
 
 }

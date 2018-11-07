@@ -1,45 +1,38 @@
 package io.jentz.winter.rxjava2
 
-import io.jentz.winter.*
+import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Graph
+import io.jentz.winter.Scope
+import io.jentz.winter.WinterApplication
+import io.jentz.winter.plugin.Plugin
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 /**
- * Winter plugin that adds all singletons that are instances of [Disposable] to a
- * [CompositeDisposable] and disposes that on graph dispose.
+ * Winter plugin that adds a [CompositeDisposable] to every graph, adds all singleton scoped
+ * instances which implement [Disposable] to it and disposes the [CompositeDisposable] when
+ * the [Graph] gets disposed.
  */
-object WinterDisposablePlugin {
-
-    private val initializingComponentPlugin: InitializingComponentPlugin = { _, builder ->
+object WinterDisposablePlugin : Plugin {
+    override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
         builder.constant(CompositeDisposable())
     }
 
-    private val postConstructPlugin: PostConstructPlugin = { graph, scope, _, instance ->
+    override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
         if (scope == Scope.Singleton && instance is Disposable) {
             graph.instance<CompositeDisposable>().add(instance)
         }
     }
 
-    private val disposePlugin: GraphDisposePlugin = { graph ->
+    override fun graphDispose(graph: Graph) {
         graph.instance<CompositeDisposable>().dispose()
     }
+}
 
-    /**
-     * Register this on [WinterPlugins].
-     */
-    fun install() {
-        WinterPlugins.addInitializingComponentPlugin(initializingComponentPlugin)
-        WinterPlugins.addPostConstructPlugin(postConstructPlugin)
-        WinterPlugins.addGraphDisposePlugin(disposePlugin)
-    }
+fun WinterApplication.installDisposablePlugin() {
+    plugins.register(WinterDisposablePlugin)
+}
 
-    /**
-     * Unregister this from [WinterPlugins].
-     */
-    fun uninstall() {
-        WinterPlugins.removeInitializingComponentPlugin(initializingComponentPlugin)
-        WinterPlugins.removePostConstructPlugin(postConstructPlugin)
-        WinterPlugins.removeGraphDisposePlugin(disposePlugin)
-    }
-
+fun WinterApplication.uninstallDisposablePlugin() {
+    plugins.unregister(WinterDisposablePlugin)
 }

@@ -1,20 +1,12 @@
 package io.jentz.winter
 
 /**
- * The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).
+ * An object version of [WinterTree] that uses [Winter] as its [WinterApplication].
  *
- * For example consider the following application component of a basic Android application:
+ * Here an Android example where we use this to create a presentation graph that
+ * survives configuration changes and an Activity graph that gets recreated every time.
  *
- * ```
- * GraphRegistry.component = component { // the application component
- *   // A presentation subcomponent that survives orientation changes
- *   subcomponent("presentation") {
- *     // The activity subcomponent that gets recreated with every device rotation
- *     subcomponent("activity") {
- *     }
- *   }
- * }
- * ```
+ * Those details a usually hidden in a [WinterInjection.Adapter].
  *
  * Create the application dependency graph on application start:
  *
@@ -23,6 +15,16 @@ package io.jentz.winter
  *   override fun onCreate() {
  *     super.onCreate()
  *
+ *     Winter.component {
+ *       // A presentation subcomponent that survives orientation changes
+ *       subcomponent("presentation") {
+ *         // The activity subcomponent that gets recreated with every device rotation
+ *         subcomponent("activity") {
+ *         }
+ *       }
+ *     }
+ *
+ *     // open the application root graph
  *     GraphRegistry.open() {
  *       constant<Application> { this@MyApplication }
  *       constant<Context> { this@MyApplication }
@@ -37,22 +39,27 @@ package io.jentz.winter
  * class MyActivity : Activity() {
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     // open presentation graph if not already open
- *     if (!GraphRegistry.has("presentation")) GraphRegistry.open("presentation")
- *     // open activity graph
- *     GraphRegistry.open("presentation", "activity") {
- *       constant<Activity>(theActivityInstance)
+ *     // Open the presentation graph if not already open.
+ *     // Since we could have multiple activity instances at the same time we use the Activity class
+ *     // as an identifier for the presentation graph.
+ *     if (!GraphRegistry.has(javaClass)) GraphRegistry.open("presentation", identifier = javaClass)
+ *
+ *     // Open the activity graph.
+ *     // Here the same but we use the instance as identifier for the activity graph.
+ *     GraphRegistry.open(javaClass, "activity", identifier = this) {
+ *       constant<Context>(this@MyActivity)
+ *       constant<Activity>(this@MyActivity)
  *     }
  *     super.onCreate(savedInstanceState)
  *   }
  *
  *   override fun onDestroy() {
- *     // if we are leaving the scope of the activity then we close "presentation"
+ *     // If we are leaving the scope of the activity then we close the "presentation" graph.
  *     if (isFinishing) {
- *       GraphRegistry.close("presentation")
- *     // and if this is just recreating then we just close "activity"
+ *       GraphRegistry.close(javaClass)
+ *     // And if this is just recreating then we just close the "activity" graph.
  *     } else {
- *       GraphRegistry.close("presentation", "activity")
+ *       GraphRegistry.close(javaClass, this)
  *     }
  *     super.onDestroy()
  *   }
@@ -60,43 +67,6 @@ package io.jentz.winter
  * }
  * ```
  *
- * If you need multiple instances of the same subcomponent you can pass an `identifier` parameter
- * to the open method to register the graph instance under a different `identifier` than its
- * component qualifier:
- *
- * ```
- * GraphRegistry.open("presentation", "activity", identifier: theActivityInstance) {
- *   constant<Activity>(theActivityInstance)
- * }
- * ```
- *
- * Close the activity graph:
- *
- * ```
- * GraphRegistry.close("presentation", "activity")
- * ```
- *
- * Close the activity graph that was created with an identifier:
- *
- * ```
- * GraphRegistry.close("presentation", theActivityInstance)
- * ```
- *
- * [GraphRegistry.close] will remove and dispose all child dependency graphs from the registry.
- * So in our example above the call:
- *
- * ```
- * GraphRegistry.close("presentation")
- * ```
- *
- * will also close all activity dependency graphs.
- *
- * To get an instance of a dependency graph use [get][GraphRegistry.get]:
- * ```
- * GraphRegistry.get()               // Get the root dependency graph
- * GraphRegistry.get("presentation") // Get the presentation dependency graph
- * ```
- *
  * @see WinterTree
  */
-object GraphRegistry : WinterTree()
+object GraphRegistry : WinterTree(Winter)

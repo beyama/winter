@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import com.nhaarman.mockito_kotlin.whenever
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.WinterTree
-import io.jentz.winter.component
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -29,15 +29,16 @@ class AndroidPresentationScopeAdapterTest {
     @Mock private lateinit var view: View
     @Mock private lateinit var contextWrapper: ContextWrapper
 
-    private val applicationComponent = component {
+    private val testApplication = WinterApplication {
         subcomponent("presentation") {
             subcomponent("activity") {
             }
         }
     }
 
-    private val adapter = AndroidPresentationScopeAdapter(applicationComponent)
-    private val tree = adapter.tree
+    private val tree = WinterTree(testApplication)
+
+    private val adapter = AndroidPresentationScopeAdapter(tree)
 
     @Before
     fun beforeEach() {
@@ -103,7 +104,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with activity should get graph from tree`() {
-        val presentationIdentifier = activity.javaClass.name
+        val presentationIdentifier = activity.javaClass
         tree.open()
         tree.open("presentation", identifier = presentationIdentifier)
 
@@ -113,7 +114,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = applicationComponent.init()
+        val graph = testApplication.init()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
@@ -142,7 +143,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#disposeGraph with Activity instance should only close Activity graph`() {
-        val presentationIdentifier = activity.javaClass.name
+        val presentationIdentifier = activity.javaClass
         tree.open()
         tree.open("presentation", identifier = presentationIdentifier)
         tree.open(presentationIdentifier, "activity", identifier = activity)
@@ -156,7 +157,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#disposeGraph with Activity instance should close Activity graph when Activity is finishing`() {
-        val presentationIdentifier = activity.javaClass.name
+        val presentationIdentifier = activity.javaClass
         tree.open()
         tree.open("presentation", identifier = presentationIdentifier)
         tree.open(presentationIdentifier, "activity", identifier = activity)
@@ -167,6 +168,5 @@ class AndroidPresentationScopeAdapterTest {
         adapter.disposeGraph(activity)
         tree.has(presentationIdentifier).shouldBeFalse()
     }
-
 
 }

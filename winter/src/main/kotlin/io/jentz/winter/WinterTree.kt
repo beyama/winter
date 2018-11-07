@@ -1,6 +1,7 @@
 package io.jentz.winter
 
-import io.jentz.winter.WinterTree.State.*
+import io.jentz.winter.WinterTree.State.Initialized
+import io.jentz.winter.WinterTree.State.Uninitialized
 
 /**
  * WinterTree manages dependency graphs in a tree (directed acyclic graph).
@@ -8,10 +9,10 @@ import io.jentz.winter.WinterTree.State.*
  *
  * Example:
  * ```
- * val tree = WinterTree()
- * tree.component = component {
+ * Winter.component {
  *   // ... the component definition
  * }
+ * val tree = WinterTree(Winter)
  * // open the root graph (initialize the trees component)
  * tree.open()
  * // or supply a builder block to extend the resulting graph
@@ -31,11 +32,8 @@ import io.jentz.winter.WinterTree.State.*
  * // respectively
  * tree.open("other name", "sub-subcomponent name")
  * ```
- * For more examples and documentation see the standalone implementation [GraphRegistry].
- *
- * @see GraphRegistry
  */
-open class WinterTree {
+open class WinterTree(private val application: WinterApplication) {
 
     private class Node(
         val parent: Node?,
@@ -73,41 +71,18 @@ open class WinterTree {
 
     private sealed class State {
         object Uninitialized : State()
-        class ComponentSet(val component: Component) : State()
-        class Initialized(val component: Component, val root: Node) : State()
+        class Initialized(val root: Node) : State()
     }
 
     private var state: State = Uninitialized
 
-    private inline fun <T> synchronizedState(fn: (State) -> T): T =
-        synchronized(this) { fn(state) }
-
-    private inline fun <T> foldInitialized(
+    private inline fun <T> fold(
         ifUninitialized: () -> T,
         ifInitialized: (Initialized) -> T
-    ): T = synchronizedState {
-        if (it is Initialized) ifInitialized(it) else ifUninitialized()
+    ): T = synchronized(this) {
+        val state = state
+        if (state is Initialized) ifInitialized(state) else ifUninitialized()
     }
-
-    /**
-     * The [component][Component] that is used to create the root dependency graph.
-     *
-     * Setting this will close all previously opened graphs.
-     */
-    var component: Component?
-        get() = synchronizedState { state ->
-            when (state) {
-                is Uninitialized -> null
-                is ComponentSet -> state.component
-                is Initialized -> state.component
-            }
-        }
-        set(value) {
-            synchronized(this) {
-                closeIfOpen()
-                state = if (value != null) ComponentSet(value) else Uninitialized
-            }
-        }
 
     /**
      * Get a registered dependency graph by path.
@@ -117,7 +92,7 @@ open class WinterTree {
      *
      * @throws WinterException When no graph is open or when no graph was found in [path].
      */
-    fun get(vararg path: Any): Graph = foldInitialized<Graph>({
+    fun get(vararg path: Any): Graph = fold<Graph>({
         throw WinterException("GraphRegistry.get called but there is no open graph.")
     }) { state ->
         state.root.getNodeOrNull(path)?.graph
@@ -128,13 +103,13 @@ open class WinterTree {
      * Returns true if an entry under the given [path] exists otherwise false.
      */
     fun has(vararg path: Any): Boolean =
-        foldInitialized({ false }) { it.root.getNodeOrNull(path) != null }
+        fold({ false }) { it.root.getNodeOrNull(path) != null }
 
     /**
      * Create and return dependency graph by (sub-)component path without registering it.
      *
      * @param path The path of the (sub-)component to initialize.
-     * @param builderBlock An optional [ComponentBuilderBlock] that's passed to the (sub-)component
+     * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
      *                     init method.
      *
      * @return The created [Graph].
@@ -143,28 +118,22 @@ open class WinterTree {
      */
     fun create(
         vararg path: Any,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = synchronizedState { state ->
-        when (state) {
-            is Uninitialized -> throw WinterException("No component set.")
-            is ComponentSet -> {
-                if (path.isNotEmpty()) {
-                    throw WinterException(
-                        "Cannot create `${pathToString(path)}` because root graph is not open."
-                    )
-                }
-                state.component.init(builderBlock)
-            }
-            is Initialized -> {
-                val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
-                    ?: throw WinterException(
-                        "Cannot create `${pathToString(path)}` because " +
-                                "`${pathToString(path, path.lastIndex)}` is not open."
-                    )
-                val qualifier = path.last()
-                parentNode.graph.initSubcomponent(qualifier, builderBlock)
-            }
+        block: ComponentBuilderBlock? = null
+    ): Graph = fold({
+        if (path.isNotEmpty()) {
+            throw WinterException(
+                "Cannot create `${pathToString(path)}` because root graph is not open."
+            )
         }
+        application.init(block)
+    }) { state ->
+        val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
+            ?: throw WinterException(
+                "Cannot create `${pathToString(path)}` because " +
+                        "`${pathToString(path, path.lastIndex)}` is not open."
+            )
+        val qualifier = path.last()
+        parentNode.graph.initSubcomponent(qualifier, block)
     }
 
     /**
@@ -173,7 +142,7 @@ open class WinterTree {
      *
      * @param path The path of the (sub-)component to initialize.
      * @param identifier An optional identifier to store the sub dependency graph under.
-     * @param builderBlock An optional [ComponentBuilderBlock] that's passed to the (sub-)component
+     * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
      *                     init method.
      *
      * @return The newly created and registered graph.
@@ -184,55 +153,44 @@ open class WinterTree {
     fun open(
         vararg path: Any,
         identifier: Any? = null,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = synchronizedState { state ->
-        when (state) {
-            is Uninitialized -> throw WinterException("No component set.")
-            is ComponentSet -> {
-                if (path.isNotEmpty()) {
-                    throw WinterException(
-                        "Cannot open path `${pathToString(path)}` because root graph is not opened."
-                    )
-                }
-                if (identifier != null) {
-                    throw IllegalArgumentException(
-                        "Argument `identifier` for root graph is not supported."
-                    )
-                }
-                val rootGraph = state.component.init(builderBlock)
-
-                this.state = Initialized(
-                    state.component,
-                    Node(null, Any(), rootGraph)
-                )
-
-                rootGraph
-            }
-            is Initialized -> {
-                if (path.isEmpty()) {
-                    throw WinterException("Cannot open root graph because it is already open.")
-                }
-                val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
-                    ?: throw WinterException(
-                        "GraphRegistry.open can't open `${pathToString(path)}` because " +
-                                "`${pathToString(path, path.lastIndex)}` is not open."
-                    )
-
-                val qualifier = path.last()
-                val name = identifier ?: qualifier
-
-                if (parentNode.children[name] != null) {
-                    throw WinterException(
-                        "Cannot open `${pathToString(path, path.lastIndex, name)}` because it " +
-                                "is already open."
-                    )
-                }
-
-                val graph = parentNode.graph.initSubcomponent(qualifier, builderBlock)
-                parentNode.children[name] = Node(parentNode, name, graph)
-                graph
-            }
+        block: ComponentBuilderBlock? = null
+    ): Graph = fold({
+        if (path.isNotEmpty()) {
+            throw WinterException(
+                "Cannot open path `${pathToString(path)}` because root graph is not opened."
+            )
         }
+        if (identifier != null) {
+            throw IllegalArgumentException(
+                "Argument `identifier` for root graph is not supported."
+            )
+        }
+        val rootGraph = application.init(block)
+        this.state = Initialized(Node(null, Any(), rootGraph))
+        rootGraph
+    }) { state ->
+        if (path.isEmpty()) {
+            throw WinterException("Cannot open root graph because it is already open.")
+        }
+        val parentNode = state.root.getNodeOrNull(path, path.lastIndex)
+            ?: throw WinterException(
+                "GraphRegistry.open can't open `${pathToString(path)}` because " +
+                        "`${pathToString(path, path.lastIndex)}` is not open."
+            )
+
+        val qualifier = path.last()
+        val name = identifier ?: qualifier
+
+        if (parentNode.children[name] != null) {
+            throw WinterException(
+                "Cannot open `${pathToString(path, path.lastIndex, name)}` because it " +
+                        "is already open."
+            )
+        }
+
+        val graph = parentNode.graph.initSubcomponent(qualifier, block)
+        parentNode.children[name] = Node(parentNode, name, graph)
+        graph
     }
 
     /**
@@ -243,7 +201,7 @@ open class WinterTree {
      * @throws WinterException When no graph was found in path.
      */
     fun close(vararg path: Any) {
-        foldInitialized({
+        fold({
             throw WinterException("Cannot close because noting is open.")
         }) { state ->
             val node = state.root.getNodeOrNull(path) ?: throw WinterException(
@@ -261,7 +219,7 @@ open class WinterTree {
      * @return true if given [path] was open otherwise false.
      */
     fun closeIfOpen(vararg path: Any): Boolean =
-        foldInitialized({ false }) { state ->
+        fold({ false }) { state ->
             val node = state.root.getNodeOrNull(path) ?: return false
             disposeNode(state, node)
             true
@@ -270,7 +228,7 @@ open class WinterTree {
     private fun disposeNode(state: Initialized, node: Node) {
         node.dispose()
         if (state.root === node) {
-            this.state = ComponentSet(state.component)
+            this.state = Uninitialized
         }
     }
 

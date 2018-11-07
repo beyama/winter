@@ -14,7 +14,7 @@ import io.jentz.winter.*
  * It expects an application component like:
  *
  * ```
- * val applicationComponent = component {
+ * Winter.component {
  *   // this sub-graph outlives configuration changes and is only disposed when Activity
  *   // isFinishing == true
  *   subcomponent("presentation") {
@@ -23,7 +23,7 @@ import io.jentz.winter.*
  *     }
  *   }
  * }
- * Injection.adapter = AndroidPresentationScopeAdapter(applicationComponent)
+ * Injection.useAndroidPresentationScopeAdapter()
  * ```
  *
  * The adapter registers the [Application] as [Context] and [Application] on the application graph
@@ -40,10 +40,8 @@ import io.jentz.winter.*
  *
  */
 open class AndroidPresentationScopeAdapter(
-    component: Component
-) : Injection.Adapter {
-
-    val tree = WinterTree().also { it.component = component }
+    protected val tree: WinterTree
+) : WinterInjection.Adapter {
 
     override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
         return when (instance) {
@@ -92,6 +90,27 @@ open class AndroidPresentationScopeAdapter(
         }
     }
 
-    private fun presentationIdentifier(activity: Activity) = activity.javaClass.name
+    private fun presentationIdentifier(activity: Activity) = activity.javaClass
 
+}
+
+/**
+ * Register an [AndroidPresentationScopeAdapter] on this [WinterInjection] instance.
+ *
+ * Use the [tree] parameter if you have your own object version of [WinterTree] that should be used
+ * which may be useful when Winter is used in a library.
+ *
+ * @param tree The tree to operate on.
+ */
+fun WinterInjection.useAndroidPresentationScopeAdapter(tree: WinterTree = GraphRegistry) {
+    adapter = AndroidPresentationScopeAdapter(tree)
+}
+
+/**
+ * Register an [AndroidPresentationScopeAdapter] on this [WinterInjection] instance.
+ *
+ * @param application The [WinterApplication] instance to be used by the adapter.
+ */
+fun WinterInjection.useAndroidPresentationScopeAdapter(application: WinterApplication) {
+    adapter = AndroidPresentationScopeAdapter(WinterTree(application))
 }

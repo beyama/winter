@@ -20,10 +20,8 @@ import io.jentz.winter.*
  *
  */
 open class SimpleAndroidInjectionAdapter(
-    component: Component
-) : Injection.Adapter {
-
-    val tree = WinterTree().also { it.component = component }
+    protected val tree: WinterTree
+) : WinterInjection.Adapter {
 
     override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
         return when (instance) {
@@ -60,4 +58,25 @@ open class SimpleAndroidInjectionAdapter(
         }
     }
 
+}
+
+/**
+ * Register a [SimpleAndroidInjectionAdapter] on this [WinterInjection] instance.
+ *
+ * Use the [tree] parameter if you have your own object version of [WinterTree] that should be used
+ * which may be useful when Winter is used in a library.
+ *
+ * @param tree The tree to operate on.
+ */
+fun WinterInjection.useSimpleAndroidAdapter(tree: WinterTree = GraphRegistry) {
+    adapter = SimpleAndroidInjectionAdapter(tree)
+}
+
+/**
+ * Register a [SimpleAndroidInjectionAdapter] on this [WinterInjection] instance.
+ *
+ * @param application The [WinterApplication] instance to be used by the adapter.
+ */
+fun WinterInjection.useSimpleAndroidAdapter(application: WinterApplication) {
+    adapter = SimpleAndroidInjectionAdapter(WinterTree(application))
 }

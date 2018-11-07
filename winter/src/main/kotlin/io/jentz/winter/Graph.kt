@@ -8,6 +8,7 @@ package io.jentz.winter
 class Graph internal constructor(
     parent: Graph?,
     component: Component,
+    val application: WinterApplication,
     block: ComponentBuilderBlock?
 ) {
 
@@ -23,6 +24,7 @@ class Graph internal constructor(
     }
 
     private var state: State
+    private val plugins = application.plugins
 
     private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
         return synchronized(this) {
@@ -50,11 +52,11 @@ class Graph internal constructor(
     val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
-        val baseComponent = if (WinterPlugins.hasInitializingComponentPlugins || block != null) {
+        val baseComponent = if (plugins.isNotEmpty() || block != null) {
             component(component.qualifier) {
                 include(component)
                 block?.invoke(this)
-                WinterPlugins.runInitializingComponentPlugins(parent, this)
+                plugins.runInitializingComponent(parent, this)
             }
         } else {
             component
@@ -371,7 +373,7 @@ class Graph internal constructor(
      * @param block An optional builder block to register provider on the subcomponent.
      */
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        map { Graph(this, instance(qualifier), block) }
+        map { Graph(this, instance(qualifier), application, block) }
 
     /**
      * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
@@ -383,7 +385,7 @@ class Graph internal constructor(
     fun dispose() {
         fold({}) { (_, _, _, cache) ->
             try {
-                WinterPlugins.runGraphDisposePlugins(this)
+                plugins.runGraphDispose(this)
                 cache.values.forEach { boundService -> boundService.dispose() }
             } finally {
                 state = State.Disposed

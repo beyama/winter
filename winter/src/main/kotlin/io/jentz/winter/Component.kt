@@ -73,13 +73,15 @@ class Component internal constructor(
     /**
      * Create a [dependency graph][Graph] from this component.
      *
+     * @param application The [WinterApplication] to use.
      * @param block An optional builder block to extend the component before creating the graph.
      * @return An instance of [Graph] backed by this component.
      */
     @JvmOverloads
-    fun init(block: ComponentBuilderBlock? = null): Graph {
-        return Graph(null, this, block)
-    }
+    fun init(
+        application: WinterApplication = Winter,
+        block: ComponentBuilderBlock? = null
+    ): Graph = Graph(null, this, application, block)
 
     internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
         dependencies.forEach(block)

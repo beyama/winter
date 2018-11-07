@@ -60,7 +60,7 @@ typealias Provider<R> = () -> R
 typealias Factory<A, R> = (A) -> R
 
 /**
- * Returns [TypeKey] for [MembersInjector] of type [T].
+ * Returns [TypeKey] for [MembersInjector] for type [T].
  *
  * Used in conjunction with JSR-330 annotation processor.
  */

@@ -1,10 +1,7 @@
 package io.jentz.winter.android
 
 import android.content.Context
-import io.jentz.winter.Graph
-import io.jentz.winter.Injection
-import io.jentz.winter.Injector
-import io.jentz.winter.MembersInjector
+import io.jentz.winter.*
 import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
@@ -66,14 +63,14 @@ object AndroidInjection {
     /**
      * Adapter interface for Android application specific graph creation and retrieval strategy.
      */
-    @Deprecated("Use io.jentz.winter.Injection.Adapter")
-    interface Adapter : Injection.Adapter
+    @Deprecated("Use io.jentz.winter.WinterInjection.Adapter")
+    interface Adapter : WinterInjection.Adapter
 
     /**
      * Set the application specific [adapter][Adapter].
      * The default adapter is the [SimpleAndroidInjectionAdapter].
      */
-    var adapter: Injection.Adapter
+    var adapter: WinterInjection.Adapter
         get() = Injection.adapter
         set(value) {
             Injection.adapter = value

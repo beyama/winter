@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import com.nhaarman.mockito_kotlin.whenever
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.WinterTree
-import io.jentz.winter.component
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -28,13 +28,13 @@ class SimpleAndroidInjectionAdapterTest {
     @Mock private lateinit var view: View
     @Mock private lateinit var contextWrapper: ContextWrapper
 
-    private val applicationComponent = component {
+    private val testApplication = WinterApplication {
         subcomponent("activity") {
         }
     }
 
-    private val adapter = SimpleAndroidInjectionAdapter(applicationComponent)
-    private val tree = adapter.tree
+    private val tree = WinterTree(testApplication)
+    private val adapter = SimpleAndroidInjectionAdapter(tree)
 
     @Before
     fun beforeEach() {
@@ -49,7 +49,6 @@ class SimpleAndroidInjectionAdapterTest {
         graph.instance<Application>().shouldBe(application)
         graph.instance<Context>().shouldBe(application)
         graph.instance<WinterTree>().shouldBeSameInstanceAs(tree)
-
     }
 
     @Test
@@ -58,8 +57,6 @@ class SimpleAndroidInjectionAdapterTest {
         val graph = adapter.createGraph(application) {
             constant(instance)
         }
-
-        graph.instance<String>().shouldBe("application")
         graph.instance<Any>().shouldBeSameInstanceAs(instance)
     }
 
@@ -96,7 +93,7 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = applicationComponent.init()
+        val graph = testApplication.init()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
