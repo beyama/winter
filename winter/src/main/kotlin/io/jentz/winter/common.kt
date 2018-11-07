@@ -1,16 +1,16 @@
 package io.jentz.winter
 
-private val EMPTY_COMPONENT = Component(null, emptyMap())
+private val emptyComponent = Component(null, emptyMap())
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
  */
-fun emptyComponent(): Component = EMPTY_COMPONENT
+fun emptyComponent(): Component = emptyComponent
 
 /**
  * Returns a [Graph] with empty component.
  */
-fun emptyGraph(): Graph = Graph(null, EMPTY_COMPONENT, Winter, null)
+fun emptyGraph(): Graph = emptyComponent.init()
 
 /**
  * Function signature alias for component builder DSL blocks.
