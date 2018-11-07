@@ -15,7 +15,7 @@ class InjectorTest {
 
     private val atomicInteger = AtomicInteger(0)
 
-    private val emptyGraph = graph {}
+    private val emptyGraph = emptyGraph()
 
     private val testComponent = component {
         prototype { atomicInteger.incrementAndGet() }
@@ -96,17 +96,20 @@ class InjectorTest {
 
         @Test
         fun `should return ProviderProperty for #provider with argument`() {
-            injector.provider<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.ProviderProperty<*, *>>()
+            injector.provider<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.ProviderProperty<*, *>>()
         }
 
         @Test
         fun `should return ProviderOrNullProperty for #providerOrNull`() {
-            injector.providerOrNull<String>().shouldBeInstanceOf<Injector.ProviderOrNullProperty<*, *>>()
+            injector.providerOrNull<String>()
+                .shouldBeInstanceOf<Injector.ProviderOrNullProperty<*, *>>()
         }
 
         @Test
         fun `should return ProviderOrNullProperty for #providerOrNull with argument`() {
-            injector.providerOrNull<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.ProviderOrNullProperty<*, *>>()
+            injector.providerOrNull<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.ProviderOrNullProperty<*, *>>()
         }
 
         @Test
@@ -116,52 +119,62 @@ class InjectorTest {
 
         @Test
         fun `should return InstanceProperty for #instance with argument`() {
-            injector.instance<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.InstanceProperty<*, *>>()
+            injector.instance<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.InstanceProperty<*, *>>()
         }
 
         @Test
         fun `should return InstanceOrNullProperty for #instanceOrNull`() {
-            injector.instanceOrNull<String>().shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
+            injector.instanceOrNull<String>()
+                .shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
         }
 
         @Test
         fun `should return InstanceOrNullProperty for #instanceOrNull with argument`() {
-            injector.instanceOrNull<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
+            injector.instanceOrNull<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
         }
 
         @Test
         fun `should return LazyInstanceProperty for #lazyInstance`() {
-            injector.lazyInstance<String>().shouldBeInstanceOf<Injector.LazyInstanceProperty<*, *>>()
+            injector.lazyInstance<String>()
+                .shouldBeInstanceOf<Injector.LazyInstanceProperty<*, *>>()
         }
 
         @Test
         fun `should return LazyInstanceProperty for #lazyInstance with argument`() {
-            injector.lazyInstance<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.LazyInstanceProperty<*, *>>()
+            injector.lazyInstance<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.LazyInstanceProperty<*, *>>()
         }
 
         @Test
         fun `should return LazyInstanceOrNullProperty for #lazyInstanceOrNull`() {
-            injector.lazyInstanceOrNull<String>().shouldBeInstanceOf<Injector.LazyInstanceOrNullProperty<*, *>>()
+            injector.lazyInstanceOrNull<String>()
+                .shouldBeInstanceOf<Injector.LazyInstanceOrNullProperty<*, *>>()
         }
 
         @Test
         fun `should return LazyInstanceOrNullProperty for #lazyInstanceOrNull with argument`() {
-            injector.lazyInstanceOrNull<Unit, String>(argument = Unit).shouldBeInstanceOf<Injector.LazyInstanceOrNullProperty<*, *>>()
+            injector.lazyInstanceOrNull<Unit, String>(argument = Unit)
+                .shouldBeInstanceOf<Injector.LazyInstanceOrNullProperty<*, *>>()
         }
 
         @Test
         fun `should return ProvidersOfTypeProperty for #providersOfType`() {
-            injector.providersOfType<String>().shouldBeInstanceOf<Injector.ProvidersOfTypeProperty<*>>()
+            injector.providersOfType<String>()
+                .shouldBeInstanceOf<Injector.ProvidersOfTypeProperty<*>>()
         }
 
         @Test
         fun `should return InstancesOfTypeProperty for #instancesOfType`() {
-            injector.instancesOfType<String>().shouldBeInstanceOf<Injector.InstancesOfTypeProperty<*>>()
+            injector.instancesOfType<String>()
+                .shouldBeInstanceOf<Injector.InstancesOfTypeProperty<*>>()
         }
 
         @Test
         fun `should return LazyInstancesOfTypeProperty for #lazyInstancesOfType`() {
-            injector.lazyInstancesOfType<String>().shouldBeInstanceOf<Injector.LazyInstancesOfTypeProperty<*>>()
+            injector.lazyInstancesOfType<String>()
+                .shouldBeInstanceOf<Injector.LazyInstancesOfTypeProperty<*>>()
         }
 
         @Test
@@ -171,7 +184,8 @@ class InjectorTest {
 
         @Test
         fun `should return InstanceOrNullProperty for #factoryOrNull`() {
-            injector.factoryOrNull<Int, String>().shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
+            injector.factoryOrNull<Int, String>()
+                .shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
         }
 
     }
@@ -204,7 +218,8 @@ class InjectorTest {
 
         @Test
         fun `returns a provider block that resolves dependency with argument when called`() {
-            val property = Injector.ProviderProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+            val property =
+                Injector.ProviderProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
             property.inject(testComponent.init())
             val provider = property.value
             provider().shouldBe("42")
@@ -241,7 +256,8 @@ class InjectorTest {
 
         @Test
         fun `returns a provider block that resolves dependency with argument when called`() {
-            val property = Injector.ProviderOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+            val property =
+                Injector.ProviderOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
             property.inject(testComponent.init())
             val provider = property.value
             provider?.invoke().shouldBe("42")
@@ -302,7 +318,8 @@ class InjectorTest {
 
         @Test
         fun `should eagerly resolve dependency`() {
-            Injector.InstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit).inject(testComponent.init())
+            Injector.InstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit)
+                .inject(testComponent.init())
             atomicInteger.get().shouldBe(1)
         }
 
@@ -329,7 +346,8 @@ class InjectorTest {
         @Test
         fun `throws an exception when dependency can't be found`() {
             shouldThrow<EntryNotFoundException> {
-                Injector.LazyInstanceProperty<Unit, String>(typeKey<String>(), Unit).inject(emptyGraph)
+                Injector.LazyInstanceProperty<Unit, String>(typeKey<String>(), Unit)
+                    .inject(emptyGraph)
             }
         }
 
@@ -383,10 +401,11 @@ class InjectorTest {
 
         @Test
         fun `should resolve dependency with argument`() {
-            Injector.LazyInstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
-                inject(testComponent.init())
-                value.shouldBe("42")
-            }
+            Injector.LazyInstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+                .apply {
+                    inject(testComponent.init())
+                    value.shouldBe("42")
+                }
         }
 
     }
@@ -497,11 +516,11 @@ class InjectorTest {
         @Test
         fun `#value should apply mapping function to given property value`() {
             Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit)
-                    .map { it * 3 }
-                    .apply {
-                        inject(testComponent.init())
-                        value.shouldBe(3)
-                    }
+                .map { it * 3 }
+                .apply {
+                    inject(testComponent.init())
+                    value.shouldBe(3)
+                }
         }
 
     }

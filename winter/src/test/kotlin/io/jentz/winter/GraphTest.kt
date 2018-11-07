@@ -19,9 +19,9 @@ import java.util.concurrent.Executors
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GraphTest {
 
-    private val emptyComponent = component { }
+    private val emptyComponent = emptyComponent()
 
-    private val emptyGraph = emptyComponent.init()
+    private val emptyGraph = emptyGraph()
 
     private val instance = Any()
 
