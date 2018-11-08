@@ -23,18 +23,18 @@ open class SimpleAndroidInjectionAdapter(
     protected val tree: WinterTree
 ) : WinterInjection.Adapter {
 
-    override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
+    override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
             is Application -> tree.open {
                 constant(tree)
                 constant(instance)
                 constant<Context>(instance)
-                builderBlock?.invoke(this)
+                block?.invoke(this)
             }
             is Activity -> tree.open("activity", identifier = instance) {
                 constant(instance)
                 constant<Context>(instance)
-                builderBlock?.invoke(this)
+                block?.invoke(this)
             }
             else -> throw WinterException("Can't create dependency graph for instance <$instance>.")
         }

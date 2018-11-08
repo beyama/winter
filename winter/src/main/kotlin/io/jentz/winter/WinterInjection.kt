@@ -34,12 +34,12 @@ open class WinterInjection {
          * The adapter implementation is responsible for storing the created graph.
          *
          * @param instance The instance to create a dependency graph for.
-         * @param builderBlock An optional builder block to pass to the component init method.
+         * @param block An optional builder block to pass to the component init method.
          * @return The newly created graph
          * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
          *
          */
-        fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph
+        fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph
 
         /**
          * Dispose the dependency graph of the given [instance].
@@ -61,12 +61,12 @@ open class WinterInjection {
      * Create and return dependency graph for [instance].
      *
      * @param instance The instance for which a graph should be created.
-     * @param builderBlock An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component init method.
      * @return The newly created graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
-    fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock? = null): Graph =
-        adapter.createGraph(instance, builderBlock)
+    fun createGraph(instance: Any, block: ComponentBuilderBlock? = null): Graph =
+        adapter.createGraph(instance, block)
 
     /**
      * Create and return dependency graph for [instance] and also pass the graph to the given
@@ -74,15 +74,15 @@ open class WinterInjection {
      *
      * @param instance The instance for which a graph should be created.
      * @param injector The injector to inject into.
-     * @param builderBlock An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component init method.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun createGraphAndInject(
         instance: Any,
         injector: Injector,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = createGraph(instance, builderBlock).also(injector::inject)
+        block: ComponentBuilderBlock? = null
+    ): Graph = createGraph(instance, block).also(injector::inject)
 
     /**
      * Create and return dependency graph for [instance] and inject all members into instance.
@@ -91,15 +91,15 @@ open class WinterInjection {
      *
      * @param instance The instance to create a graph for and to inject into.
      * @param injectSuperClasses If true this will look for members injectors for super classes too.
-     * @param builderBlock An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component init method.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun <T : Any> createGraphAndInject(
         instance: T,
         injectSuperClasses: Boolean = false,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = createGraph(instance, builderBlock).also { graph ->
+        block: ComponentBuilderBlock? = null
+    ): Graph = createGraph(instance, block).also { graph ->
         graph.inject(instance, injectSuperClasses)
     }
 

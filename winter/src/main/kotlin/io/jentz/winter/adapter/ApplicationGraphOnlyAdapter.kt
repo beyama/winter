@@ -12,8 +12,8 @@ class ApplicationGraphOnlyAdapter(
 
     override fun createGraph(
         instance: Any,
-        builderBlock: ComponentBuilderBlock?
-    ): Graph = tree.open(block = builderBlock)
+        block: ComponentBuilderBlock?
+    ): Graph = tree.open(block = block)
 
     override fun disposeGraph(instance: Any) {
         tree.close()
