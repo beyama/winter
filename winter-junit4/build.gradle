@@ -1,0 +1,49 @@
+plugins {
+    id 'kotlin'
+    id 'org.jetbrains.dokka'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
+}
+
+version = VERSION_NAME
+group = GROUP
+
+dependencies {
+    implementation deps.kotlin.stdlib
+
+    api project(':winter')
+    api deps.junit.junit4
+
+    testImplementation deps.kotlintest
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from dokka
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    includes = ['dokka-packages.md']
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-junit4/src/main/kotlin"
+        suffix = "#L"
+    }
+}
+
+detekt {
+    config = files(rootProject.file('detekt-config.yml'))
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

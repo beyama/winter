@@ -1,10 +1,8 @@
 package io.jentz.winter.android
 
 import android.content.Context
-import io.jentz.winter.Graph
-import io.jentz.winter.Injection
-import io.jentz.winter.Injector
-import io.jentz.winter.MembersInjector
+import io.jentz.winter.*
+import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
  * Retrieves application and activity graphs and injects into core Android types.
@@ -17,7 +15,7 @@ import io.jentz.winter.MembersInjector
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
- *     GraphRegistry.applicationComponent = component {
+ *     GraphRegistry.component = component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
  *       singleton { RepoListViewModel(instance()) }
@@ -65,14 +63,18 @@ object AndroidInjection {
     /**
      * Adapter interface for Android application specific graph creation and retrieval strategy.
      */
-    @Deprecated("Use io.jentz.winter.Injection.Adapter")
-    interface Adapter : Injection.Adapter
+    @Deprecated("Use io.jentz.winter.WinterInjection.Adapter")
+    interface Adapter : WinterInjection.Adapter
 
     /**
      * Set the application specific [adapter][Adapter].
      * The default adapter is the [SimpleAndroidInjectionAdapter].
      */
-    var adapter: Injection.Adapter = SimpleAndroidInjectionAdapter()
+    var adapter: WinterInjection.Adapter
+        get() = Injection.adapter
+        set(value) {
+            Injection.adapter = value
+        }
 
     /**
      * Create and return dependency graph for [instance].
@@ -82,7 +84,7 @@ object AndroidInjection {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     @JvmStatic
-    fun createGraph(instance: Any): Graph = adapter.createGraph(instance, null)
+    fun createGraph(instance: Any): Graph = Injection.createGraph(instance, null)
 
     /**
      * Create and return dependency graph for [instance] and also pass the graph to the given
@@ -95,7 +97,7 @@ object AndroidInjection {
      */
     @JvmStatic
     fun createGraphAndInject(instance: Any, injector: Injector): Graph =
-        createGraph(instance).also(injector::inject)
+        Injection.createGraphAndInject(instance, injector)
 
     /**
      * Create and return dependency graph for [instance] and also inject member.
@@ -111,7 +113,7 @@ object AndroidInjection {
     @JvmStatic
     @JvmOverloads
     fun <T : Any> createGraphAndInject(instance: T, injectSuperClasses: Boolean = false): Graph =
-        createGraph(instance).also { graph -> graph.inject(instance, injectSuperClasses) }
+        Injection.createGraphAndInject(instance, injectSuperClasses)
 
     /**
      * Get dependency graph for [instance].
@@ -121,7 +123,7 @@ object AndroidInjection {
      *
      */
     @JvmStatic
-    fun getGraph(instance: Any): Graph = adapter.getGraph(instance)
+    fun getGraph(instance: Any): Graph = Injection.getGraph(instance)
 
     /**
      * Get application dependency graph.
@@ -143,7 +145,7 @@ object AndroidInjection {
      */
     @JvmStatic
     fun disposeGraph(instance: Any) {
-        adapter.disposeGraph(instance)
+        Injection.disposeGraph(instance)
     }
 
     /**
@@ -155,7 +157,7 @@ object AndroidInjection {
      */
     @JvmStatic
     fun inject(instance: Any, injector: Injector) {
-        injector.inject(getGraph(instance))
+        Injection.inject(instance, injector)
     }
 
     /**
@@ -171,7 +173,7 @@ object AndroidInjection {
     @JvmStatic
     @JvmOverloads
     fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false) {
-        getGraph(instance).inject(instance, injectSuperClasses)
+        Injection.inject(instance, injectSuperClasses)
     }
 
 }

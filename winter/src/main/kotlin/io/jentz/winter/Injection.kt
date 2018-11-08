@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+import io.jentz.winter.WinterInjection.Adapter
+
 /**
  * Abstraction to create, get and dispose a dependency graph from a class that can't make use of
  * constructor injection. This takes the burden off of the class to know how exactly a graph
@@ -12,16 +14,18 @@ package io.jentz.winter
  * Injection.adapter = MyCustomAdapter()
  * ```
  *
- * Example using the included SimpleAndroidInjectionAdapter:
+ * To use this abstraction in a library it is recommended to create a library specific object
+ * from [WinterInjection].
+ *
+ * Example using the SimpleAndroidInjectionAdapter which is part of the winter-android module:
  *
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
  *     super.onCreate()
  *
- *     Injection.adapter = SimpleAndroidInjectionAdapter()
- *
- *     GraphRegistry.applicationComponent = component {
+ *     // register component
+ *     Winter.component {
  *       singleton<GitHubApi> { GitHubApiImpl() }
  *
  *       singleton { RepoListViewModel(instance()) }
@@ -31,6 +35,9 @@ package io.jentz.winter
  *       }
  *     }
  *
+ *     // register adapter
+ *     Injection.useSimpleAndroidAdapter()
+ *     // create root graph
  *     Injection.createGraph(this)
  *   }
  * }
@@ -51,168 +58,7 @@ package io.jentz.winter
  *
  * }
  * ```
+ *
+ * @see WinterInjection
  */
-object Injection {
-
-    /**
-     * Adapter interface to provide application specific graph creation and retrieval strategy.
-     */
-    interface Adapter {
-
-        /**
-         * Get dependency graph for [instance].
-         *
-         * @param instance The instance to get the graph for.
-         * @return The graph for [instance].
-         * @throws [io.jentz.winter.WinterException] if no graph for [instance] exists.
-         *
-         */
-        fun getGraph(instance: Any): Graph
-
-        /**
-         * Create dependency graph for [instance].
-         *
-         * The adapter implementation is responsible for storing the created graph.
-         *
-         * @param instance The instance to create a dependency graph for.
-         * @param builderBlock An optional builder block to pass to the component init method.
-         * @return The newly created graph
-         * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-         *
-         */
-        fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph
-
-        /**
-         * Dispose the dependency graph of the given [instance].
-         *
-         * @param instance The instance to dispose the graph for.
-         * @throws [io.jentz.winter.WinterException] if no graph for this [instance] type exists.
-         */
-        fun disposeGraph(instance: Any)
-    }
-
-    /**
-     * Simple adapter for application with only one dependency graph.
-     *
-     * Register your application component on [GraphRegistry.applicationComponent].
-     */
-    class ApplicationGraphOnlyAdapter : Adapter {
-        override fun getGraph(instance: Any): Graph = GraphRegistry.get()
-
-        override fun createGraph(
-            instance: Any,
-            builderBlock: ComponentBuilderBlock?
-        ): Graph = GraphRegistry.create(builderBlock = builderBlock)
-
-        override fun disposeGraph(instance: Any) {
-            GraphRegistry.close()
-        }
-    }
-
-    /**
-     * Set the application specific [adapter][Adapter].
-     *
-     * Default adapter is [ApplicationGraphOnlyAdapter].
-     */
-    var adapter: Adapter = ApplicationGraphOnlyAdapter()
-
-    /**
-     * Create and return dependency graph for [instance].
-     *
-     * @param instance The instance for which a graph should be created.
-     * @param builderBlock An optional builder block to pass to the component init method.
-     * @return The newly created graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    @JvmStatic
-    fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock? = null): Graph =
-        adapter.createGraph(instance, builderBlock)
-
-    /**
-     * Create and return dependency graph for [instance] and also pass the graph to the given
-     * [injector].
-     *
-     * @param instance The instance for which a graph should be created.
-     * @param injector The injector to inject into.
-     * @param builderBlock An optional builder block to pass to the component init method.
-     * @return The created dependency graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    @JvmStatic
-    fun createGraphAndInject(
-        instance: Any,
-        injector: Injector,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = createGraph(instance, builderBlock).also(injector::inject)
-
-    /**
-     * Create and return dependency graph for [instance] and inject all members into instance.
-     *
-     * This is useful in conjunction with JSR330 `Inject` annotations.
-     *
-     * @param instance The instance to create a graph for and to inject into.
-     * @param injectSuperClasses If true this will look for members injectors for super classes too.
-     * @param builderBlock An optional builder block to pass to the component init method.
-     * @return The created dependency graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun <T : Any> createGraphAndInject(
-        instance: T,
-        injectSuperClasses: Boolean = false,
-        builderBlock: ComponentBuilderBlock? = null
-    ): Graph = createGraph(instance, builderBlock).also { graph ->
-        graph.inject(instance, injectSuperClasses)
-    }
-
-    /**
-     * Get dependency graph for [instance].
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     *
-     */
-    @JvmStatic
-    fun getGraph(instance: Any): Graph = adapter.getGraph(instance)
-
-    /**
-     * Dispose the dependency graph of the given [instance].
-     *
-     * @param instance The instance to dispose the graph for.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    @JvmStatic
-    fun disposeGraph(instance: Any) {
-        adapter.disposeGraph(instance)
-    }
-
-    /**
-     * Get dependency graph for given [instance] and inject dependencies into injector.
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @param injector The injector to inject into.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    @JvmStatic
-    fun inject(instance: Any, injector: Injector) {
-        injector.inject(getGraph(instance))
-    }
-
-    /**
-     * Inject into [instance] by using the dependency graph of the [instance].
-     * This uses [MembersInjector] and is useful in conjunction with Winters JSR330 annotation
-     * processor.
-     *
-     * @param instance The instance to retrieve the dependency graph for and inject dependencies
-     *                 into.
-     * @param injectSuperClasses If true this will look for members injectors for super classes too.
-     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false) {
-        getGraph(instance).inject(instance, injectSuperClasses)
-    }
-
-}
+object Injection : WinterInjection()

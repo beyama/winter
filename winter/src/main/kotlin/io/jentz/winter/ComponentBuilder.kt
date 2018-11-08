@@ -4,8 +4,6 @@ package io.jentz.winter
  * Component builder DSL.
  */
 class ComponentBuilder internal constructor(val qualifier: Any?) {
-    private val registry: MutableMap<TypeKey, UnboundService<*, *>> = mutableMapOf()
-    private var subcomponentBuilders: MutableMap<TypeKey, ComponentBuilder>? = null
 
     enum class SubcomponentIncludeMode {
         /**
@@ -30,32 +28,35 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         Merge
     }
 
-    private var eagerDependencies: Set<TypeKey>? = null
+    private val registry: MutableMap<TypeKey, UnboundService<*, *>> = mutableMapOf()
+    private var eagerDependencies: Set<TypeKey> = emptySet()
+    private var subcomponentBuilders: MutableMap<TypeKey, ComponentBuilder>? = null
 
     /**
      * Include dependency from the given component into the new component.
      *
-     * @param component The component to include the dependency provider from.
+     * @param component The component to include the dependencies from.
+     * @param override Set to false to throw an exception if a dependency already exists
+     *                 otherwise it will be replaced.
+     * @param subcomponentIncludeMode Defines the behaviour when a subcomponent with the same
+     *                                qualifier already exists.
      */
     fun include(
         component: Component,
         override: Boolean = true,
         subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
     ) {
-        component.dependencies.forEach { (k, v) ->
+        component.forEach { (k, v) ->
             when {
                 k === eagerDependenciesKey -> {
                     @Suppress("UNCHECKED_CAST")
                     val entry = v as ConstantService<Set<TypeKey>>
-                    entry.value.forEach(this::addEagerDependency)
+                    eagerDependencies += entry.value
                 }
                 v is ConstantService<*> && v.value is Component -> {
                     @Suppress("UNCHECKED_CAST")
-                    registerSubcomponent(
-                        k,
-                        v as ConstantService<Component>,
-                        subcomponentIncludeMode
-                    )
+                    val service = v as ConstantService<Component>
+                    registerSubcomponent(k, service, subcomponentIncludeMode)
                 }
                 else -> {
                     if (!override && registry.containsKey(k)) {
@@ -346,7 +347,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      */
     fun remove(key: TypeKey, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
-            throw EntryNotFoundException("Entry with key `$key` doesn't exist.")
+            throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
         }
         registry.remove(key)
         removeEagerDependency(key)
@@ -366,18 +367,19 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      */
     fun alias(targetKey: TypeKey, newKey: TypeKey, override: Boolean = false) {
         registry[targetKey]
-            ?: throw EntryNotFoundException("Entry with key `$targetKey` doesn't exist.")
+            ?: throw EntryNotFoundException(targetKey, "Entry with key `$targetKey` doesn't exist.")
         register(AliasService(targetKey, newKey), override)
     }
 
     @PublishedApi
     internal fun addEagerDependency(key: TypeKey) {
-        eagerDependencies = (eagerDependencies ?: mutableSetOf()) + key
+        if (!registry.containsKey(key)) throw WinterException("Key `$key` is not registered.")
+        eagerDependencies += key
     }
 
     private fun removeEagerDependency(key: TypeKey) {
-        val eagerDependencies = this.eagerDependencies ?: return
-        this.eagerDependencies = eagerDependencies - key
+        if (!eagerDependencies.contains(key)) return
+        eagerDependencies -= key
     }
 
     private fun registerSubcomponent(
@@ -405,23 +407,22 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     private fun getOrCreateSubcomponentBuilder(key: TypeKey): ComponentBuilder {
-        subcomponentBuilders?.get(key)?.let { return it }
-
         val builders = subcomponentBuilders
             ?: mutableMapOf<TypeKey, ComponentBuilder>().also { subcomponentBuilders = it }
-        val constant = registry.remove(key) as? ConstantService<*>
-        val existingSubcomponent = constant?.value as? Component
 
-        return ComponentBuilder(key.qualifier).also { builder ->
-            existingSubcomponent?.let { builder.include(it) }
-            builders[key] = builder
+        return builders.getOrPut(key) {
+            ComponentBuilder(key.qualifier).also { builder ->
+                val constant = registry.remove(key) as? ConstantService<*>
+                val existingSubcomponent = constant?.value as? Component
+                existingSubcomponent?.let { builder.include(it) }
+            }
         }
     }
 
     internal fun build(): Component {
         subcomponentBuilders?.mapValuesTo(registry) { ConstantService(it.key, it.value.build()) }
         eagerDependencies
-            ?.takeIf { it.isNotEmpty() }
+            .takeIf { it.isNotEmpty() }
             ?.let { register(ConstantService(eagerDependenciesKey, it), false) }
         return Component(qualifier, registry.toMap())
     }

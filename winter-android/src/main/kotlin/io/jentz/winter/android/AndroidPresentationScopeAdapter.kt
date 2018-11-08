@@ -8,13 +8,13 @@ import android.view.View
 import io.jentz.winter.*
 
 /**
- * Android injection adapter that is backed by [GraphRegistry] and retains a `presentation` sub
+ * Android injection adapter that operates on a [WinterTree] and retains a `presentation` sub
  * graph during Activity re-creation (configuration changes).
  *
  * It expects an application component like:
  *
  * ```
- * GraphRegistry = component {
+ * Winter.component {
  *   // this sub-graph outlives configuration changes and is only disposed when Activity
  *   // isFinishing == true
  *   subcomponent("presentation") {
@@ -23,6 +23,7 @@ import io.jentz.winter.*
  *     }
  *   }
  * }
+ * Injection.useAndroidPresentationScopeAdapter()
  * ```
  *
  * The adapter registers the [Application] as [Context] and [Application] on the application graph
@@ -38,24 +39,27 @@ import io.jentz.winter.*
  * [getGraph] called with an unknown type will return the application graph.
  *
  */
-open class AndroidPresentationScopeAdapter : Injection.Adapter {
+open class AndroidPresentationScopeAdapter(
+    protected val tree: WinterTree
+) : WinterInjection.Adapter {
 
-    override fun createGraph(instance: Any, builderBlock: ComponentBuilderBlock?): Graph {
+    override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
-            is Application -> GraphRegistry.open {
+            is Application -> tree.open {
+                constant(tree)
                 constant(instance)
                 constant<Context>(instance)
-                builderBlock?.invoke(this)
+                block?.invoke(this)
             }
             is Activity -> {
                 val presentationIdentifier = presentationIdentifier(instance)
-                if (!GraphRegistry.has(presentationIdentifier)) {
-                    GraphRegistry.open("presentation", identifier = presentationIdentifier)
+                if (!tree.has(presentationIdentifier)) {
+                    tree.open("presentation", identifier = presentationIdentifier)
                 }
-                GraphRegistry.open(presentationIdentifier, "activity", identifier = instance) {
+                tree.open(presentationIdentifier, "activity", identifier = instance) {
                     constant(instance)
                     constant<Context>(instance)
-                    builderBlock?.invoke(this)
+                    block?.invoke(this)
                 }
             }
             else -> throw WinterException("Can't create dependency graph for instance <$instance>.")
@@ -65,27 +69,48 @@ open class AndroidPresentationScopeAdapter : Injection.Adapter {
     override fun getGraph(instance: Any): Graph {
         return when (instance) {
             is DependencyGraphContextWrapper -> instance.graph
-            is Application -> GraphRegistry.get()
-            is Activity -> GraphRegistry.get(presentationIdentifier(instance), instance)
+            is Application -> tree.get()
+            is Activity -> tree.get(presentationIdentifier(instance), instance)
             is View -> getGraph(instance.context)
             is ContextWrapper -> getGraph(instance.baseContext)
-            else -> GraphRegistry.get()
+            else -> tree.get()
         }
     }
 
     override fun disposeGraph(instance: Any) {
         when (instance) {
-            is Application -> GraphRegistry.close()
+            is Application -> tree.close()
             is Activity -> {
                 if (instance.isFinishing) {
-                    GraphRegistry.close(presentationIdentifier(instance))
+                    tree.close(presentationIdentifier(instance))
                 } else {
-                    GraphRegistry.close(presentationIdentifier(instance), instance)
+                    tree.close(presentationIdentifier(instance), instance)
                 }
             }
         }
     }
 
-    private fun presentationIdentifier(activity: Activity) = activity.javaClass.name
+    private fun presentationIdentifier(activity: Activity) = activity.javaClass
 
+}
+
+/**
+ * Register an [AndroidPresentationScopeAdapter] on this [WinterInjection] instance.
+ *
+ * Use the [tree] parameter if you have your own object version of [WinterTree] that should be used
+ * which may be useful when Winter is used in a library.
+ *
+ * @param tree The tree to operate on.
+ */
+fun WinterInjection.useAndroidPresentationScopeAdapter(tree: WinterTree = GraphRegistry) {
+    adapter = AndroidPresentationScopeAdapter(tree)
+}
+
+/**
+ * Register an [AndroidPresentationScopeAdapter] on this [WinterInjection] instance.
+ *
+ * @param application The [WinterApplication] instance to be used by the adapter.
+ */
+fun WinterInjection.useAndroidPresentationScopeAdapter(application: WinterApplication) {
+    adapter = AndroidPresentationScopeAdapter(WinterTree(application))
 }

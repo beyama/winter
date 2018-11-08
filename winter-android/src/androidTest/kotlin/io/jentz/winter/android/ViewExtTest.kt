@@ -12,7 +12,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-
 class ViewExtTest {
 
     private val context = InstrumentationRegistry.getContext()
@@ -26,8 +25,9 @@ class ViewExtTest {
 
     @Before
     fun beforeEach() {
-        Injection.adapter = SimpleAndroidInjectionAdapter()
-        GraphRegistry.applicationComponent = applicationComponent
+        GraphRegistry.closeIfOpen()
+        Injection.useAndroidPresentationScopeAdapter()
+        Winter.component { include(applicationComponent) }
         GraphRegistry.open()
     }
 
@@ -196,6 +196,5 @@ class ViewExtTest {
 
         view.factoryOrNull<Any, Any>().shouldBe(null)
     }
-
 
 }

@@ -1,5 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package io.jentz.winter
 
 /**
@@ -8,38 +6,69 @@ package io.jentz.winter
  * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
  */
 class Graph internal constructor(
-    /**
-     * The parent [Graph] instance.
-     */
-    val parent: Graph?,
-
-    /**
-     * The component instance.
-     */
-    val component: Component
+    parent: Graph?,
+    component: Component,
+    val application: WinterApplication,
+    block: ComponentBuilderBlock?
 ) {
 
-    private var cache: MutableMap<TypeKey, BoundService<*, *>>? = mutableMapOf()
+    private sealed class State {
+        data class Initialized(
+            val component: Component,
+            val parent: Graph?,
+            val stack: DependenciesStack,
+            val cache: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
+        ) : State()
 
-    @PublishedApi
-    internal val stack: MutableList<Any?> = mutableListOf()
+        object Disposed : State()
+    }
 
-    @PublishedApi
-    internal var stackSize = 0
+    private var state: State
+    private val plugins = application.plugins
+
+    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
+        return synchronized(this) {
+            val state = state
+            if (state is State.Initialized) ifInitialized(state) else ifDisposed()
+        }
+    }
+
+    private inline fun <T> map(block: (State.Initialized) -> T): T =
+        fold({ throw WinterException("Graph is already disposed.") }, block)
+
+    /**
+     * The parent [Graph] instance or null if no parent exists.
+     */
+    val parent: Graph? get() = map { it.parent }
+
+    /**
+     * The [Component] instance.
+     */
+    val component: Component get() = map { it.component }
 
     /**
      * Indicates if the graph is disposed.
      */
-    var isDisposed = false
-        private set
+    val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
-        @Suppress("UNCHECKED_CAST")
-        val entry = component.dependencies[eagerDependenciesKey] as? ConstantService<Set<TypeKey>>
-        entry?.value?.forEach { key ->
-            @Suppress("UNCHECKED_CAST")
-            val service = serviceOrNull<Unit, Any>(key) as? BoundService<Unit, *>
+        val baseComponent = if (plugins.isNotEmpty() || block != null) {
+            component(component.qualifier) {
+                include(component)
+                block?.invoke(this)
+                plugins.runInitializingComponent(parent, this)
+            }
+        } else {
+            component
+        }
+
+        state = State.Initialized(baseComponent, parent, DependenciesStack(this))
+
+        val eagerDependencies = serviceOrNull<Unit, Set<TypeKey>>(eagerDependenciesKey)
+        eagerDependencies?.instance(Unit)?.forEach { key ->
+            val service = serviceOrNull<Unit, Any>(key)
                 ?: throw EntryNotFoundException(
+                    key,
                     "BUG: Eager dependency with key `$key` doesn't exist."
                 )
             service.instance(Unit)
@@ -256,7 +285,7 @@ class Graph internal constructor(
     }
 
     private fun keys(): Set<TypeKey> {
-        val keys = component.dependencies.keys
+        val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
@@ -265,133 +294,40 @@ class Graph internal constructor(
         servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
 
     @PublishedApi
-    @Suppress("UNCHECKED_CAST")
-    internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> {
-        synchronized(this) {
-            ensureNotDisposed()
-
-            cache?.get(key)?.let {
-                return (it as ConstantService<Set<BoundService<Unit, *>>>).value
-            }
-
-            return keys()
-                .filterTo(mutableSetOf()) { it.typeEquals(key) }
-                .mapIndexedTo(mutableSetOf()) { _, key -> service<Unit, Any>(key) }
-                .also { cache?.put(key, ConstantService(key, it)) }
+    internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
+        map { (_, _, _, cache) ->
+            @Suppress("UNCHECKED_CAST")
+            val service = cache.getOrPut(key) {
+                keys()
+                    .asSequence()
+                    .filterTo(mutableSetOf()) { it.typeEquals(key) }
+                    .mapTo(mutableSetOf()) { key -> service<Unit, Any>(key) }
+                    .run { ConstantService(key, this) }
+            } as ConstantService<Set<BoundService<Unit, *>>>
+            service.value
         }
-    }
-
 
     @PublishedApi
-    @Suppress("UNCHECKED_CAST")
-    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? {
-        synchronized(this) {
-            ensureNotDisposed()
-
-            cache?.get(key)?.let { return it as BoundService<A, R> }
-
-            val unboundService = component.dependencies[key] ?: return parent?.serviceOrNull(key)
-
-            val boundService = unboundService.bind(this) as BoundService<A, R>
-            cache?.set(key, boundService)
-            return boundService
+    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
+        @Suppress("UNCHECKED_CAST")
+        map { (component, parent, _, cache) ->
+            cache.getOrPut(key) {
+                component[key]?.bind(this) ?: return parent?.serviceOrNull(key)
+            } as? BoundService<A, R>
         }
-    }
 
     @PublishedApi
     internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
         return serviceOrNull(key)
-            ?: throw EntryNotFoundException("Service with key `$key` does not exist.")
+            ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
     }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
-     *
-     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
      */
-    inline fun <A, R : Any> evaluate(
-        service: BoundService<A, R>,
-        argument: A,
-        block: () -> R
-    ): R {
-        ensureNotDisposed()
-
-        val key = service.key
-
-        // check if key is already on the stack
-        for (i in 0 until stack.size step 3) {
-            if (stack[i + 2] == null && (stack[i] as BoundService<*, *>).key == key) {
-                throw CyclicDependencyException("Cyclic dependency for key `$key`.")
-            }
-        }
-
-        val serviceIndex = stack.size
-        val argumentIndex = serviceIndex + 1
-        val instanceIndex = argumentIndex + 1
-
-        try {
-            // push service
-            stack.add(serviceIndex, service)
-            // push argument
-            stack.add(argumentIndex, argument)
-            // add slot for instance
-            stack.add(instanceIndex, null)
-            stackSize += 1
-            // create instance and add it to stack
-            val instance = block()
-            stack[instanceIndex] = instance
-            return instance
-        } catch (e: EntryNotFoundException) {
-            drainStack()
-            val stackInfo = stack.joinToString(" -> ")
-            throw DependencyResolutionException(
-                "Error while resolving dependencies of $key (dependency stack: $stackInfo)",
-                e
-            )
-        } catch (e: WinterException) {
-            throw e
-        } catch (t: Throwable) {
-            drainStack()
-            val stackInfo = stack.joinToString(" -> ")
-            throw DependencyResolutionException(
-                "Error while invoking provider block of $key (dependency stack: $stackInfo)",
-                t
-            )
-        } finally {
-            // decrement stack size
-            stackSize -= 1
-        }
-    }
-
-    /**
-     * This is called from [BoundService.instance] after a new instance was created.
-     * Don't use this method except in custom [BoundService] implementations.
-     *
-     * The caller is responsible to synchronize access to [evaluate] and [postConstruct].
-     */
-    inline fun postConstruct() {
-        if (stackSize == 0) {
-            drainStack()
-        }
-    }
-
-    @PublishedApi
-    internal fun drainStack() {
-        try {
-            for (i in stack.size - 1 downTo 0 step 3) {
-                val instance = stack[i]
-                val argument = stack[i - 1]
-                val service = stack[i - 2] as BoundService<*, *>
-
-                if (instance != null && argument != null) {
-                    service.postConstruct(argument, instance)
-                }
-            }
-        } finally {
-            stack.clear()
-        }
-    }
+    fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R =
+        map { (_, _, stack, _) -> stack.evaluate(service, argument) }
 
     /**
      * Inject members of class [T].
@@ -403,32 +339,31 @@ class Graph internal constructor(
      */
     @JvmOverloads
     fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
-        ensureNotDisposed()
+        map {
+            var found = false
+            var cls: Class<*>? = instance.javaClass
 
-        var found = false
-        var cls: Class<*>? = instance.javaClass
+            while (cls != null) {
+                val key = CompoundClassTypeKey(MembersInjector::class.java, cls, null)
+                val service = serviceOrNull<Unit, MembersInjector<T>>(key)
 
-        while (cls != null) {
-            val key = CompoundClassTypeKey(MembersInjector::class.java, cls, null)
-            @Suppress("UNCHECKED_CAST")
-            val service = serviceOrNull<Unit, MembersInjector<T>>(key)
+                if (service != null) {
+                    found = true
+                    val injector = service.instance(Unit)
+                    injector.injectMembers(this, instance)
+                }
 
-            if (service != null) {
-                found = true
-                val injector = service.instance(Unit)
-                injector.injectMembers(this, instance)
+                if (!injectSuperClasses) break
+
+                cls = cls.superclass
             }
 
-            if (!injectSuperClasses) break
+            if (!found) {
+                throw WinterException("No members injector found for `${instance.javaClass}`.")
+            }
 
-            cls = cls.superclass
+            return instance
         }
-
-        if (!found) {
-            throw WinterException("No members injector found for `${instance.javaClass}`.")
-        }
-
-        return instance
     }
 
     /**
@@ -437,11 +372,8 @@ class Graph internal constructor(
      * @param qualifier The qualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
-    fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph {
-        ensureNotDisposed()
-
-        return initializeGraph(this, instance(qualifier), block)
-    }
+    fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
+        map { Graph(this, instance(qualifier), application, block) }
 
     /**
      * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
@@ -451,22 +383,14 @@ class Graph internal constructor(
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        synchronized(this) {
-            if (isDisposed) return
-
+        fold({}) { (_, _, _, cache) ->
             try {
-                WinterPlugins.runGraphDisposePlugins(this)
-                cache?.values?.forEach { boundService -> boundService.dispose() }
+                plugins.runGraphDispose(this)
+                cache.values.forEach { boundService -> boundService.dispose() }
             } finally {
-                isDisposed = true
-                cache = null
+                state = State.Disposed
             }
         }
-    }
-
-    @PublishedApi
-    internal fun ensureNotDisposed() {
-        if (isDisposed) throw WinterException("Graph is already disposed.")
     }
 
 }

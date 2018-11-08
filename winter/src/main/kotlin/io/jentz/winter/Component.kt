@@ -25,7 +25,7 @@ class Component internal constructor(
      * sub-components).
      */
     val qualifier: Any?,
-    internal val dependencies: Map<TypeKey, UnboundService<*, *>>
+    private val dependencies: Map<TypeKey, UnboundService<*, *>>
 ) {
 
     /**
@@ -36,6 +36,7 @@ class Component internal constructor(
      * @return A new [Component] that contains all provider of the base component plus the one
      *         defined in the builder block.
      */
+    @JvmOverloads
     fun derive(
         qualifier: Any? = this.qualifier,
         block: ComponentBuilderBlock
@@ -58,11 +59,11 @@ class Component internal constructor(
     fun subcomponent(vararg qualifiers: Any): Component {
         var component: Component = this
         qualifiers.forEach { qualifier ->
-            val constant =
-                component.dependencies[typeKey<Component>(qualifier)] as? ConstantService<*>
+            val key = typeKey<Component>(qualifier)
+            val constant = component.dependencies[key] as? ConstantService<*>
             if (constant == null) {
-                val path = qualifiers.joinToString(", ")
-                throw EntryNotFoundException("Subcomponent with path [$path] doesn't exist.")
+                val path = qualifiers.joinToString(".")
+                throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
             }
             component = constant.value as Component
         }
@@ -72,11 +73,28 @@ class Component internal constructor(
     /**
      * Create a [dependency graph][Graph] from this component.
      *
+     * @param application The [WinterApplication] to use.
      * @param block An optional builder block to extend the component before creating the graph.
      * @return An instance of [Graph] backed by this component.
      */
-    fun init(block: ComponentBuilderBlock? = null): Graph {
-        return initializeGraph(null, this, block)
+    @JvmOverloads
+    fun init(
+        application: WinterApplication = Winter,
+        block: ComponentBuilderBlock? = null
+    ): Graph = Graph(null, this, application, block)
+
+    internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
+        dependencies.forEach(block)
     }
+
+    internal fun keys(): Set<TypeKey> = dependencies.keys
+
+    internal operator fun get(key: TypeKey): UnboundService<*, *>? = dependencies[key]
+
+    internal val size: Int get() = dependencies.size
+
+    internal fun isEmpty(): Boolean = dependencies.isEmpty()
+
+    internal fun containsKey(typeKey: TypeKey): Boolean = dependencies.containsKey(typeKey)
 
 }

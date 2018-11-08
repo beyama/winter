@@ -11,9 +11,9 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class InjectionTest {
+class WinterInjectionTest {
 
-    private lateinit var adapter: Injection.Adapter
+    private lateinit var adapter: WinterInjection.Adapter
 
     private val instance = Any()
 

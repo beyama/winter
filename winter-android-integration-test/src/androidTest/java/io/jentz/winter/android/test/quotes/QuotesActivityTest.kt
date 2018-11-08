@@ -11,10 +11,14 @@ import androidx.test.runner.AndroidJUnit4
 import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
-import io.jentz.winter.android.test.*
+import io.jentz.winter.android.test.R
+import io.jentz.winter.android.test.isDisplayed
+import io.jentz.winter.android.test.isNotDisplayed
 import io.jentz.winter.android.test.model.QuoteRepository
 import io.jentz.winter.android.test.viewmodel.TestViewModel
 import io.jentz.winter.android.test.viewmodel.ViewModel
+import io.jentz.winter.android.test.waitForIt
+import io.jentz.winter.junit4.WinterTestRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.Rule
@@ -30,9 +34,13 @@ class QuotesActivityTest {
 
     @get:Rule
     val winterTestRule = object : WinterTestRule() {
-        override fun onGraphInitialization(parentGraph: Graph?, builder: ComponentBuilder) {
+        override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
             if (builder.qualifier == "presentation") {
-                builder.singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
+                builder.apply {
+                    singleton<ViewModel<QuotesViewState>>(generics = true, override = true) {
+                        viewModel
+                    }
+                }
             }
         }
     }
@@ -45,15 +53,20 @@ class QuotesActivityTest {
 
         val activity = activityTestRule.activity
 
-        GraphRegistry.has(QuotesActivity::class.java.name, activity).shouldBeTrue()
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java.name)
-        val activityGraph = GraphRegistry.get(QuotesActivity::class.java.name, activity)
+        GraphRegistry.has(QuotesActivity::class.java, activity).shouldBeTrue()
+        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java)
+        val activityGraph = GraphRegistry.get(QuotesActivity::class.java, activity)
 
         viewModel.downstream.onNext(QuotesViewState(isLoading = true))
 
         onView(withId(R.id.progressIndicatorView)).isDisplayed()
 
-        viewModel.downstream.onNext(QuotesViewState(isLoading = false, quotes = QuoteRepository.quotes))
+        viewModel.downstream.onNext(
+            QuotesViewState(
+                isLoading = false,
+                quotes = QuoteRepository.quotes
+            )
+        )
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
@@ -70,7 +83,7 @@ class QuotesActivityTest {
     fun should_dispose_presentation_scope_and_dispose_view_model_when_activity_finishes() {
         activityTestRule.launchActivity(Intent())
 
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java.name)
+        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java)
 
         presentationGraph.isDisposed.shouldBeFalse()
         viewModel.isDisposed.shouldBeFalse()
@@ -83,6 +96,5 @@ class QuotesActivityTest {
         // WinterDisposablePlugin should dispose view model when graph gets disposed
         viewModel.isDisposed.shouldBeTrue()
     }
-
 
 }

@@ -9,7 +9,7 @@ open class WinterException(message: String?, cause: Throwable? = null) : Excepti
  * Exception that is thrown when a component entry or graph was not found but was requested as
  * non-optional.
  */
-class EntryNotFoundException(message: String) : WinterException(message)
+class EntryNotFoundException(val key: TypeKey, message: String) : WinterException(message)
 
 /**
  * Exception that is thrown when an error occurs during dependency resolution.

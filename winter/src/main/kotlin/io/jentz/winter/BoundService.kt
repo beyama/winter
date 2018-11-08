@@ -21,14 +21,23 @@ interface BoundService<A, R : Any> {
      * This is called every time an instance is requested from the [Graph].
      *
      * If this service has to create a new instance to satisfy this request it must do the
-     * initialization in the block of [Graph.evaluate] and then call [Graph.postConstruct]
-     * afterwards.
+     * initialization in [newInstance] by calling [Graph.evaluate].
      *
      *
      * @param argument The argument for this request.
      * @return An instance of type `R`.
      */
     fun instance(argument: A): R
+
+    /**
+     * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
+     *
+     * If you want to memorize the value this is the place to do it.
+     *
+     * @param argument The argument for the new instance.
+     * @return The new instance of type `R`.
+     */
+    fun newInstance(argument: A): R
 
     /**
      * This is called after a new instance was created but not until the complete dependency request
@@ -64,17 +73,14 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey get() = unboundService.key
 
     override fun instance(argument: Unit): T {
-        synchronized(graph) {
-            val instance = graph.evaluate(this, argument) { unboundService.factory(graph) }
-            graph.postConstruct()
-            return instance
-        }
+        return synchronized(graph) { graph.evaluate(this, argument) }
     }
+
+    override fun newInstance(argument: Unit): T = unboundService.factory(graph)
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -106,13 +112,9 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
                 return v2 as T
             }
 
-            val typedValue = initialize()
-            graph.postConstruct()
-            return typedValue
+            return graph.evaluate(this, Unit)
         }
     }
-
-    protected abstract fun initialize(): T
 
 }
 
@@ -125,16 +127,13 @@ internal class BoundSingletonService<T : Any>(
 
     override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        this.instance = instance
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { this.instance = it }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -157,16 +156,13 @@ internal class BoundWeakSingletonService<T : Any>(
 
     private var reference: WeakReference<T>? = null
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        reference = WeakReference(instance)
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { reference = WeakReference(it) }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -185,16 +181,13 @@ internal class BoundSoftSingletonService<T : Any>(
 
     private var reference: SoftReference<T>? = null
 
-    override fun initialize(): T {
-        val instance = graph.evaluate(this, Unit) { unboundService.factory(graph) }
-        reference = SoftReference(instance)
-        return instance
+    override fun newInstance(argument: Unit): T {
+        return unboundService.factory(graph).also { reference = SoftReference(it) }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, instance as T)
-        WinterPlugins.runPostConstructPlugins(graph, scope, Unit, instance)
     }
 
     override fun dispose() {
@@ -212,18 +205,14 @@ internal class BoundFactoryService<A, R : Any>(
     override val scope: Scope get() = Scope.PrototypeFactory
 
     override fun instance(argument: A): R {
-        synchronized(graph) {
-            val instance =
-                graph.evaluate(this, argument) { unboundService.factory(graph, argument) }
-            graph.postConstruct()
-            return instance
-        }
+        return synchronized(graph) { graph.evaluate(this, argument) }
     }
+
+    override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
-        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
@@ -242,22 +231,18 @@ internal class BoundMultitonFactoryService<A, R : Any>(
     private val map = mutableMapOf<A, R>()
 
     override fun instance(argument: A): R {
-        synchronized(graph) {
-            map[argument]?.let { return it }
-
-            val instance = graph.evaluate(this, argument) {
-                unboundService.factory(graph, argument)
-            }
-            map[argument] = instance
-            graph.postConstruct()
-            return instance
+        return synchronized(graph) {
+            map[argument] ?: graph.evaluate(this, argument)
         }
+    }
+
+    override fun newInstance(argument: A): R {
+        return unboundService.factory(graph, argument).also { map[argument] = it }
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
         unboundService.postConstruct?.invoke(graph, arg as A, instance as R)
-        WinterPlugins.runPostConstructPlugins(graph, scope, arg, instance)
     }
 
     override fun dispose() {
