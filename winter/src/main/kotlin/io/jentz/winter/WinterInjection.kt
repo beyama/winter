@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+import io.jentz.winter.adapter.ApplicationGraphOnlyAdapter
+
 /**
  * Abstraction to create, get and dispose a dependency graph from a class that can't make use of
  * constructor injection.
@@ -49,29 +51,11 @@ open class WinterInjection {
     }
 
     /**
-     * Simple adapter for application with only one dependency graph.
-     *
-     * Register your application component on [GraphRegistry.component].
-     */
-    class ApplicationGraphOnlyAdapter : Adapter {
-        override fun getGraph(instance: Any): Graph = GraphRegistry.get()
-
-        override fun createGraph(
-            instance: Any,
-            builderBlock: ComponentBuilderBlock?
-        ): Graph = GraphRegistry.create(block = builderBlock)
-
-        override fun disposeGraph(instance: Any) {
-            GraphRegistry.close()
-        }
-    }
-
-    /**
      * Set the application specific [adapter][Adapter].
      *
-     * Default adapter is [ApplicationGraphOnlyAdapter].
+     * Default adapter is [ApplicationGraphOnlyAdapter] that operates on [GraphRegistry].
      */
-    var adapter: Adapter = ApplicationGraphOnlyAdapter()
+    var adapter: Adapter = ApplicationGraphOnlyAdapter(GraphRegistry)
 
     /**
      * Create and return dependency graph for [instance].
