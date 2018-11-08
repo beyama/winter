@@ -33,14 +33,6 @@ class WinterApplicationTest {
     }
 
     @Test
-    fun `#derive should derive existing component`() {
-        app.component { constant("") }
-        app.derive("test") { constant(1) }
-        app.component.qualifier.shouldBe("test")
-        app.component.size.shouldBe(2)
-    }
-
-    @Test
     fun `#init should create graph from component`() {
         val graph = app.init()
         graph.application.shouldBeSameInstanceAs(app)

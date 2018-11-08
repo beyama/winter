@@ -49,16 +49,6 @@ open class WinterApplication() {
     }
 
     /**
-     * Derive the application component and replace it with the derived version.
-     *
-     * @param qualifier The optional qualifier for the derived component.
-     * @param block The component builder block.
-     */
-    fun derive(qualifier: Any? = null, block: ComponentBuilderBlock) {
-        component = component.derive(qualifier, block)
-    }
-
-    /**
      * Initialize and return the dependency graph from the configured [component].
      *
      * @param block An optional component builder block to add additional dependencies.
