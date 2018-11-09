@@ -6,14 +6,18 @@ package io.jentz.winter
 open class WinterException(message: String?, cause: Throwable? = null) : Exception(message, cause)
 
 /**
- * Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.
+ * Exception that is thrown when a component entry or graph was not found but was requested as
+ * non-optional.
  */
-class EntryNotFoundException(message: String) : WinterException(message)
+class EntryNotFoundException(val key: TypeKey, message: String) : WinterException(message)
 
 /**
  * Exception that is thrown when an error occurs during dependency resolution.
  */
-class DependencyResolutionException(message: String, cause: Throwable? = null) : WinterException(message, cause)
+class DependencyResolutionException(
+    message: String,
+    cause: Throwable? = null
+) : WinterException(message, cause)
 
 /**
  * Exception that is thrown when a cyclic dependency was detected.

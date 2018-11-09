@@ -1,7 +1,24 @@
-Change Log
-==========
+Changelog
+=========
 
-Version 0.0.5
+Version 0.2.0
+-------------
+
+* New WinterApplication base class for registering application component and plugins
+* New Winter object as default WinterApplication
+* Plugins are now registered on WinterApplication objects and not global anymore
+* New Plugin interface
+* New WinterInjection base class for use in libraries 
+* New Injection class in core (extracted from AndroidInjection)
+* New Injection#createGraph now takes an optional component builder block
+* Deprecates AndroidInjection in favour of core Injection
+* New ComponentCallbacks2 extension methods
+* New View extension methods
+* New RxJava2 module with WinterDisposablePlugin
+* Fix: Make singleton, factory & multiton scopes thread safe
+* Breaking: View.graph extension renamed to dependencyGraph
+
+Version 0.1.0
 -------------
 
 * Init complete and dispose callbacks for factories

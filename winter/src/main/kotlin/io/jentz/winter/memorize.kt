@@ -1,8 +1,8 @@
 package io.jentz.winter
 
-internal object UNINITIALIZED_VALUE
+internal val UNINITIALIZED_VALUE = Any()
 
-fun <T> memorize(fn: () -> T): () -> T {
+internal fun <T> memorize(fn: () -> T): () -> T {
     var value: Any? = UNINITIALIZED_VALUE
 
     return fun(): T {

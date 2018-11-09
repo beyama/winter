@@ -15,7 +15,7 @@ inline fun <T> expectValueToChange(from: T, to: T, valueProvider: () -> T, block
 }
 
 fun Graph.shouldContainService(key: TypeKey, alsoCheckParent: Boolean = false) {
-    if (!component.dependencies.containsKey(key)) {
+    if (!component.containsKey(key)) {
         val parent = this.parent
         if (parent == null || !alsoCheckParent) {
             fail("Graph doesn't contain service with key <$key>")
@@ -25,7 +25,7 @@ fun Graph.shouldContainService(key: TypeKey, alsoCheckParent: Boolean = false) {
 }
 
 fun Graph.shouldNotContainService(key: TypeKey, alsoCheckParent: Boolean = false) {
-    if (component.dependencies.containsKey(key)) {
+    if (component.containsKey(key)) {
         val parent = this.parent
         if (parent == null || !alsoCheckParent) {
             fail("Graph was expected to not contain service with key <$key> but it does.")
@@ -35,17 +35,17 @@ fun Graph.shouldNotContainService(key: TypeKey, alsoCheckParent: Boolean = false
 }
 
 internal inline fun <reified S : UnboundService<*, *>> Component.shouldContainServiceOfType(key: TypeKey) {
-    val service = dependencies[key]
+    val service = this[key]
             ?: fail("Component was expected to contain service with key <$key> but doesn't")
     if (service !is S) fail("Service with key <$key> was expected to be <${S::class}> but was <${service.javaClass}>.")
 }
 
 internal fun Component.shouldContainService(key: TypeKey) {
-    if (!dependencies.containsKey(key)) fail("Component was expected to contain service with key <$key> but doesn't")
+    if (!containsKey(key)) fail("Component was expected to contain service with key <$key> but doesn't")
 }
 
 internal fun Component.shouldNotContainService(key: TypeKey) {
-    if (dependencies.containsKey(key)) fail("Component wasn't expected to contain service with key <$key> but does.")
+    if (containsKey(key)) fail("Component wasn't expected to contain service with key <$key> but does.")
 }
 
 fun fail(message: String): Nothing {

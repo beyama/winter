@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import java.lang.reflect.*
 
+@Suppress("MagicNumber")
 internal object Types {
 
     fun equals(left: Type, right: Type): Boolean {
@@ -11,11 +12,13 @@ internal object Types {
             is Class<*> -> left == right
             is ParameterizedType -> {
                 right as ParameterizedType
-                equals(left.rawType, right.rawType) && equals(left.actualTypeArguments, right.actualTypeArguments)
+                equals(left.rawType, right.rawType)
+                        && equals(left.actualTypeArguments, right.actualTypeArguments)
             }
             is WildcardType -> {
                 right as WildcardType
-                equals(left.lowerBounds, right.lowerBounds) && equals(left.upperBounds, right.upperBounds)
+                equals(left.lowerBounds, right.lowerBounds)
+                        && equals(left.upperBounds, right.upperBounds)
             }
             is GenericArrayType -> {
                 right as GenericArrayType
@@ -60,7 +63,8 @@ internal object Types {
         else -> type.hashCode()
     }
 
-    fun hashCode(cls: Class<*>, qualifier: Any? = null): Int = 31 * cls.hashCode() + (qualifier?.hashCode() ?: 0)
+    fun hashCode(cls: Class<*>, qualifier: Any? = null): Int =
+        31 * cls.hashCode() + (qualifier?.hashCode() ?: 0)
 
     fun hashCode(class0: Class<*>, class1: Class<*>, qualifier: Any?): Int {
         var hashCode = class0.hashCode()

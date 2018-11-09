@@ -1,7 +1,6 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.CodeBlock
-import javax.inject.Named
 import javax.lang.model.element.*
 
 sealed class InjectTargetModel {
@@ -19,15 +18,18 @@ sealed class InjectTargetModel {
             }
         }
 
-        override fun codeBlock(): CodeBlock {
-            return CodeBlock.of("target.${element.simpleName} = %L\n", generateGetInstanceCodeBlock(element))
-        }
+        override fun codeBlock(): CodeBlock = CodeBlock.of(
+            "target.${element.simpleName} = %L\n", generateGetInstanceCodeBlock(element)
+        )
     }
 
     class SetterInjectTarget(override val element: ExecutableElement) : InjectTargetModel() {
         init {
             if (element.parameters.size != 1) {
-                throw IllegalArgumentException("Setter for setter injection must have exactly one parameter not ${element.parameters.size} ($fqdn).")
+                throw IllegalArgumentException(
+                    "Setter for setter injection must have exactly one parameter not " +
+                            "${element.parameters.size} ($fqdn)."
+                )
             }
             if (element.modifiers.contains(Modifier.PRIVATE)) {
                 throw IllegalArgumentException("Can't inject into private setter ($fqdn).")
@@ -36,10 +38,10 @@ sealed class InjectTargetModel {
 
         override fun codeBlock(): CodeBlock {
             return CodeBlock.builder()
-                    .add("target.${element.simpleName}(")
-                    .add(generateGetInstanceCodeBlock(element.parameters.first()))
-                    .add(")\n")
-                    .build()
+                .add("target.${element.simpleName}(")
+                .add(generateGetInstanceCodeBlock(element.parameters.first()))
+                .add(")\n")
+                .build()
         }
     }
 }
