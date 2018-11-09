@@ -14,7 +14,7 @@ class DependencyGraphContextWrapper(base: Context, val graph: Graph) : ContextWr
         LayoutInflater.from(baseContext).cloneInContext(this)
     }
 
-    override fun getSystemService(name: String?): Any =
+    override fun getSystemService(name: String?): Any? =
         if (name == Context.LAYOUT_INFLATER_SERVICE) {
             layoutInflater
         } else {
