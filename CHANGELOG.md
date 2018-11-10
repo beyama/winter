@@ -15,6 +15,7 @@ Version 0.2.0
 * New ComponentCallbacks2 extension methods
 * New View extension methods
 * New RxJava2 module with WinterDisposablePlugin
+* New Winter JUnit 4 module for easier testing
 * Fix: Make singleton, factory & multiton scopes thread safe
 * Breaking: View.graph extension renamed to dependencyGraph
 
