@@ -53,8 +53,7 @@ class Graph internal constructor(
 
     init {
         val baseComponent = if (plugins.isNotEmpty() || block != null) {
-            component(component.qualifier) {
-                include(component)
+            component.derive {
                 block?.invoke(this)
                 plugins.runInitializingComponent(parent, this)
             }
