@@ -22,12 +22,16 @@ See also the [API documentation for Winter](https://beyama.github.io/winter/java
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.1.0'
+  implementation 'io.jentz.winter:winter:0.2.0'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.1.0'
+  implementation 'io.jentz.winter:winter-android:0.2.0'
+  // RxJava 2 disposable plugin
+  implementation 'io.jentz.winter:winter-rxjava2:0.2.0'
+  // JUnit 4 test support
+  testImplementation 'io.jentz.winter:winter-junit4:0.2.0'  
   // Optional JSR-330 support
   implementation 'javax.inject:javax.inject:1'
-  kapt 'io.jentz.winter:winter-compiler:0.1.0'
+  kapt 'io.jentz.winter:winter-compiler:0.2.0'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
