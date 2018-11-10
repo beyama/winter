@@ -5,13 +5,14 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import io.jentz.winter.GraphRegistry
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
-import io.jentz.winter.component
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
+import io.jentz.winter.WinterTree
+import io.kotlintest.matchers.boolean.shouldBeFalse
+import io.kotlintest.matchers.types.shouldBeSameInstanceAs
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,77 +28,104 @@ class SimpleAndroidInjectionAdapterTest {
     @Mock private lateinit var view: View
     @Mock private lateinit var contextWrapper: ContextWrapper
 
-    private val adapter = SimpleAndroidInjectionAdapter()
-
-    private val applicationComponent = component {
-        constant("application")
+    private val testApplication = WinterApplication {
         subcomponent("activity") {
-            constant("activity")
         }
     }
 
+    private val tree = WinterTree(testApplication)
+    private val adapter = SimpleAndroidInjectionAdapter(tree)
+
     @Before
     fun beforeEach() {
-        if (GraphRegistry.has()) GraphRegistry.close()
-        GraphRegistry.applicationComponent = applicationComponent
+        tree.closeIfOpen()
     }
 
     @Test
-    fun `#createGraph with an Application instance should open root graph with application as constant`() {
-        val application = mock<Application>()
-        val graph = adapter.createGraph(application)
-        assertEquals("application", graph.instance<String>())
-        assertSame(application, graph.instance<Application>())
+    fun `#createGraph with an Application instance should open root graph with application and tree as constant`() {
+        val graph = adapter.createGraph(application, null)
+
+        graph.component.qualifier.shouldBe(null)
+        graph.instance<Application>().shouldBe(application)
+        graph.instance<Context>().shouldBe(application)
+        graph.instance<WinterTree>().shouldBeSameInstanceAs(tree)
+    }
+
+    @Test
+    fun `#createGraph with an Application instance and a builder block should apply that builder block to component init`() {
+        val instance = Any()
+        val graph = adapter.createGraph(application) {
+            constant(instance)
+        }
+        graph.instance<Any>().shouldBeSameInstanceAs(instance)
     }
 
     @Test
     fun `#createGraph with an Activity instance should open activity graph with activity as constant`() {
-        GraphRegistry.open()
-        val activity = mock<Activity>()
-        val graph = adapter.createGraph(activity)
-        assertEquals("activity", graph.instance<String>())
-        assertSame(activity, graph.instance<Activity>())
+        tree.open()
+        val graph = adapter.createGraph(activity, null)
+
+        graph.component.qualifier.shouldBe("activity")
+        graph.instance<Activity>().shouldBe(activity)
+        graph.instance<Context>().shouldBe(activity)
     }
 
-    @Test(expected = WinterException::class)
+    @Test
     fun `#createGraph should throw an exception when instance type isn't supported`() {
-        adapter.createGraph(Any())
+        val instance = Any()
+        shouldThrow<WinterException> {
+            adapter.createGraph(instance, null)
+        }.message.shouldBe("Can't create dependency graph for instance <$instance>.")
     }
 
     @Test
-    fun `#getGraph called with application should get graph from GraphRegistry`() {
-        val graph = GraphRegistry.open()
-        assertSame(graph, adapter.getGraph(application))
+    fun `#getGraph called with application should get graph from tree`() {
+        val graph = tree.open()
+        adapter.getGraph(application).shouldBe(graph)
     }
 
     @Test
-    fun `#getGraph called with activity should get graph from GraphRegistry`() {
-        GraphRegistry.open()
-        val graph = GraphRegistry.open("activity", identifier = activity)
-        assertSame(graph, adapter.getGraph(activity))
+    fun `#getGraph called with activity should get graph from tree`() {
+        tree.open()
+        val graph = tree.open("activity", identifier = activity)
+        adapter.getGraph(activity).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = applicationComponent.init()
+        val graph = testApplication.init()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
-        assertSame(graph, adapter.getGraph(view))
+        adapter.getGraph(view).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with DependencyGraphContextWrapper should get graph from wrapper `() {
-        val graph = GraphRegistry.open()
+        val graph = tree.open()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
-        assertSame(graph, adapter.getGraph(contextWrapper))
+        adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with ContextWrapper should get graph from base context`() {
-        val graph = GraphRegistry.open()
+        val graph = tree.open()
         whenever(contextWrapper.baseContext).thenReturn(application)
-        assertSame(graph, adapter.getGraph(contextWrapper))
+        adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
+    @Test
+    fun `#disposeGraph with Application instance should close root graph`() {
+        tree.open()
+        adapter.disposeGraph(application)
+        tree.has().shouldBe(false)
+    }
+
+    @Test
+    fun `#disposeGraph with Activity instance should close Activity graph`() {
+        tree.open()
+        tree.open("activity", identifier = activity)
+        adapter.disposeGraph(activity)
+        tree.has(activity).shouldBeFalse()
+    }
 
 }

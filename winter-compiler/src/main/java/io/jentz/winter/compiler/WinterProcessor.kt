@@ -11,6 +11,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.*
 import javax.tools.Diagnostic
 
+@Suppress("SpreadOperator")
 class WinterProcessor : AbstractProcessor() {
 
     private var generatedAnnotationAvailable = false
@@ -23,19 +24,30 @@ class WinterProcessor : AbstractProcessor() {
         super.init(processingEnv)
         generatedComponentPackage = processingEnv.options[OPTION_GENERATED_COMPONENT_PACKAGE]
         printSources = processingEnv.options[OPTION_PRINT_SOURCES] == "true"
-        // Android's API jar doesn't include javax.annotation.Generated so we check the availability here
-        generatedAnnotationAvailable = processingEnv.elementUtils.getTypeElement(generatedAnnotationName.canonicalName) != null
+        // Android's API jar doesn't include javax.annotation.Generated so we check the
+        // availability here
+        generatedAnnotationAvailable = processingEnv.elementUtils.getTypeElement(
+            GENERATED_ANNOTATION_NAME.canonicalName
+        ) != null
     }
 
-    override fun getSupportedAnnotationTypes(): Set<String> = setOf(Inject::class.java.canonicalName)
+    override fun getSupportedAnnotationTypes(): Set<String> =
+        setOf(Inject::class.java.canonicalName)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
-    override fun getSupportedOptions(): Set<String> = setOf(OPTION_GENERATED_COMPONENT_PACKAGE, OPTION_PRINT_SOURCES)
+    override fun getSupportedOptions(): Set<String> =
+        setOf(OPTION_GENERATED_COMPONENT_PACKAGE, OPTION_PRINT_SOURCES)
 
-    override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
+    override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
         if (generatedComponentPackage.isNullOrBlank()) {
-            warn("Skipping annotation processing: Package to generate component to is not configured. Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`")
+            warn(
+                "Skipping annotation processing: Package to generate component to is not " +
+                        "configured. Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`"
+            )
             return true
         }
 
@@ -45,20 +57,25 @@ class WinterProcessor : AbstractProcessor() {
             try {
                 when (element.kind) {
                     ElementKind.CONSTRUCTOR -> {
-                        val execuatable = element as ExecutableElement
-                        componentModel.factories += FactoryModel(execuatable)
+                        val executable = element as ExecutableElement
+                        componentModel.factories += FactoryModel(executable)
                     }
                     ElementKind.FIELD -> {
                         val field = element as VariableElement
                         field.getAnnotationsByType(Named::class.java)
-                        getOrCreateInjector(element).targets += InjectTargetModel.FieldInjectTarget(field)
+                        getOrCreateInjector(element).targets +=
+                                InjectTargetModel.FieldInjectTarget(field)
                     }
                     ElementKind.METHOD -> {
                         val method = element as ExecutableElement
-                        getOrCreateInjector(element).targets += InjectTargetModel.SetterInjectTarget(method)
+                        getOrCreateInjector(element).targets +=
+                                InjectTargetModel.SetterInjectTarget(method)
                     }
                     else -> {
-                        error(element, "Inject annotation is only supported for constructor, method or field.")
+                        error(
+                            element,
+                            "Inject annotation is only supported for constructor, method or field."
+                        )
                         return true
                     }
                 }
@@ -95,7 +112,8 @@ class WinterProcessor : AbstractProcessor() {
     }
 
     private fun buildRegistry() {
-        val kCode = componentModel.generate(generatedComponentPackage!!, generatedAnnotationAvailable)
+        val kCode =
+            componentModel.generate(generatedComponentPackage!!, generatedAnnotationAvailable)
         write(kCode)
         print(kCode)
     }
@@ -107,12 +125,11 @@ class WinterProcessor : AbstractProcessor() {
     }
 
     private fun getOrCreateInjector(fieldOrSetter: Element): InjectorModel {
-        val typeElement = fieldOrSetter.enclosingElement as? TypeElement ?: throw IllegalArgumentException("Enclosing constructor for $fieldOrSetter must be a class")
+        val typeElement = fieldOrSetter.enclosingElement as? TypeElement
+            ?: throw IllegalArgumentException(
+                "Enclosing constructor for $fieldOrSetter must be a class"
+            )
         return componentModel.injectors.getOrPut(typeElement) { InjectorModel(typeElement) }
-    }
-
-    private fun info(element: Element, message: String, vararg args: Any) {
-        processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, String.format(message, *args), element)
     }
 
     private fun info(message: String, vararg args: Any) {
@@ -124,7 +141,11 @@ class WinterProcessor : AbstractProcessor() {
     }
 
     private fun error(element: Element, message: String, vararg args: Any) {
-        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, String.format(message, *args), element)
+        processingEnv.messager.printMessage(
+            Diagnostic.Kind.ERROR,
+            String.format(message, *args),
+            element
+        )
     }
 
     private fun print(fileSpec: FileSpec) {

@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -20,15 +21,16 @@ class ComponentTest {
         val component = component { prototype { Heater() } }
         val derived = component.derive { }
         component.shouldNotBeSameInstanceAs(derived)
-        component.dependencies.shouldNotBeSameInstanceAs(derived.dependencies)
-        component.dependencies.shouldBe(derived.dependencies)
+        component.forEach { (k, s) -> derived[k].shouldBeSameInstanceAs(s) }
+        derived.forEach { (k, s) -> component[k].shouldBeSameInstanceAs(s) }
     }
 
     @Test
-    fun `#derive block should receive ComponentBuilder based on the component derived from`() {
-        testComponent.derive {
-            build().dependencies.shouldBe(testComponent.dependencies)
-        }
+    fun `#derive with block should copy all dependencies to new component`() {
+        val new = testComponent.derive { prototype("qualifier") { Heater() } }
+        new.size.shouldBe(testComponent.size + 1)
+        testComponent.forEach { (k, s) -> new[k].shouldBeSameInstanceAs(s) }
+        new.containsKey(typeKey<Heater>("qualifier")).shouldBeTrue()
     }
 
     @Test

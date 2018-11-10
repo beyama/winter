@@ -2,7 +2,6 @@ package io.jentz.winter
 
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class ComponentBuilderTest {
 
     @Test
     fun `empty builder should result in empty dependency map`() {
-        component { }.dependencies.isEmpty().shouldBeTrue()
+        component { }.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -36,7 +35,7 @@ class ComponentBuilderTest {
         c.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("c"))
         // eager dependencies add a set of type keys of eager dependencies to the dependency
         // registry, so one more here than registered
-        c.dependencies.size.shouldBe(2)
+        c.size.shouldBe(2)
     }
 
     @Test
@@ -89,7 +88,7 @@ class ComponentBuilderTest {
         component {
             register(ConstantService(typeKey<String>(), ""), false)
             register(ConstantService(typeKey<String>(), ""), true)
-        }.dependencies.size.shouldBe(1)
+        }.size.shouldBe(1)
     }
 
     @Test
@@ -97,7 +96,7 @@ class ComponentBuilderTest {
         val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
         component {
             include(c1, subcomponentIncludeMode = DoNotInclude)
-        }.dependencies.isEmpty().shouldBeTrue()
+        }.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -107,7 +106,7 @@ class ComponentBuilderTest {
         val c3 = c1.derive { include(c2, false, DoNotIncludeIfAlreadyPresent) }
 
         c3.subcomponent("sub").shouldNotContainService(typeKey<String>("b"))
-        c3.subcomponent("sub").dependencies.size.shouldBe(1)
+        c3.subcomponent("sub").size.shouldBe(1)
     }
 
     @Test
@@ -117,7 +116,7 @@ class ComponentBuilderTest {
         val c3 = c1.derive { include(c2, false, Replace) }
 
         c3.subcomponent("sub").shouldNotContainService(typeKey<String>("a"))
-        c3.subcomponent("sub").dependencies.size.shouldBe(1)
+        c3.subcomponent("sub").size.shouldBe(1)
     }
 
     @Test
@@ -128,7 +127,7 @@ class ComponentBuilderTest {
 
         c3.subcomponent("sub").shouldContainService(typeKey<String>("a"))
         c3.subcomponent("sub").shouldContainService(typeKey<String>("b"))
-        c3.subcomponent("sub").dependencies.size.shouldBe(2)
+        c3.subcomponent("sub").size.shouldBe(2)
     }
 
     @Test
@@ -137,8 +136,8 @@ class ComponentBuilderTest {
         val c2 = component { subcomponent("sub") { constant("b", qualifier = "a") } }
         val c3 = c1.derive { include(c2, false, Merge) }
 
-        c3.subcomponent("sub").dependencies.size.shouldBe(1)
-        (c3.subcomponent("sub").dependencies[typeKey<String>("a")] as ConstantService).value.shouldBe("b")
+        c3.subcomponent("sub").size.shouldBe(1)
+        (c3.subcomponent("sub")[typeKey<String>("a")] as ConstantService).value.shouldBe("b")
     }
 
     @Test
@@ -202,15 +201,15 @@ class ComponentBuilderTest {
     @Test
     fun `#remove should remove service`() {
         val c1 = component { prototype { Heater() } }
-        c1.derive { remove(typeKey<Heater>()) }.dependencies.size.shouldBe(0)
+        c1.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
     }
 
     @Test
     fun `#remove should unregister eager singleton`() {
         val c = component { eagerSingleton { Heater() } }
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
-        c.dependencies.size.shouldBe(2)
-        c.derive { remove(typeKey<Heater>()) }.dependencies.size.shouldBe(0)
+        c.size.shouldBe(2)
+        c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
     }
 
     @Test

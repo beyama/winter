@@ -26,8 +26,8 @@ class Widget(val color: Color)
  */
 
 internal class UnboundReferenceService<T : Any>(
-        override val key: TypeKey,
-        val block: Graph.() -> T
+    override val key: TypeKey,
+    val block: Graph.() -> T
 ) : UnboundService<Unit, T> {
 
     override fun bind(graph: Graph): BoundService<Unit, T> {
@@ -36,8 +36,8 @@ internal class UnboundReferenceService<T : Any>(
 }
 
 internal class BoundReferenceService<R : Any>(
-        graph: Graph,
-        override val unboundService: UnboundReferenceService<R>
+    graph: Graph,
+    override val unboundService: UnboundReferenceService<R>
 ) : AbstractBoundSingletonService<R>(graph) {
 
     var postConstructCalledCount = 0
@@ -57,12 +57,10 @@ internal class BoundReferenceService<R : Any>(
 
     public override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun initialize(): R {
-        val instance = graph.evaluate(this, Unit) { unboundService.block(graph) }
-        this.instance = instance
-        graph.postConstruct()
-        return instance
+    override fun newInstance(argument: Unit): R {
+        return unboundService.block(graph).also { instance = it }
     }
+
 }
 
 internal inline fun <reified R : Any> ComponentBuilder.reference(noinline block: GFactory0<R>) {
