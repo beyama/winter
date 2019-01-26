@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+internal val UNINITIALIZED_VALUE = Any()
+
 /**
  * No argument factory function signature with [Graph] as receiver.
  */
