@@ -1,0 +1,72 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'org.jetbrains.dokka'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
+}
+
+version = VERSION_NAME
+group = GROUP
+
+android {
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.androidTools
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+}
+
+dependencies {
+    implementation project(":winter-android")
+
+    implementation deps.kotlin.stdlib
+
+    implementation deps.androidx.lifecycle_common
+
+    testImplementation deps.junit.jupiterApi
+    testRuntimeOnly deps.junit.jupiterEngine
+
+    testImplementation deps.mockito.core
+    testImplementation deps.mockito.kotlin
+    testImplementation deps.kotlintest
+}
+
+task androidJavadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from dokka
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+artifacts {
+    archives androidSourcesJar, androidJavadocJar
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    includes = ['dokka-packages.md']
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-androidx-lifecycle/src/main/kotlin"
+        suffix = "#L"
+    }
+}
+
+detekt {
+    config = files(rootProject.file('detekt-config.yml'))
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

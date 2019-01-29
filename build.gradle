@@ -16,10 +16,11 @@ buildscript {
                     'stdlib': "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
             ],
             'androidx'   : [
-                    'coreKtx'     : 'androidx.core:core-ktx:1.0.0-alpha1',
-                    'recyclerview': 'androidx.recyclerview:recyclerview:1.0.0',
-                    'compat'      : 'androidx.appcompat:appcompat:1.0.0',
-                    'test'        : [
+                    'coreKtx'         : 'androidx.core:core-ktx:1.0.0-alpha1',
+                    'recyclerview'    : 'androidx.recyclerview:recyclerview:1.0.0',
+                    'compat'          : 'androidx.appcompat:appcompat:1.0.0',
+                    'lifecycle_common': 'androidx.lifecycle:lifecycle-common:2.0.0',
+                    'test'            : [
                             'runner'      : 'androidx.test:runner:1.1.0-alpha3',
                             'rules'       : 'androidx.test:rules:1.1.0-alpha3',
                             'espressoCore': 'androidx.test.espresso:espresso-contrib:3.1.0-alpha3'
@@ -69,8 +70,8 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
         google()
+        mavenCentral()
     }
 }
 
