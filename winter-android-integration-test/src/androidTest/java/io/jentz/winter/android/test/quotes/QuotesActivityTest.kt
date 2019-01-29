@@ -37,9 +37,10 @@ class QuotesActivityTest {
         override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
             if (builder.qualifier == "presentation") {
                 builder.apply {
-                    singleton<ViewModel<QuotesViewState>>(generics = true, override = true) {
-                        viewModel
-                    }
+                    singleton<ViewModel<QuotesViewState>>(
+                        generics = true,
+                        override = true
+                    ) { viewModel }
                 }
             }
         }
