@@ -12,6 +12,7 @@ import io.jentz.winter.Injector
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.model.Quote
 import io.jentz.winter.android.test.viewmodel.ViewModel
+import io.jentz.winter.androidx.lifecycle.autoDisposeDependencyGraph
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_quotes.*
@@ -25,6 +26,7 @@ class QuotesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Injection.createGraphAndInject(this, injector)
+        autoDisposeDependencyGraph()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quotes)
