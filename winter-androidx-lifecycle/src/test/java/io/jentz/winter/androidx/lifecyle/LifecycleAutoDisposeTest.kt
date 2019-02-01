@@ -3,7 +3,7 @@ package io.jentz.winter.androidx.lifecyle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.*
 import androidx.lifecycle.LifecycleOwner
-import com.nhaarman.mockito_kotlin.only
+import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import io.jentz.winter.androidx.lifecycle.LifecycleAutoDispose
 import io.kotlintest.matchers.boolean.shouldBeFalse
@@ -38,7 +38,7 @@ class LifecycleAutoDisposeTest {
         val observer = LifecycleAutoDisposeImpl(ON_STOP)
         val owner: LifecycleOwner = mockLifecycleOwner()
         observer.onEvent(owner, ON_STOP)
-        verify(owner.lifecycle, only()).removeObserver(observer)
+        verify(owner.lifecycle, times(1)).removeObserver(observer)
     }
 
     private class LifecycleAutoDisposeImpl(

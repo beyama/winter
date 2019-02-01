@@ -12,7 +12,7 @@ internal class AutoDisposeDependencyGraph(
 ) : LifecycleAutoDispose(disposeEvent) {
 
     private val injection: WinterInjection =
-        (lifecycleOwner as? WinterAware)?.winterInjection ?: Injection
+        (lifecycleOwner as? WinterAware)?.injection ?: Injection
 
     override fun dispose() {
         injection.disposeGraph(lifecycleOwner)
@@ -24,11 +24,11 @@ internal class AutoDisposeDependencyGraph(
  * Automatically call [WinterInjection.disposeGraph] with [this] when [disposeEvent] is emitted by
  * [androidx.lifecycle.Lifecycle].
  *
- * This will use [WinterAware.winterInjection] if the [LifecycleOwner] implements [WinterAware]
+ * This will use [WinterAware.injection] if the [LifecycleOwner] implements [WinterAware]
  * otherwise it will fallback to the default implementation [Injection].
  *
  * @param disposeEvent The [Event] that will dispose the graph.
  */
-fun LifecycleOwner.autoDisposeDependencyGraph(disposeEvent: Event = Event.ON_DESTROY) {
+fun LifecycleOwner.autoDisposeGraph(disposeEvent: Event = Event.ON_DESTROY) {
     lifecycle.addObserver(AutoDisposeDependencyGraph(this, disposeEvent))
 }

@@ -1,9 +1,3 @@
-/**
- * GENERATED FILE - DO NOT EDIT!
- *
- * To change the content of this file edit inject_extension.erb and
- * run 'ruby generate_inject_extensions.rb'.
- */
 package io.jentz.winter.aware
 
 import io.jentz.winter.Factory
@@ -19,9 +13,9 @@ import io.jentz.winter.Provider
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> WinterAware.instance(
-        qualifier: Any? = null,
-        generics: Boolean = false
-): R = dependencyGraph.instance(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): R = graph.instance(qualifier, generics)
 
 /**
  * Retrieve a factory of type `(A) -> R` and apply [argument] to it.
@@ -34,10 +28,10 @@ inline fun <reified R : Any> WinterAware.instance(
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> WinterAware.instance(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): R = dependencyGraph.instance(argument, qualifier, generics)
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): R = graph.instance(argument, qualifier, generics)
 
 /**
  * Retrieve an optional instance of [R].
@@ -47,9 +41,9 @@ inline fun <reified A, reified R : Any> WinterAware.instance(
  * @return An instance of [R] or null if provider doesn't exist.
  */
 inline fun <reified R : Any> WinterAware.instanceOrNull(
-        qualifier: Any? = null,
-        generics: Boolean = false
-): R? = dependencyGraph.instanceOrNull(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): R? = graph.instanceOrNull(qualifier, generics)
 
 /**
  * Retrieve an optional factory of type `(A) -> R` and apply [argument] to it.
@@ -58,14 +52,14 @@ inline fun <reified R : Any> WinterAware.instanceOrNull(
  * @param qualifier An optional qualifier of the dependency.
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The result of applying [argument] to the retrieved factory or null if factory doesn't
-           exist.
+exist.
  *
  */
 inline fun <reified A, reified R : Any> WinterAware.instanceOrNull(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): R? = dependencyGraph.instanceOrNull(argument, qualifier, generics)
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): R? = graph.instanceOrNull(argument, qualifier, generics)
 
 /**
  * Create a [Lazy] that retrieves an instance of `R` when initialized.
@@ -75,9 +69,9 @@ inline fun <reified A, reified R : Any> WinterAware.instanceOrNull(
  * @return The created [Lazy] instance.
  */
 inline fun <reified R : Any> WinterAware.lazyInstance(
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Lazy<R> = lazy { dependencyGraph.instance<R>(qualifier, generics) }
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Lazy<R> = lazy { graph.instance<R>(qualifier, generics) }
 
 /**
  * Create a [Lazy] that retrieves a factory of type `(A) -> R` and applies [argument]
@@ -88,10 +82,10 @@ inline fun <reified R : Any> WinterAware.lazyInstance(
  * @return The created [Lazy] instance.
  */
 inline fun <reified A, reified R : Any> WinterAware.lazyInstance(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Lazy<R> = lazy { dependencyGraph.instance<A, R>(argument, qualifier, generics) }
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Lazy<R> = lazy { graph.instance<A, R>(argument, qualifier, generics) }
 
 /**
  * Create a [Lazy] that retrieves an optional instance of `R` when initialized.
@@ -101,12 +95,12 @@ inline fun <reified A, reified R : Any> WinterAware.lazyInstance(
  * @return The created [Lazy] instance.
  */
 inline fun <reified R : Any> WinterAware.lazyInstanceOrNull(
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Lazy<R?> = lazy { dependencyGraph.instanceOrNull<R>(qualifier, generics) }
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Lazy<R?> = lazy { graph.instanceOrNull<R>(qualifier, generics) }
 
 /**
- * Create a [Lazy] that retrieves an optional factory of type `(A) -> R` and 
+ * Create a [Lazy] that retrieves an optional factory of type `(A) -> R` and
  * applies [argument] to it when initialized.
  *
  * @param qualifier An optional qualifier of the dependency.
@@ -114,10 +108,10 @@ inline fun <reified R : Any> WinterAware.lazyInstanceOrNull(
  * @return The created [Lazy] instance.
  */
 inline fun <reified A, reified R : Any> WinterAware.lazyInstanceOrNull(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Lazy<R?> = lazy { dependencyGraph.instanceOrNull<A, R>(argument, qualifier, generics) }
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Lazy<R?> = lazy { graph.instanceOrNull<A, R>(argument, qualifier, generics) }
 
 /**
  * Retrieve a non-optional provider function that returns [R].
@@ -129,9 +123,9 @@ inline fun <reified A, reified R : Any> WinterAware.lazyInstanceOrNull(
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified R : Any> WinterAware.provider(
-        qualifier: Any? = null, 
-        generics: Boolean = false
-): Provider<R> = dependencyGraph.provider(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Provider<R> = graph.provider(qualifier, generics)
 
 /**
  * Retrieve a factory of type `(A) -> R` and create and return a
@@ -145,10 +139,10 @@ inline fun <reified R : Any> WinterAware.provider(
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A, reified R : Any> WinterAware.provider(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Provider<R> = dependencyGraph.provider(argument, qualifier, generics)
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Provider<R> = graph.provider(argument, qualifier, generics)
 
 /**
  * Retrieve an optional provider function that returns [R].
@@ -158,9 +152,9 @@ inline fun <reified A, reified R : Any> WinterAware.provider(
  * @return The provider that returns [R] or null if provider doesn't exist.
  */
 inline fun <reified R : Any> WinterAware.providerOrNull(
-        qualifier: Any? = null, 
-        generics: Boolean = false
-): Provider<R>? = dependencyGraph.providerOrNull(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Provider<R>? = graph.providerOrNull(qualifier, generics)
 
 /**
  * Retrieve an optional factory of type `(A) -> R` and create and return a
@@ -172,10 +166,10 @@ inline fun <reified R : Any> WinterAware.providerOrNull(
  * @return The provider function or null if factory doesn't exist.
  */
 inline fun <reified A, reified R : Any> WinterAware.providerOrNull(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-): Provider<R>? = dependencyGraph.providerOrNull(argument, qualifier, generics)
+    argument: A,
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Provider<R>? = graph.providerOrNull(argument, qualifier, generics)
 
 /**
  * Retrieve a non-optional factory function that takes an argument of type [A] and returns [R].
@@ -187,9 +181,9 @@ inline fun <reified A, reified R : Any> WinterAware.providerOrNull(
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> WinterAware.factory(
-        qualifier: Any? = null, 
-        generics: Boolean = false
-): Factory<A, R> = dependencyGraph.factory(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Factory<A, R> = graph.factory(qualifier, generics)
 
 /**
  * Retrieve an optional factory function that takes an argument of type [A] and returns [R].
@@ -201,9 +195,9 @@ inline fun <reified A : Any, reified R : Any> WinterAware.factory(
  * @throws io.jentz.winter.EntryNotFoundException
  */
 inline fun <reified A : Any, reified R : Any> WinterAware.factoryOrNull(
-        qualifier: Any? = null, 
-        generics: Boolean = false
-): Factory<A, R>? = dependencyGraph.factoryOrNull(qualifier, generics)
+    qualifier: Any? = null,
+    generics: Boolean = false
+): Factory<A, R>? = graph.factoryOrNull(qualifier, generics)
 
 /**
  * Retrieve all providers of type [R].
@@ -212,8 +206,8 @@ inline fun <reified A : Any, reified R : Any> WinterAware.factoryOrNull(
  * @return A [Set] of providers of type `() -> R`.
  */
 inline fun <reified R : Any> WinterAware.providersOfType(
-        generics: Boolean = false
-): Set<Provider<R>> = dependencyGraph.providersOfType(generics)
+    generics: Boolean = false
+): Set<Provider<R>> = graph.providersOfType(generics)
 
 /**
  * Retrieve all instances of type [R].
@@ -222,5 +216,5 @@ inline fun <reified R : Any> WinterAware.providersOfType(
  * @return A [Set] of instances of type [R].
  */
 inline fun <reified R : Any> WinterAware.instancesOfType(
-        generics: Boolean = false
-): Set<R> = dependencyGraph.instancesOfType(generics)
+    generics: Boolean = false
+): Set<R> = graph.instancesOfType(generics)

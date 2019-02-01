@@ -50,11 +50,5 @@ end
 		"winter-android/src/main/kotlin/io/jentz/winter/android", 
 		"android.view.View", 
 		"View"
-	),
-	Extension.new(
-		"io.jentz.winter.aware", 
-		"winter/src/main/kotlin/io/jentz/winter/aware", 
-		nil, 
-		"WinterAware"
 	)
 ].each { |ext| write_extension(ext) }

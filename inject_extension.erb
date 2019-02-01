@@ -12,19 +12,10 @@ import <%= @import %>
 <% unless @target_package == 'io.jentz.winter' -%>
 import io.jentz.winter.Factory
 import io.jentz.winter.Provider
-<% end -%>
-<% unless @class_name == 'WinterAware' -%>
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
 <% end -%>
-<%
-annotation = if @class_name == 'WinterAware'
-    nil
-else
-    "@Deprecated(\"Implement WinterAware and use its extension functions.\", ReplaceWith(\"\"))\n"
-end
--%>
-<% unless @class_name == 'WinterAware' -%>
+<% annotation = "@Deprecated(\"Implement WinterAware and use its extension functions.\", ReplaceWith(\"\"))\n" -%>
 
 /**
  * Return the graph associated with `this`.
@@ -32,7 +23,6 @@ end
  */
 <%= annotation -%>
 inline val <%= @class_name %>.dependencyGraph: Graph get() = Injection.getGraph(this)
-<% end -%>
 
 /**
  * Retrieve a non-optional instance of [R].

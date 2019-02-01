@@ -7,7 +7,7 @@ import com.nhaarman.mockito_kotlin.*
 import io.jentz.winter.Injection
 import io.jentz.winter.WinterInjection
 import io.jentz.winter.androidx.lifecycle.AutoDisposeDependencyGraph
-import io.jentz.winter.androidx.lifecycle.autoDisposeDependencyGraph
+import io.jentz.winter.androidx.lifecycle.autoDisposeGraph
 import io.jentz.winter.aware.WinterAware
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,7 +24,7 @@ class AutoDisposeDependencyGraphTest {
         val owner = WinterAwareLifecycleOwner()
         val observer = AutoDisposeDependencyGraph(owner, ON_DESTROY)
         observer.onEvent(owner, ON_DESTROY)
-        verify(owner.winterInjection.adapter, times(1)).disposeGraph(owner)
+        verify(owner.injection.adapter, times(1)).disposeGraph(owner)
         verifyZeroInteractions(Injection.adapter)
     }
 
@@ -39,12 +39,12 @@ class AutoDisposeDependencyGraphTest {
     @Test
     fun `extension method should register observer`() {
         val owner = mockLifecycleOwner()
-        owner.autoDisposeDependencyGraph()
+        owner.autoDisposeGraph()
         verify(owner.lifecycle, times(1)).addObserver(isA<AutoDisposeDependencyGraph>())
     }
 
     private class WinterAwareLifecycleOwner : WinterAware, LifecycleOwner {
-        override val winterInjection: WinterInjection = WinterInjection().apply { adapter = mock() }
+        override val injection: WinterInjection = WinterInjection().apply { adapter = mock() }
 
         private val lifecycle: Lifecycle = mock()
 

@@ -19,7 +19,7 @@ interface WinterAware {
     /**
      * Get the [WinterInjection] instance to use.
      */
-    val winterInjection: WinterInjection get() = Injection
+    val injection: WinterInjection get() = Injection
 
     /**
      * Get the dependency [Graph] to retrieve dependencies from.
@@ -27,5 +27,5 @@ interface WinterAware {
      * The default implementation uses [WinterInjection] to get the [Graph] if [WinterInjection]
      * is not used then override this accordingly.
      */
-    val dependencyGraph: Graph get() = winterInjection.getGraph(this)
+    val graph: Graph get() = injection.getGraph(this)
 }
