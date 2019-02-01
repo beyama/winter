@@ -28,7 +28,9 @@ end
 # Checkout doc folder and convert docs to HTML
 `git checkout master -- doc/*`
 latest_version = `git describe master --abbrev=0 --tags`.strip
-`asciidoctor --attribute winterVersion=#{latest_version} readme.adoc`
+`asciidoctor --attribute winterVersion=#{latest_version} --destination-dir . doc/index.adoc`
+rm_rf 'doc'
+
 
 # Stage all files in git and create a commit
 `git add .`
