@@ -20,6 +20,10 @@ enum class Color { RED, GREEN, BLUE }
 
 class Widget(val color: Color)
 
+open class Service
+
+class ExtendedService : Service()
+
 /**
  * We can't really test Soft- and WeakReferences so this is a version that is baked by a field
  * instead of a reference so we have control and not the GC.

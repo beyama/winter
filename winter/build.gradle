@@ -1,20 +1,11 @@
 plugins {
     id 'kotlin'
-    id 'kotlin-kapt'
     id 'org.jetbrains.dokka'
     id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
 }
 
-kapt {
-    arguments {
-        arg("winterGeneratedComponentPackage", "io.jentz.winter")
-    }
-}
-
 version = VERSION_NAME
 group = GROUP
-
-sourceSets.test.kotlin.srcDir "${buildDir.absolutePath}/generated/source/kaptKotlin/test"
 
 test {
     useJUnitPlatform()
@@ -37,10 +28,6 @@ test {
 
 dependencies {
     implementation deps.kotlin.stdlib
-
-    // JSR330
-    kaptTest project(':winter-compiler')
-    testImplementation 'javax.inject:javax.inject:1'
 
     testImplementation deps.junit.junit4
     testImplementation deps.junit.jupiterApi

@@ -1,7 +1,10 @@
 package io.jentz.winter.aware
 
 import com.nhaarman.mockito_kotlin.*
-import io.jentz.winter.*
+import io.jentz.winter.Graph
+import io.jentz.winter.Injection
+import io.jentz.winter.WinterInjection
+import io.jentz.winter.emptyGraph
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -10,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
 
 class WinterAwareTest {
 
@@ -199,24 +200,24 @@ class WinterAwareTest {
 
         @Test
         fun `#createGraphAndInject should use aware instance to create graph and inject into target`() {
-            val graph: Graph = generatedComponent.init()
+            val graph: Graph = mock()
+            val target = Any()
             whenever(injection.adapter.createGraph(aware, null)).thenReturn(graph)
 
-            val target = Target()
             aware.createGraphAndInject(target)
-            target.dependency.shouldBeSameInstanceAs(graph.instance<Dependency>())
             verify(injection.adapter, times(1)).createGraph(aware, null)
+            verify(graph, times(1)).inject(target, false)
         }
 
         @Test
         fun `#inject should use aware instance to get graph and inject into target`() {
-            val graph: Graph = generatedComponent.init()
+            val graph: Graph = mock()
+            val target = Any()
             whenever(injection.adapter.getGraph(aware)).thenReturn(graph)
 
-            val target = Target()
             aware.inject(target)
-            target.dependency.shouldBeSameInstanceAs(graph.instance<Dependency>())
             verify(injection.adapter, times(1)).getGraph(aware)
+            verify(graph, times(1)).inject(target, false)
         }
 
     }
@@ -224,14 +225,6 @@ class WinterAwareTest {
     private open class TestAware : WinterAware {
         override val injection: WinterInjection =
             WinterInjection().also { it.adapter = mock() }
-    }
-
-    @Singleton
-    class Dependency @Inject constructor()
-
-    @Singleton
-    class Target {
-        @Inject lateinit var dependency: Dependency
     }
 
 }
