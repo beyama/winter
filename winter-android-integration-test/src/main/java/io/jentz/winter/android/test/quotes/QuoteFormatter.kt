@@ -8,7 +8,7 @@ import io.jentz.winter.android.test.scope.ActivityScope
 import javax.inject.Inject
 
 @ActivityScope
-class QuoteFormater @Inject constructor() {
+class QuoteFormatter @Inject constructor() {
 
     fun format(quote: Quote): Spannable = SpannableStringBuilder().let {
         it.bold { append("\"") }

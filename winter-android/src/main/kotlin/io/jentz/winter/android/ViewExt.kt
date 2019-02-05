@@ -8,15 +8,15 @@ package io.jentz.winter.android
 
 import android.view.View
 import io.jentz.winter.Factory
+import io.jentz.winter.Provider
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
-import io.jentz.winter.Provider
-
 
 /**
  * Return the graph associated with `this`.
  * This is sugar for calling "Injection.getGraph(this)".
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline val View.dependencyGraph: Graph get() = Injection.getGraph(this)
 
 /**
@@ -28,6 +28,7 @@ inline val View.dependencyGraph: Graph get() = Injection.getGraph(this)
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.instance(
         qualifier: Any? = null,
         generics: Boolean = false
@@ -43,6 +44,7 @@ inline fun <reified R : Any> View.instance(
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.instance(
         argument: A,
         qualifier: Any? = null,
@@ -56,6 +58,7 @@ inline fun <reified A, reified R : Any> View.instance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return An instance of [R] or null if provider doesn't exist.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.instanceOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
@@ -71,6 +74,7 @@ inline fun <reified R : Any> View.instanceOrNull(
            exist.
  *
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.instanceOrNull(
         argument: A,
         qualifier: Any? = null,
@@ -84,6 +88,7 @@ inline fun <reified A, reified R : Any> View.instanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.lazyInstance(
         qualifier: Any? = null,
         generics: Boolean = false
@@ -97,6 +102,7 @@ inline fun <reified R : Any> View.lazyInstance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.lazyInstance(
         argument: A,
         qualifier: Any? = null,
@@ -110,6 +116,7 @@ inline fun <reified A, reified R : Any> View.lazyInstance(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.lazyInstanceOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
@@ -123,6 +130,7 @@ inline fun <reified R : Any> View.lazyInstanceOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The created [Lazy] instance.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.lazyInstanceOrNull(
         argument: A,
         qualifier: Any? = null,
@@ -138,6 +146,7 @@ inline fun <reified A, reified R : Any> View.lazyInstanceOrNull(
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.provider(
         qualifier: Any? = null, 
         generics: Boolean = false
@@ -154,6 +163,7 @@ inline fun <reified R : Any> View.provider(
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.provider(
         argument: A,
         qualifier: Any? = null,
@@ -167,6 +177,7 @@ inline fun <reified A, reified R : Any> View.provider(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider that returns [R] or null if provider doesn't exist.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.providerOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
@@ -181,6 +192,7 @@ inline fun <reified R : Any> View.providerOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return The provider function or null if factory doesn't exist.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A, reified R : Any> View.providerOrNull(
         argument: A,
         qualifier: Any? = null,
@@ -196,6 +208,7 @@ inline fun <reified A, reified R : Any> View.providerOrNull(
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A : Any, reified R : Any> View.factory(
         qualifier: Any? = null, 
         generics: Boolean = false
@@ -210,6 +223,7 @@ inline fun <reified A : Any, reified R : Any> View.factory(
  *
  * @throws io.jentz.winter.EntryNotFoundException
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified A : Any, reified R : Any> View.factoryOrNull(
         qualifier: Any? = null, 
         generics: Boolean = false
@@ -221,6 +235,7 @@ inline fun <reified A : Any, reified R : Any> View.factoryOrNull(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return A [Set] of providers of type `() -> R`.
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.providersOfType(
         generics: Boolean = false
 ): Set<Provider<R>> = dependencyGraph.providersOfType(generics)
@@ -231,6 +246,7 @@ inline fun <reified R : Any> View.providersOfType(
  * @param generics Preserves generic type parameters if set to true (default = false).
  * @return A [Set] of instances of type [R].
  */
+@Deprecated("Implement WinterAware and use its extension functions.", ReplaceWith(""))
 inline fun <reified R : Any> View.instancesOfType(
         generics: Boolean = false
 ): Set<R> = dependencyGraph.instancesOfType(generics)

@@ -939,6 +939,61 @@ class GraphTest {
     }
 
     @Nested
+    @DisplayName("#inject method")
+    inner class InjectMethod {
+
+        var calledForService = false
+        var calledForExtendedService = false
+
+        val graph = graph {
+            membersInjector {
+                object : MembersInjector<Service> {
+                    override fun injectMembers(graph: Graph, target: Service) {
+                        calledForService = true
+                    }
+                }
+            }
+            membersInjector {
+                object : MembersInjector<ExtendedService> {
+                    override fun injectMembers(graph: Graph, target: ExtendedService) {
+                        calledForExtendedService = true
+                    }
+                }
+            }
+        }
+
+        @BeforeEach
+        fun beforeEach() {
+            calledForService = false
+            calledForExtendedService = false
+        }
+
+        @Test
+        fun `#inject should resolve and call members injector for type`() {
+            val service = Service()
+            graph.inject(service)
+            calledForService.shouldBeTrue()
+        }
+
+        @Test
+        fun `#inject with injectSuperClasses set to false should only resolve and call members injector for type`() {
+            val service = ExtendedService()
+            graph.inject(service)
+            calledForService.shouldBeFalse()
+            calledForExtendedService.shouldBeTrue()
+        }
+
+        @Test
+        fun `#inject with injectSuperClasses set to true should resolve and call members injector for type and supertype`() {
+            val service = ExtendedService()
+            graph.inject(service, true)
+            calledForService.shouldBeTrue()
+            calledForExtendedService.shouldBeTrue()
+        }
+
+    }
+
+    @Nested
     @DisplayName("Properties")
     inner class Properties {
 
@@ -1177,5 +1232,4 @@ class GraphTest {
         }
 
     }
-
 }
