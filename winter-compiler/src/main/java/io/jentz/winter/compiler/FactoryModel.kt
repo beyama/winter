@@ -8,7 +8,10 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-class FactoryModel(private val constructor: ExecutableElement) {
+class FactoryModel(
+    private val configuration: ProcessorConfiguration,
+    private val constructor: ExecutableElement
+) {
     val typeElement = constructor.enclosingElement as TypeElement
     val typeName = typeElement.asClassName()
     val generatedClassName = ClassName(
@@ -59,7 +62,7 @@ class FactoryModel(private val constructor: ExecutableElement) {
         }
     }
 
-    fun generate(injectorModel: InjectorModel?, generatedAnnotationAvailable: Boolean): FileSpec {
+    fun generate(injectorModel: InjectorModel?): FileSpec {
         val params = constructor.parameters.map {
             generateGetInstanceCodeBlock(it)
         }.joinToString(", ")
@@ -80,7 +83,7 @@ class FactoryModel(private val constructor: ExecutableElement) {
             .addType(
                 TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
                     .also {
-                        if (generatedAnnotationAvailable) {
+                        if (configuration.generatedAnnotationAvailable) {
                             it.addAnnotation(generatedAnnotation())
                         } else {
                             it.addKdoc(generatedComment())

@@ -4,13 +4,15 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.PropertySpec
-import javax.lang.model.element.TypeElement
+import javax.lang.model.element.*
 
-class ComponentModel {
+class ComponentModel(
+    private val configuration: ProcessorConfiguration
+) {
     val factories = mutableListOf<FactoryModel>()
     val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
-    fun generate(packageName: String, generatedAnnotationAvailable: Boolean): FileSpec {
+    fun generate(): FileSpec {
         val grouped = factories.groupBy { it.scope ?: "__prototype__" }
 
         val componentBuilder = CodeBlock.builder().beginControlFlow("component")
@@ -45,12 +47,12 @@ class ComponentModel {
 
         componentBuilder.endControlFlow()
 
-        return FileSpec.builder(packageName, "generatedComponent")
+        return FileSpec.builder(configuration.generatedComponentPackage, "generatedComponent")
             .addStaticImport("io.jentz.winter", "component")
             .addProperty(
                 PropertySpec.builder("generatedComponent", COMPONENT_CLASS_NAME)
                     .also {
-                        if (generatedAnnotationAvailable) {
+                        if (configuration.generatedAnnotationAvailable) {
                             it.addAnnotation(generatedAnnotation())
                         } else {
                             it.addKdoc(generatedComment())

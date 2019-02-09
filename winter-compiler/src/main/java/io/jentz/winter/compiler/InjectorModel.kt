@@ -3,7 +3,10 @@ package io.jentz.winter.compiler
 import com.squareup.kotlinpoet.*
 import javax.lang.model.element.TypeElement
 
-class InjectorModel(typeElement: TypeElement) {
+class InjectorModel(
+    private val configuration: ProcessorConfiguration,
+    typeElement: TypeElement
+) {
 
     val typeName = typeElement.asClassName()
 
@@ -14,13 +17,13 @@ class InjectorModel(typeElement: TypeElement) {
 
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
-    fun generate(generatedAnnotationAvailable: Boolean): FileSpec =
+    fun generate(): FileSpec =
         FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
             .addStaticImport(GRAPH_CLASS_NAME.packageName(), GRAPH_CLASS_NAME.simpleName())
             .addType(
                 TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
                     .also {
-                        if (generatedAnnotationAvailable) {
+                        if (configuration.generatedAnnotationAvailable) {
                             it.addAnnotation(generatedAnnotation())
                         } else {
                             it.addKdoc(generatedComment())
