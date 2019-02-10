@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
 import io.jentz.winter.Injector
+import io.jentz.winter.WinterException
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -37,6 +38,8 @@ class WinterProcessor : AbstractProcessor() {
 
         try {
             generatorProvider().process(roundEnv)
+        } catch (e: WinterException) {
+            logger.warn("Skipping annotation processing: ${e.cause?.message}")
         } catch (t: Throwable) {
             logger.warn("Skipping annotation processing: ${t.message}")
         }
