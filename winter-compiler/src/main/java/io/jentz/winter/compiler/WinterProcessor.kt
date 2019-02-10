@@ -27,7 +27,6 @@ class WinterProcessor : AbstractProcessor() {
 
     override fun getSupportedOptions(): Set<String> = setOf(
         OPTION_GENERATED_COMPONENT_PACKAGE,
-        OPTION_PRINT_SOURCES,
         OPTION_ROOT_SCOPE_ANNOTATION
     )
 
@@ -35,7 +34,7 @@ class WinterProcessor : AbstractProcessor() {
         annotations: MutableSet<out TypeElement>,
         roundEnv: RoundEnvironment
     ): Boolean {
-        
+
         try {
             generatorProvider().process(roundEnv)
         } catch (t: Throwable) {

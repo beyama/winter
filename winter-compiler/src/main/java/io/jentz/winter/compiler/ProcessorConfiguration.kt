@@ -6,8 +6,7 @@ data class ProcessorConfiguration(
     val generatedComponentPackage: String,
     val generatedSourcesDirectory: String,
     val generatedAnnotationAvailable: Boolean,
-    val rootScopeAnnotation: String,
-    val printSources: Boolean
+    val rootScopeAnnotation: String
 ) {
 
     companion object {
@@ -25,8 +24,6 @@ data class ProcessorConfiguration(
                             "Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`."
                 )
 
-            val printSources = processingEnv.options[OPTION_PRINT_SOURCES] == "true"
-
             // Android's API jar doesn't include javax.annotation.Generated so we check the
             // availability here
             val generatedAnnotationAvailable = processingEnv.elementUtils
@@ -36,8 +33,7 @@ data class ProcessorConfiguration(
                 generatedComponentPackage = generatedComponentPackage,
                 generatedSourcesDirectory = generatedSourcesDirectory,
                 generatedAnnotationAvailable = generatedAnnotationAvailable,
-                rootScopeAnnotation = "",
-                printSources = printSources
+                rootScopeAnnotation = ""
             )
 
         }

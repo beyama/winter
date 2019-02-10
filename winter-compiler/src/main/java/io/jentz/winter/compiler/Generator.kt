@@ -1,6 +1,5 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.FileSpec
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.*
@@ -63,7 +62,6 @@ class Generator(
         componentModel.injectors.forEach { (_, injector) ->
             val kCode = injector.generate()
             writer.write(kCode)
-            print(kCode)
         }
     }
 
@@ -72,18 +70,12 @@ class Generator(
             val injectorModel = componentModel.injectors[factory.typeElement]
             val kCode = factory.generate(injectorModel)
             writer.write(kCode)
-            print(kCode)
         }
     }
 
     private fun generateComponent() {
         val kCode = componentModel.generate()
         writer.write(kCode)
-        print(kCode)
-    }
-
-    private fun print(fileSpec: FileSpec) {
-        if (configuration.printSources) logger.info(fileSpec.toString())
     }
 
     private fun getOrCreateInjectorModel(fieldOrSetter: Element): InjectorModel {
