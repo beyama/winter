@@ -1,17 +1,32 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.FileSpec
-import java.io.File
+import javax.annotation.processing.RoundEnvironment
+import javax.inject.Inject
 import javax.lang.model.element.*
 
 class Generator(
     private val configuration: ProcessorConfiguration,
+    private val writer: SourceWriter,
     private val logger: Logger
 ) {
 
     private val componentModel = ComponentModel(configuration)
 
-    fun addElement(element: Element) {
+    fun process(roundEnv: RoundEnvironment) {
+        roundEnv.getElementsAnnotatedWith(Inject::class.java).forEach { element ->
+            try {
+                addElement(element)
+            } catch (t: Throwable) {
+                logger.error(element, t)
+                return
+            }
+        }
+
+        generate()
+    }
+
+    private fun addElement(element: Element) {
         when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
                 val executable = element as ExecutableElement
@@ -35,7 +50,7 @@ class Generator(
         }
     }
 
-    fun generate() {
+    private fun generate() {
         if (componentModel.isEmpty()) return
 
         generateInjectors()
@@ -47,7 +62,7 @@ class Generator(
     private fun generateInjectors() {
         componentModel.injectors.forEach { (_, injector) ->
             val kCode = injector.generate()
-            write(kCode)
+            writer.write(kCode)
             print(kCode)
         }
     }
@@ -56,20 +71,15 @@ class Generator(
         componentModel.factories.forEach { factory ->
             val injectorModel = componentModel.injectors[factory.typeElement]
             val kCode = factory.generate(injectorModel)
-            write(kCode)
+            writer.write(kCode)
             print(kCode)
         }
     }
 
     private fun generateComponent() {
         val kCode = componentModel.generate()
-        write(kCode)
+        writer.write(kCode)
         print(kCode)
-    }
-
-    private fun write(fileSpec: FileSpec) {
-        val file = File(configuration.generatedSourcesDirectory)
-        fileSpec.writeTo(file)
     }
 
     private fun print(fileSpec: FileSpec) {
