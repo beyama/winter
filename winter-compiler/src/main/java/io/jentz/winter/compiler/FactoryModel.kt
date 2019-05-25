@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import javax.inject.Scope
@@ -15,8 +16,8 @@ class FactoryModel(
     val typeElement = constructor.enclosingElement as TypeElement
     val typeName = typeElement.asClassName()
     val generatedClassName = ClassName(
-        packageName = typeName.packageName(),
-        simpleName = "${typeName.simpleNames().joinToString("_")}$GENERATED_FACTORY_POSTFIX"
+        packageName = typeName.packageName,
+        simpleName = "WinterFactory_${typeName.simpleNames.joinToString("_")}"
     )
     val scope: String?
 
@@ -79,9 +80,9 @@ class FactoryModel(
                 .build()
         }
 
-        return FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
+        return FileSpec.builder(generatedClassName.packageName, generatedClassName.simpleName)
             .addType(
-                TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
+                TypeSpec.classBuilder(generatedClassName)
                     .also {
                         if (configuration.generatedAnnotationAvailable) {
                             it.addAnnotation(generatedAnnotation())
@@ -90,11 +91,9 @@ class FactoryModel(
                         }
                     }
                     .addSuperinterface(
-                        ParameterizedTypeName.get(
-                            FACTORY_INTERFACE_NAME,
-                            GRAPH_CLASS_NAME,
-                            typeName
-                        )
+                        FACTORY_INTERFACE_NAME
+                                .plusParameter(GRAPH_CLASS_NAME)
+                                .plusParameter(typeName)
                     )
                     .addFunction(
                         FunSpec.builder("invoke")

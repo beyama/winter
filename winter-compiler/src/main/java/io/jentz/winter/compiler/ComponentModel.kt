@@ -19,7 +19,7 @@ class ComponentModel(
 
         injectors.forEach { (_, injector) ->
             val code = CodeBlock.of(
-                "membersInjector<%T> { %T() }\n",
+                "membersInjector<%T> {\n`%T`()\n}\n",
                 injector.typeName,
                 escapeGeneratedClassName(injector.generatedClassName)
             )
@@ -48,7 +48,7 @@ class ComponentModel(
         componentBuilder.endControlFlow()
 
         return FileSpec.builder(configuration.generatedComponentPackage, "generatedComponent")
-            .addStaticImport("io.jentz.winter", "component")
+            .addImport("io.jentz.winter", "component")
             .addProperty(
                 PropertySpec.builder("generatedComponent", COMPONENT_CLASS_NAME)
                     .also {
@@ -67,18 +67,17 @@ class ComponentModel(
     fun isEmpty() = factories.isEmpty() && injectors.isEmpty()
 
     private fun generatePrototype(model: FactoryModel) = CodeBlock.of(
-        "prototype<%T> { %T().invoke(this) }\n",
+        "prototype<%T> {\n    `%T`().invoke(this)\n}\n",
         model.typeName,
         escapeGeneratedClassName(model.generatedClassName)
     )
 
     private fun generateSingleton(model: FactoryModel) = CodeBlock.of(
-        "singleton<%T> { %T().invoke(this) }\n",
+        "singleton<%T> {\n`%T`().invoke(this)\n}\n",
         model.typeName,
         escapeGeneratedClassName(model.generatedClassName)
     )
 
-    private fun escapeGeneratedClassName(className: ClassName) =
-        ClassName(className.packageName(), "`${className.simpleName()}`")
+    private fun escapeGeneratedClassName(className: ClassName) = className
 
 }

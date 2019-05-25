@@ -9,6 +9,9 @@ group = GROUP
 
 dependencies {
     implementation project(':winter')
+
+    implementation deps.kotlin.stdlib
+
     implementation deps.javaxInject
     implementation deps.kotlinpoet
 

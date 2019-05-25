@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import javax.lang.model.element.TypeElement
 
 class InjectorModel(
@@ -11,17 +12,17 @@ class InjectorModel(
     val typeName = typeElement.asClassName()
 
     val generatedClassName = ClassName(
-        typeName.packageName(),
-        "${typeName.simpleNames().joinToString("_")}$GENERATED_MEMBERS_INJECTOR_POSTFIX"
+        typeName.packageName,
+        "WinterMembersInjector_${typeName.simpleNames.joinToString("_")}"
     )
 
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
     fun generate(): FileSpec =
-        FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
-            .addStaticImport(GRAPH_CLASS_NAME.packageName(), GRAPH_CLASS_NAME.simpleName())
+        FileSpec.builder(generatedClassName.packageName, generatedClassName.simpleName)
+            .addImport(GRAPH_CLASS_NAME.packageName, GRAPH_CLASS_NAME.simpleName)
             .addType(
-                TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
+                TypeSpec.classBuilder(generatedClassName)
                     .also {
                         if (configuration.generatedAnnotationAvailable) {
                             it.addAnnotation(generatedAnnotation())
@@ -30,10 +31,7 @@ class InjectorModel(
                         }
                     }
                     .addSuperinterface(
-                        ParameterizedTypeName.get(
-                            MEMBERS_INJECTOR_INTERFACE_NAME,
-                            typeName
-                        )
+                        MEMBERS_INJECTOR_INTERFACE_NAME.plusParameter(typeName)
                     )
                     .addFunction(
                         FunSpec.builder("injectMembers")

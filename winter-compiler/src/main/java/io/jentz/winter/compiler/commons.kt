@@ -85,6 +85,8 @@ fun isNotNullable(e: VariableElement): Boolean = e.annotationMirrors.any {
     notNullAnnotations.contains(qualifiedName)
 }
 
+fun isNullable(e: VariableElement): Boolean = !isNotNullable(e)
+
 private fun getInstanceCodeBlock(
     typeName: TypeName,
     isNullable: Boolean,
@@ -109,7 +111,7 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
     val namedAnnotation =
         e.getAnnotation(Named::class.java) ?: e.enclosingElement.getAnnotation(Named::class.java)
     val qualifier = namedAnnotation?.value
-    val isNullable = !isNotNullable(e)
+    val isNullable = isNullable(e)
 
     return when {
         isProvider(e) -> {
@@ -118,7 +120,7 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
 
             val getter = FunSpec.builder("get")
                 .addModifiers(KModifier.OVERRIDE)
-                .returns(if (isNullable) typeName.asNullable() else typeName)
+                .returns(if (isNullable) typeName.copy(nullable = true) else typeName)
                 .addCode("return %L\n", getInstanceCodeBlock(typeName, isNullable, qualifier))
                 .build()
                 .toString()
@@ -142,8 +144,8 @@ fun generateGetInstanceCodeBlock(e: VariableElement): CodeBlock {
 }
 
 fun generatedAnnotation() = AnnotationSpec.builder(GENERATED_ANNOTATION_NAME)
-    .addMember("value", "[%S]", WinterProcessor::class.java.name)
-    .addMember("date", "%S", ISO8601_FORMAT.format(now()))
+    .addMember("value = [%S]", WinterProcessor::class.java.name)
+    .addMember("date = %S", ISO8601_FORMAT.format(now()))
     .build()
 
 fun generatedComment() = CodeBlock.of(

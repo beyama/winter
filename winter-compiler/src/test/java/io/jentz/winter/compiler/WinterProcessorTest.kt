@@ -104,7 +104,7 @@ class WinterProcessorTest {
         assertThat(compilation)
             .succeeded()
 
-        writer.files["NoArgumentInjectConstructor\$\$Factory"].shouldBe(
+        writer.files["WinterFactory_NoArgumentInjectConstructor"].shouldBe(
             """
             package io.jentz.winter.compilertest
 
@@ -113,11 +113,11 @@ class WinterProcessorTest {
             import javax.annotation.Generated
 
             @Generated(
-                value = ["io.jentz.winter.compiler.WinterProcessor"],
-                date = "2019-02-10T14:52Z"
+                    value = ["io.jentz.winter.compiler.WinterProcessor"],
+                    date = "2019-02-10T14:52Z"
             )
-            class `NoArgumentInjectConstructor${"$$"}Factory` : Factory<Graph, NoArgumentInjectConstructor> {
-              override fun invoke(graph: Graph): NoArgumentInjectConstructor = NoArgumentInjectConstructor()
+            class WinterFactory_NoArgumentInjectConstructor : Factory<Graph, NoArgumentInjectConstructor> {
+                override fun invoke(graph: Graph): NoArgumentInjectConstructor = NoArgumentInjectConstructor()
             }
 
             """.trimIndent()
@@ -144,12 +144,15 @@ class WinterProcessorTest {
             import javax.annotation.Generated
 
             @Generated(
-                value = ["io.jentz.winter.compiler.WinterProcessor"],
-                date = "2019-02-10T14:52Z"
+                    value = ["io.jentz.winter.compiler.WinterProcessor"],
+                    date = "2019-02-10T14:52Z"
             )
             val generatedComponent: Component = component {
-                  prototype<NoArgumentInjectConstructor> { `NoArgumentInjectConstructor${"$$"}Factory`().invoke(this) }
-                }
+                        prototype<NoArgumentInjectConstructor> {
+                            `WinterFactory_NoArgumentInjectConstructor`().invoke(this)
+                        }
+                    }
+
 
             """.trimIndent()
         )
