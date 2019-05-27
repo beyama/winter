@@ -1,14 +1,14 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.FileSpec
+import io.jentz.winter.compiler.kotlinbuilder.KotlinFile
 import java.io.File
 
 class SourceFileWriter(
     private val generatedSourcesDirectory: String
 ) : SourceWriter {
 
-    override fun write(fileSpec: FileSpec) {
+    override fun write(kotlinFile: KotlinFile) {
         val file = File(generatedSourcesDirectory)
-        fileSpec.writeTo(file)
+        kotlinFile.writeTo(file.toPath())
     }
 }

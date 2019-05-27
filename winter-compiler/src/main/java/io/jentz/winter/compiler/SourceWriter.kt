@@ -1,7 +1,7 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.FileSpec
+import io.jentz.winter.compiler.kotlinbuilder.KotlinFile
 
 interface SourceWriter {
-    fun write(fileSpec: FileSpec)
+    fun write(kotlinFile: KotlinFile)
 }

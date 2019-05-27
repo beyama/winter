@@ -1,5 +1,7 @@
 package io.jentz.winter.compiler
 
+import io.jentz.winter.compiler.kotlinbuilder.buildComponent
+import io.jentz.winter.compiler.kotlinbuilder.buildInjector
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.*
@@ -10,7 +12,7 @@ class Generator(
     private val logger: Logger
 ) {
 
-    private val componentModel = ComponentModel(configuration)
+    private val componentModel = ComponentModel()
 
     fun process(roundEnv: RoundEnvironment) {
         roundEnv.getElementsAnnotatedWith(Inject::class.java).forEach { element ->
@@ -29,7 +31,7 @@ class Generator(
         when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
                 val executable = element as ExecutableElement
-                componentModel.factories += FactoryModel(configuration, executable)
+                componentModel.factories += ServiceModel(executable)
             }
             ElementKind.FIELD -> {
                 val field = element as VariableElement
@@ -53,28 +55,19 @@ class Generator(
         if (componentModel.isEmpty()) return
 
         generateInjectors()
-        generateFactories()
         generateComponent()
 
     }
 
     private fun generateInjectors() {
         componentModel.injectors.forEach { (_, injector) ->
-            val kCode = injector.generate()
-            writer.write(kCode)
-        }
-    }
-
-    private fun generateFactories() {
-        componentModel.factories.forEach { factory ->
-            val injectorModel = componentModel.injectors[factory.typeElement]
-            val kCode = factory.generate(injectorModel)
+            val kCode = buildInjector(configuration, injector)
             writer.write(kCode)
         }
     }
 
     private fun generateComponent() {
-        val kCode = componentModel.generate()
+        val kCode = buildComponent(configuration, componentModel)
         writer.write(kCode)
     }
 

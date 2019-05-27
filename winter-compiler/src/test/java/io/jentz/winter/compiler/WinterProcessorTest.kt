@@ -2,18 +2,17 @@ package io.jentz.winter.compiler
 
 import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler.javac
-import com.google.testing.compile.JavaFileObjects
-import com.squareup.kotlinpoet.FileSpec
+import com.google.testing.compile.JavaFileObjects.forSourceString
 import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.Winter
+import io.jentz.winter.compiler.kotlinbuilder.KotlinFile
 import io.jentz.winter.plugin.SimplePlugin
-import io.kotlintest.matchers.string.shouldNotBeBlank
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import javax.tools.JavaFileObject
 
 class WinterProcessorTest {
 
@@ -21,8 +20,8 @@ class WinterProcessorTest {
 
         val files = mutableMapOf<String, String>()
 
-        override fun write(fileSpec: FileSpec) {
-            files[fileSpec.name] = fileSpec.toString()
+        override fun write(kotlinFile: KotlinFile) {
+            files[kotlinFile.fileName] = kotlinFile.code
         }
     }
 
@@ -33,9 +32,9 @@ class WinterProcessorTest {
     }
 
 
-    val javaFile1 = JavaFileObjects.forSourceString(
-        "NoArgumentInjectConstructor",
-        """
+    private val noArgumentInjectConstructor = forSourceString(
+            "NoArgumentInjectConstructor",
+            """
         package io.jentz.winter.compilertest;
 
         import javax.inject.Inject;
@@ -48,9 +47,11 @@ class WinterProcessorTest {
         """.trimIndent()
     )
 
+    private val GENERATED_COMPONENT = "generatedComponent"
+
     private val validOptions = listOf(
-        "-A$OPTION_KAPT_KOTLIN_GENERATED=/tmp",
-        "-A$OPTION_GENERATED_COMPONENT_PACKAGE=io.jentz.winter.compilertest"
+            "-A$OPTION_KAPT_KOTLIN_GENERATED=/tmp",
+            "-A$OPTION_GENERATED_COMPONENT_PACKAGE=io.jentz.winter.compilertest"
     )
 
     @BeforeEach
@@ -69,93 +70,170 @@ class WinterProcessorTest {
     @Test
     fun `should warn if kapt directory is not set`() {
         val compilation = javac()
-            .withProcessors(WinterProcessor())
-            .compile(javaFile1)
+                .withProcessors(WinterProcessor())
+                .compile(noArgumentInjectConstructor)
 
         assertThat(compilation)
-            .hadWarningContaining("Skipping annotation processing: Kapt generated sources directory is not set.")
+                .hadWarningContaining("Skipping annotation processing: Kapt generated sources directory is not set.")
     }
 
     @Test
     fun `should warn if package for generated component is not set`() {
 
         val compilation = javac()
-            .withProcessors(WinterProcessor())
-            .withOptions(
-                "-A$OPTION_KAPT_KOTLIN_GENERATED=/tmp"
-            )
-            .compile(javaFile1)
+                .withProcessors(WinterProcessor())
+                .withOptions(
+                        "-A$OPTION_KAPT_KOTLIN_GENERATED=/tmp"
+                )
+                .compile(noArgumentInjectConstructor)
 
         assertThat(compilation)
-            .hadWarningContaining(
-                "Package to generate component to is not configured. " +
-                        "Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`."
-            )
-    }
-
-    @Test
-    fun `should generate factory for no argument inject constructor`() {
-
-        val compilation = javac()
-            .withProcessors(WinterProcessor())
-            .withOptions(validOptions)
-            .compile(javaFile1)
-
-        assertThat(compilation)
-            .succeeded()
-
-        writer.files["WinterFactory_NoArgumentInjectConstructor"].shouldBe(
-            """
-            package io.jentz.winter.compilertest
-
-            import io.jentz.winter.Factory
-            import io.jentz.winter.Graph
-            import javax.annotation.Generated
-
-            @Generated(
-                    value = ["io.jentz.winter.compiler.WinterProcessor"],
-                    date = "2019-02-10T14:52Z"
-            )
-            class WinterFactory_NoArgumentInjectConstructor : Factory<Graph, NoArgumentInjectConstructor> {
-                override fun invoke(graph: Graph): NoArgumentInjectConstructor = NoArgumentInjectConstructor()
-            }
-
-            """.trimIndent()
-        )
+                .hadWarningContaining(
+                        "Package to generate component to is not configured. " +
+                                "Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`."
+                )
     }
 
     @Test
     fun `should generate component for no argument inject constructor class`() {
+        compileSuccessful(noArgumentInjectConstructor)
 
-        val compilation = javac()
+        generatedFile(GENERATED_COMPONENT).shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.compilertest.NoArgumentInjectConstructor
+        |import io.jentz.winter.component
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    prototype<NoArgumentInjectConstructor> {
+        |        NoArgumentInjectConstructor()
+        |    }
+        |
+        |}
+
+        """.trimMargin()
+        )
+    }
+
+    @Test
+    fun `should generate component for one argument inject constructor class`() {
+        compileSuccessful(forSourceString(
+                "OneArgumentInjectConstructor",
+                """
+                |package io.jentz.winter.compilertest;
+                |
+                |import javax.inject.Inject;
+                |
+                |public class OneArgumentInjectConstructor {
+                |    @Inject
+                |    public OneArgumentInjectConstructor(String arg) {
+                |    }
+                |}
+
+                """.trimMargin()))
+
+        generatedFile(GENERATED_COMPONENT).shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.compilertest.OneArgumentInjectConstructor
+        |import io.jentz.winter.component
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    prototype<OneArgumentInjectConstructor> {
+        |        OneArgumentInjectConstructor(instanceOrNull<String>())
+        |    }
+        |
+        |}
+        |""".trimMargin())
+    }
+
+    @Test
+    fun `should generate injector for field with generics type`() {
+        compileSuccessful(forSourceString(
+                "WithInjectedGenericField",
+                """
+                |package io.jentz.winter.compilertest;
+                |
+                |import java.util.List;
+                |import java.util.Map;
+                |import javax.inject.Inject;
+                |
+                |public class WithInjectedGenericField {
+                |    @Inject Map<String, Integer> field0;
+                |    @Inject List<Integer> field1;
+                |}
+                """.trimMargin()))
+
+        generatedFile("WinterMembersInjector_WithInjectedGenericField").shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Graph
+        |import io.jentz.winter.MembersInjector
+        |import io.jentz.winter.compilertest.WithInjectedGenericField
+        |import java.util.List
+        |import java.util.Map
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |class WinterMembersInjector_WithInjectedGenericField : MembersInjector<WithInjectedGenericField> {
+        |
+        |    override fun injectMembers(graph: Graph, target: WithInjectedGenericField) {
+        |        target.field0 = graph.instanceOrNull<Map<String, Integer>>(generics = true)
+        |        target.field1 = graph.instanceOrNull<List<Integer>>(generics = true)
+        |    }
+        |
+        |}
+        |""".trimMargin())
+
+        generatedFile("generatedComponent").shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.compilertest.WinterMembersInjector_WithInjectedGenericField
+        |import io.jentz.winter.compilertest.WithInjectedGenericField
+        |import io.jentz.winter.component
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    membersInjector<WithInjectedGenericField> {
+        |        WinterMembersInjector_WithInjectedGenericField()
+        |    }
+        |
+        |}
+        |
+        """.trimMargin())
+    }
+
+    private fun generatedFile(name: String) = writer.files[name]
+
+    private fun defaultCompiler() = javac()
             .withProcessors(WinterProcessor())
             .withOptions(validOptions)
-            .compile(javaFile1)
 
-        assertThat(compilation)
-            .succeeded()
-
-        writer.files["generatedComponent"].shouldBe(
-            """
-            package io.jentz.winter.compilertest
-
-            import io.jentz.winter.Component
-            import io.jentz.winter.component
-            import javax.annotation.Generated
-
-            @Generated(
-                    value = ["io.jentz.winter.compiler.WinterProcessor"],
-                    date = "2019-02-10T14:52Z"
-            )
-            val generatedComponent: Component = component {
-                        prototype<NoArgumentInjectConstructor> {
-                            `WinterFactory_NoArgumentInjectConstructor`().invoke(this)
-                        }
-                    }
-
-
-            """.trimIndent()
-        )
+    private fun compileSuccessful(file: JavaFileObject) {
+        assertThat(defaultCompiler().compile(file)).succeeded()
     }
 
 }
