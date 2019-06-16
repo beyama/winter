@@ -1,8 +1,12 @@
-package io.jentz.winter.compilertest;
+package io.jentz.winter.compilertest.membersonly;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+
+import io.jentz.winter.compilertest.injectconstructor.FiveArgumentsInjectConstructor;
+import io.jentz.winter.compilertest.injectconstructor.NoArgumentInjectConstructor;
+import io.jentz.winter.compilertest.injectconstructor.OneArgumentInjectConstructor;
 
 public class ProviderInjection {
     final Provider<NoArgumentInjectConstructor> constructorInjected;
