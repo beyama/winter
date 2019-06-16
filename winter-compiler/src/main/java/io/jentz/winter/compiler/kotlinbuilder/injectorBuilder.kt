@@ -34,6 +34,7 @@ fun buildInjector(
                             val setterName = target.element.simpleName
                             val parameter = target.parameter
                             val getInstance = generateGetInstanceCode("graph.", parameter)
+                            appendIndent()
                             append("target.$setterName(")
                             appendCode(getInstance)
                             append(")")
