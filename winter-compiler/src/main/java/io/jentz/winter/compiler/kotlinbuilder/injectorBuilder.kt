@@ -17,6 +17,7 @@ fun buildInjector(
         import(typeName)
 
         generatedAnnotation(configuration.generatedAnnotationAvailable)
+
         block("class ${generatedClassName.simpleName} : ${MEMBERS_INJECTOR_INTERFACE_NAME.simpleName}<${typeName.simpleName}>") {
             line()
             block("override fun injectMembers(graph: ${GRAPH_CLASS_NAME.simpleName}, target: ${typeName.simpleName})") {

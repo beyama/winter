@@ -155,7 +155,10 @@ class KotlinFileBuilder(
             appendln()
             imports
                     .sortedBy { it.toString() }
-                    .filterNot { DEFAULT_NAMESPACES.contains(it.packageName) }
+                    .filterNot {
+                        DEFAULT_NAMESPACES.contains(it.packageName)
+                                || (it.simpleNames.size == 1 && it.packageName == packageName)
+                    }
                     .forEach {
                         appendln("import $it")
                     }
