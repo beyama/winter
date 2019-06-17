@@ -23,8 +23,9 @@ val MEMBERS_INJECTOR_INTERFACE_NAME =
         ClassName("io.jentz.winter", "MembersInjector")
 val PROVIDER_INTERFACE_NAME = ClassName("javax.inject", "Provider")
 val LAZY_INTERFACE_NAME = ClassName("kotlin", "Lazy")
-
 val GENERATED_ANNOTATION_NAME = ClassName("javax.annotation", "Generated")
+
+val JAVAX_SINGLETON_ANNOTATION_NAME = "javax.inject.Singleton"
 
 val ISO8601_FORMAT =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.getDefault()).apply {

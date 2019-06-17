@@ -27,7 +27,7 @@ fun buildComponent(
                         prototype(factory, model.injectors[factory.typeElement])
                     }
                 }
-                "javax.inject.Singleton" -> {
+                configuration.rootScopeAnnotation -> {
                     factories.forEach { factory ->
                         singleton(factory, model.injectors[factory.typeElement])
                     }

@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
 import com.google.testing.compile.CompilationSubject.assertThat
+import com.google.testing.compile.Compiler
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects.forSourceString
 import io.jentz.winter.ComponentBuilder
@@ -31,20 +32,19 @@ class WinterProcessorTest {
         }
     }
 
-
     private val noArgumentInjectConstructor = forSourceString(
             "NoArgumentInjectConstructor",
             """
-        package io.jentz.winter.compilertest;
-
-        import javax.inject.Inject;
-
-        public class NoArgumentInjectConstructor {
-            @Inject
-            public NoArgumentInjectConstructor() {
-            }
-        }
-        """.trimIndent()
+            |package io.jentz.winter.compilertest;
+            |
+            |import javax.inject.Inject;
+            |
+            |public class NoArgumentInjectConstructor {
+            |    @Inject
+            |    public NoArgumentInjectConstructor() {
+            |    }
+            |}
+            |""".trimMargin()
     )
 
     private val GENERATED_COMPONENT = "generatedComponent"
@@ -96,13 +96,12 @@ class WinterProcessorTest {
 
     @Test
     fun `should generate component for no argument inject constructor class`() {
-        compileSuccessful(noArgumentInjectConstructor)
+        defaultCompiler().compileSuccessful(noArgumentInjectConstructor)
 
         generatedFile(GENERATED_COMPONENT).shouldBe("""
         |package io.jentz.winter.compilertest
         |
         |import io.jentz.winter.Component
-        |import io.jentz.winter.compilertest.NoArgumentInjectConstructor
         |import io.jentz.winter.component
         |import javax.annotation.Generated
         |
@@ -124,8 +123,7 @@ class WinterProcessorTest {
 
     @Test
     fun `should generate component for one argument inject constructor class`() {
-        compileSuccessful(forSourceString(
-                "OneArgumentInjectConstructor",
+        defaultCompiler().compileSuccessful("OneArgumentInjectConstructor",
                 """
                 |package io.jentz.winter.compilertest;
                 |
@@ -137,13 +135,12 @@ class WinterProcessorTest {
                 |    }
                 |}
 
-                """.trimMargin()))
+                """.trimMargin())
 
         generatedFile(GENERATED_COMPONENT).shouldBe("""
         |package io.jentz.winter.compilertest
         |
         |import io.jentz.winter.Component
-        |import io.jentz.winter.compilertest.OneArgumentInjectConstructor
         |import io.jentz.winter.component
         |import javax.annotation.Generated
         |
@@ -163,8 +160,7 @@ class WinterProcessorTest {
 
     @Test
     fun `should generate injector for field with generics type`() {
-        compileSuccessful(forSourceString(
-                "WithInjectedGenericField",
+        defaultCompiler().compileSuccessful("WithInjectedGenericField",
                 """
                 |package io.jentz.winter.compilertest;
                 |
@@ -176,14 +172,13 @@ class WinterProcessorTest {
                 |    @Inject Map<String, Integer> field0;
                 |    @Inject List<Integer> field1;
                 |}
-                """.trimMargin()))
+                """.trimMargin())
 
         generatedFile("WinterMembersInjector_WithInjectedGenericField").shouldBe("""
         |package io.jentz.winter.compilertest
         |
         |import io.jentz.winter.Graph
         |import io.jentz.winter.MembersInjector
-        |import io.jentz.winter.compilertest.WithInjectedGenericField
         |import java.util.List
         |import java.util.Map
         |import javax.annotation.Generated
@@ -206,8 +201,6 @@ class WinterProcessorTest {
         |package io.jentz.winter.compilertest
         |
         |import io.jentz.winter.Component
-        |import io.jentz.winter.compilertest.WinterMembersInjector_WithInjectedGenericField
-        |import io.jentz.winter.compilertest.WithInjectedGenericField
         |import io.jentz.winter.component
         |import javax.annotation.Generated
         |
@@ -226,14 +219,61 @@ class WinterProcessorTest {
         """.trimMargin())
     }
 
+    @Test
+    fun `should register class annotated with root scope in root component`() {
+        defaultCompiler(
+                "-A$OPTION_ROOT_SCOPE_ANNOTATION=io.jentz.winter.compiler.ApplicationScope"
+        ).compileSuccessful("NoArgumentInjectConstructor",
+                """
+                |package io.jentz.winter.compilertest;
+                |
+                |import javax.inject.Inject;
+                |import io.jentz.winter.compiler.ApplicationScope;
+                |
+                |@ApplicationScope
+                |public class NoArgumentInjectConstructor {
+                |    @Inject
+                |    public NoArgumentInjectConstructor() {
+                |    }
+                |}
+                |""".trimMargin())
+
+        generatedFile(GENERATED_COMPONENT).shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.component
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    singleton<NoArgumentInjectConstructor> {
+        |        NoArgumentInjectConstructor()
+        |    }
+        |
+        |}
+
+        """.trimMargin()
+        )
+    }
+
     private fun generatedFile(name: String) = writer.files[name]
 
-    private fun defaultCompiler() = javac()
-            .withProcessors(WinterProcessor())
-            .withOptions(validOptions)
+    private fun compiler() = javac().withProcessors(WinterProcessor())
 
-    private fun compileSuccessful(file: JavaFileObject) {
-        assertThat(defaultCompiler().compile(file)).succeeded()
+    private fun defaultCompiler(vararg options: String) =
+            compiler().withOptions(validOptions + options)
+
+    private fun Compiler.compileSuccessful(filename: String, code: String) {
+        compileSuccessful(forSourceString(filename, code))
+    }
+
+    private fun Compiler.compileSuccessful(file: JavaFileObject) {
+        assertThat(compile(file)).succeeded()
     }
 
 }
