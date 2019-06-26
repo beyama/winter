@@ -15,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import javax.tools.JavaFileObject
 
+private const val GENERATED_COMPONENT = "generatedComponent"
+
 class WinterProcessorTest {
 
     private val writer = object : SourceWriter {
@@ -33,8 +35,6 @@ class WinterProcessorTest {
     }
 
     private val noArgumentInjectConstructor = forResource("NoArgumentInjectConstructor.java")
-
-    private val GENERATED_COMPONENT = "generatedComponent"
 
     private val validOptions = listOf(
             "-A$OPTION_KAPT_KOTLIN_GENERATED=/tmp",
@@ -182,7 +182,7 @@ class WinterProcessorTest {
     }
 
     @Test
-    fun `should generate injector for javax Provider field`() {
+    fun `should generate injector for javax Provider and Lazy fields`() {
         defaultCompiler().compileSuccessful("WithInjectedProviderAndLazyFields.java")
 
         generatedFile("WinterMembersInjector_WithInjectedProviderAndLazyFields").shouldBe("""
@@ -204,6 +204,38 @@ class WinterProcessorTest {
         |        target.field0 = graph.instanceOrNull<Any>()
         |        target.field1 = Provider { graph.instanceOrNull<List<String>>("stringList", generics = true) }
         |        target.field2 = lazy { graph.instanceOrNull<List<String>>("stringList", generics = true) }
+        |    }
+        |
+        |}
+        |
+        """.trimMargin())
+    }
+
+    @Test
+    fun `should generate initializer for constructor with javax Provider and Lazy arguments`() {
+        defaultCompiler()
+                .compileSuccessful("InjectConstructorWithProviderAndLazyArguments.java")
+
+        generatedFile(GENERATED_COMPONENT).shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.component
+        |import java.util.List
+        |import javax.annotation.Generated
+        |import javax.inject.Provider
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    prototype<InjectConstructorWithProviderAndLazyArguments> {
+        |        InjectConstructorWithProviderAndLazyArguments(
+        |            Provider { instanceOrNull<List<String>>("stringList", generics = true) },
+        |            lazy { instanceOrNull<List<String>>("stringList", generics = true) }
+        |        )
         |    }
         |
         |}

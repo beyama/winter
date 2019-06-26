@@ -75,8 +75,14 @@ class ComponentBuilder(
 
             val params = serviceModel.constructor.parameters
                     .map { generateGetInstanceCode("", it) }
-                    .onEach { code -> code.imports.forEach(::import) }
-                    .joinToString(", ") { it.code }
+                    .onEach { code -> import(code.imports) }
+                    .run {
+                        if (serviceModel.constructor.parameters.size > 1) {
+                            joinToString(",\n    ", "\n    ", "\n") { it.code }
+                        } else {
+                            joinToString(", ") { it.code }
+                        }
+                    }
 
             val createInstance = "${typeName.simpleName}($params)"
 
