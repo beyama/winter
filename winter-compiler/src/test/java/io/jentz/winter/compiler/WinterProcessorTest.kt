@@ -182,6 +182,36 @@ class WinterProcessorTest {
     }
 
     @Test
+    fun `should generate injector for javax Provider field`() {
+        defaultCompiler().compileSuccessful("WithInjectedProviderAndLazyFields.java")
+
+        generatedFile("WinterMembersInjector_WithInjectedProviderAndLazyFields").shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Graph
+        |import io.jentz.winter.MembersInjector
+        |import java.util.List
+        |import javax.annotation.Generated
+        |import javax.inject.Provider
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |class WinterMembersInjector_WithInjectedProviderAndLazyFields : MembersInjector<WithInjectedProviderAndLazyFields> {
+        |
+        |    override fun injectMembers(graph: Graph, target: WithInjectedProviderAndLazyFields) {
+        |        target.field0 = graph.instanceOrNull<Any>()
+        |        target.field1 = Provider { graph.instanceOrNull<List<String>>("stringList", generics = true) }
+        |        target.field2 = lazy { graph.instanceOrNull<List<String>>("stringList", generics = true) }
+        |    }
+        |
+        |}
+        |
+        """.trimMargin())
+    }
+
+    @Test
     fun `should register class annotated with root scope in root component`() {
         defaultCompiler(
                 "-A$OPTION_ROOT_SCOPE_ANNOTATION=io.jentz.winter.compiler.ApplicationScope"

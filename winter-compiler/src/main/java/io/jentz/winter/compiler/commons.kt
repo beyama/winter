@@ -118,18 +118,12 @@ fun generateGetInstanceCode(target: String, e: VariableElement): KotlinCode = bu
         e.isProvider -> {
             val genericTypeMirror = (e.asType() as DeclaredType).typeArguments.first()
             val typeName = mapTypeName(genericTypeMirror.asTypeName())
-            val simpleName = simpleName(typeName)
 
             import(PROVIDER_INTERFACE_NAME)
 
-            objectBlock("${PROVIDER_INTERFACE_NAME.simpleName}<${simpleName.code}>") {
-                block("override fun get(): ${typeName.copy(nullable = isNullable)}") {
-                    appendIndent()
-                    append("return ")
-                    appendCode(getInstanceCode(target, typeName, isNullable, qualifier))
-                    newLine()
-                }
-            }
+            append("Provider { ")
+            appendCode(getInstanceCode(target, typeName, isNullable, qualifier))
+            append(" }")
         }
         e.isLazy -> {
             val genericTypeMirror = (e.asType() as DeclaredType).typeArguments.first()
