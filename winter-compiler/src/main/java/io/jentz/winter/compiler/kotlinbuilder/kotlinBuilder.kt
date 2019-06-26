@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
-private val SPACES_PER_INDENTATION_LEVEL = 4
+private const val SPACES_PER_INDENTATION_LEVEL = 4
 
 typealias KotlinBuilderBlock = KotlinBuilder.() -> Unit
 
@@ -85,15 +85,8 @@ abstract class KotlinBuilder {
         return
     }
 
-    fun lines(text: String) = line(text)
-
     fun newLine() {
         builder.appendln()
-    }
-
-    fun newLineAndIndent() {
-        newLine()
-        appendIndent()
     }
 
     fun import(className: ClassName) {
@@ -116,18 +109,9 @@ abstract class KotlinBuilder {
         line("}")
     }
 
-    fun code(code: KotlinCode) {
-        import(code.imports)
-        lines(code.code)
-    }
-
     fun appendCode(code: KotlinCode) {
         import(code.imports)
         append(code.code)
-    }
-
-    fun objectBlock(extends: String, block: KotlinBuilderBlock) {
-        block("object : $extends", block)
     }
 
     fun appendIndent() {
@@ -144,8 +128,8 @@ class KotlinCodeBuilder : KotlinBuilder() {
 private val DEFAULT_NAMESPACES = listOf("java.lang", "kotlin")
 
 class KotlinFileBuilder(
-        val packageName: String,
-        val fileName: String
+        private val packageName: String,
+        private val fileName: String
 ) : KotlinBuilder() {
 
     fun build(): KotlinFile {
