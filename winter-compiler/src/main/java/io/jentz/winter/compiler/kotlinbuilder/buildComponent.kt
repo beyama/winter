@@ -2,8 +2,6 @@ package io.jentz.winter.compiler.kotlinbuilder
 
 import io.jentz.winter.compiler.*
 
-typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
-
 fun buildComponent(
         configuration: ProcessorConfiguration,
         model: ComponentModel
@@ -47,7 +45,9 @@ fun buildComponent(
 
 }
 
-class ComponentBuilder(
+private typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
+
+private class ComponentBuilder(
         private val builder: KotlinBuilder
 ) {
 
@@ -67,7 +67,11 @@ class ComponentBuilder(
         scope("singleton", serviceModel, injectorModel)
     }
 
-    private fun scope(scopeName: String, serviceModel: ServiceModel, injectorModel: InjectorModel?) {
+    private fun scope(
+            scopeName: String,
+            serviceModel: ServiceModel,
+            injectorModel: InjectorModel?
+    ) {
         val typeName = serviceModel.typeName
 
         builder.block("$scopeName<${typeName.simpleName}>") {
@@ -104,7 +108,7 @@ class ComponentBuilder(
 
 }
 
-fun KotlinFileBuilder.generatedComponent(block: ComponentBuilderBlock) {
+private fun KotlinFileBuilder.generatedComponent(block: ComponentBuilderBlock) {
     block("val generatedComponent: Component = component") {
         block(ComponentBuilder(this))
     }

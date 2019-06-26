@@ -77,7 +77,7 @@ class Generator(
                 "Enclosing constructor for $fieldOrSetter must be a class"
             )
         return componentModel.injectors.getOrPut(typeElement) {
-            InjectorModel(configuration, typeElement)
+            InjectorModel(typeElement)
         }
     }
 

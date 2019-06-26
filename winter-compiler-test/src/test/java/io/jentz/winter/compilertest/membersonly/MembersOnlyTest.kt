@@ -3,6 +3,7 @@ package io.jentz.winter.compilertest.membersonly
 import io.jentz.winter.Graph
 import io.jentz.winter.compilertest.generatedComponent
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -40,9 +41,9 @@ class MembersOnlyTest {
             constant("field", qualifier = "field")
         }
         val instance: ProviderInjection = graph.instance()
-        Assert.assertEquals("constructor", instance.namedConstructorInjected.get())
-        Assert.assertEquals("setter", instance.namedSetterInjected.get())
-        Assert.assertEquals("field", instance.namedFieldInjected.get())
+        assertEquals("constructor", instance.namedConstructorInjected.get())
+        assertEquals("setter", instance.namedSetterInjected.get())
+        assertEquals("field", instance.namedFieldInjected.get())
     }
 
     @Test
@@ -50,8 +51,8 @@ class MembersOnlyTest {
         val atomic = AtomicInteger(0)
         val graph = generatedComponent.init { prototype { atomic.incrementAndGet() } }
         val instance: LazyInjection = graph.instance()
-        Assert.assertEquals(1, instance.field.value)
-        Assert.assertEquals(1, instance.field.value)
+        assertEquals(1, instance.field.value)
+        assertEquals(1, instance.field.value)
     }
 
 }

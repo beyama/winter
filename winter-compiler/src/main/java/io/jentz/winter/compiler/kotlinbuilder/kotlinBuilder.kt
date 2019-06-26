@@ -6,7 +6,7 @@ import io.jentz.winter.compiler.ISO8601_FORMAT
 import io.jentz.winter.compiler.WinterProcessor
 import io.jentz.winter.compiler.now
 import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.*
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -42,7 +42,7 @@ data class KotlinFile(
         Files.createDirectories(outputDirectory)
 
         val outputPath = outputDirectory.resolve("$fileName.kt")
-        OutputStreamWriter(Files.newOutputStream(outputPath), StandardCharsets.UTF_8).use { writer ->
+        OutputStreamWriter(Files.newOutputStream(outputPath), UTF_8).use { writer ->
             writer.write(code)
             writer.close()
         }
@@ -125,7 +125,7 @@ class KotlinCodeBuilder : KotlinBuilder() {
     fun build(): KotlinCode = KotlinCode(imports.toSet(), toString())
 }
 
-private val DEFAULT_NAMESPACES = listOf("java.lang", "kotlin")
+val DEFAULT_NAMESPACES = listOf("java.lang", "kotlin")
 
 class KotlinFileBuilder(
         private val packageName: String,
@@ -141,7 +141,7 @@ class KotlinFileBuilder(
                     .sortedBy { it.toString() }
                     .filterNot {
                         DEFAULT_NAMESPACES.contains(it.packageName)
-                                || (it.simpleNames.size == 1 && it.packageName == packageName)
+                                || it.simpleNames.size == 1 && it.packageName == packageName
                     }
                     .forEach {
                         appendln("import $it")
@@ -158,8 +158,11 @@ class KotlinFileBuilder(
 fun buildKotlinCode(block: KotlinBuilderBlock): KotlinCode =
         KotlinCodeBuilder().apply(block).build()
 
-fun buildKotlinFile(packageName: String, fileName: String, block: KotlinFileBuilderBlock): KotlinFile =
-        KotlinFileBuilder(packageName, fileName).apply(block).build()
+fun buildKotlinFile(
+        packageName: String,
+        fileName: String,
+        block: KotlinFileBuilderBlock
+): KotlinFile = KotlinFileBuilder(packageName, fileName).apply(block).build()
 
 fun KotlinBuilder.generatedAnnotation(isAnnotationAvailable: Boolean) {
     val processorName = WinterProcessor::class.java.name

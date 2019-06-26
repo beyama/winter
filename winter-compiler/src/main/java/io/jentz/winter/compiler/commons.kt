@@ -1,16 +1,9 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
-import io.jentz.winter.compiler.kotlinbuilder.KotlinCode
-import io.jentz.winter.compiler.kotlinbuilder.buildKotlinCode
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Named
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
 
 const val OPTION_GENERATED_COMPONENT_PACKAGE = "winterGeneratedComponentPackage"
 const val OPTION_ROOT_SCOPE_ANNOTATION = "winterRootScopeAnnotation"

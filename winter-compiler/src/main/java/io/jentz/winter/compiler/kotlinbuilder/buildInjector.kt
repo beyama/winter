@@ -18,9 +18,17 @@ fun buildInjector(
 
         generatedAnnotation(configuration.generatedAnnotationAvailable)
 
-        block("class ${generatedClassName.simpleName} : ${MEMBERS_INJECTOR_INTERFACE_NAME.simpleName}<${typeName.simpleName}>") {
+        val className = generatedClassName.simpleName
+        val interfaceName = "${MEMBERS_INJECTOR_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
+
+        block("class $className : $interfaceName") {
+
             line()
-            block("override fun injectMembers(graph: ${GRAPH_CLASS_NAME.simpleName}, target: ${typeName.simpleName})") {
+
+            val graphClassName = GRAPH_CLASS_NAME.simpleName
+            val targetClassName = typeName.simpleName
+
+            block("override fun injectMembers(graph: $graphClassName, target: $targetClassName)") {
                 targets.forEach { target ->
                     when (target) {
                         is InjectTargetModel.FieldInjectTarget -> {

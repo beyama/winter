@@ -16,7 +16,9 @@ data class ProcessorConfiguration(
             val options = processingEnv.options
 
             val generatedSourcesDirectory = options[OPTION_KAPT_KOTLIN_GENERATED]
-                    ?: throw IllegalArgumentException("Kapt generated sources directory is not set.")
+                    ?: throw IllegalArgumentException(
+                            "Kapt generated sources directory is not set."
+                    )
 
             val generatedComponentPackage = options[OPTION_GENERATED_COMPONENT_PACKAGE]
                     .takeUnless { it.isNullOrBlank() }
