@@ -1,6 +1,9 @@
-package io.jentz.winter.compilertest;
+package io.jentz.winter.compilertest.membersonly;
 
 import javax.inject.Inject;
+
+import io.jentz.winter.compilertest.injectconstructor.NoArgumentInjectConstructor;
+import io.jentz.winter.compilertest.injectconstructor.OneArgumentInjectConstructor;
 
 public class OnlyInjectedMembers {
     @Inject

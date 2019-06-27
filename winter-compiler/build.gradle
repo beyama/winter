@@ -8,8 +8,16 @@ version = VERSION_NAME
 group = GROUP
 
 dependencies {
+    implementation project(':winter')
+
+    implementation deps.kotlin.stdlib
+
     implementation deps.javaxInject
     implementation deps.kotlinpoet
+
+    testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlintest
+    testImplementation "com.google.testing.compile:compile-testing:0.15"
 }
 
 task javadocJar(type: Jar) {

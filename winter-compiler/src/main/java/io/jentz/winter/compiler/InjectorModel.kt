@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asClassName
 import javax.lang.model.element.TypeElement
 
 class InjectorModel(typeElement: TypeElement) {
@@ -8,43 +9,10 @@ class InjectorModel(typeElement: TypeElement) {
     val typeName = typeElement.asClassName()
 
     val generatedClassName = ClassName(
-        typeName.packageName(),
-        "${typeName.simpleNames().joinToString("_")}$GENERATED_MEMBERS_INJECTOR_POSTFIX"
+            typeName.packageName,
+            "WinterMembersInjector_${typeName.simpleNames.joinToString("_")}"
     )
 
     val targets: MutableSet<InjectTargetModel> = mutableSetOf()
-
-    fun generate(generatedAnnotationAvailable: Boolean): FileSpec =
-        FileSpec.builder(generatedClassName.packageName(), generatedClassName.simpleName())
-            .addStaticImport(GRAPH_CLASS_NAME.packageName(), GRAPH_CLASS_NAME.simpleName())
-            .addType(
-                TypeSpec.classBuilder("`${generatedClassName.simpleName()}`")
-                    .also {
-                        if (generatedAnnotationAvailable) {
-                            it.addAnnotation(generatedAnnotation())
-                        } else {
-                            it.addKdoc(generatedComment())
-                        }
-                    }
-                    .addSuperinterface(
-                        ParameterizedTypeName.get(
-                            MEMBERS_INJECTOR_INTERFACE_NAME,
-                            typeName
-                        )
-                    )
-                    .addFunction(
-                        FunSpec.builder("injectMembers")
-                            .addModifiers(KModifier.OVERRIDE)
-                            .addParameter("graph", GRAPH_CLASS_NAME)
-                            .addParameter("target", typeName)
-                            .also {
-                                targets.forEach { target ->
-                                    it.addCode(target.codeBlock())
-                                }
-                            }
-                            .build()
-                    )
-                    .build()
-            ).build()
 
 }

@@ -1,34 +1,24 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.FileSpec
-import java.io.File
+import io.jentz.winter.Injector
+import io.jentz.winter.WinterException
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
-import javax.inject.Named
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.*
-import javax.tools.Diagnostic
+import javax.lang.model.element.TypeElement
 
-@Suppress("SpreadOperator")
 class WinterProcessor : AbstractProcessor() {
 
-    private var generatedAnnotationAvailable = false
-    private var generatedComponentPackage: String? = null
-    private var printSources = false
-
-    private lateinit var componentModel: ComponentModel
+    private val injector = Injector()
+    private val logger: Logger by injector.instance()
+    private val generatorProvider: () -> Generator by injector.provider()
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
-        generatedComponentPackage = processingEnv.options[OPTION_GENERATED_COMPONENT_PACKAGE]
-        printSources = processingEnv.options[OPTION_PRINT_SOURCES] == "true"
-        // Android's API jar doesn't include javax.annotation.Generated so we check the
-        // availability here
-        generatedAnnotationAvailable = processingEnv.elementUtils.getTypeElement(
-            GENERATED_ANNOTATION_NAME.canonicalName
-        ) != null
+
+        injector.inject(appComponent.init { constant(processingEnv) })
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> =
@@ -36,124 +26,25 @@ class WinterProcessor : AbstractProcessor() {
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
-    override fun getSupportedOptions(): Set<String> =
-        setOf(OPTION_GENERATED_COMPONENT_PACKAGE, OPTION_PRINT_SOURCES)
+    override fun getSupportedOptions(): Set<String> = setOf(
+        OPTION_GENERATED_COMPONENT_PACKAGE,
+        OPTION_ROOT_SCOPE_ANNOTATION
+    )
 
     override fun process(
         annotations: MutableSet<out TypeElement>,
         roundEnv: RoundEnvironment
     ): Boolean {
-        if (generatedComponentPackage.isNullOrBlank()) {
-            warn(
-                "Skipping annotation processing: Package to generate component to is not " +
-                        "configured. Set option `$OPTION_GENERATED_COMPONENT_PACKAGE`"
-            )
-            return true
+
+        try {
+            generatorProvider().process(roundEnv)
+        } catch (e: WinterException) {
+            logger.warn("Skipping annotation processing: ${e.cause?.message}")
+        } catch (t: Throwable) {
+            logger.warn("Skipping annotation processing: ${t.message}")
         }
-
-        componentModel = ComponentModel()
-
-        roundEnv.getElementsAnnotatedWith(Inject::class.java).forEach { element ->
-            try {
-                when (element.kind) {
-                    ElementKind.CONSTRUCTOR -> {
-                        val executable = element as ExecutableElement
-                        componentModel.factories += FactoryModel(executable)
-                    }
-                    ElementKind.FIELD -> {
-                        val field = element as VariableElement
-                        field.getAnnotationsByType(Named::class.java)
-                        getOrCreateInjector(element).targets +=
-                                InjectTargetModel.FieldInjectTarget(field)
-                    }
-                    ElementKind.METHOD -> {
-                        val method = element as ExecutableElement
-                        getOrCreateInjector(element).targets +=
-                                InjectTargetModel.SetterInjectTarget(method)
-                    }
-                    else -> {
-                        error(
-                            element,
-                            "Inject annotation is only supported for constructor, method or field."
-                        )
-                        return true
-                    }
-                }
-            } catch (t: Throwable) {
-                error(element, t.message ?: "Unknown error")
-                return true
-            }
-        }
-
-        if (componentModel.isEmpty()) return true
-
-        buildInjectors()
-        buildFactories()
-        buildRegistry()
 
         return true
-    }
-
-    private fun buildInjectors() {
-        componentModel.injectors.forEach { (_, injector) ->
-            val kCode = injector.generate(generatedAnnotationAvailable)
-            write(kCode)
-            print(kCode)
-        }
-    }
-
-    private fun buildFactories() {
-        componentModel.factories.forEach { factory ->
-            val injectorModel = componentModel.injectors[factory.typeElement]
-            val kCode = factory.generate(injectorModel, generatedAnnotationAvailable)
-            write(kCode)
-            print(kCode)
-        }
-    }
-
-    private fun buildRegistry() {
-        val kCode =
-            componentModel.generate(generatedComponentPackage!!, generatedAnnotationAvailable)
-        write(kCode)
-        print(kCode)
-    }
-
-    private fun write(fileSpec: FileSpec) {
-        val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME]
-        val file = File(kaptKotlinGeneratedDir)
-        fileSpec.writeTo(file)
-    }
-
-    private fun getOrCreateInjector(fieldOrSetter: Element): InjectorModel {
-        val typeElement = fieldOrSetter.enclosingElement as? TypeElement
-            ?: throw IllegalArgumentException(
-                "Enclosing constructor for $fieldOrSetter must be a class"
-            )
-        return componentModel.injectors.getOrPut(typeElement) { InjectorModel(typeElement) }
-    }
-
-    private fun info(message: String, vararg args: Any) {
-        processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, String.format(message, *args))
-    }
-
-    private fun warn(message: String, vararg args: Any) {
-        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, String.format(message, *args))
-    }
-
-    private fun error(element: Element, message: String, vararg args: Any) {
-        processingEnv.messager.printMessage(
-            Diagnostic.Kind.ERROR,
-            String.format(message, *args),
-            element
-        )
-    }
-
-    private fun print(fileSpec: FileSpec) {
-        if (printSources) info(fileSpec.toString())
-    }
-
-    companion object {
-        const val KAPT_KOTLIN_GENERATED_OPTION_NAME = "kapt.kotlin.generated"
     }
 
 }

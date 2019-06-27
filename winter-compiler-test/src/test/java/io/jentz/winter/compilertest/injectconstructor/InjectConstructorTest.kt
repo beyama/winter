@@ -1,12 +1,13 @@
-package io.jentz.winter.compilertest
+package io.jentz.winter.compilertest.injectconstructor
 
 import io.jentz.winter.Graph
+import io.jentz.winter.compilertest.CustomScope
+import io.jentz.winter.compilertest.generatedComponent
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.atomic.AtomicInteger
 
-class TestGeneratedComponent {
+class InjectConstructorTest {
 
     private lateinit var graph: Graph
 
@@ -89,16 +90,6 @@ class TestGeneratedComponent {
     }
 
     @Test
-    fun `Test kotlin class with inject constructor and field, method and setter injection`() {
-        val instance = graph.instance<KotlinClassWithInjectConstructorAndFieldAndSetterInjection>()
-        assertNotNull(instance)
-        assertNotNull(instance.dep0)
-        assertNotNull(instance.dep1)
-        assertNotNull(instance.dep2)
-        assertNotNull(instance._dep3)
-    }
-
-    @Test
     fun `Test custom scoped class with no argument inject constructor`() {
         val subgraph = graph.initSubcomponent(CustomScope::class)
         assertSame(
@@ -107,40 +98,4 @@ class TestGeneratedComponent {
         )
     }
 
-    @Test
-    fun `Test members injector only`() {
-        val i = graph.inject(OnlyInjectedMembers())
-        assertNotNull(i.field0)
-        assertNotNull(i.field1)
-    }
-
-    @Test
-    fun `Test extended members injector only`() {
-        val i = graph.inject(OnlyInjectedMembersExtended(), injectSuperClasses = true)
-        assertNotNull(i.field0)
-        assertNotNull(i.field1)
-        assertNotNull(i.field2)
-    }
-
-    @Test
-    fun `Test injected provider`() {
-        graph = generatedComponent.init {
-            constant("constructor", qualifier = "constructor")
-            constant("setter", qualifier = "setter")
-            constant("field", qualifier = "field")
-        }
-        val instance: ProviderInjection = graph.instance()
-        assertEquals("constructor", instance.namedConstructorInjected.get())
-        assertEquals("setter", instance.namedSetterInjected.get())
-        assertEquals("field", instance.namedFieldInjected.get())
-    }
-
-    @Test
-    fun `Test lazy injection`() {
-        val atomic = AtomicInteger(0)
-        val graph = generatedComponent.init { prototype { atomic.incrementAndGet() } }
-        val instance: LazyInjection = graph.instance()
-        assertEquals(1, instance.field.value)
-        assertEquals(1, instance.field.value)
-    }
 }

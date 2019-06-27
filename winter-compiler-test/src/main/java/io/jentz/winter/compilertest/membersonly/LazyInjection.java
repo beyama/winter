@@ -1,4 +1,4 @@
-package io.jentz.winter.compilertest;
+package io.jentz.winter.compilertest.membersonly;
 
 import javax.inject.Inject;
 
