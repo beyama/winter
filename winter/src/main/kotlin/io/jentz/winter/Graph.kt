@@ -3,12 +3,14 @@ package io.jentz.winter
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
  *
- * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
+ * An instance is created by calling [Component.init] or [Graph.createChildGraph].
  */
 class Graph internal constructor(
+    val application: WinterApplication,
     parent: Graph?,
     component: Component,
-    val application: WinterApplication,
+    // only set for graphs that are managed (opened) by the parent graph
+    private val identifier: Any?,
     block: ComponentBuilderBlock?
 ) {
 
@@ -371,8 +373,84 @@ class Graph internal constructor(
      * @param qualifier The qualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
+    @Deprecated(
+        "Use createChildGraph instead.",
+        ReplaceWith("createChildGraph(qualifier,block)")
+    )
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        map { Graph(this, instance(qualifier), application, block) }
+        createChildGraph(qualifier, block)
+
+    /**
+     * Initialize a subcomponent without registering it on this graph.
+     *
+     * A graph initialized with this method doesn't get disposed when its parent gets disposed
+     * but becomes inconsistent.
+     *
+     * Use it with caution in cases where you need to initialize a lot of short-lived graphs that
+     * are managed by you e.g. a per request child graph on a HTTP server that gets created per
+     * request and destroyed at the end.
+     *
+     * @param subcomponentQualifier The subcomponentQualifier of the subcomponent.
+     * @param block An optional builder block to register provider on the subcomponent.
+     */
+    fun createChildGraph(
+        subcomponentQualifier: Any,
+        block: ComponentBuilderBlock? = null
+    ): Graph = map {
+        Graph(application, this, instance(subcomponentQualifier), null, block)
+    }
+
+    /**
+     * Opens and returns a child graph by using the subcomponent with [subcomponentQualifier]
+     * and registers it under the [subcomponentQualifier] or when given under [identifier].
+     *
+     * The resulting graph gets automatically disposed when this graph gets disposed.
+     *
+     * @param subcomponentQualifier The qualifier of the subcomponent.
+     * @param identifier An optional identifier to register the graph with.
+     * @param block An optional builder block to register provider on the subcomponent.
+     */
+    fun openChildGraph(
+        subcomponentQualifier: Any,
+        identifier: Any? = null,
+        block: ComponentBuilderBlock? = null
+    ): Graph = map { (_, _, _, cache) ->
+        val name = identifier ?: subcomponentQualifier
+        val key = typeKey<Graph>(name)
+
+        if (key in cache) {
+            throw WinterException(
+                "Cannot open graph with identifier `$name` because it is already open."
+            )
+        }
+
+        val graph = Graph(application, this, instance(subcomponentQualifier), name, block)
+        cache[key] = BoundGraphService(key, graph)
+        graph
+    }
+
+    /**
+     * Close a child graph by disposing it and removing it from the registry.
+     *
+     * @param identifier The identifier it was opened with.
+     */
+    fun closeChildGraph(identifier: Any) {
+        map { (_, _, _, cache) ->
+            val key = typeKey<Graph>(identifier)
+            val service = cache.remove(key) ?: throw WinterException(
+                "Child graph with identifier `$identifier` doesn't exist."
+            )
+            service.dispose()
+        }
+    }
+
+    private fun unregisterChild(child: Graph) {
+        val identifier = child.identifier ?: return
+
+        fold({}, { (_, _, _, cache) ->
+            cache.remove(typeKey<Graph>(identifier))
+        })
+    }
 
     /**
      * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
@@ -382,12 +460,13 @@ class Graph internal constructor(
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { (_, _, _, cache) ->
+        fold({}) { (_, parent, _, cache) ->
             try {
                 plugins.runGraphDispose(this)
                 cache.values.forEach { boundService -> boundService.dispose() }
             } finally {
                 state = State.Disposed
+                parent?.unregisterChild(this)
             }
         }
     }
