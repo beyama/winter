@@ -4,8 +4,14 @@ import io.jentz.winter.WinterTree.State.Initialized
 import io.jentz.winter.WinterTree.State.Uninitialized
 
 /**
- * WinterTree manages dependency graphs in a tree (directed acyclic graph).
- * Graphs a opened, accessed and closed by paths.
+ * WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+ * opening, closing and accessing child-graphs by paths of identifier.
+ *
+ * Instances of [WinterTree] are usually not used directly but in injection adapters.
+ *
+ * This is inspired by [Toothpicks](https://github.com/stephanenicolas/toothpick)
+ * openScope/closeScope mechanism, if you like that, you can simply use [GraphRegistry] instead of
+ * the [Injection] abstraction.
  *
  * Example:
  * ```
@@ -13,30 +19,38 @@ import io.jentz.winter.WinterTree.State.Uninitialized
  *   // ... the component definition
  * }
  * val tree = WinterTree(Winter)
- * // open the root graph (initialize the trees component)
+ *
+ * // open the root graph
  * tree.open()
  * // or supply a builder block to extend the resulting graph
  * tree.open { constant<Application>(myApplication) }
+ *
  * // the root graph can then be accessed by calling
  * tree.get()
- * // to open a subcomponent call
- * tree.open("subcomponent name")
+ *
+ * // to open a child-graph call
+ * tree.open("subcomponent qualifier")
+ *
  * // this graph can be accessed by calling
- * tree.get("subcomponent name")
- * // or you can provide an optional identifier for the graph
- * tree.open("subcomponent name", identifier = "other name")
+ * tree.get("subcomponent qualifier")
+ *
+ * // you can provide an optional identifier for the graph
+ * tree.open("subcomponent qualifier", identifier = "other name")
+ *
  * // then you can access the the graph by calling
  * tree.get("other name")
+ *
  * // to open a subcomponent of this call
- * tree.open("subcomponent name", "sub-subcomponent name")
+ * tree.open("subcomponent qualifier", "sub-subcomponent qualifier")
  * // respectively
- * tree.open("other name", "sub-subcomponent name")
+ * tree.open("other name", "sub-subcomponent qualifier")
  * ```
  */
 open class WinterTree(private val application: WinterApplication) {
 
     private sealed class State {
         object Uninitialized : State()
+
         class Initialized(val root: Graph) : State() {
 
             fun getOrNull(path: Array<out Any>, depth: Int = -1): Graph? {
