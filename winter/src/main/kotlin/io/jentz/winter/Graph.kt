@@ -3,7 +3,8 @@ package io.jentz.winter
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
  *
- * An instance is created by calling [Component.init] or [Graph.createChildGraph].
+ * An instance is created by calling [Component.init], [Graph.createChildGraph]
+ * or [Graph.openChildGraph].
  */
 class Graph internal constructor(
     val application: WinterApplication,
@@ -19,7 +20,7 @@ class Graph internal constructor(
             val component: Component,
             val parent: Graph?,
             val stack: DependenciesStack,
-            val cache: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
+            val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
         ) : State()
 
         object Disposed : State()
@@ -296,9 +297,9 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
-        map { (_, _, _, cache) ->
+        map { (_, _, _, registry) ->
             @Suppress("UNCHECKED_CAST")
-            val service = cache.getOrPut(key) {
+            val service = registry.getOrPut(key) {
                 keys()
                     .asSequence()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
@@ -311,8 +312,8 @@ class Graph internal constructor(
     @PublishedApi
     internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
         @Suppress("UNCHECKED_CAST")
-        map { (component, parent, _, cache) ->
-            cache.getOrPut(key) {
+        map { (component, parent, _, registry) ->
+            registry.getOrPut(key) {
                 component[key]?.bind(this) ?: return parent?.serviceOrNull(key)
             } as? BoundService<A, R>
         }
@@ -414,18 +415,18 @@ class Graph internal constructor(
         subcomponentQualifier: Any,
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
-    ): Graph = map { (_, _, _, cache) ->
+    ): Graph = map { (_, _, _, registry) ->
         val name = identifier ?: subcomponentQualifier
         val key = typeKey<Graph>(name)
 
-        if (key in cache) {
+        if (key in registry) {
             throw WinterException(
                 "Cannot open graph with identifier `$name` because it is already open."
             )
         }
 
         val graph = Graph(application, this, instance(subcomponentQualifier), name, block)
-        cache[key] = BoundGraphService(key, graph)
+        registry[key] = BoundGraphService(key, graph)
         graph
     }
 
@@ -435,9 +436,9 @@ class Graph internal constructor(
      * @param identifier The identifier it was opened with.
      */
     fun closeChildGraph(identifier: Any) {
-        map { (_, _, _, cache) ->
+        map { (_, _, _, registry) ->
             val key = typeKey<Graph>(identifier)
-            val service = cache.remove(key) ?: throw WinterException(
+            val service = registry.remove(key) ?: throw WinterException(
                 "Child graph with identifier `$identifier` doesn't exist."
             )
             service.dispose()
@@ -447,8 +448,8 @@ class Graph internal constructor(
     private fun unregisterChild(child: Graph) {
         val identifier = child.identifier ?: return
 
-        fold({}, { (_, _, _, cache) ->
-            cache.remove(typeKey<Graph>(identifier))
+        fold({}, { (_, _, _, registry) ->
+            registry.remove(typeKey<Graph>(identifier))
         })
     }
 
@@ -460,10 +461,10 @@ class Graph internal constructor(
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { (_, parent, _, cache) ->
+        fold({}) { (_, parent, _, registry) ->
             try {
                 plugins.runGraphDispose(this)
-                cache.values.forEach { boundService -> boundService.dispose() }
+                registry.values.forEach { boundService -> boundService.dispose() }
             } finally {
                 state = State.Disposed
                 parent?.unregisterChild(this)
