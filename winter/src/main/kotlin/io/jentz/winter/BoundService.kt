@@ -263,7 +263,9 @@ internal class BoundGraphService(
     override fun instance(argument: Unit): Graph = graph
 
     override fun newInstance(argument: Unit): Graph {
-        throw IllegalStateException("BUG: New instance for BoundGraphService should never be called.")
+        throw IllegalStateException(
+            "BUG: New instance for BoundGraphService should never be called."
+        )
     }
 
     override fun postConstruct(arg: Any, instance: Any) {
