@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -117,7 +118,11 @@ class WinterTreeTest {
         openAll(*viewPath)
         shouldThrow<WinterException> {
             tree.open(*viewPath)
-        }.message.shouldBe("Cannot open `presentation.view` because it is already open.")
+        }.run {
+            message.shouldBe("Cannot open `presentation.view`.")
+            cause.shouldBeInstanceOf<WinterException>()
+            cause!!.message.shouldBe("Cannot open graph with identifier `view` because it is already open.")
+        }
     }
 
     @Test
@@ -126,7 +131,11 @@ class WinterTreeTest {
         tree.open(*viewPath, identifier = "foo")
         shouldThrow<WinterException> {
             tree.open(*viewPath, identifier = "foo")
-        }.message.shouldBe("Cannot open `presentation.foo` because it is already open.")
+        }.run {
+            message.shouldBe("Cannot open `presentation.foo`.")
+            cause.shouldBeInstanceOf<WinterException>()
+            cause!!.message.shouldBe("Cannot open graph with identifier `foo` because it is already open.")
+        }
     }
 
     @Test

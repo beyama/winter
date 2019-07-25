@@ -91,7 +91,7 @@ class InjectConstructorTest {
 
     @Test
     fun `Test custom scoped class with no argument inject constructor`() {
-        val subgraph = graph.initSubcomponent(CustomScope::class)
+        val subgraph = graph.createChildGraph(CustomScope::class)
         assertSame(
                 subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>(),
                 subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>()
