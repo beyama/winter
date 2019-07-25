@@ -21,20 +21,24 @@ class Graph internal constructor(
             val parent: Graph?,
             val stack: DependenciesStack,
             val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
-        ) : State()
+        ) : State() {
+            var isDisposing = false
+        }
 
         object Disposed : State()
     }
 
     private var state: State
-    private val plugins = application.plugins
 
-    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
-        return synchronized(this) {
-            val state = state
-            if (state is State.Initialized) ifInitialized(state) else ifDisposed()
+    private inline fun <T> withState(block: (State) -> T): T = synchronized(this) { block(state) }
+
+    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
+        withState { state ->
+            when (state) {
+                is State.Disposed -> ifDisposed()
+                is State.Initialized -> ifInitialized(state)
+            }
         }
-    }
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
         fold({ throw WinterException("Graph is already disposed.") }, block)
@@ -55,10 +59,10 @@ class Graph internal constructor(
     val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
-        val baseComponent = if (plugins.isNotEmpty() || block != null) {
+        val baseComponent = if (application.plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                plugins.runInitializingComponent(parent, this)
+                application.plugins.runInitializingComponent(parent, this)
             }
         } else {
             component
@@ -448,26 +452,32 @@ class Graph internal constructor(
     private fun unregisterChild(child: Graph) {
         val identifier = child.identifier ?: return
 
-        fold({}, { (_, _, _, registry) ->
-            registry.remove(typeKey<Graph>(identifier))
+        fold({}, { state ->
+            if (state.isDisposing) return
+            state.registry.remove(typeKey<Graph>(identifier))
         })
     }
 
     /**
-     * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
-     * All resources get released and every retrieval method will throw an excpetion if called
-     * after disposing.
+     * Runs [graph dispose plugins][io.jentz.winter.plugin.Plugin.graphDispose] and marks this graph
+     * as disposed. All resources get released and every retrieval method will throw an exception
+     * if called after disposing.
      *
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { (_, parent, _, registry) ->
+        fold({}) { state ->
             try {
-                plugins.runGraphDispose(this)
-                registry.values.forEach { boundService -> boundService.dispose() }
+                if (state.isDisposing) return
+
+                state.isDisposing = true
+
+                application.plugins.runGraphDispose(this)
+
+                state.registry.values.forEach { boundService -> boundService.dispose() }
+                state.parent?.unregisterChild(this)
             } finally {
-                state = State.Disposed
-                parent?.unregisterChild(this)
+                this.state = State.Disposed
             }
         }
     }

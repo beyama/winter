@@ -1114,6 +1114,17 @@ class GraphTest {
             called.shouldBeTrue()
         }
 
+        @Test
+        fun `#dispose should ignore a call to dispose from plugin`() {
+            Winter.plugins.register(object : SimplePlugin() {
+                override fun graphDispose(graph: Graph) {
+                    graph.dispose()
+                }
+            })
+            graph {}.dispose()
+            // no StackOverflowError here
+        }
+
     }
 
     @Nested
@@ -1160,7 +1171,9 @@ class GraphTest {
 
         private val component = component {
             subcomponent("presentation") {
+                singleton { listOf<String>() }
                 subcomponent("view") {
+                    singleton { mapOf<String, String>() }
                 }
             }
         }
@@ -1230,10 +1243,23 @@ class GraphTest {
             val presentation = root.openChildGraph("presentation")
             val view = presentation.openChildGraph("view")
 
-            root.dispose()
+            presentation.dispose()
 
             presentation.isDisposed.shouldBeTrue()
             view.isDisposed.shouldBeTrue()
+        }
+
+        @Test
+        fun `#dispose of child graphs should not lead to concurrent modification exception`() {
+            val presentation = root.openChildGraph("presentation")
+            val view = presentation.openChildGraph("view")
+
+            // we need more than one service in our registry to get the exception when unregistering
+            // of children is not prevented during dispose
+            presentation.instance<List<*>>()
+            view.instance<Map<*, *>>()
+
+            root.dispose()
         }
 
     }
