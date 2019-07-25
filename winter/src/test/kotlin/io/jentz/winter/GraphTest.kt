@@ -1167,11 +1167,10 @@ class GraphTest {
     @Nested
     inner class ChildManagement {
 
-        private val viewPath = arrayOf("presentation", "view")
-
         private val component = component {
             subcomponent("presentation") {
                 singleton { listOf<String>() }
+
                 subcomponent("view") {
                     singleton { mapOf<String, String>() }
                 }
