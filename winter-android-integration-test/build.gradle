@@ -6,7 +6,6 @@ apply plugin: 'kotlin-kapt'
 kapt {
     arguments {
         arg("winterGeneratedComponentPackage", "io.jentz.winter.android")
-        arg("winterPrintSources", "true")
     }
 }
 

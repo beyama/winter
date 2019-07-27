@@ -4,7 +4,6 @@ apply plugin: 'kotlin-kapt'
 kapt {
     arguments {
         arg("winterGeneratedComponentPackage", "io.jentz.winter.compilertest")
-        arg("winterPrintSources", "true")
     }
 }
 
