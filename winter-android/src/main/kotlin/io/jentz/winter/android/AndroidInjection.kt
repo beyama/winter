@@ -2,13 +2,12 @@ package io.jentz.winter.android
 
 import android.content.Context
 import io.jentz.winter.*
-import io.jentz.winter.android.AndroidInjection.Adapter
 
 /**
  * Retrieves application and activity graphs and injects into core Android types.
  *
  * An application specific graph creation and retrieval strategy can be provided by setting a custom
- * [Adapter].
+ * [io.jentz.winter.android.AndroidInjection.Adapter].
  *
  * Example using the default [SimpleAndroidInjectionAdapter]:
  *

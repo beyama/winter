@@ -4,6 +4,8 @@
  * To change the content of this file edit inject_extension.erb and
  * run 'ruby generate_inject_extensions.rb'.
  */
+@file:Suppress("DEPRECATION")
+
 package io.jentz.winter.android
 
 import android.content.ComponentCallbacks2
