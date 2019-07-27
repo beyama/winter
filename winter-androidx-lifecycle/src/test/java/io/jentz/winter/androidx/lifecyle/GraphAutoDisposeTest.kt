@@ -2,8 +2,8 @@ package io.jentz.winter.androidx.lifecyle
 
 import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
 import androidx.lifecycle.LifecycleOwner
-import com.nhaarman.mockito_kotlin.isA
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.isA
+import com.nhaarman.mockitokotlin2.verify
 import io.jentz.winter.Graph
 import io.jentz.winter.androidx.lifecycle.GraphAutoDispose
 import io.jentz.winter.androidx.lifecycle.autoDispose

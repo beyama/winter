@@ -1,6 +1,6 @@
 package io.jentz.winter
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.SimplePlugin
 import io.kotlintest.matchers.boolean.shouldBeFalse

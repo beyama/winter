@@ -1,6 +1,6 @@
 package io.jentz.winter.aware
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.Graph
 import io.jentz.winter.Injection
 import io.jentz.winter.WinterInjection

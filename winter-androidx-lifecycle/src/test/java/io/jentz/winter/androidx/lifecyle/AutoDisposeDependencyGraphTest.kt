@@ -3,7 +3,7 @@ package io.jentz.winter.androidx.lifecyle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
 import androidx.lifecycle.LifecycleOwner
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.Injection
 import io.jentz.winter.WinterInjection
 import io.jentz.winter.androidx.lifecycle.AutoDisposeDependencyGraph

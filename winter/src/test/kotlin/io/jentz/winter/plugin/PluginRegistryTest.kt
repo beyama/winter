@@ -1,9 +1,9 @@
 package io.jentz.winter.plugin
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.only
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.only
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Scope
 import io.jentz.winter.expectValueToChange
