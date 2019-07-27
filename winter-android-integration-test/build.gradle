@@ -60,5 +60,6 @@ dependencies {
     androidTestImplementation deps.kotlin.reflect
     androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.junit
     androidTestImplementation deps.androidx.test.espressoCore
 }

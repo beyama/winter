@@ -2,12 +2,12 @@ package io.jentz.winter.android.test.quotes
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import androidx.test.InstrumentationRegistry
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.AndroidJUnit4
 import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 class QuotesActivityTest {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule<QuotesActivity>(QuotesActivity::class.java, true, false)
+    val activityTestRule = ActivityTestRule(QuotesActivity::class.java, true, false)
 
     @get:Rule
     val winterTestRule = object : WinterTestRule() {
