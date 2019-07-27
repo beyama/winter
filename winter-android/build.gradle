@@ -33,9 +33,11 @@ dependencies {
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
     testImplementation deps.kotlintest
+    testImplementation deps.kotlin.reflect
 
     androidTestImplementation deps.junit.junit4
     androidTestImplementation deps.kotlintest
+    androidTestImplementation deps.kotlin.reflect
     androidTestImplementation deps.support.test.runner
 }
 

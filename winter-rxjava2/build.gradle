@@ -32,6 +32,7 @@ dependencies {
     implementation deps.rx.rxjava
 
     testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlin.reflect
     testImplementation deps.kotlintest
 
     testRuntimeOnly deps.junit.jupiterEngine

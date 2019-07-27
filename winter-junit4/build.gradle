@@ -14,6 +14,7 @@ dependencies {
     api deps.junit.junit4
 
     testImplementation deps.kotlintest
+    testImplementation deps.kotlin.reflect
 }
 
 task javadocJar(type: Jar) {
