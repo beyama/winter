@@ -2,11 +2,9 @@ language: android
 dist: trusty
 jdk: oraclejdk8
 
-env:
-  global:
-  - ANDROID_API_LEVEL=28
-  - ANDROID_BUILD_TOOLS_VERSION=28.0.2
-  - ANDROID_ABI=armeabi-v7a
+branches:
+  except:
+    - gh-pages
 
 android:
   components:
@@ -34,6 +32,9 @@ before_install:
 before_script:
   - android-wait-for-emulator
   - adb shell input keyevent 82
+  - chmod +x gradlew
+
+script: ./gradlew detekt test connectedDebugAndroidTest --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -44,8 +45,3 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
   - $HOME/.android/build-cache
-
-before_script:
-  - chmod +x gradlew
-
-script: ./gradlew detekt test connectedDebugAndroidTest
