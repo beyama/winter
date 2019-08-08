@@ -1,0 +1,375 @@
+= Winter Dependency Injection
+Alexander Jentz <github@jentz.io>
+:toc: left
+:toclevels: 4
+:icons: font
+:source-highlighter: prettify
+
+Winter is a lightweight dependency injection library for Android and the JVM written in Kotlin.
+
+== Installation
+
+[source,groovy]
+----
+dependencies {
+    // Core
+    implementation 'io.jentz.winter:winter:x.x.x'
+    // Android support
+    implementation 'io.jentz.winter:winter-android:x.x.x'
+    // RxJava2 support module
+    implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
+    // Optional JSR-330 support
+    implementation 'javax.inject:javax.inject:1'
+    kapt 'io.jentz.winter:winter-compiler:x.x.x'
+}
+
+// The optional JSR-330 support requires also a kapt configuration block like
+kapt {
+    arguments {
+        // This tells the Winter compiler under which package name it should store
+        // the generated component. See the advanced section for more details.
+        arg("winterGeneratedComponentPackage", "my.project.root.package.name")
+    }
+}
+----
+Replace `x.x.x` with the version you would like to use.
+The newest version is {winterVersion}.
+
+== Terminology
+
+== Declaring Dependencies
+
+Dependencies are organized in components and declared by using the `component` method which takes
+a block with a `ComponentBuilder` as its receiver.
+
+You register a dependency with a scope-function like `prototype` or `singleton`.
+
+[source,kotlin]
+----
+val coffeeAppComponent = component {
+    prototype { Heater() }
+    prototype<Pump> { RotaryPump() }
+    singleton { CoffeeMaker(instance(), instance()) }
+    factory { color: Color -> Widget(instance(), color) }
+}
+----
+
+All scope functions take an optional `qualifier` for cases where you want to register the same type
+multiple times and all scope functions take an boolean to enable <<generics,generic type preservation>>.
+
+For a list of all builder methods see TODO: API docs of ComponentBuilder.
+
+=== Available Scopes
+
+[cols=2,options="header"]
+|===
+
+|Scope methods
+|Description
+
+| prototype
+| The factory gets called every time the type is requested.
+
+| singleton
+| The factory is only called the first time the type is requested and then memorized.
+  Every subsequent request will return the same instance.
+
+| eagerSingleton
+| Same as singleton but the factory is called when the dependency graph gets instantiated.
+
+| softSingleton
+| Like singleton but the instance is hold as a `SoftReference` and could be GC'ed.
+  In case the reference is cleared the factory will be again invoked when the type is requested.
+
+| weakSingleton
+| Like singleton but the instance is hold as a `WeakReference` and could be GC'ed.
+  In case the reference is cleared the factory will be again invoked when the type is requested.
+
+| factory
+| This is like prototype but the factory block takes one argument.
+
+| multiton
+| This is like singleton but the factory block takes one argument and memorizes the return value
+  for that argument. Every subsequent request with an equal argument will return the same instance.
+
+|===
+
+=== Subcomponents and Subgraphs
+
+Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
+of the application from each other e.g. the business layer from the view layer of an application.
+Subcomponents inherit and extend the parent component which means that an object bound in a subgraph
+can access all objects of the parent graph but not vice versa.
+
+[source,kotlin]
+----
+val coffeeAppComponent = component {
+    singleton { HttpCache() }
+
+    subcomponent("gui") {
+        singleton { ImageLoader(cache = instance<HttpCache>() }
+    }
+}
+
+val appGraph = coffeeAppComponent.init()
+val guiGraph = appGraph.initSubcomponent("gui")
+----
+
+In this example `guiGraph` can access `HttpCache` but `appGraph` couldn't access `ImageLoader`.
+
+You can also pass an `ComponentBuilder` block to the `initSubcomponent` methods to add new
+dependencies to the resulting subgraph.
+
+== Retrieving Dependencies
+
+Dependencies are retrieved from a graph and a graph is created from a component.
+There are three kinds of retrieval methods to get an instance, a provider function or a factory.
+
+source,kotlin]
+----
+val coffeeAppComponent = component {
+    prototype { Heater() }
+
+    factory<Pump> { type: PumpType ->
+        when(type) {
+            PumpType.Thermosiphon -> Thermosiphon(instance())
+            PumpType.Rotary -> RotaryPump()
+        }
+    }
+
+    singleton { CoffeeMaker(instance(), instance()) }
+}
+
+val graph = coffeeAppComponent.init()
+
+// get an instance of Heater
+val heater: Heater = graph.instance()
+
+// get an optional instance of Heater
+val heater: Heater? = graph.instanceOrNull()
+
+// get a provider for Heater
+val heaterProvider: () -> Heater = graph.provider()
+
+// get an optional provider for Heater
+val heaterProvider: (() -> Heater)? = graph.providerOrNull()
+
+// get a factory for Pump
+val pumpFactory: (PumpType) -> Pump = graph.factory()
+
+// get an optional factory for Pump
+val pumpFactory: ((PumpType) -> Pump)? = graph.factoryOrNull()
+
+// get an instance of Pump by providing an argument
+val pump: Pump = graph.instance<PumpType, Pump>(PumpType.Rotary)
+
+// get an optional instance of Pump by providing an argument
+val pump: Pump? = graph.instanceOrNull<PumpType, Pump>(PumpType.Rotary)
+
+// get a provider for Pump by providing an argument
+val pumpProvider: () -> Pump = graph.provider<PumpType, Pump>(PumpType.Rotary)
+
+// get an optional provider for Pump by providing an argument
+val pumpProvider: (() -> Pump)? = graph.providerOrNull<PumpType, Pump>(PumpType.Rotary)
+
+// get a set of instances of type Pump; this is useful when you have registerd
+// multiple Pumps with different qualifers
+val pumps: Set<Pump> = graph.instancesOfType<Pump>()
+
+// get a set of providers for type Pump; this is useful when you have registerd
+// multiple Pumps with different qualifers
+val pumps: Set<() -> Pump> = graph.providersOfType<Pump>()
+----
+
+Like the scope methods we used to declare our dependencies all the retrieval functions take an
+optional qualifier for cases where we have the same type registered with different qualifiers
+(except the *OfType methods) and they all take an boolean to enable <<generics,generic type preservation>>.
+
+[#generics]
+== Generics
+
+By default all generics you pass to one of the scope methods or retrieval methods fall victim to
+type erasure which means for example `List<Pump>` becomes just `List`.
+It is possible to preserve the generic type information but since it is a little bit more expensive
+to do it is disabled by default.
+
+All `ComponentBuilder` scope methods and all instance retrieval methods take an optional `generics`
+boolean argument (which is `false` by default) to enable generic type preservation.
+
+CAUTION: When you register a type with `generics = true` then you have to set `generics = true` when
+you retrieve that type.
+
+[source,kotlin]
+----
+val appComponent = component {
+    singleton<Collection<TrackingBackend>>(generics = true) {
+        listOf(FirebaseTracker(), MixpanelTracker())
+    }
+    singleton { ScreenTracker(backends = instance(generics = true)) }
+}
+----
+
+== Android
+
+== JUnit Test
+
+== Injection Patterns
+
+=== Constructor Injection
+
+Constructor injection also called initializer injection is a pattern where all required dependencies
+are passed to the constructor. This way an instance is always initialized in a consistent state.
+
+[source,kotlin]
+----
+val coffeeAppComponent = component {
+    singleton { Heater() }
+    singleton<Pump> { RotaryPump() }
+    singleton { CoffeeMaker(instance(), instance()) }
+}
+----
+
+=== Property and Method Injection
+
+Property or method injection is a pattern where dependencies are set on properties or passed to
+methods. This is the appropriate way when dependencies are optional or a class is from a third party
+and doesn't offer an appropriate constructor.
+
+[source,kotlin]
+----
+val coffeeAppComponent = component {
+    singleton { Heater() }
+    singleton<Pump> { RotaryPump() }
+    singleton {
+        val coffeeMaker = CoffeeMaker()
+        coffeeMaker.heater = instance()
+        coffeeMaker.pump = instance()
+    }
+}
+----
+
+Anotherway is to use the `postConstruct` callback instead of the factory block.
+
+[source,kotlin]
+----
+val coffeeAppComponent = component {
+    singleton { Heater() }
+    singleton<Pump> { RotaryPump() }
+    singleton(
+        postConstruct = {
+            it.heater = instance()
+            it.pump = instance()
+        }
+    ) { CoffeeMaker() }
+}
+----
+
+=== Injector with Property Delegates
+
+The `Injector` uses property delegates to inject (strictly speaking retrieve) dependencies.
+This is often the best option for classes that are created by a framework like Android Activities.
+
+[source,kotlin]
+----
+class CoffeeActivity : Activity() {
+    private val injector = Injector()
+    private val coffeeMaker: CoffeeMaker by injector.instance()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        injector.inject(getGraph())
+        super.onCreate(savedInstanceState)
+        // ...
+    }
+
+}
+----
+
+== Advanced Usage
+
+=== Include Components
+
+=== Circular Dependencies
+
+Circular dependencies are dependencies that depend on each other.
+To define circular dependencies in Winter one of the dependencies must be injected through a
+property or method. You can then use a `postConstruct` callback to retrieve the circular dependency.
+
+[source,kotlin]
+----
+class Parent(child: Child)
+class Child {
+    var parent: Parent? = null
+}
+
+val applicationComponent = component {
+    singleton { Parent(instance()) }
+    singleton(postConstruct = { it.parent = instance() }) { Child() }
+}
+----
+
+=== Injector
+
+=== Plugins
+
+=== JSR330 Annotation Preprocessor
+
+The JSR330 annotation preprocessor generates components and members injectors for you classes
+that are annotated with JSR330 annotations.
+
+==== Configure Kapt
+
+[source,groovy]
+----
+dependencies {
+    implementation 'javax.inject:javax.inject:1'
+    kapt 'io.jentz.winter:winter-compiler:x.x.x'
+}
+
+kapt {
+    arguments {
+        arg("winterGeneratedComponentPackage", "my.project.root.package.name")
+    }
+}
+----
+
+This will generate a component named `generatedComponent` in the configured package here
+`my.project.root.package.name`.
+
+In a simple application that only relies on JSR330 for injection this `generatedComponent` can
+directly be used as application component but it is usually included in another component.
+
+==== Custom Scopes
+
+A custom scope is created via an extended `Scope` annotation like:
+
+[source,kotlin]
+----
+package my.project.root.package.name.scope
+
+import javax.inject.Scope
+
+@Scope
+@Retention
+annotation class ApplicationScope
+----
+
+Every class that is annotated with this will be registered in a subcomponent with the qualifier
+`ApplicationScope::class` as a `singleton`.
+
+Here a simple example of our CoffeeMaker:
+
+[source,kotlin]
+----
+@ApplicationScope
+class Pump @Inject constructor()
+
+@ApplicationScope
+class Heater @Inject constructor()
+
+@ApplicationScope
+class CoffeeMaker @Inject constructor(val pump: Pump, val heater: Heater)
+
+val applicationGraph = generatedComponent.subcomponent(ApplicationScope::class).init()
+val coffeeMaker: CoffeeMakter = applicationGraph.instance()
+----
+

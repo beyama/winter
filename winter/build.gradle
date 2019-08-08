@@ -7,6 +7,9 @@ plugins {
 version = VERSION_NAME
 group = GROUP
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 test {
     useJUnitPlatform()
 
@@ -32,6 +35,7 @@ dependencies {
     testImplementation deps.junit.junit4
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest
+    testImplementation deps.kotlin.reflect
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
 

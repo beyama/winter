@@ -7,9 +7,21 @@ plugins {
 version = VERSION_NAME
 group = GROUP
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
+    implementation project(':winter')
+
+    implementation deps.kotlin.stdlib
+
     implementation deps.javaxInject
     implementation deps.kotlinpoet
+
+    testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlintest
+    testImplementation deps.kotlin.reflect
+    testImplementation "com.google.testing.compile:compile-testing:0.15"
 }
 
 task javadocJar(type: Jar) {

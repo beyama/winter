@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+internal val UNINITIALIZED_VALUE = Any()
+
 /**
  * No argument factory function signature with [Graph] as receiver.
  */
@@ -90,12 +92,14 @@ inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>
  * @param generics If true this creates a type key that also takes generic type parameters into
  *                 account.
  */
-inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false): TypeKey =
-    if (generics) {
-        object : GenericClassTypeKey<T>(qualifier) {}
-    } else {
-        ClassTypeKey(T::class.java, qualifier)
-    }
+inline fun <reified T> typeKey(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): TypeKey = if (generics) {
+    object : GenericClassTypeKey<T>(qualifier) {}
+} else {
+    ClassTypeKey(T::class.java, qualifier)
+}
 
 /**
  * Returns [TypeKey] for type [T0] and [T1].
@@ -107,13 +111,11 @@ inline fun <reified T> typeKey(qualifier: Any? = null, generics: Boolean = false
 inline fun <reified T0, reified T1> compoundTypeKey(
     qualifier: Any? = null,
     generics: Boolean = false
-): TypeKey =
-    if (generics) object :
-        GenericCompoundClassTypeKey<T0, T1>(qualifier) {} else CompoundClassTypeKey(
-        T0::class.java,
-        T1::class.java,
-        qualifier
-    )
+): TypeKey = if (generics) {
+    object : GenericCompoundClassTypeKey<T0, T1>(qualifier) {}
+} else {
+    CompoundClassTypeKey(T0::class.java, T1::class.java, qualifier)
+}
 
 /**
  * This is used internally to created dependency keys to search for all entries of the given type.

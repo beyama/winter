@@ -1,11 +1,28 @@
 language: android
+dist: trusty
+jdk: oraclejdk8
+
+branches:
+  except:
+    - gh-pages
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - extra-google-m2repository
+    - extra-android-m2repository
+    - sys-img-armeabi-v7a-android-17
+  licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
 
 before_install:
-  # Install SDK license so Android Gradle plugin can install deps.
-  - mkdir "$ANDROID_HOME/licenses" || true
-  - echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
-  # Install the rest of tools (e.g., avdmanager)
-  - sdkmanager tools
+  - touch $HOME/.android/repositories.cfg
+  - yes | sdkmanager "platforms;android-28"
+  - yes | sdkmanager "build-tools;28.0.2"
+  - yes | sdkmanager tools
   # Install the system image
   - sdkmanager "system-images;android-18;default;armeabi-v7a"
   # Create and start emulator for the script. Meant to race the install task.
@@ -15,21 +32,16 @@ before_install:
 before_script:
   - android-wait-for-emulator
   - adb shell input keyevent 82
+  - chmod +x gradlew
 
-android:
-  components:
-    - tools
-    - platform-tools
-    - build-tools-27.0.3
-    - android-28
-    - extra-google-m2repository
-    - extra-android-m2repository
-    - sys-img-armeabi-v7a-android-17
+script: ./gradlew detekt test connectedDebugAndroidTest --stacktrace
 
-licenses:
-  - 'android-sdk-preview-license-.+'
-  - 'android-sdk-license-.+'
-  - 'google-gdk-license-.+'
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-jdk:
-  - oraclejdk8
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+  - $HOME/.android/build-cache

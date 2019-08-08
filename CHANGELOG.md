@@ -1,6 +1,22 @@
 Changelog
 =========
 
+Version 0.3.0
+-------------
+
+* New openGraph/closeGraph methods in Graph to manage child graphs as services
+* New Graph#createChildGraph method in graph to replace now deprecated Graph#initializeSubcomponent
+  method to have a more consistent naming with WinterTree (#open, #close, #create)
+* New Android X Lifecycle extension for auto-dispose on lifecycle event
+* New WinterAware interface to add Winter extension functions to any class that requires them
+* New winterRootScopeAnnotation compiler argument to configure a custom scope annotation as root
+  scope for the generated component
+* Deprecate Android View extensions and ComponentCallback2 extensions in favour of WinterAware
+* Internal restructuring of Winter compiler for better testing
+* Remove winterPrintSources compiler option
+* Compiler doesn't generate factory classes anymore
+* Update all dependencies to latest stable versions
+
 Version 0.2.0
 -------------
 

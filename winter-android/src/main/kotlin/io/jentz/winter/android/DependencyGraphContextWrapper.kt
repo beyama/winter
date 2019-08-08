@@ -25,6 +25,8 @@ class DependencyGraphContextWrapper(base: Context, val graph: Graph) : ContextWr
         LayoutInflater.from(baseContext).cloneInContext(this)
     }
 
+    // Seams like some vendors call this with null which then should return null
+    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun getSystemService(name: String?): Any? = when (name) {
         Context.LAYOUT_INFLATER_SERVICE -> layoutInflater
         WINTER_GRAPH -> graph

@@ -251,3 +251,27 @@ internal class BoundMultitonFactoryService<A, R : Any>(
         }
     }
 }
+
+internal class BoundGraphService(
+        override val key: TypeKey,
+        private val graph: Graph
+) : BoundService<Unit, Graph> {
+
+    override val scope: Scope
+        get() = Scope.Singleton
+
+    override fun instance(argument: Unit): Graph = graph
+
+    override fun newInstance(argument: Unit): Graph {
+        throw IllegalStateException(
+            "BUG: New instance for BoundGraphService should never be called."
+        )
+    }
+
+    override fun postConstruct(arg: Any, instance: Any) {
+    }
+
+    override fun dispose() {
+        graph.dispose()
+    }
+}

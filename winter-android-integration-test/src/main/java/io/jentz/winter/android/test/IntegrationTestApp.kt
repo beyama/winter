@@ -1,10 +1,12 @@
 package io.jentz.winter.android.test
 
+import android.app.Activity
 import android.app.Application
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.DoNotInclude
 import io.jentz.winter.Injection
 import io.jentz.winter.Winter
 import io.jentz.winter.android.generatedComponent
+import io.jentz.winter.android.test.quotes.QuotesAdapter
 import io.jentz.winter.android.test.quotes.QuotesViewModel
 import io.jentz.winter.android.test.quotes.QuotesViewState
 import io.jentz.winter.android.test.scope.ActivityScope
@@ -32,6 +34,8 @@ class IntegrationTestApp : Application() {
 
                 subcomponent("activity") {
                     include(generatedComponent.subcomponent(ActivityScope::class))
+
+                    prototype { QuotesAdapter(instance<Activity>().layoutInflater) }
                 }
             }
         }

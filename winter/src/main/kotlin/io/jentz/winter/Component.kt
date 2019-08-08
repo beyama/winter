@@ -81,7 +81,7 @@ class Component internal constructor(
     fun init(
         application: WinterApplication = Winter,
         block: ComponentBuilderBlock? = null
-    ): Graph = Graph(null, this, application, block)
+    ): Graph = Graph(application, null, this, null, block)
 
     internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
         dependencies.forEach(block)

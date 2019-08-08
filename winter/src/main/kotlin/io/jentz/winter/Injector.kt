@@ -335,7 +335,7 @@ class Injector {
     ) : InjectedProperty<R>() {
         private var graph: Graph? = null
 
-        private val memorized = memorize {
+        private val memorized = lazy {
             val graph = this.graph
                 ?: throw UninitializedPropertyAccessException("Property not initialized.")
             getValue(graph, key, argument)
@@ -346,7 +346,7 @@ class Injector {
             resolveService(graph, key)
         }
 
-        final override val value: R get() = memorized()
+        final override val value: R get() = memorized.value
 
         protected open fun resolveService(graph: Graph, key: TypeKey) {
         }
@@ -361,7 +361,7 @@ class Injector {
     ) : InjectedProperty<O>() {
         private var base: InjectedProperty<I>? = base
         private var mapper: ((I) -> O)? = mapper
-        private val memorized = memorize {
+        private val memorized = lazy {
             val fn = this.mapper
                 ?: throw IllegalStateException("BUG: PropertyMapper mapper == null")
             val property = this.base
@@ -373,7 +373,7 @@ class Injector {
         }
 
         override val value: O
-            get() = memorized()
+            get() = memorized.value
 
         override fun inject(graph: Graph) {
             base?.inject(graph)

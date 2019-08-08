@@ -3,12 +3,15 @@ package io.jentz.winter
 /**
  * The dependency graph class that retrieves and instantiates dependencies from a component.
  *
- * An instance is created by calling [Component.init] or [Graph.initSubcomponent].
+ * An instance is created by calling [Component.init], [Graph.createChildGraph]
+ * or [Graph.openChildGraph].
  */
 class Graph internal constructor(
+    val application: WinterApplication,
     parent: Graph?,
     component: Component,
-    val application: WinterApplication,
+    // only set for graphs that are managed (opened) by the parent graph
+    private val identifier: Any?,
     block: ComponentBuilderBlock?
 ) {
 
@@ -17,21 +20,25 @@ class Graph internal constructor(
             val component: Component,
             val parent: Graph?,
             val stack: DependenciesStack,
-            val cache: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
-        ) : State()
+            val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
+        ) : State() {
+            var isDisposing = false
+        }
 
         object Disposed : State()
     }
 
     private var state: State
-    private val plugins = application.plugins
 
-    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T {
-        return synchronized(this) {
-            val state = state
-            if (state is State.Initialized) ifInitialized(state) else ifDisposed()
+    private inline fun <T> withState(block: (State) -> T): T = synchronized(this) { block(state) }
+
+    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
+        withState { state ->
+            when (state) {
+                is State.Disposed -> ifDisposed()
+                is State.Initialized -> ifInitialized(state)
+            }
         }
-    }
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
         fold({ throw WinterException("Graph is already disposed.") }, block)
@@ -52,11 +59,10 @@ class Graph internal constructor(
     val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
-        val baseComponent = if (plugins.isNotEmpty() || block != null) {
-            component(component.qualifier) {
-                include(component)
+        val baseComponent = if (application.plugins.isNotEmpty() || block != null) {
+            component.derive {
                 block?.invoke(this)
-                plugins.runInitializingComponent(parent, this)
+                application.plugins.runInitializingComponent(parent, this)
             }
         } else {
             component
@@ -295,9 +301,9 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
-        map { (_, _, _, cache) ->
+        map { (_, _, _, registry) ->
             @Suppress("UNCHECKED_CAST")
-            val service = cache.getOrPut(key) {
+            val service = registry.getOrPut(key) {
                 keys()
                     .asSequence()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
@@ -310,8 +316,8 @@ class Graph internal constructor(
     @PublishedApi
     internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
         @Suppress("UNCHECKED_CAST")
-        map { (component, parent, _, cache) ->
-            cache.getOrPut(key) {
+        map { (component, parent, _, registry) ->
+            registry.getOrPut(key) {
                 component[key]?.bind(this) ?: return parent?.serviceOrNull(key)
             } as? BoundService<A, R>
         }
@@ -372,23 +378,106 @@ class Graph internal constructor(
      * @param qualifier The qualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
+    @Deprecated(
+        "Use createChildGraph instead.",
+        ReplaceWith("createChildGraph(qualifier,block)")
+    )
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        map { Graph(this, instance(qualifier), application, block) }
+        createChildGraph(qualifier, block)
 
     /**
-     * Runs [graph dispose plugins][GraphDisposePlugin] and marks this graph as disposed.
-     * All resources get released and every retrieval method will throw an excpetion if called
-     * after disposing.
+     * Initialize a subcomponent without registering it on this graph.
+     *
+     * A graph initialized with this method doesn't get disposed when its parent gets disposed
+     * but becomes inconsistent.
+     *
+     * Use it with caution in cases where you need to initialize a lot of short-lived graphs that
+     * are managed by you e.g. a per request child graph on a HTTP server that gets created per
+     * request and destroyed at the end.
+     *
+     * @param subcomponentQualifier The subcomponentQualifier of the subcomponent.
+     * @param block An optional builder block to register provider on the subcomponent.
+     */
+    fun createChildGraph(
+        subcomponentQualifier: Any,
+        block: ComponentBuilderBlock? = null
+    ): Graph = map {
+        Graph(application, this, instance(subcomponentQualifier), null, block)
+    }
+
+    /**
+     * Opens and returns a child graph by using the subcomponent with [subcomponentQualifier]
+     * and registers it under the [subcomponentQualifier] or when given under [identifier].
+     *
+     * The resulting graph gets automatically disposed when this graph gets disposed.
+     *
+     * @param subcomponentQualifier The qualifier of the subcomponent.
+     * @param identifier An optional identifier to register the graph with.
+     * @param block An optional builder block to register provider on the subcomponent.
+     */
+    fun openChildGraph(
+        subcomponentQualifier: Any,
+        identifier: Any? = null,
+        block: ComponentBuilderBlock? = null
+    ): Graph = map { (_, _, _, registry) ->
+        val name = identifier ?: subcomponentQualifier
+        val key = typeKey<Graph>(name)
+
+        if (key in registry) {
+            throw WinterException(
+                "Cannot open graph with identifier `$name` because it is already open."
+            )
+        }
+
+        val graph = Graph(application, this, instance(subcomponentQualifier), name, block)
+        registry[key] = BoundGraphService(key, graph)
+        graph
+    }
+
+    /**
+     * Close a child graph by disposing it and removing it from the registry.
+     *
+     * @param identifier The identifier it was opened with.
+     */
+    fun closeChildGraph(identifier: Any) {
+        map { (_, _, _, registry) ->
+            val key = typeKey<Graph>(identifier)
+            val service = registry.remove(key) ?: throw WinterException(
+                "Child graph with identifier `$identifier` doesn't exist."
+            )
+            service.dispose()
+        }
+    }
+
+    private fun unregisterChild(child: Graph) {
+        val identifier = child.identifier ?: return
+
+        fold({}, { state ->
+            if (state.isDisposing) return
+            state.registry.remove(typeKey<Graph>(identifier))
+        })
+    }
+
+    /**
+     * Runs [graph dispose plugins][io.jentz.winter.plugin.Plugin.graphDispose] and marks this graph
+     * as disposed. All resources get released and every retrieval method will throw an exception
+     * if called after disposing.
      *
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { (_, _, _, cache) ->
+        fold({}) { state ->
             try {
-                plugins.runGraphDispose(this)
-                cache.values.forEach { boundService -> boundService.dispose() }
+                if (state.isDisposing) return
+
+                state.isDisposing = true
+
+                application.plugins.runGraphDispose(this)
+
+                state.registry.values.forEach { boundService -> boundService.dispose() }
+                state.parent?.unregisterChild(this)
             } finally {
-                state = State.Disposed
+                this.state = State.Disposed
             }
         }
     }

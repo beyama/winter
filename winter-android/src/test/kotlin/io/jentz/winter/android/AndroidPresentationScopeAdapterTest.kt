@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.WinterTree
