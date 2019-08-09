@@ -506,6 +506,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
     implementation 'io.jentz.winter:winter:x.x.x'
     // Android support
     implementation 'io.jentz.winter:winter-android:x.x.x'
+    // AndroidX lifecycle support
+    implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
     // Optional JSR-330 support
@@ -525,7 +527,7 @@ kapt {
 </div>
 <div class="paragraph">
 <p>Replace <code>x.x.x</code> with the version you would like to use.
-The newest version is 0.3.0.</p>
+The latest version is 0.3.0.</p>
 </div>
 <div class="sect2">
 <h3 id="_available_modules">Available Modules</h3>
@@ -576,7 +578,43 @@ The newest version is 0.3.0.</p>
 <div class="sect1">
 <h2 id="_terminology">Terminology</h2>
 <div class="sectionbody">
-
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 83.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Term</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Component</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The immutable dependency registry for providers, factories and sub-components.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sub-Component</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A component that is defined inside a component used to create child graphs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The "instance" of a component that holds actual instances and is used to retrieve dependencies
+  defined in a component.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Child-Graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graph created from a sub-component that can access dependencies from its parent graph but the
+  parent has no access to child dependencies.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scope</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The lifetime of an instance in a graph e.g. singleton for only one per graph or prototype for one
+  each time an instance is requested.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect1">
@@ -610,8 +648,8 @@ multiple times and all scope functions take an boolean to enable <a href="#gener
 <h3 id="_available_scopes">Available Scopes</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 23.0769%;">
+<col style="width: 76.9231%;">
 </colgroup>
 <thead>
 <tr>
@@ -669,19 +707,25 @@ can access all objects of the parent graph but not vice versa.</p>
     singleton { HttpCache() }
 
     subcomponent("gui") {
-        singleton { ImageLoader(cache = instance&lt;HttpCache&gt;() }
+        singleton { ImageLoader(cache = instance&lt;HttpCache&gt;()) }
     }
 }
 
+// initialize the application component
 val appGraph = coffeeAppComponent.init()
-val guiGraph = appGraph.initSubcomponent("gui")</code></pre>
+// open a child graph
+val guiGraph = appGraph.openChildGraph("gui")
+// close a child graph
+appGraph.closeChildGraph("gui")
+// or
+guiGraph.dispose()</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>In this example <code>guiGraph</code> can access <code>HttpCache</code> but <code>appGraph</code> couldn&#8217;t access <code>ImageLoader</code>.</p>
 </div>
 <div class="paragraph">
-<p>You can also pass an <code>ComponentBuilder</code> block to the <code>initSubcomponent</code> methods to add new
+<p>You can also pass an <code>ComponentBuilder</code> block to the <code>openChildGraph</code> method to add new
 dependencies to the resulting subgraph.</p>
 </div>
 </div>
@@ -691,8 +735,7 @@ dependencies to the resulting subgraph.</p>
 <h2 id="_retrieving_dependencies">Retrieving Dependencies</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Dependencies are retrieved from a graph and a graph is created from a component.
-There are three kinds of retrieval methods to get an instance, a provider function or a factory.</p>
+<p>Dependencies are retrieved from a dependency graph.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -754,6 +797,9 @@ val pumps: Set&lt;() -&gt; Pump&gt; = graph.providersOfType&lt;Pump&gt;()</code>
 <p>Like the scope methods we used to declare our dependencies all the retrieval functions take an
 optional qualifier for cases where we have the same type registered with different qualifiers
 (except the *OfType methods) and they all take an boolean to enable <a href="#generics">generic type preservation</a>.</p>
+</div>
+<div class="paragraph">
+<p>See the <a href="javadoc/winter/io.jentz.winter/-graph/index.html">Graph API docs</a> for further details.</p>
 </div>
 </div>
 </div>
@@ -1000,7 +1046,7 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-09 11:25:54 +0200
+Last updated 2019-08-09 11:47:17 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
