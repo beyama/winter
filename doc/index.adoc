@@ -89,7 +89,7 @@ val coffeeAppComponent = component {
 All scope functions take an optional `qualifier` for cases where you want to register the same type
 multiple times and all scope functions take an boolean to enable <<generics,generic type preservation>>.
 
-For a list of all builder methods see TODO: API docs of ComponentBuilder.
+For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-component-builder/index.html[API docs of ComponentBuilder].
 
 === Available Scopes
 
@@ -157,7 +157,7 @@ dependencies to the resulting subgraph.
 Dependencies are retrieved from a graph and a graph is created from a component.
 There are three kinds of retrieval methods to get an instance, a provider function or a factory.
 
-source,kotlin]
+[source,kotlin]
 ----
 val coffeeAppComponent = component {
     prototype { Heater() }
