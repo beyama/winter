@@ -35,6 +35,38 @@ kapt {
 Replace `x.x.x` with the version you would like to use.
 The newest version is {winterVersion}.
 
+=== Available Modules
+
+[cols=3,options="header"]
+|===
+
+|Module
+|Description
+|API Doc
+
+| io.jentz.winter:winter:{winterVersion}
+| Winter core module
+| link:javadoc/winter/index.html[Winter]
+
+| io.jentz.winter:winter-junit4:{winterVersion}
+| JUnit4 support
+| link:javadoc/winter-junit4/index.html[Winter JUnit4]
+
+| io.jentz.winter:winter-rxjava2:{winterVersion}
+| RxJava2 support
+| link:javadoc/winter-rxjava2/index.html[Winter RxJava2]
+
+| io.jentz.winter:winter-android:{winterVersion}
+| Android support
+| link:javadoc/winter-android/index.html[Winter Android]
+
+| io.jentz.winter:winter-androidx-lifecycle:{winterVersion}
+| Android X lifecycle support
+| link:javadoc/winter-androidx-lifecycle/index.html[Winter AndroidX lifecycle support]
+
+|===
+
+
 == Terminology
 
 == Declaring Dependencies
