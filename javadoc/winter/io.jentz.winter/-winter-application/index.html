@@ -1,0 +1,97 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterApplication - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">WinterApplication</a><br/>
+<br/>
+<h1>WinterApplication</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterApplication</span></code>
+<p><a href="./index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
+application <a href="../-component/index.html">Component</a>.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../-winter.html">Winter</a></p>
+</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span></code>
+<p>Convenient constructor to configure the application <a href="../-component/index.html">Component</a> during initialization.</p>
+<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p><a href="./index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
+application <a href="../-component/index.html">Component</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="component.html">component</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">component</span><span class="symbol">: </span><a href="../-component/index.html"><span class="identifier">Component</span></a></code>
+<p>The application component.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="plugins.html">plugins</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">plugins</span><span class="symbol">: </span><a href="../../io.jentz.winter.plugin/-plugin-registry/index.html"><span class="identifier">PluginRegistry</span></a></code>
+<p>The <a href="../../io.jentz.winter.plugin/-plugin-registry/index.html">PluginRegistry</a> of this application.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="component.html">component</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Sets the application component by supplying an optional qualifier and a component builder
+block.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="init.html">init</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$init(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Initialize and return the dependency graph from the configured <a href="component.html">component</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-winter.html">Winter</a></p>
+</td>
+<td>
+<code><span class="keyword">object </span><span class="identifier">Winter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">WinterApplication</span></a></code>
+<p>The default <a href="./index.html">WinterApplication</a> object that is used as default by <a href="../-graph-registry.html">GraphRegistry</a> and
+<a href="../-component/init.html">Component.init</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

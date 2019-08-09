@@ -9,7 +9,7 @@
 <br/>
 <h1>derive</h1>
 <a name="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
-<code><span class="keyword">fun </span><span class="identifier">derive</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;this.qualifier<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">Component</span></a></code>
+<code><span class="identifier">@JvmOverloads</span> <span class="keyword">fun </span><span class="identifier">derive</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;this.qualifier<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component$derive(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">Component</span></a></code>
 <p>Create an extended copy of this component.</p>
 <h3>Parameters</h3>
 <p><a name="qualifier"></a>
@@ -17,6 +17,7 @@
 <p><a name="block"></a>
 <code>block</code> - A builder block that is called in the context of a <a href="../-component-builder/index.html">ComponentBuilder</a>.</p>
 <p><strong>Return</strong><br/>
-A new <a href="index.html">Component</a> that contains all provider of the base component plus the one defined in the builder block.</p>
+A new <a href="index.html">Component</a> that contains all provider of the base component plus the one
+    defined in the builder block.</p>
 </BODY>
 </HTML>

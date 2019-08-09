@@ -45,8 +45,8 @@ the blueprints for the <code>graph</code>.</p>
 </td>
 <td>
 <code><span class="keyword">class </span><span class="identifier">Component</span></code>
-<p>The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
-<a href="-graph/index.html">graph</a>.</p>
+<p>The Component stores the dependency providers which are than retrieved and instantiated by an
+instance of a <a href="-graph/index.html">graph</a>.</p>
 </td>
 </tr>
 <tr>
@@ -90,11 +90,22 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-graph-registry/index.html">GraphRegistry</a></p>
+<p><a href="-graph-registry.html">GraphRegistry</a></p>
 </td>
 <td>
-<code><span class="keyword">object </span><span class="identifier">GraphRegistry</span></code>
-<p>The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).</p>
+<code><span class="keyword">object </span><span class="identifier">GraphRegistry</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-tree/index.html"><span class="identifier">WinterTree</span></a></code>
+<p>An object version of <a href="-winter-tree/index.html">WinterTree</a> that uses <a href="-winter.html">Winter</a> as its <a href="-winter-application/index.html">WinterApplication</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-injection.html">Injection</a></p>
+</td>
+<td>
+<code><span class="keyword">object </span><span class="identifier">Injection</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-injection/index.html"><span class="identifier">WinterInjection</span></a></code>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection. This takes the burden off of the class to know how exactly a graph
+or parent graph is stored and how to create and store a new graph.</p>
 </td>
 </tr>
 <tr>
@@ -103,7 +114,8 @@ the blueprints for the <code>graph</code>.</p>
 </td>
 <td>
 <code><span class="keyword">class </span><span class="identifier">Injector</span></code>
-<p>The Injector provides a was to inject dependencies into properties via Kotlins property delegates.</p>
+<p>The Injector provides a was to inject dependencies into properties via Kotlins property
+delegates.</p>
 </td>
 </tr>
 <tr>
@@ -140,11 +152,42 @@ the blueprints for the <code>graph</code>.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-winter-plugins/index.html">WinterPlugins</a></p>
+<p><a href="-winter.html">Winter</a></p>
 </td>
 <td>
-<code><span class="keyword">object </span><span class="identifier">WinterPlugins</span></code>
-<p>Utility class to hook into certain graph lifecycle.</p>
+<code><span class="keyword">object </span><span class="identifier">Winter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code>
+<p>The default <a href="-winter-application/index.html">WinterApplication</a> object that is used as default by <a href="-graph-registry.html">GraphRegistry</a> and
+<a href="-component/init.html">Component.init</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-application/index.html">WinterApplication</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterApplication</span></code>
+<p><a href="-winter-application/index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
+application <a href="-component/index.html">Component</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-injection/index.html">WinterInjection</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterInjection</span></code>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-tree/index.html">WinterTree</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterTree</span></code>
+<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+opening, closing and accessing child-graphs by paths of identifier.</p>
 </td>
 </tr>
 </tbody>
@@ -176,7 +219,8 @@ the blueprints for the <code>graph</code>.</p>
 </td>
 <td>
 <code><span class="keyword">class </span><span class="identifier">EntryNotFoundException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-exception/index.html"><span class="identifier">WinterException</span></a></code>
-<p>Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.</p>
+<p>Exception that is thrown when a component entry or graph was not found but was requested as
+non-optional.</p>
 </td>
 </tr>
 <tr>
@@ -251,33 +295,6 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-graph-dispose-plugin.html">GraphDisposePlugin</a></p>
-</td>
-<td>
-<code><span class="keyword">typealias </span><span class="identifier">GraphDisposePlugin</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="identifier">graph</span><span class="symbol">:</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Plugin that is called on <a href="-graph/dispose.html">Graph.dispose</a>.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="-initializing-component-plugin.html">InitializingComponentPlugin</a></p>
-</td>
-<td>
-<code><span class="keyword">typealias </span><span class="identifier">InitializingComponentPlugin</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="identifier">parentGraph</span><span class="symbol">:</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">?</span><span class="symbol">,</span>&nbsp;<span class="identifier">builder</span><span class="symbol">:</span>&nbsp;<a href="-component-builder/index.html"><span class="identifier">ComponentBuilder</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Plugin that is called during an component initialization.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="-post-construct-plugin.html">PostConstructPlugin</a></p>
-</td>
-<td>
-<code><span class="keyword">typealias </span><span class="identifier">PostConstructPlugin</span>&nbsp;<span class="symbol">=</span>&nbsp;<span class="symbol">(</span><span class="identifier">graph</span><span class="symbol">:</span>&nbsp;<a href="-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">scope</span><span class="symbol">:</span>&nbsp;<a href="-scope/index.html"><span class="identifier">Scope</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">argument</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">,</span>&nbsp;<span class="identifier">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Plugin that is called after an instance was created.</p>
-</td>
-</tr>
-<tr>
-<td>
 <p><a href="-provider.html">Provider</a></p>
 </td>
 <td>
@@ -310,6 +327,24 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
+<p><a href="empty-component.html">emptyComponent</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">emptyComponent</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-component/index.html"><span class="identifier">Component</span></a></code>
+<p>Returns a <a href="-component/index.html">Component</a> without qualifier and without any declared dependencies.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="empty-graph.html">emptyGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">emptyGraph</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Returns a <a href="-graph/index.html">Graph</a> with empty component.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="graph.html">graph</a></p>
 </td>
 <td>
@@ -323,15 +358,8 @@ Used for post-construct and dispose callbacks.</p>
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
-<p>Returns <a href="-type-key/index.html">TypeKey</a> for <a href="-members-injector/index.html">MembersInjector</a> of type <a href="members-injector-key.html#T">T</a>.</p>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for <a href="-members-injector/index.html">MembersInjector</a> for type <a href="members-injector-key.html#T">T</a>.</p>
 </td>
-</tr>
-<tr>
-<td>
-<p><a href="memorize.html">memorize</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">memorize</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$memorize(kotlin.Function0((io.jentz.winter.memorize.T)))/fn">fn</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize.html#T"><span class="identifier">T</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="memorize.html#T"><span class="identifier">T</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -340,6 +368,17 @@ Used for post-construct and dispose callbacks.</p>
 <td>
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
 <p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="type-key.html#T">T</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="type-key-of-type.html">typeKeyOfType</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKeyOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKeyOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<p>This is used internally to created dependency keys to search for all entries of the given type.
+The qualifier is used to allow the usage of this key for caching to prevent clashes with normal
+dependency keys.</p>
 </td>
 </tr>
 </tbody>

@@ -1,0 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location:io.jentz.winter.androidx.lifecycle$autoDispose(io.jentz.winter.Graph, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event)io.jentz.winter.androidx.lifecycle/io.jentz.winter.-graph/auto-dispose.html
+$dokka.location:io.jentz.winter.androidx.lifecycle$autoDisposeGraph(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event)io.jentz.winter.androidx.lifecycle/androidx.lifecycle.-lifecycle-owner/auto-dispose-graph.html
+io.jentz.winter.androidx.lifecycle

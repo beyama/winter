@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AndroidPresentationScopeAdapter.<init> - winter-android</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="index.html">AndroidPresentationScopeAdapter</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.android.AndroidPresentationScopeAdapter$&lt;init&gt;(io.jentz.winter.WinterTree)"></a>
+<code><span class="identifier">AndroidPresentationScopeAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$<init>(io.jentz.winter.WinterTree)/tree">tree</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterTree</span><span class="symbol">)</span></code>
+<p>Android injection adapter that operates on a <a href="#">WinterTree</a> and retains a <code>presentation</code> sub
+graph during Activity re-creation (configuration changes).</p>
+<p>It expects an application component like:</p>
+<pre><code>Winter.component {
+  // this sub-graph outlives configuration changes and is only disposed when Activity
+  // isFinishing == true
+  subcomponent("presentation") {
+    // this is recreated every time the Activity is recreated
+    subcomponent("activity") {
+    }
+  }
+}
+Injection.useAndroidPresentationScopeAdapter()
+</code></pre>
+<p>The adapter registers the <a href="#">Application</a> as <a href="#">Context</a> and <a href="#">Application</a> on the application graph
+and the <a href="#">Activity</a> as <a href="#">Context</a> and <a href="#">Activity</a> on the "activity" graph.</p>
+<p>The <a href="create-graph.html">createGraph</a> and <a href="dispose-graph.html">disposeGraph</a> methods support instances of <a href="#">Application</a> and <a href="#">Activity</a>.
+The retrieval method <a href="get-graph.html">getGraph</a> supports instances of <a href="#">Application</a>, <a href="#">Activity</a>, <a href="#">View</a>,
+<a href="../-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a> and <a href="#">ContextWrapper</a>.</p>
+<p>The optional builder block for <a href="create-graph.html">createGraph</a> with an Activity is applied to the "activity"
+component init <em>NOT</em> the "presentation" component init.</p>
+<p><a href="get-graph.html">getGraph</a> called with an unknown type will return the application graph.</p>
+</BODY>
+</HTML>

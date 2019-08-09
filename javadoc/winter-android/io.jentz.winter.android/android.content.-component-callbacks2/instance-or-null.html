@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>instanceOrNull - winter-android</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="index.html">android.content.ComponentCallbacks2</a>&nbsp;/&nbsp;<a href="./instance-or-null.html">instanceOrNull</a><br/>
+<br/>
+<h1>instanceOrNull</h1>
+<a name="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">ComponentCallbacks2</span><span class="symbol">.</span><s><span class="identifier">instanceOrNull</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="instance-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">?</span></code><br/>
+<strong>Deprecated:</strong> Implement WinterAware and use its extension functions.<br/>
+<br/>
+<p>Retrieve an optional instance of <a href="instance-or-null.html#R">R</a>.</p>
+<h3>Parameters</h3>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<p><strong>Return</strong><br/>
+An instance of <a href="instance-or-null.html#R">R</a> or null if provider doesn't exist.</p>
+<a name="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">A</span><span class="symbol">, </span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">ComponentCallbacks2</span><span class="symbol">.</span><s><span class="identifier">instanceOrNull</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="instance-or-null.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="instance-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">?</span></code><br/>
+<strong>Deprecated:</strong> Implement WinterAware and use its extension functions.<br/>
+<br/>
+<p>Retrieve an optional factory of type <code>(A) -&gt; R</code> and apply <a href="instance-or-null.html#io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to it.</p>
+<h3>Parameters</h3>
+<p><a name="argument"></a>
+<code>argument</code> - The argument for the factory to retrieve.</p>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<p><strong>Return</strong><br/>
+The result of applying <a href="instance-or-null.html#io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to the retrieved factory or null if factory doesn't
+exist.</p>
+</BODY>
+</HTML>

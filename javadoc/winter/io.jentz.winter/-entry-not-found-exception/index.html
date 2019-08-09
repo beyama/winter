@@ -9,7 +9,8 @@
 <br/>
 <h1>EntryNotFoundException</h1>
 <code><span class="keyword">class </span><span class="identifier">EntryNotFoundException</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-winter-exception/index.html"><span class="identifier">WinterException</span></a></code>
-<p>Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.</p>
+<p>Exception that is thrown when a component entry or graph was not found but was requested as
+non-optional.</p>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -18,9 +19,22 @@
 <p><a href="-init-.html">&lt;init&gt;</a></p>
 </td>
 <td>
-<code><span class="identifier">EntryNotFoundException</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.EntryNotFoundException$<init>(kotlin.String)/message">message</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span></code>
-<p>Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.</p>
+<code><span class="identifier">EntryNotFoundException</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.EntryNotFoundException$<init>(io.jentz.winter.TypeKey, kotlin.String)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.EntryNotFoundException$<init>(io.jentz.winter.TypeKey, kotlin.String)/message">message</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span></code>
+<p>Exception that is thrown when a component entry or graph was not found but was requested as
+non-optional.</p>
 </td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="key.html">key</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">key</span><span class="symbol">: </span><a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
 </tr>
 </tbody>
 </table>

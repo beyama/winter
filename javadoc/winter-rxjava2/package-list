@@ -1,0 +1,5 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location:io.jentz.winter.rxjava2$installDisposablePlugin(io.jentz.winter.WinterApplication)io.jentz.winter.rxjava2/io.jentz.winter.-winter-application/install-disposable-plugin.html
+$dokka.location:io.jentz.winter.rxjava2$uninstallDisposablePlugin(io.jentz.winter.WinterApplication)io.jentz.winter.rxjava2/io.jentz.winter.-winter-application/uninstall-disposable-plugin.html
+io.jentz.winter.rxjava2

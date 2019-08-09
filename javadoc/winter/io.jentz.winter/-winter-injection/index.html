@@ -1,0 +1,151 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterInjection - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">WinterInjection</a><br/>
+<br/>
+<h1>WinterInjection</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterInjection</span></code>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection.</p>
+<p>For applications it is recommended to use the object version <a href="../-injection.html">Injection</a> directly and for
+libraries it is recommended to create a object version from <a href="./index.html">WinterInjection</a> instead.</p>
+<p><strong>See Also</strong><br/>
+<p><a href="../-injection.html">Injection</a></p>
+</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-adapter/index.html">Adapter</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">Adapter</span></code>
+<p>Adapter interface to provide application specific graph creation and retrieval strategy.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterInjection</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="adapter.html">adapter</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">adapter</span><span class="symbol">: </span><a href="-adapter/index.html"><span class="identifier">WinterInjection.Adapter</span></a></code>
+<p>Set the application specific <a href="-adapter/index.html">adapter</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="create-graph.html">createGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph for <a href="create-graph.html#io.jentz.winter.WinterInjection$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-graph-and-inject.html">createGraphAndInject</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injector">injector</span><span class="symbol">:</span>&nbsp;<a href="../-injector/index.html"><span class="identifier">Injector</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.WinterInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</a> and also pass the graph to the given
+<a href="create-graph-and-inject.html#io.jentz.winter.WinterInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injector">injector</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(io.jentz.winter.WinterInjection.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="create-graph-and-inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(io.jentz.winter.WinterInjection.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$createGraphAndInject(io.jentz.winter.WinterInjection.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.WinterInjection$createGraphAndInject(io.jentz.winter.WinterInjection.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</a> and inject all members into instance.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="dispose-graph.html">disposeGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">disposeGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$disposeGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Dispose the dependency graph of the given <a href="dispose-graph.html#io.jentz.winter.WinterInjection$disposeGraph(kotlin.Any)/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-graph.html">getGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">getGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$getGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get dependency graph for <a href="get-graph.html#io.jentz.winter.WinterInjection$getGraph(kotlin.Any)/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="inject.html">inject</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$inject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$inject(kotlin.Any, io.jentz.winter.Injector)/injector">injector</span><span class="symbol">:</span>&nbsp;<a href="../-injector/index.html"><span class="identifier">Injector</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Get dependency graph for given <a href="inject.html#io.jentz.winter.WinterInjection$inject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</a> and inject dependencies into injector.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection$inject(io.jentz.winter.WinterInjection.inject.T, kotlin.Boolean)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection$inject(io.jentz.winter.WinterInjection.inject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Inject into <a href="inject.html#io.jentz.winter.WinterInjection$inject(io.jentz.winter.WinterInjection.inject.T, kotlin.Boolean)/instance">instance</a> by using the dependency graph of the <a href="inject.html#io.jentz.winter.WinterInjection$inject(io.jentz.winter.WinterInjection.inject.T, kotlin.Boolean)/instance">instance</a>.
+This uses <a href="../-members-injector/index.html">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation
+processor.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Extension Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../../io.jentz.winter.adapter/use-application-graph-only-adapter.html">useApplicationGraphOnlyAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">WinterInjection</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.adapter$useApplicationGraphOnlyAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterTree)/tree">tree</span><span class="symbol">:</span>&nbsp;<a href="../-winter-tree/index.html"><span class="identifier">WinterTree</span></a>&nbsp;<span class="symbol">=</span>&nbsp;GraphRegistry<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code><br/>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">WinterInjection</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.adapter$useApplicationGraphOnlyAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register an <a href="../../io.jentz.winter.adapter/-application-graph-only-adapter/index.html">ApplicationGraphOnlyAdapter</a> on this <a href="./index.html">WinterInjection</a> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-injection.html">Injection</a></p>
+</td>
+<td>
+<code><span class="keyword">object </span><span class="identifier">Injection</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">WinterInjection</span></a></code>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection. This takes the burden off of the class to know how exactly a graph
+or parent graph is stored and how to create and store a new graph.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

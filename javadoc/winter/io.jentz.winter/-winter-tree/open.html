@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterTree.open - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">WinterTree</a>&nbsp;/&nbsp;<a href="./open.html">open</a><br/>
+<br/>
+<h1>open</h1>
+<a name="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
+<code><span class="keyword">fun </span><span class="identifier">open</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create a dependency graph by (sub-)component path and register it.
+Opened components will be children of each other in left to right order.</p>
+<h3>Parameters</h3>
+<p><a name="path"></a>
+<code>path</code> - The path of the (sub-)component to initialize.</p>
+<p><a name="identifier"></a>
+<code>identifier</code> - An optional identifier to store the sub dependency graph under.</p>
+<p><a name="block"></a>
+<code>block</code> - An optional <a href="../-component-builder-block.html">ComponentBuilderBlock</a> that's passed to the (sub-)component
+    init method.</p>
+<h3>Exceptions</h3>
+<p><a name="WinterException"></a>
+<code>WinterException</code> - When application component is not set or path can not be resolved.</p>
+<p><a name="IllegalArgumentException"></a>
+<code>IllegalArgumentException</code> - When <a href="open.html#io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</a> is empty (root) but <a href="open.html#io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</a> is given.</p>
+<p><strong>Return</strong><br/>
+The newly created and registered graph.</p>
+</BODY>
+</HTML>

@@ -10,6 +10,13 @@
 <tbody>
 <tr>
 <td>
+<a href="../io.jentz.winter.adapter/-application-graph-only-adapter/index.html">io.jentz.winter.adapter.ApplicationGraphOnlyAdapter</a></td>
+<td>
+<p>Simple adapter for application with only one dependency graph.</p>
+</td>
+</tr>
+<tr>
+<td>
 <a href="../io.jentz.winter/-bound-service/index.html">io.jentz.winter.BoundService</a></td>
 <td>
 <p>Interface for bound service entries in a <a href="../io.jentz.winter/-graph/index.html">Graph</a>.</p>
@@ -25,8 +32,8 @@
 <td>
 <a href="../io.jentz.winter/-component/index.html">io.jentz.winter.Component</a></td>
 <td>
-<p>The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
-<a href="../io.jentz.winter/-graph/index.html">graph</a>.</p>
+<p>The Component stores the dependency providers which are than retrieved and instantiated by an
+instance of a <a href="../io.jentz.winter/-graph/index.html">graph</a>.</p>
 </td>
 </tr>
 <tr>
@@ -67,7 +74,8 @@
 <td>
 <a href="../io.jentz.winter/-entry-not-found-exception/index.html">io.jentz.winter.EntryNotFoundException</a></td>
 <td>
-<p>Exception that is thrown when a component entry wasn't found but was requested in a non-optional way.</p>
+<p>Exception that is thrown when a component entry or graph was not found but was requested as
+non-optional.</p>
 </td>
 </tr>
 <tr>
@@ -75,6 +83,18 @@
 <a href="../io.jentz.winter/-factory.html">io.jentz.winter.Factory</a></td>
 <td>
 <p>Factory function signature.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-generic-class-type-key/index.html">io.jentz.winter.GenericClassTypeKey</a></td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-generic-compound-class-type-key/index.html">io.jentz.winter.GenericCompoundClassTypeKey</a></td>
+<td>
 </td>
 </tr>
 <tr>
@@ -109,18 +129,6 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter/-generic-class-type-key/index.html">io.jentz.winter.GenericClassTypeKey</a></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
-<a href="../io.jentz.winter/-generic-compound-class-type-key/index.html">io.jentz.winter.GenericCompoundClassTypeKey</a></td>
-<td>
-</td>
-</tr>
-<tr>
-<td>
 <a href="../io.jentz.winter/-graph/index.html">io.jentz.winter.Graph</a></td>
 <td>
 <p>The dependency graph class that retrieves and instantiates dependencies from a component.</p>
@@ -128,30 +136,26 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter/-graph-dispose-plugin.html">io.jentz.winter.GraphDisposePlugin</a></td>
+<a href="../io.jentz.winter/-graph-registry.html">io.jentz.winter.GraphRegistry</a></td>
 <td>
-<p>Plugin that is called on <a href="../io.jentz.winter/-graph/dispose.html">Graph.dispose</a>.</p>
+<p>An object version of <a href="../io.jentz.winter/-winter-tree/index.html">WinterTree</a> that uses <a href="../io.jentz.winter/-winter.html">Winter</a> as its <a href="../io.jentz.winter/-winter-application/index.html">WinterApplication</a>.</p>
 </td>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter/-graph-registry/index.html">io.jentz.winter.GraphRegistry</a></td>
+<a href="../io.jentz.winter/-injection.html">io.jentz.winter.Injection</a></td>
 <td>
-<p>The graph registry creates and holds dependency graphs in a tree (directed acyclic graph).</p>
-</td>
-</tr>
-<tr>
-<td>
-<a href="../io.jentz.winter/-initializing-component-plugin.html">io.jentz.winter.InitializingComponentPlugin</a></td>
-<td>
-<p>Plugin that is called during an component initialization.</p>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection. This takes the burden off of the class to know how exactly a graph
+or parent graph is stored and how to create and store a new graph.</p>
 </td>
 </tr>
 <tr>
 <td>
 <a href="../io.jentz.winter/-injector/index.html">io.jentz.winter.Injector</a></td>
 <td>
-<p>The Injector provides a was to inject dependencies into properties via Kotlins property delegates.</p>
+<p>The Injector provides a was to inject dependencies into properties via Kotlins property
+delegates.</p>
 </td>
 </tr>
 <tr>
@@ -162,9 +166,16 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter/-post-construct-plugin.html">io.jentz.winter.PostConstructPlugin</a></td>
+<a href="../io.jentz.winter.plugin/-plugin/index.html">io.jentz.winter.plugin.Plugin</a></td>
 <td>
-<p>Plugin that is called after an instance was created.</p>
+<p>The interface for Winter plugins.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter.plugin/-plugin-registry/index.html">io.jentz.winter.plugin.PluginRegistry</a></td>
+<td>
+<p>The registry for <a href="../io.jentz.winter.plugin/-plugin/index.html">Winter plugins</a>.</p>
 </td>
 </tr>
 <tr>
@@ -178,6 +189,13 @@ Used for post-construct and dispose callbacks.</p>
 <td>
 <a href="../io.jentz.winter/-scope/index.html">io.jentz.winter.Scope</a></td>
 <td>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter.plugin/-simple-plugin/index.html">io.jentz.winter.plugin.SimplePlugin</a></td>
+<td>
+<p>Empty implementation of <a href="../io.jentz.winter.plugin/-plugin/index.html">Plugin</a>.</p>
 </td>
 </tr>
 <tr>
@@ -196,6 +214,30 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
+<a href="../io.jentz.winter/-winter.html">io.jentz.winter.Winter</a></td>
+<td>
+<p>The default <a href="../io.jentz.winter/-winter-application/index.html">WinterApplication</a> object that is used as default by <a href="../io.jentz.winter/-graph-registry.html">GraphRegistry</a> and
+<a href="../io.jentz.winter/-component/init.html">Component.init</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-winter-application/index.html">io.jentz.winter.WinterApplication</a></td>
+<td>
+<p><a href="../io.jentz.winter/-winter-application/index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
+application <a href="../io.jentz.winter/-component/index.html">Component</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter.aware/-winter-aware/index.html">io.jentz.winter.aware.WinterAware</a></td>
+<td>
+<p>Implementing this interface gives simpler syntax for dependency retrieval and is particularly
+useful in cases where constructor injection is not possible.</p>
+</td>
+</tr>
+<tr>
+<td>
 <a href="../io.jentz.winter/-winter-exception/index.html">io.jentz.winter.WinterException</a></td>
 <td>
 <p>Base exception class of all exception thrown by Winter.</p>
@@ -203,9 +245,18 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 <tr>
 <td>
-<a href="../io.jentz.winter/-winter-plugins/index.html">io.jentz.winter.WinterPlugins</a></td>
+<a href="../io.jentz.winter/-winter-injection/index.html">io.jentz.winter.WinterInjection</a></td>
 <td>
-<p>Utility class to hook into certain graph lifecycle.</p>
+<p>Abstraction to create, get and dispose a dependency graph from a class that can't make use of
+constructor injection.</p>
+</td>
+</tr>
+<tr>
+<td>
+<a href="../io.jentz.winter/-winter-tree/index.html">io.jentz.winter.WinterTree</a></td>
+<td>
+<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+opening, closing and accessing child-graphs by paths of identifier.</p>
 </td>
 </tr>
 </tbody>

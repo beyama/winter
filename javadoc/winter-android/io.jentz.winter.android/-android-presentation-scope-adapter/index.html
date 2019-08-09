@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AndroidPresentationScopeAdapter - winter-android</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="./index.html">AndroidPresentationScopeAdapter</a><br/>
+<br/>
+<h1>AndroidPresentationScopeAdapter</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">AndroidPresentationScopeAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Adapter</span></code>
+<p>Android injection adapter that operates on a <a href="#">WinterTree</a> and retains a <code>presentation</code> sub
+graph during Activity re-creation (configuration changes).</p>
+<p>It expects an application component like:</p>
+<pre><code>Winter.component {
+  // this sub-graph outlives configuration changes and is only disposed when Activity
+  // isFinishing == true
+  subcomponent("presentation") {
+    // this is recreated every time the Activity is recreated
+    subcomponent("activity") {
+    }
+  }
+}
+Injection.useAndroidPresentationScopeAdapter()
+</code></pre>
+<p>The adapter registers the <a href="#">Application</a> as <a href="#">Context</a> and <a href="#">Application</a> on the application graph
+and the <a href="#">Activity</a> as <a href="#">Context</a> and <a href="#">Activity</a> on the "activity" graph.</p>
+<p>The <a href="create-graph.html">createGraph</a> and <a href="dispose-graph.html">disposeGraph</a> methods support instances of <a href="#">Application</a> and <a href="#">Activity</a>.
+The retrieval method <a href="get-graph.html">getGraph</a> supports instances of <a href="#">Application</a>, <a href="#">Activity</a>, <a href="#">View</a>,
+<a href="../-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a> and <a href="#">ContextWrapper</a>.</p>
+<p>The optional builder block for <a href="create-graph.html">createGraph</a> with an Activity is applied to the "activity"
+component init <em>NOT</em> the "presentation" component init.</p>
+<p><a href="get-graph.html">getGraph</a> called with an unknown type will return the application graph.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">AndroidPresentationScopeAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$<init>(io.jentz.winter.WinterTree)/tree">tree</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterTree</span><span class="symbol">)</span></code>
+<p>Android injection adapter that operates on a <a href="#">WinterTree</a> and retains a <code>presentation</code> sub
+graph during Activity re-creation (configuration changes).</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="tree.html">tree</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">tree</span><span class="symbol">: </span><span class="identifier">WinterTree</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="create-graph.html">createGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="identifier">ComponentBuilderBlock</span><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="dispose-graph.html">disposeGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">disposeGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$disposeGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="get-graph.html">getGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidPresentationScopeAdapter$getGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

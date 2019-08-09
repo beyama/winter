@@ -8,14 +8,14 @@
 <a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="index.html">SimpleAndroidInjectionAdapter</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
 <br/>
 <h1>&lt;init&gt;</h1>
-<a name="io.jentz.winter.android.SimpleAndroidInjectionAdapter$&lt;init&gt;()"></a>
-<code><span class="identifier">SimpleAndroidInjectionAdapter</span><span class="symbol">(</span><span class="symbol">)</span></code>
-<p>Simple extensible injection adapter that operates on the <a href="#">GraphRegistry</a> and requires a root component with an
-"activity" named subcomponent.</p>
-<p>The adapters <a href="create-graph.html">createGraph</a> method registers the application instance on the application dependency graph and
-the activity instance on the activity dependency graph.</p>
-<p>The <a href="create-graph.html">createGraph</a> and <a href="dispose-graph.html">disposeGraph</a> methods support instances of <a href="https://developer.android.com/reference/android/app/Application.html">Application</a> and <a href="https://developer.android.com/reference/android/app/Activity.html">Activity</a>.
-The retrieval method <a href="get-graph.html">getGraph</a> supports instances of <a href="https://developer.android.com/reference/android/app/Application.html">Application</a>, <a href="https://developer.android.com/reference/android/app/Activity.html">Activity</a>, <a href="https://developer.android.com/reference/android/view/View.html">View</a>,
-<a href="../-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a> and <a href="https://developer.android.com/reference/android/content/ContextWrapper.html">ContextWrapper</a>.</p>
+<a name="io.jentz.winter.android.SimpleAndroidInjectionAdapter$&lt;init&gt;(io.jentz.winter.WinterTree)"></a>
+<code><span class="identifier">SimpleAndroidInjectionAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.SimpleAndroidInjectionAdapter$<init>(io.jentz.winter.WinterTree)/tree">tree</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterTree</span><span class="symbol">)</span></code>
+<p>Simple extensible injection adapter that operates on a <a href="#">WinterTree</a> and requires a root
+component with an "activity" named subcomponent.</p>
+<p>The adapters <a href="create-graph.html">createGraph</a> method registers the application instance on the application
+dependency graph and the activity instance on the activity dependency graph.</p>
+<p>The <a href="create-graph.html">createGraph</a> and <a href="dispose-graph.html">disposeGraph</a> methods support instances of <a href="#">Application</a> and <a href="#">Activity</a>.
+The retrieval method <a href="get-graph.html">getGraph</a> supports instances of <a href="#">Application</a>, <a href="#">Activity</a>, <a href="#">View</a>,
+<a href="../-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a> and <a href="#">ContextWrapper</a>.</p>
 </BODY>
 </HTML>

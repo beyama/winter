@@ -8,13 +8,16 @@
 <a href="../../index.html">winter-android</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.android</a>&nbsp;/&nbsp;<a href="./index.html">AndroidInjection</a><br/>
 <br/>
 <h1>AndroidInjection</h1>
-<code><span class="keyword">object </span><span class="identifier">AndroidInjection</span></code>
+<code><span class="keyword">object </span><s><span class="identifier">AndroidInjection</span></s></code><br/>
+<strong>Deprecated:</strong> Use io.jentz.winter.Injection instead<br/>
+<br/>
 <p>Retrieves application and activity graphs and injects into core Android types.</p>
-<p>An application specific graph creation and retrieval strategy can be provided by setting a custom <a href="-adapter/index.html">Adapter</a>.</p>
+<p>An application specific graph creation and retrieval strategy can be provided by setting a custom
+<a href="-adapter.html">io.jentz.winter.android.AndroidInjection.Adapter</a>.</p>
 <p>Example using the default <a href="../-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a>:</p>
 <pre><code>class MyApplication : Application() {
   override fun onCreate() {
-    GraphRegistry.applicationComponent = component {
+    GraphRegistry.component = component {
       singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
 
       singleton { RepoListViewModel(instance()) }
@@ -44,7 +47,8 @@ class MyActivity : Activity() {
 
 }
 </code></pre>
-<p>To register a custom graph creation and retrieval strategy a custom <a href="-adapter/index.html">AndroidInjection.Adapter</a> can be registered by
+<p>To register a custom graph creation and retrieval strategy a custom <a href="-adapter.html">AndroidInjection.Adapter</a>
+can be registered by
 setting the <a href="adapter.html">AndroidInjection.adapter</a> property.</p>
 <pre><code>AndroidInjection.adapter = MyCustomAdapter()
 </code></pre>
@@ -53,10 +57,10 @@ setting the <a href="adapter.html">AndroidInjection.adapter</a> property.</p>
 <tbody>
 <tr>
 <td>
-<p><a href="-adapter/index.html">Adapter</a></p>
+<p><a href="-adapter.html">Adapter</a></p>
 </td>
 <td>
-<code><span class="keyword">interface </span><span class="identifier">Adapter</span></code>
+<code><span class="keyword">interface </span><s><span class="identifier">Adapter</span></s>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Adapter</span></code>
 <p>Adapter interface for Android application specific graph creation and retrieval strategy.</p>
 </td>
 </tr>
@@ -70,8 +74,8 @@ setting the <a href="adapter.html">AndroidInjection.adapter</a> property.</p>
 <p><a href="adapter.html">adapter</a></p>
 </td>
 <td>
-<code><span class="keyword">var </span><span class="identifier">adapter</span><span class="symbol">: </span><a href="-adapter/index.html"><span class="identifier">Adapter</span></a></code>
-<p>Set the application specific <a href="-adapter/index.html">adapter</a>.
+<code><span class="keyword">var </span><span class="identifier">adapter</span><span class="symbol">: </span><span class="identifier">Adapter</span></code>
+<p>Set the application specific <a href="-adapter.html">adapter</a>.
 The default adapter is the <a href="../-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a>.</p>
 </td>
 </tr>
@@ -95,9 +99,10 @@ The default adapter is the <a href="../-simple-android-injection-adapter/index.h
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/injector">injector</span><span class="symbol">:</span>&nbsp;<span class="identifier">Injector</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
-<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</a> and also pass the graph to the given <a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/injector">injector</a>.</p>
+<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</a> and also pass the graph to the given
+<a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(kotlin.Any, io.jentz.winter.Injector)/injector">injector</a>.</p>
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$createGraphAndInject(io.jentz.winter.android.AndroidInjection.createGraphAndInject.T, kotlin.Boolean)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="create-graph-and-inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$createGraphAndInject(io.jentz.winter.android.AndroidInjection.createGraphAndInject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
-<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(io.jentz.winter.android.AndroidInjection.createGraphAndInject.T, kotlin.Boolean)/instance">instance</a> and also pass the graph to the given <a href="#">injector</a>.</p>
+<p>Create and return dependency graph for <a href="create-graph-and-inject.html#io.jentz.winter.android.AndroidInjection$createGraphAndInject(io.jentz.winter.android.AndroidInjection.createGraphAndInject.T, kotlin.Boolean)/instance">instance</a> and also inject member.</p>
 </td>
 </tr>
 <tr>
@@ -114,7 +119,7 @@ The default adapter is the <a href="../-simple-android-injection-adapter/index.h
 <p><a href="get-application-graph.html">getApplicationGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">getApplicationGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$getApplicationGraph(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<code><span class="keyword">fun </span><span class="identifier">getApplicationGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$getApplicationGraph(android.content.Context)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">Context</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
 <p>Get application dependency graph.</p>
 </td>
 </tr>
@@ -136,7 +141,8 @@ The default adapter is the <a href="../-simple-android-injection-adapter/index.h
 <p>Get dependency graph for given <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(kotlin.Any, io.jentz.winter.Injector)/instance">instance</a> and inject dependencies into injector.</p>
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Inject into <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</a> by using the dependency graph of the <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</a>.
-This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation processor.</p>
+This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation
+processor.</p>
 </td>
 </tr>
 </tbody>

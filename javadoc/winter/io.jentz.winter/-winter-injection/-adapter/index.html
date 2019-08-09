@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterInjection.Adapter - winter</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">winter</a>&nbsp;/&nbsp;<a href="../../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="../index.html">WinterInjection</a>&nbsp;/&nbsp;<a href="./index.html">Adapter</a><br/>
+<br/>
+<h1>Adapter</h1>
+<code><span class="keyword">interface </span><span class="identifier">Adapter</span></code>
+<p>Adapter interface to provide application specific graph creation and retrieval strategy.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="create-graph.html">createGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection.Adapter$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterInjection.Adapter$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="../../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create dependency graph for <a href="create-graph.html#io.jentz.winter.WinterInjection.Adapter$createGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="dispose-graph.html">disposeGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">disposeGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection.Adapter$disposeGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Dispose the dependency graph of the given <a href="dispose-graph.html#io.jentz.winter.WinterInjection.Adapter$disposeGraph(kotlin.Any)/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get-graph.html">getGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">getGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterInjection.Adapter$getGraph(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get dependency graph for <a href="get-graph.html#io.jentz.winter.WinterInjection.Adapter$getGraph(kotlin.Any)/instance">instance</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../../../io.jentz.winter.adapter/-application-graph-only-adapter/index.html">ApplicationGraphOnlyAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ApplicationGraphOnlyAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">WinterInjection.Adapter</span></a></code>
+<p>Simple adapter for application with only one dependency graph.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

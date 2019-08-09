@@ -1,0 +1,130 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>io.jentz.winter.compiler.kotlinbuilder - winter-compiler</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter-compiler</a>&nbsp;/&nbsp;<a href="./index.html">io.jentz.winter.compiler.kotlinbuilder</a><br/>
+<br/>
+<h2>Package io.jentz.winter.compiler.kotlinbuilder</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-kotlin-builder/index.html">KotlinBuilder</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">KotlinBuilder</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-kotlin-code/index.html">KotlinCode</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">KotlinCode</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-kotlin-code-builder/index.html">KotlinCodeBuilder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">KotlinCodeBuilder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-kotlin-file/index.html">KotlinFile</a></p>
+</td>
+<td>
+<code><span class="keyword">data</span> <span class="keyword">class </span><span class="identifier">KotlinFile</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-kotlin-file-builder/index.html">KotlinFileBuilder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">KotlinFileBuilder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Type Aliases</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-kotlin-builder-block.html">KotlinBuilderBlock</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">KotlinBuilderBlock</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-kotlin-file-builder-block.html">KotlinFileBuilderBlock</a></p>
+</td>
+<td>
+<code><span class="keyword">typealias </span><span class="identifier">KotlinFileBuilderBlock</span>&nbsp;<span class="symbol">=</span>&nbsp;<a href="-kotlin-file-builder/index.html"><span class="identifier">KotlinFileBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-d-e-f-a-u-l-t_-n-a-m-e-s-p-a-c-e-s.html">DEFAULT_NAMESPACES</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">DEFAULT_NAMESPACES</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="build-component.html">buildComponent</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">buildComponent</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildComponent(io.jentz.winter.compiler.ProcessorConfiguration, io.jentz.winter.compiler.ComponentModel)/configuration">configuration</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.compiler/-processor-configuration/index.html"><span class="identifier">ProcessorConfiguration</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildComponent(io.jentz.winter.compiler.ProcessorConfiguration, io.jentz.winter.compiler.ComponentModel)/model">model</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.compiler/-component-model/index.html"><span class="identifier">ComponentModel</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-kotlin-file/index.html"><span class="identifier">KotlinFile</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="build-injector.html">buildInjector</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">buildInjector</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildInjector(io.jentz.winter.compiler.ProcessorConfiguration, io.jentz.winter.compiler.InjectorModel)/configuration">configuration</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.compiler/-processor-configuration/index.html"><span class="identifier">ProcessorConfiguration</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildInjector(io.jentz.winter.compiler.ProcessorConfiguration, io.jentz.winter.compiler.InjectorModel)/model">model</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.compiler/-injector-model/index.html"><span class="identifier">InjectorModel</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-kotlin-file/index.html"><span class="identifier">KotlinFile</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="build-kotlin-code.html">buildKotlinCode</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">buildKotlinCode</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildKotlinCode(kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-kotlin-builder-block.html"><span class="identifier">KotlinBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-kotlin-code/index.html"><span class="identifier">KotlinCode</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="build-kotlin-file.html">buildKotlinFile</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">buildKotlinFile</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildKotlinFile(kotlin.String, kotlin.String, kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinFileBuilder, kotlin.Unit)))/packageName">packageName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildKotlinFile(kotlin.String, kotlin.String, kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinFileBuilder, kotlin.Unit)))/fileName">fileName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$buildKotlinFile(kotlin.String, kotlin.String, kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinFileBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-kotlin-file-builder-block.html"><span class="identifier">KotlinFileBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-kotlin-file/index.html"><span class="identifier">KotlinFile</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="generated-annotation.html">generatedAnnotation</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a><span class="symbol">.</span><span class="identifier">generatedAnnotation</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$generatedAnnotation(io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Boolean)/isAnnotationAvailable">isAnnotationAvailable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="generate-get-instance-code.html">generateGetInstanceCode</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">generateGetInstanceCode</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$generateGetInstanceCode(kotlin.String, javax.lang.model.element.VariableElement)/target">target</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$generateGetInstanceCode(kotlin.String, javax.lang.model.element.VariableElement)/e">e</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/javax/lang/model/element/VariableElement.html"><span class="identifier">VariableElement</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-kotlin-code/index.html"><span class="identifier">KotlinCode</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

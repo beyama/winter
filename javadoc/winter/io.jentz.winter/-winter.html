@@ -1,0 +1,76 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Winter - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./-winter.html">Winter</a><br/>
+<br/>
+<h1>Winter</h1>
+<code><span class="keyword">object </span><span class="identifier">Winter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code>
+<p>The default <a href="-winter-application/index.html">WinterApplication</a> object that is used as default by <a href="-graph-registry.html">GraphRegistry</a> and
+<a href="-component/init.html">Component.init</a>.</p>
+<p>A <a href="-winter-application/index.html">WinterApplication</a> contains all configured plugins and and the application component.</p>
+<p>It is recommended for applications to use this directly and for libraries it is recommended to
+create a library specific object based on <a href="-winter-application/index.html">WinterApplication</a>.</p>
+<p>This should be initialized early on application startup and usually not changed during runtime.</p>
+<p>Usage example with winter-rxjava2 disposable plugin:</p>
+<pre><code>// configure application component
+Winter.component {
+  // ... dependency declaration
+}
+// install RxJava 2 disposable plugin
+Winter.installDisposablePlugin()
+// create dependency graph
+val graph = Winter.init()
+</code></pre>
+<h3>Inherited Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-winter-application/component.html">component</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">component</span><span class="symbol">: </span><a href="-component/index.html"><span class="identifier">Component</span></a></code>
+<p>The application component.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-application/plugins.html">plugins</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">plugins</span><span class="symbol">: </span><a href="../io.jentz.winter.plugin/-plugin-registry/index.html"><span class="identifier">PluginRegistry</span></a></code>
+<p>The <a href="../io.jentz.winter.plugin/-plugin-registry/index.html">PluginRegistry</a> of this application.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-winter-application/component.html">component</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Sets the application component by supplying an optional qualifier and a component builder
+block.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-application/init.html">init</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$init(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Initialize and return the dependency graph from the configured <a href="-winter-application/component.html">component</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -2,3 +2,6 @@ $dokka.format:html
 $dokka.linkExtension:html
 
 io.jentz.winter
+io.jentz.winter.adapter
+io.jentz.winter.aware
+io.jentz.winter.plugin

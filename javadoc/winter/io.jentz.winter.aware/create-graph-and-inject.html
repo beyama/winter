@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>createGraphAndInject - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="index.html">io.jentz.winter.aware</a>&nbsp;/&nbsp;<a href="./create-graph-and-inject.html">createGraphAndInject</a><br/>
+<br/>
+<h1>createGraphAndInject</h1>
+<a name="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
+<code><span class="keyword">fun </span><a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injector">injector</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-injector/index.html"><span class="identifier">Injector</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../io.jentz.winter/-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph for <a href="create-graph-and-inject/-this-.html">this</a> and also pass the graph to the given
+<a href="create-graph-and-inject.html#io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.Injector, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injector">injector</a> by using <a href="-winter-aware/injection.html">WinterAware.injection</a>.</p>
+<h3>Parameters</h3>
+<p><a name="injector"></a>
+<code>injector</code> - The <a href="../io.jentz.winter/-injector/index.html">Injector</a> to inject into.</p>
+<p><a name="block"></a>
+<code>block</code> - An optional builder block to pass to the component init method.</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.WinterException"></a>
+<code>io.jentz.winter.WinterException</code> - if <a href="create-graph-and-inject/-this-.html">this</a> type is not supported.</p>
+<p><strong>Return</strong><br/>
+The created dependency graph.</p>
+<a name="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">createGraphAndInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="create-graph-and-inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../io.jentz.winter/-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph for <a href="create-graph-and-inject/-this-.html">this</a> and inject all members into <a href="create-graph-and-inject.html#io.jentz.winter.aware$createGraphAndInject(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.createGraphAndInject.T, kotlin.Boolean, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/instance">instance</a> by using
+<a href="-winter-aware/injection.html">WinterAware.injection</a>.</p>
+<p>This is useful in conjunction with JSR330 <code>Inject</code> annotations.</p>
+<h3>Parameters</h3>
+<p><a name="instance"></a>
+<code>instance</code> - The instance to inject into.</p>
+<p><a name="injectSuperClasses"></a>
+<code>injectSuperClasses</code> - If true this will look for members injectors for super classes too.</p>
+<p><a name="block"></a>
+<code>block</code> - An optional builder block to pass to the component init method.</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.WinterException"></a>
+<code>io.jentz.winter.WinterException</code> - if <a href="create-graph-and-inject/-this-.html">this</a> type is not supported.</p>
+<p><strong>Return</strong><br/>
+The created dependency graph.</p>
+</BODY>
+</HTML>

@@ -12,8 +12,7 @@
 <code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$instance(io.jentz.winter.BoundService.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html#R"><span class="identifier">R</span></a></code>
 <p>This is called every time an instance is requested from the <a href="../-graph/index.html">Graph</a>.</p>
 <p>If this service has to create a new instance to satisfy this request it must do the
-initialization in the block of <a href="../-graph/evaluate.html">Graph.evaluate</a> and then call <a href="../-graph/post-construct.html">Graph.postConstruct</a>
-afterwards.</p>
+initialization in <a href="new-instance.html">newInstance</a> by calling <a href="../-graph/evaluate.html">Graph.evaluate</a>.</p>
 <h3>Parameters</h3>
 <p><a name="argument"></a>
 <code>argument</code> - The argument for this request.</p>

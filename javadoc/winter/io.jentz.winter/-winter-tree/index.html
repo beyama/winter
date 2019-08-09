@@ -1,0 +1,139 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterTree - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">WinterTree</a><br/>
+<br/>
+<h1>WinterTree</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterTree</span></code>
+<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+opening, closing and accessing child-graphs by paths of identifier.</p>
+<p>Instances of <a href="./index.html">WinterTree</a> are usually not used directly but in injection adapters.</p>
+<p>This is inspired by <a href="https://github.com/stephanenicolas/toothpick">Toothpicks</a>
+openScope/closeScope mechanism, if you like that, you can simply use <a href="../-graph-registry.html">GraphRegistry</a> instead of
+the <a href="../-injection.html">Injection</a> abstraction.</p>
+<p>Example:</p>
+<pre><code>Winter.component {
+  // ... the component definition
+}
+val tree = WinterTree(Winter)
+
+// open the root graph
+tree.open()
+// or supply a builder block to extend the resulting graph
+tree.open { constant&lt;Application&gt;(myApplication) }
+
+// the root graph can then be accessed by calling
+tree.get()
+
+// to open a child-graph call
+tree.open("subcomponent qualifier")
+
+// this graph can be accessed by calling
+tree.get("subcomponent qualifier")
+
+// you can provide an optional identifier for the graph
+tree.open("subcomponent qualifier", identifier = "other name")
+
+// then you can access the the graph by calling
+tree.get("other name")
+
+// to open a subcomponent of this call
+tree.open("subcomponent qualifier", "sub-subcomponent qualifier")
+// respectively
+tree.open("other name", "sub-subcomponent qualifier")
+</code></pre>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterTree</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterTree$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">)</span></code>
+<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+opening, closing and accessing child-graphs by paths of identifier.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="close.html">close</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">close</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$close(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Remove and dispose the dependency graph and its children stored in <a href="close.html#io.jentz.winter.WinterTree$close(kotlin.Array((kotlin.Any)))/path">path</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="close-if-open.html">closeIfOpen</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">closeIfOpen</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$closeIfOpen(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Remove and dispose the dependency graph and its children stored in <a href="close-if-open.html#io.jentz.winter.WinterTree$closeIfOpen(kotlin.Array((kotlin.Any)))/path">path</a> if it is open.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create.html">create</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">create</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create and return dependency graph by (sub-)component path without registering it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="get.html">get</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">get</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$get(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get a registered dependency graph by path.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="has.html">has</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">has</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$has(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Returns true if an entry under the given <a href="has.html#io.jentz.winter.WinterTree$has(kotlin.Array((kotlin.Any)))/path">path</a> exists otherwise false.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="open.html">open</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">open</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create a dependency graph by (sub-)component path and register it.
+Opened components will be children of each other in left to right order.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-graph-registry.html">GraphRegistry</a></p>
+</td>
+<td>
+<code><span class="keyword">object </span><span class="identifier">GraphRegistry</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">WinterTree</span></a></code>
+<p>An object version of <a href="./index.html">WinterTree</a> that uses <a href="../-winter.html">Winter</a> as its <a href="../-winter-application/index.html">WinterApplication</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

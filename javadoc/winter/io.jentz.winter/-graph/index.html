@@ -10,17 +10,25 @@
 <h1>Graph</h1>
 <code><span class="keyword">class </span><span class="identifier">Graph</span></code>
 <p>The dependency graph class that retrieves and instantiates dependencies from a component.</p>
-<p>An instance is created by calling <a href="../-component/init.html">Component.init</a> or <a href="init-subcomponent.html">Graph.initSubcomponent</a>.</p>
+<p>An instance is created by calling <a href="../-component/init.html">Component.init</a>, <a href="create-child-graph.html">Graph.createChildGraph</a>
+or <a href="open-child-graph.html">Graph.openChildGraph</a>.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
+<tr>
+<td>
+<p><a href="application.html">application</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">application</span><span class="symbol">: </span><a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code></td>
+</tr>
 <tr>
 <td>
 <p><a href="component.html">component</a></p>
 </td>
 <td>
 <code><span class="keyword">val </span><span class="identifier">component</span><span class="symbol">: </span><a href="../-component/index.html"><span class="identifier">Component</span></a></code>
-<p>The component instance.</p>
+<p>The <a href="../-component/index.html">Component</a> instance.</p>
 </td>
 </tr>
 <tr>
@@ -28,7 +36,7 @@
 <p><a href="is-disposed.html">isDisposed</a></p>
 </td>
 <td>
-<code><span class="keyword">var </span><span class="identifier">isDisposed</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<code><span class="keyword">val </span><span class="identifier">isDisposed</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
 <p>Indicates if the graph is disposed.</p>
 </td>
 </tr>
@@ -38,7 +46,7 @@
 </td>
 <td>
 <code><span class="keyword">val </span><span class="identifier">parent</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a><span class="symbol">?</span></code>
-<p>The parent <a href="./index.html">Graph</a> instance.</p>
+<p>The parent <a href="./index.html">Graph</a> instance or null if no parent exists.</p>
 </td>
 </tr>
 </tbody>
@@ -48,13 +56,31 @@
 <tbody>
 <tr>
 <td>
+<p><a href="close-child-graph.html">closeChildGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">closeChildGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$closeChildGraph(kotlin.Any)/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Close a child graph by disposing it and removing it from the registry.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="create-child-graph.html">createChildGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">createChildGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$createChildGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$createChildGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code>
+<p>Initialize a subcomponent without registering it on this graph.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="dispose.html">dispose</a></p>
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">dispose</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Runs <a href="../-graph-dispose-plugin.html">graph dispose plugins</a> and marks this graph as disposed.
-All resources get released and every retrieval method will throw an excpetion if called
-after disposing.</p>
+<p>Runs <a href="../../io.jentz.winter.plugin/-plugin/graph-dispose.html">graph dispose plugins</a> and marks this graph
+as disposed. All resources get released and every retrieval method will throw an exception
+if called after disposing.</p>
 </td>
 </tr>
 <tr>
@@ -62,7 +88,7 @@ after disposing.</p>
 <p><a href="evaluate.html">evaluate</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">evaluate</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$evaluate(io.jentz.winter.BoundService((io.jentz.winter.Graph.evaluate.A, io.jentz.winter.Graph.evaluate.R)), io.jentz.winter.Graph.evaluate.A, kotlin.Function0((io.jentz.winter.Graph.evaluate.R)))/service">service</span><span class="symbol">:</span>&nbsp;<a href="../-bound-service/index.html"><span class="identifier">BoundService</span></a><span class="symbol">&lt;</span><a href="evaluate.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="evaluate.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$evaluate(io.jentz.winter.BoundService((io.jentz.winter.Graph.evaluate.A, io.jentz.winter.Graph.evaluate.R)), io.jentz.winter.Graph.evaluate.A, kotlin.Function0((io.jentz.winter.Graph.evaluate.R)))/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="evaluate.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$evaluate(io.jentz.winter.BoundService((io.jentz.winter.Graph.evaluate.A, io.jentz.winter.Graph.evaluate.R)), io.jentz.winter.Graph.evaluate.A, kotlin.Function0((io.jentz.winter.Graph.evaluate.R)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="evaluate.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="evaluate.html#R"><span class="identifier">R</span></a></code>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">evaluate</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$evaluate(io.jentz.winter.BoundService((io.jentz.winter.Graph.evaluate.A, io.jentz.winter.Graph.evaluate.R)), io.jentz.winter.Graph.evaluate.A)/service">service</span><span class="symbol">:</span>&nbsp;<a href="../-bound-service/index.html"><span class="identifier">BoundService</span></a><span class="symbol">&lt;</span><a href="evaluate.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="evaluate.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$evaluate(io.jentz.winter.BoundService((io.jentz.winter.Graph.evaluate.A, io.jentz.winter.Graph.evaluate.R)), io.jentz.winter.Graph.evaluate.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="evaluate.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="evaluate.html#R"><span class="identifier">R</span></a></code>
 <p>This is called from <a href="../-bound-service/instance.html">BoundService.instance</a> when a new instance is created.
 Don't use this method except in custom <a href="../-bound-service/index.html">BoundService</a> implementations.</p>
 </td>
@@ -90,7 +116,7 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 <p><a href="init-subcomponent.html">initSubcomponent</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">initSubcomponent</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code>
+<code><span class="keyword">fun </span><s><span class="identifier">initSubcomponent</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code>
 <p>Initialize a subcomponent.</p>
 </td>
 </tr>
@@ -136,12 +162,12 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 </tr>
 <tr>
 <td>
-<p><a href="post-construct.html">postConstruct</a></p>
+<p><a href="open-child-graph.html">openChildGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">postConstruct</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>This is called from <a href="../-bound-service/instance.html">BoundService.instance</a> after a new instance was created.
-Don't use this method except in custom <a href="../-bound-service/index.html">BoundService</a> implementations.</p>
+<code><span class="keyword">fun </span><span class="identifier">openChildGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code>
+<p>Opens and returns a child graph by using the subcomponent with <a href="open-child-graph.html#io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</a>
+and registers it under the <a href="open-child-graph.html#io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</a> or when given under <a href="open-child-graph.html#io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</a>.</p>
 </td>
 </tr>
 <tr>

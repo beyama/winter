@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterDisposablePlugin - winter-rxjava2</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-rxjava2</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.rxjava2</a>&nbsp;/&nbsp;<a href="./index.html">WinterDisposablePlugin</a><br/>
+<br/>
+<h1>WinterDisposablePlugin</h1>
+<code><span class="keyword">object </span><span class="identifier">WinterDisposablePlugin</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Plugin</span></code>
+<p>Winter plugin that adds a <a href="#">CompositeDisposable</a> to every graph, adds all singleton scoped
+instances which implement <a href="#">Disposable</a> to it and disposes the <a href="#">CompositeDisposable</a> when
+the <a href="#">Graph</a> gets disposed.</p>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="graph-dispose.html">graphDispose</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">graphDispose</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$graphDispose(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="initializing-component.html">initializingComponent</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">initializingComponent</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$initializingComponent(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/parentGraph">parentGraph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$initializingComponent(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/builder">builder</span><span class="symbol">:</span>&nbsp;<span class="identifier">ComponentBuilder</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="post-construct.html">postConstruct</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">postConstruct</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/scope">scope</span><span class="symbol">:</span>&nbsp;<span class="identifier">Scope</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.rxjava2.WinterDisposablePlugin$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

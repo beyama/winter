@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>instance - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="index.html">io.jentz.winter.aware</a>&nbsp;/&nbsp;<a href="./instance.html">instance</a><br/>
+<br/>
+<h1>instance</h1>
+<a name="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="instance.html#R"><span class="identifier">R</span></a></code>
+<p>Retrieve a non-optional instance of <a href="instance.html#R">R</a>.</p>
+<h3>Parameters</h3>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.EntryNotFoundException"></a>
+<code>io.jentz.winter.EntryNotFoundException</code> - </p>
+<p><strong>Return</strong><br/>
+An instance of <a href="instance.html#R">R</a></p>
+<a name="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">A</span><span class="symbol">, </span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="instance.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="instance.html#R"><span class="identifier">R</span></a></code>
+<p>Retrieve a factory of type <code>(A) -&gt; R</code> and apply <a href="instance.html#io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to it.</p>
+<h3>Parameters</h3>
+<p><a name="argument"></a>
+<code>argument</code> - The argument for the factory to retrieve.</p>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.EntryNotFoundException"></a>
+<code>io.jentz.winter.EntryNotFoundException</code> - </p>
+<p><strong>Return</strong><br/>
+The result of applying <a href="instance.html#io.jentz.winter.aware$instance(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.instance.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to the retrieved factory.</p>
+</BODY>
+</HTML>

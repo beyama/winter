@@ -9,10 +9,11 @@
 <br/>
 <h1>Component</h1>
 <code><span class="keyword">class </span><span class="identifier">Component</span></code>
-<p>The Component stores the dependency providers which are than retrieved and instantiated by an instance of a
-<a href="../-graph/index.html">graph</a>.</p>
+<p>The Component stores the dependency providers which are than retrieved and instantiated by an
+instance of a <a href="../-graph/index.html">graph</a>.</p>
 <p>Instances are build by calling <a href="../component.html">component</a> with a <a href="../-component-builder/index.html">builder</a> block.</p>
-<p>Components are immutable but an extended variant can be created by calling <a href="derive.html">derive</a> with a builder block.</p>
+<p>Components are immutable but an extended variant can be created by calling <a href="derive.html">derive</a> with a
+builder block.</p>
 <pre><code>val appComponent = component {
     provider&lt;MyService&gt;(scope = singleton) { MyServiceImpl(instance()) }
 }
@@ -30,7 +31,8 @@ val graph = derived.init { constant&lt;Application&gt;(myAndroidApplication) }
 </td>
 <td>
 <code><span class="keyword">val </span><span class="identifier">qualifier</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span></code>
-<p>The components qualifier (null for root components and the sub-components qualifier for sub-components).</p>
+<p>The components qualifier (null for root components and the sub-components qualifier for
+sub-components).</p>
 </td>
 </tr>
 </tbody>
@@ -52,7 +54,7 @@ val graph = derived.init { constant&lt;Application&gt;(myAndroidApplication) }
 <p><a href="init.html">init</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$init(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<code><span class="keyword">fun </span><span class="identifier">init</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component$init(io.jentz.winter.WinterApplication, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/application">application</span><span class="symbol">:</span>&nbsp;<a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a>&nbsp;<span class="symbol">=</span>&nbsp;Winter<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component$init(io.jentz.winter.WinterApplication, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
 <p>Create a <a href="../-graph/index.html">dependency graph</a> from this component.</p>
 </td>
 </tr>

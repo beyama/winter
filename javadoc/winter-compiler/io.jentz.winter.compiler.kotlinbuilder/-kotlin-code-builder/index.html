@@ -1,0 +1,124 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>KotlinCodeBuilder - winter-compiler</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-compiler</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.compiler.kotlinbuilder</a>&nbsp;/&nbsp;<a href="./index.html">KotlinCodeBuilder</a><br/>
+<br/>
+<h1>KotlinCodeBuilder</h1>
+<code><span class="keyword">class </span><span class="identifier">KotlinCodeBuilder</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a></code>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">KotlinCodeBuilder</span><span class="symbol">(</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/imports.html">imports</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">imports</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-set/index.html"><span class="identifier">MutableSet</span></a><span class="symbol">&lt;</span><span class="identifier">ClassName</span><span class="symbol">&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="build.html">build</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">build</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../-kotlin-code/index.html"><span class="identifier">KotlinCode</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/append.html">append</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">append</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$append(kotlin.String)/text">text</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/append-code.html">appendCode</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">appendCode</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$appendCode(io.jentz.winter.compiler.kotlinbuilder.KotlinCode)/code">code</span><span class="symbol">:</span>&nbsp;<a href="../-kotlin-code/index.html"><span class="identifier">KotlinCode</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/append-indent.html">appendIndent</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">appendIndent</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/block.html">block</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">block</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$block(kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-kotlin-builder-block.html"><span class="identifier">KotlinBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">block</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$block(kotlin.String, kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Unit)))/text">text</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$block(kotlin.String, kotlin.Function1((io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-kotlin-builder-block.html"><span class="identifier">KotlinBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/import.html">import</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">import</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$import(com.squareup.kotlinpoet.ClassName)/className">className</span><span class="symbol">:</span>&nbsp;<span class="identifier">ClassName</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">import</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$import(kotlin.collections.Set((com.squareup.kotlinpoet.ClassName)))/imports">imports</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><span class="identifier">ClassName</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/line.html">line</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">line</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder$line(kotlin.String)/text">text</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;""<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/new-line.html">newLine</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">newLine</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-kotlin-builder/to-string.html">toString</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">toString</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Extension Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../generated-annotation.html">generatedAnnotation</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="../-kotlin-builder/index.html"><span class="identifier">KotlinBuilder</span></a><span class="symbol">.</span><span class="identifier">generatedAnnotation</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler.kotlinbuilder$generatedAnnotation(io.jentz.winter.compiler.kotlinbuilder.KotlinBuilder, kotlin.Boolean)/isAnnotationAvailable">isAnnotationAvailable</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterTree.<init> - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">WinterTree</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.WinterTree$&lt;init&gt;(io.jentz.winter.WinterApplication)"></a>
+<code><span class="identifier">WinterTree</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterTree$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">)</span></code>
+<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
+opening, closing and accessing child-graphs by paths of identifier.</p>
+<p>Instances of <a href="index.html">WinterTree</a> are usually not used directly but in injection adapters.</p>
+<p>This is inspired by <a href="https://github.com/stephanenicolas/toothpick">Toothpicks</a>
+openScope/closeScope mechanism, if you like that, you can simply use <a href="../-graph-registry.html">GraphRegistry</a> instead of
+the <a href="../-injection.html">Injection</a> abstraction.</p>
+<p>Example:</p>
+<pre><code>Winter.component {
+  // ... the component definition
+}
+val tree = WinterTree(Winter)
+
+// open the root graph
+tree.open()
+// or supply a builder block to extend the resulting graph
+tree.open { constant&lt;Application&gt;(myApplication) }
+
+// the root graph can then be accessed by calling
+tree.get()
+
+// to open a child-graph call
+tree.open("subcomponent qualifier")
+
+// this graph can be accessed by calling
+tree.get("subcomponent qualifier")
+
+// you can provide an optional identifier for the graph
+tree.open("subcomponent qualifier", identifier = "other name")
+
+// then you can access the the graph by calling
+tree.get("other name")
+
+// to open a subcomponent of this call
+tree.open("subcomponent qualifier", "sub-subcomponent qualifier")
+// respectively
+tree.open("other name", "sub-subcomponent qualifier")
+</code></pre>
+</BODY>
+</HTML>

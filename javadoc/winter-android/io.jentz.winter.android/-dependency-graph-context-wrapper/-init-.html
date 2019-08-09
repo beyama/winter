@@ -9,7 +9,10 @@
 <br/>
 <h1>&lt;init&gt;</h1>
 <a name="io.jentz.winter.android.DependencyGraphContextWrapper$&lt;init&gt;(android.content.Context, io.jentz.winter.Graph)"></a>
-<code><span class="identifier">DependencyGraphContextWrapper</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.DependencyGraphContextWrapper$<init>(android.content.Context, io.jentz.winter.Graph)/base">base</span><span class="symbol">:</span>&nbsp;<a href="https://developer.android.com/reference/android/content/Context.html"><span class="identifier">Context</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.DependencyGraphContextWrapper$<init>(android.content.Context, io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span></code>
-<p>A <a href="https://developer.android.com/reference/android/content/ContextWrapper.html">ContextWrapper</a> that holds a reference to a <a href="#">Graph</a>.</p>
+<code><span class="identifier">DependencyGraphContextWrapper</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.DependencyGraphContextWrapper$<init>(android.content.Context, io.jentz.winter.Graph)/base">base</span><span class="symbol">:</span>&nbsp;<span class="identifier">Context</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.DependencyGraphContextWrapper$<init>(android.content.Context, io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span></code>
+<p>A <a href="#">ContextWrapper</a> that holds a reference to a <a href="#">Graph</a> and creates a clone of <a href="#">LayoutInflater</a>
+that is bound to this.</p>
+<p>This is useful if you need to provide a specific dependency graph to a view hierarchy other than
+your Activity graph.</p>
 </BODY>
 </HTML>

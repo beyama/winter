@@ -1,4 +1,12 @@
 $dokka.format:html
 $dokka.linkExtension:html
-
+$dokka.location:io.jentz.winter.compiler$isAbstract#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-abstract.html
+$dokka.location:io.jentz.winter.compiler$isInnerClass#javax.lang.model.element.TypeElementio.jentz.winter.compiler/javax.lang.model.element.-type-element/is-inner-class.html
+$dokka.location:io.jentz.winter.compiler$isLazy#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-lazy.html
+$dokka.location:io.jentz.winter.compiler$isNotNullable#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-not-nullable.html
+$dokka.location:io.jentz.winter.compiler$isNullable#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-nullable.html
+$dokka.location:io.jentz.winter.compiler$isPrivate#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-private.html
+$dokka.location:io.jentz.winter.compiler$isProvider#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-provider.html
+$dokka.location:io.jentz.winter.compiler$isStatic#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-static.html
 io.jentz.winter.compiler
+io.jentz.winter.compiler.kotlinbuilder

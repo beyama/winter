@@ -1,0 +1,21 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>autoDisposeGraph - winter-androidx-lifecycle</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-androidx-lifecycle</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.androidx.lifecycle</a>&nbsp;/&nbsp;<a href="index.html">androidx.lifecycle.LifecycleOwner</a>&nbsp;/&nbsp;<a href="./auto-dispose-graph.html">autoDisposeGraph</a><br/>
+<br/>
+<h1>autoDisposeGraph</h1>
+<a name="io.jentz.winter.androidx.lifecycle$autoDisposeGraph(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event)"></a>
+<code><span class="keyword">fun </span><span class="identifier">LifecycleOwner</span><span class="symbol">.</span><span class="identifier">autoDisposeGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.lifecycle$autoDisposeGraph(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event)/disposeEvent">disposeEvent</span><span class="symbol">:</span>&nbsp;<span class="identifier">Event</span>&nbsp;<span class="symbol">=</span>&nbsp;Event.ON_DESTROY<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Automatically call <a href="#">WinterInjection.disposeGraph</a> with <a href="auto-dispose-graph/-this-.html">this</a> when <a href="auto-dispose-graph.html#io.jentz.winter.androidx.lifecycle$autoDisposeGraph(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event)/disposeEvent">disposeEvent</a> is emitted by
+<a href="#">androidx.lifecycle.Lifecycle</a>.</p>
+<p>This will use <a href="#">WinterAware.injection</a> if the <a href="#">LifecycleOwner</a> implements <a href="#">WinterAware</a>
+otherwise it will fallback to the default implementation <a href="#">Injection</a>.</p>
+<h3>Parameters</h3>
+<p><a name="disposeEvent"></a>
+<code>disposeEvent</code> - The <a href="#">Event</a> that will dispose the graph.</p>
+</BODY>
+</HTML>

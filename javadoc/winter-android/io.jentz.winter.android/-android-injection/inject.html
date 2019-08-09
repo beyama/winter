@@ -22,10 +22,12 @@
 <a name="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)"></a>
 <code><span class="identifier">@JvmStatic</span> <span class="identifier">@JvmOverloads</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="inject.html#T"><span class="identifier">T</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/injectSuperClasses">injectSuperClasses</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Inject into <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</a> by using the dependency graph of the <a href="inject.html#io.jentz.winter.android.AndroidInjection$inject(io.jentz.winter.android.AndroidInjection.inject.T, kotlin.Boolean)/instance">instance</a>.
-This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation processor.</p>
+This uses <a href="#">MembersInjector</a> and is useful in conjunction with Winters JSR330 annotation
+processor.</p>
 <h3>Parameters</h3>
 <p><a name="instance"></a>
-<code>instance</code> - The instance to retrieve the dependency graph for and inject dependencies into.</p>
+<code>instance</code> - The instance to retrieve the dependency graph for and inject dependencies
+    into.</p>
 <p><a name="injectSuperClasses"></a>
 <code>injectSuperClasses</code> - If true this will look for members injectors for super classes too.</p>
 <h3>Exceptions</h3>

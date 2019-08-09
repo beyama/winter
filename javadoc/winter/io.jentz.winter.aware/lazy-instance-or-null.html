@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>lazyInstanceOrNull - winter</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter</a>&nbsp;/&nbsp;<a href="index.html">io.jentz.winter.aware</a>&nbsp;/&nbsp;<a href="./lazy-instance-or-null.html">lazyInstanceOrNull</a><br/>
+<br/>
+<h1>lazyInstanceOrNull</h1>
+<a name="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">lazyInstanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html"><span class="identifier">Lazy</span></a><span class="symbol">&lt;</span><a href="lazy-instance-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Create a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html">Lazy</a> that retrieves an optional instance of <code>R</code> when initialized.</p>
+<h3>Parameters</h3>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<p><strong>Return</strong><br/>
+The created <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html">Lazy</a> instance.</p>
+<a name="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">A</span><span class="symbol">, </span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="-winter-aware/index.html"><span class="identifier">WinterAware</span></a><span class="symbol">.</span><span class="identifier">lazyInstanceOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="lazy-instance-or-null.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html"><span class="identifier">Lazy</span></a><span class="symbol">&lt;</span><a href="lazy-instance-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Create a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html">Lazy</a> that retrieves an optional factory of type <code>(A) -&gt; R</code> and
+applies <a href="lazy-instance-or-null.html#io.jentz.winter.aware$lazyInstanceOrNull(io.jentz.winter.aware.WinterAware, io.jentz.winter.aware.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to it when initialized.</p>
+<h3>Parameters</h3>
+<p><a name="qualifier"></a>
+<code>qualifier</code> - An optional qualifier of the dependency.</p>
+<p><a name="generics"></a>
+<code>generics</code> - Preserves generic type parameters if set to true (default = false).</p>
+<p><strong>Return</strong><br/>
+The created <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-lazy/index.html">Lazy</a> instance.</p>
+</BODY>
+</HTML>
