@@ -96,7 +96,9 @@ The latest version is {winterVersion}.
 
 |===
 
-== Declaring Dependencies
+== Core
+
+=== Declaring Dependencies
 
 Dependencies are organized in components and declared by using the `component` method which takes
 a block with a `ComponentBuilder` as its receiver.
@@ -118,7 +120,7 @@ multiple times and all scope functions take an boolean to enable <<generics,gene
 
 For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-component-builder/index.html[API docs of ComponentBuilder].
 
-=== Available Scopes
+==== Available Scopes
 
 [cols="3,10",options="header"]
 |===
@@ -157,8 +159,10 @@ For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-compo
 
 Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
 of the application from each other e.g. the business layer from the view layer of an application.
-Subcomponents inherit and extend the parent component which means that an object bound in a subgraph
-can access all objects of the parent graph but not vice versa.
+Subgraphs inherit and extend the parent graph which means that an service bound in a
+subgraph can access all services of the parent graph but not vice versa.
+Subgraphs can have a shorter lifetime than their parents and there can be multiple subgraphs with
+the same parent and from the same subcomponent.
 
 [source,kotlin]
 ----
@@ -185,7 +189,7 @@ In this example `guiGraph` can access `HttpCache` but `appGraph` couldn't access
 You can also pass an `ComponentBuilder` block to the `openChildGraph` method to add new
 dependencies to the resulting subgraph.
 
-== Retrieving Dependencies
+=== Retrieving Dependencies
 
 Dependencies are retrieved from a dependency graph.
 
@@ -252,7 +256,7 @@ optional qualifier for cases where we have the same type registered with differe
 See the link:javadoc/winter/io.jentz.winter/-graph/index.html[Graph API docs] for further details.
 
 [#generics]
-== Generics
+=== Generics
 
 By default all generics you pass to one of the scope methods or retrieval methods fall victim to
 type erasure which means for example `List<Pump>` becomes just `List`.
@@ -276,7 +280,7 @@ val appComponent = component {
 ----
 
 [#injection]
-== Injection
+=== Injection
 
 We don't want knowledge of how to create or retrieve a dependency graph in our classes and therefor
 `Injection` was created. `Injection` allows us to create, get and dispose a dependency graph
@@ -332,7 +336,7 @@ details.
 CAUTION: When you use `Injection#createGraph` to create a graph you should always call
 `Injection#disposeGraph` to close it instead of directly calling `#dispose` on the resulting graph.
 
-== Injector
+=== Injector
 
 It is considered the best way to use constructor based injection to have a consistent state after
 initialisation and proper encapsulation.
@@ -383,7 +387,7 @@ is computationally expensive but may not be required in some cases.
 
 For more details see link:javadoc/winter/io.jentz.winter/-injector/index.html[Injector API docs].
 
-== WinterAware
+=== WinterAware
 
 The `WinterAware` interface marks a class as aware of Winter and gives it access to a variety of
 extension methods to get a dependency graph and to retrieve or inject dependencies.
@@ -407,7 +411,7 @@ The call to `instance` in this example is just syntactical sugar for
 For more details see the API documentation of
 link:javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html[WinterAware].
 
-== WinterTree & GraphRegistry
+=== WinterTree & GraphRegistry
 
 A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
 (directed acyclic graph).
@@ -465,6 +469,83 @@ and
 link:javadoc/winter/io.jentz.winter/-graph-registry/index.html[GraphRegistry API docs].
 
 == Android
+
+=== Winter Android Module
+
+The `winter-android` module comes with two extendable base Adapters for the xref:injection[Injection]
+system and a DependencyGraphContextWrapper to attach a different graph to an Android Context.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-simple-android-injection-adapter/index.html[SimpleAndroidInjectionAdapter]
+manages an application dependency graph and an activity child graph.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-android-presentation-scope-adapter/index.html[AndroidPresentationScopeAdapter]
+manages an application dependency graph, a presentation child graph that outlives configuration
+changes and an activity child graph.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-dependency-graph-context-wrapper/index.html[DependencyGraphContextWrapper]
+can be used to attache a different graph to an Android Context than the one that is attached to the
+wrapped Context.
+
+For example:
+[source,kotlin]
+----
+Injection.getGraph(myActivity) // => activityGraph
+val viewGraph = activityGraph.openChildGraph("view")
+val viewContext = DependencyGraphContextWrapper(myActivity, viewGraph)
+val newView = LayoutInflater.from(viewContext).inflate(R.layout.view_list, containerView, false)
+Injection.getGraph(newView) // => viewGraph
+Injection.getGraph(newView.context) // => viewGraph
+----
+
+=== AndroidX Lifecycle Support
+
+The `winter-androidx-lifecycle` module adds extensions to `Graph` and to `LifecycleOwner` to
+register a `LifecycleObserver` on a `LifecycleOwner` which automatically disposes the graph when
+the `LifecycleOwner` gets destroyed (or stopped).
+
+For example:
+[source,kotlin]
+----
+class MyActivity : AppCompatActivity(), WinterAware {
+
+  private val injector = Injector()
+  // ... do something with injector ...
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    createGraphAndInject(injector) // this class is WinterAware so we get this extension method
+    autoDisposeGraph() // no need to override onDestroy() to call Injection.disposeGraph(this)
+    super.onCreate(savedInstanceState)
+  }
+
+}
+
+// Or if you work with graphs directly
+
+class MyClass : ALifecycleOwner() {
+
+  fun someMethod() {
+    val graph = myClassComponent.init()
+    graph.autoDispose(this)
+  }
+
+}
+
+----
+
+For more details see
+link:javadoc/winter-androidx-lifecycle/io.jentz.winter.androidx.lifecycle/index.html[API docs].
+
+== RxJava2 Support
+
+The `winter-rxjava2` modules contains a Winter Plugin that automatically disposes all singletons
+in a graph which implement `Disposable`.
+
+To activate the plugin call `Winter.installDisposablePlugin()` before you instantiate any graph.
+
+For more details see link:avadoc/winter-rxjava2/index.html[API docs].
 
 == JUnit Test
 
@@ -561,8 +642,6 @@ val applicationComponent = component {
     singleton(postConstruct = { it.parent = instance() }) { Child() }
 }
 ----
-
-=== Injector
 
 === Plugins
 
