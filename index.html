@@ -462,6 +462,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_retrieving_dependencies">Retrieving Dependencies</a></li>
 <li><a href="#generics">Generics</a></li>
+<li><a href="#injection">Injection</a></li>
+<li><a href="#_injector">Injector</a></li>
+<li><a href="#_winteraware">WinterAware</a></li>
+<li><a href="#_wintertree_graphregistry">WinterTree &amp; GraphRegistry</a></li>
 <li><a href="#_android">Android</a></li>
 <li><a href="#_junit_test">JUnit Test</a></li>
 <li><a href="#_injection_patterns">Injection Patterns</a>
@@ -475,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_include_components">Include Components</a></li>
 <li><a href="#_circular_dependencies">Circular Dependencies</a></li>
-<li><a href="#_injector">Injector</a></li>
+<li><a href="#_injector_2">Injector</a></li>
 <li><a href="#_plugins">Plugins</a></li>
 <li><a href="#_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</a>
 <ul class="sectlevel3">
@@ -842,6 +846,238 @@ you retrieve that type.
 </div>
 </div>
 <div class="sect1">
+<h2 id="injection">Injection</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We don&#8217;t want knowledge of how to create or retrieve a dependency graph in our classes and therefor
+<code>Injection</code> was created. <code>Injection</code> allows us to create, get and dispose a dependency graph
+without having knowledge about the details.
+The actual strategy to create, get and dispose a graph is part of an adapter.</p>
+</div>
+<div class="paragraph">
+<p>Here is a basic example with the <code>SimpleAndroidInjectionAdapter</code> from the <code>winter-android</code> module
+that requires an "activity" subcomponent:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class MyApplication : Application() {
+  override fun onCreate() {
+    // declare application component
+    Winter.component {
+      singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
+
+      singleton { RepoListViewModel(instance()) }
+
+      subcomponent("activity") {
+         singleton { Glide.with(instance&lt;Activity&gt;()) }
+      }
+    }
+
+    /// Configure Injection to use the simple android adapter
+    Injection.useSimpleAndroidAdapter()
+    // Create application graph by providing the application instance
+    Injection.createGraph(this)
+  }
+}
+
+class MyActivity : Activity() {
+  private val injector = Injector()
+  private val viewModel: RepoListViewModel by injector.instance()
+  private val glide: RequestManager by injector.instance()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Injection.createGraphAndInject(this, injector)
+    super.onCreate(savedInstanceState)
+  }
+
+  override fun onDestroy() {
+    Injection.disposeGraph(this)
+    super.onDestroy()
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See <a href="javadoc/winter/io.jentz.winter/-injection.html">"Injection API documentation"</a> for more
+details.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+When you use <code>Injection#createGraph</code> to create a graph you should always call
+<code>Injection#disposeGraph</code> to close it instead of directly calling <code>#dispose</code> on the resulting graph.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_injector">Injector</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is considered the best way to use constructor based injection to have a consistent state after
+initialisation and proper encapsulation.
+But sometime classes are instantiated by the system, like Activities on Android.</p>
+</div>
+<div class="paragraph">
+<p>Then property injection is our only solution.</p>
+</div>
+<div class="paragraph">
+<p>The usage of the <code>Injector</code> class is the recommended way to handle cases were you are not able to
+use constructor injection for your Kotlin classes.</p>
+</div>
+<div class="paragraph">
+<p>It utilizes Kotlin property delegation and defers the dependency
+retrieval to a point in time were you are able to provide a
+dependency graph to the injector e.g. Activity#onCreate on Android.</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class MyActivity : Activity() {
+
+    private val injector = Injector()
+    // eager injection of a non-optional dependency
+    private val api: GitHubApi by injector.instance()
+    // eager injection of an optional dependency
+    private val api: GitHubApi? by injector.instanceOrNull()
+    // lazy injection of a non-optional dependency
+    private val api: GitHubApi by injector.lazyInstance()
+    // lazy injection of an optional dependency
+    private val api: GitHubApi? by injector.lazyInstanceOrNull()
+    // injection of a non-optional factory
+    private val factory: (Int) -&gt; ProducedInstance by injector.factory()
+    // injection of an optional factory
+    private val factory: (Int) -&gt; ProducedInstance by injector.factoryOrNull()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+      // ... create or get the dependency graph
+      injector.inject(graph)
+      super.onCreate(savedInstanceState)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example we see retrieval methods prefixed with lazy.
+Lazy injection means that the actual retrieval and therefore the actual
+instantiation of a dependency is deferred to the point where you access
+the property the first time. This is useful in cases where the creation
+is computationally expensive but may not be required in some cases.</p>
+</div>
+<div class="paragraph">
+<p>For more details see <a href="javadoc/winter/io.jentz.winter/-injector/index.html">Injector API docs</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_winteraware">WinterAware</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>WinterAware</code> interface marks a class as aware of Winter and gives it access to a variety of
+extension methods to get a dependency graph and to retrieve or inject dependencies.</p>
+</div>
+<div class="paragraph">
+<p>A simple example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class HomeScreen @JvmOverloads constructor(
+  context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : CoordinatorLayout(context, attrs, defStyleAttr), WinterAware {
+
+  private val viewModel: HomeViewModel = instance()
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The call to <code>instance</code> in this example is just syntactical sugar for
+<code>Injection.getGraph(this).instance&lt;HomeViewModel&gt;()</code>.</p>
+</div>
+<div class="paragraph">
+<p>For more details see the API documentation of
+<a href="javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html">WinterAware</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_wintertree_graphregistry">WinterTree &amp; GraphRegistry</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
+(directed acyclic graph).</p>
+</div>
+<div class="paragraph">
+<p><code>WinterTree</code> and its object version <code>GraphRegisty</code> are helper to create (open) and dispose (close)
+graphs by paths of component qualifier.</p>
+</div>
+<div class="paragraph">
+<p>This was inspired by [Toothpick](<a href="https://github.com/stephanenicolas/toothpick" class="bare">https://github.com/stephanenicolas/toothpick</a>).</p>
+</div>
+<div class="paragraph">
+<p>You can use <code>GraphRegistry</code> directly but it is usually a better approach to use the <code>Injection</code>
+abstraction and use <code>WinterTree</code> in an Adapter internally.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">// create the application dependency graph on application start
+class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+
+    // define a component with one sub-component
+    Winter.component {
+      subcomponent("activity") {
+      }
+    }
+
+    GraphRegistry.open { constant&lt;Application&gt; { this@MyApplication } }
+  }
+}
+// you can now retrieve the application dependency graph by calling
+GraphRegistry.get()
+
+// create and dispose a subgraph of the application graph
+class MyActivity : Activity() {
+  override fun onCreate() {
+    super.onCreate()
+    // initialize subcomponent with name "activity" and register it with identifier this
+    GraphRegistry.open("activity", identifier = this) { constant&lt;Activity&gt;(this@MyActivity) }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    // dispose the "activity" sub-graph with identifier this
+    GraphRegistry.close(this)
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you close (dispose) a graph it will also close all registered child graphs.</p>
+</div>
+<div class="paragraph">
+<p>For more details see
+<a href="javadoc/winter/io.jentz.winter/-winter-tree/index.html">WinterTree API docs</a>
+and
+<a href="javadoc/winter/io.jentz.winter/-graph-registry/index.html">GraphRegistry API docs</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_android">Android</h2>
 <div class="sectionbody">
 
@@ -893,7 +1129,7 @@ and doesn&#8217;t offer an appropriate constructor.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Anotherway is to use the <code>postConstruct</code> callback instead of the factory block.</p>
+<p>Another way is to use the <code>postConstruct</code> callback instead of the factory block.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -963,7 +1199,7 @@ val applicationComponent = component {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_injector">Injector</h3>
+<h3 id="_injector_2">Injector</h3>
 
 </div>
 <div class="sect2">
@@ -973,8 +1209,23 @@ val applicationComponent = component {
 <div class="sect2">
 <h3 id="_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</h3>
 <div class="paragraph">
+<p>JSR-330 support is provided by the module <code>winter-compiler</code>.</p>
+</div>
+<div class="paragraph">
 <p>The JSR330 annotation preprocessor generates components and members injectors for you classes
 that are annotated with JSR330 annotations.</p>
+</div>
+<div class="paragraph">
+<p>The JSR330 annotation preprocessor generates factories for your classes that have an @Inject
+annotated constructor.</p>
+</div>
+<div class="paragraph">
+<p>It generates a members-injector for each class that has @Inject annotated
+setters or fields.</p>
+</div>
+<div class="paragraph">
+<p>And it generates a component containing all those factories and
+members-injectors to avoid the usage of reflection.</p>
 </div>
 <div class="sect3">
 <h4 id="_configure_kapt">Configure Kapt</h4>
@@ -1046,7 +1297,7 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-09 11:47:17 +0200
+Last updated 2019-08-09 13:02:17 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
