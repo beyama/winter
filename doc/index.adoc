@@ -275,6 +275,195 @@ val appComponent = component {
 }
 ----
 
+[#injection]
+== Injection
+
+We don't want knowledge of how to create or retrieve a dependency graph in our classes and therefor
+`Injection` was created. `Injection` allows us to create, get and dispose a dependency graph
+without having knowledge about the details.
+The actual strategy to create, get and dispose a graph is part of an adapter.
+
+Here is a basic example with the `SimpleAndroidInjectionAdapter` from the `winter-android` module
+that requires an "activity" subcomponent:
+
+[source,kotlin]
+----
+class MyApplication : Application() {
+  override fun onCreate() {
+    // declare application component
+    Winter.component {
+      singleton<GitHubApi> { GitHubApiImpl() }
+
+      singleton { RepoListViewModel(instance()) }
+
+      subcomponent("activity") {
+         singleton { Glide.with(instance<Activity>()) }
+      }
+    }
+
+    /// Configure Injection to use the simple android adapter
+    Injection.useSimpleAndroidAdapter()
+    // Create application graph by providing the application instance
+    Injection.createGraph(this)
+  }
+}
+
+class MyActivity : Activity() {
+  private val injector = Injector()
+  private val viewModel: RepoListViewModel by injector.instance()
+  private val glide: RequestManager by injector.instance()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Injection.createGraphAndInject(this, injector)
+    super.onCreate(savedInstanceState)
+  }
+
+  override fun onDestroy() {
+    Injection.disposeGraph(this)
+    super.onDestroy()
+  }
+
+}
+----
+
+See link:javadoc/winter/io.jentz.winter/-injection.html["Injection API documentation"] for more
+details.
+
+CAUTION: When you use `Injection#createGraph` to create a graph you should always call
+`Injection#disposeGraph` to close it instead of directly calling `#dispose` on the resulting graph.
+
+== Injector
+
+It is considered the best way to use constructor based injection to have a consistent state after
+initialisation and proper encapsulation.
+But sometime classes are instantiated by the system, like Activities on Android.
+
+Then property injection is our only solution.
+
+The usage of the `Injector` class is the recommended way to handle cases were you are not able to
+use constructor injection for your Kotlin classes.
+
+It utilizes Kotlin property delegation and defers the dependency
+retrieval to a point in time were you are able to provide a
+dependency graph to the injector e.g. Activity#onCreate on Android.
+
+Example:
+
+[source,kotlin]
+----
+class MyActivity : Activity() {
+
+    private val injector = Injector()
+    // eager injection of a non-optional dependency
+    private val api: GitHubApi by injector.instance()
+    // eager injection of an optional dependency
+    private val api: GitHubApi? by injector.instanceOrNull()
+    // lazy injection of a non-optional dependency
+    private val api: GitHubApi by injector.lazyInstance()
+    // lazy injection of an optional dependency
+    private val api: GitHubApi? by injector.lazyInstanceOrNull()
+    // injection of a non-optional factory
+    private val factory: (Int) -> ProducedInstance by injector.factory()
+    // injection of an optional factory
+    private val factory: (Int) -> ProducedInstance by injector.factoryOrNull()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+      // ... create or get the dependency graph
+      injector.inject(graph)
+      super.onCreate(savedInstanceState)
+    }
+}
+----
+
+In this example we see retrieval methods prefixed with lazy.
+Lazy injection means that the actual retrieval and therefore the actual
+instantiation of a dependency is deferred to the point where you access
+the property the first time. This is useful in cases where the creation
+is computationally expensive but may not be required in some cases.
+
+For more details see link:javadoc/winter/io.jentz.winter/-injector/index.html[Injector API docs].
+
+== WinterAware
+
+The `WinterAware` interface marks a class as aware of Winter and gives it access to a variety of
+extension methods to get a dependency graph and to retrieve or inject dependencies.
+
+A simple example:
+
+[source,kotlin]
+----
+class HomeScreen @JvmOverloads constructor(
+  context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : CoordinatorLayout(context, attrs, defStyleAttr), WinterAware {
+
+  private val viewModel: HomeViewModel = instance()
+
+}
+----
+
+The call to `instance` in this example is just syntactical sugar for
+`Injection.getGraph(this).instance<HomeViewModel>()`.
+
+For more details see the API documentation of
+link:javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html[WinterAware].
+
+== WinterTree & GraphRegistry
+
+A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
+(directed acyclic graph).
+
+`WinterTree` and its object version `GraphRegisty` are helper to create (open) and dispose (close)
+graphs by paths of component qualifier.
+
+This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
+
+You can use `GraphRegistry` directly but it is usually a better approach to use the `Injection`
+abstraction and use `WinterTree` in an Adapter internally.
+
+For example:
+[source,kotlin]
+----
+// create the application dependency graph on application start
+class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+
+    // define a component with one sub-component
+    Winter.component {
+      subcomponent("activity") {
+      }
+    }
+
+    GraphRegistry.open { constant<Application> { this@MyApplication } }
+  }
+}
+// you can now retrieve the application dependency graph by calling
+GraphRegistry.get()
+
+// create and dispose a subgraph of the application graph
+class MyActivity : Activity() {
+  override fun onCreate() {
+    super.onCreate()
+    // initialize subcomponent with name "activity" and register it with identifier this
+    GraphRegistry.open("activity", identifier = this) { constant<Activity>(this@MyActivity) }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    // dispose the "activity" sub-graph with identifier this
+    GraphRegistry.close(this)
+  }
+
+}
+----
+
+If you close (dispose) a graph it will also close all registered child graphs.
+
+For more details see
+link:javadoc/winter/io.jentz.winter/-winter-tree/index.html[WinterTree API docs]
+and
+link:javadoc/winter/io.jentz.winter/-graph-registry/index.html[GraphRegistry API docs].
+
 == Android
 
 == JUnit Test
@@ -314,7 +503,7 @@ val coffeeAppComponent = component {
 }
 ----
 
-Anotherway is to use the `postConstruct` callback instead of the factory block.
+Another way is to use the `postConstruct` callback instead of the factory block.
 
 [source,kotlin]
 ----
@@ -379,8 +568,19 @@ val applicationComponent = component {
 
 === JSR330 Annotation Preprocessor
 
+JSR-330 support is provided by the module `winter-compiler`.
+
 The JSR330 annotation preprocessor generates components and members injectors for you classes
 that are annotated with JSR330 annotations.
+
+The JSR330 annotation preprocessor generates factories for your classes that have an @Inject
+annotated constructor.
+
+It generates a members-injector for each class that has @Inject annotated
+setters or fields.
+
+And it generates a component containing all those factories and
+members-injectors to avoid the usage of reflection.
 
 ==== Configure Kapt
 
