@@ -454,19 +454,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_terminology">Terminology</a></li>
-<li><a href="#_declaring_dependencies">Declaring Dependencies</a>
+<li><a href="#_core">Core</a>
 <ul class="sectlevel2">
+<li><a href="#_declaring_dependencies">Declaring Dependencies</a>
+<ul class="sectlevel3">
 <li><a href="#_available_scopes">Available Scopes</a></li>
-<li><a href="#_subcomponents_and_subgraphs">Subcomponents and Subgraphs</a></li>
 </ul>
 </li>
+<li><a href="#_subcomponents_and_subgraphs">Subcomponents and Subgraphs</a></li>
 <li><a href="#_retrieving_dependencies">Retrieving Dependencies</a></li>
 <li><a href="#generics">Generics</a></li>
 <li><a href="#injection">Injection</a></li>
 <li><a href="#_injector">Injector</a></li>
 <li><a href="#_winteraware">WinterAware</a></li>
 <li><a href="#_wintertree_graphregistry">WinterTree &amp; GraphRegistry</a></li>
-<li><a href="#_android">Android</a></li>
+</ul>
+</li>
+<li><a href="#_android">Android</a>
+<ul class="sectlevel2">
+<li><a href="#_winter_android_module">Winter Android Module</a></li>
+<li><a href="#_androidx_lifecycle_support">AndroidX Lifecycle Support</a></li>
+</ul>
+</li>
+<li><a href="#_rxjava2_support">RxJava2 Support</a></li>
 <li><a href="#_junit_test">JUnit Test</a></li>
 <li><a href="#_injection_patterns">Injection Patterns</a>
 <ul class="sectlevel2">
@@ -479,7 +489,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_include_components">Include Components</a></li>
 <li><a href="#_circular_dependencies">Circular Dependencies</a></li>
-<li><a href="#_injector_2">Injector</a></li>
 <li><a href="#_plugins">Plugins</a></li>
 <li><a href="#_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</a>
 <ul class="sectlevel3">
@@ -622,8 +631,10 @@ The latest version is 0.3.0.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_declaring_dependencies">Declaring Dependencies</h2>
+<h2 id="_core">Core</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_declaring_dependencies">Declaring Dependencies</h3>
 <div class="paragraph">
 <p>Dependencies are organized in components and declared by using the <code>component</code> method which takes
 a block with a <code>ComponentBuilder</code> as its receiver.</p>
@@ -648,8 +659,8 @@ multiple times and all scope functions take an boolean to enable <a href="#gener
 <div class="paragraph">
 <p>For a list of all builder methods see <a href="javadoc/winter/io.jentz.winter/-component-builder/index.html">API docs of ComponentBuilder</a>.</p>
 </div>
-<div class="sect2">
-<h3 id="_available_scopes">Available Scopes</h3>
+<div class="sect3">
+<h4 id="_available_scopes">Available Scopes</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 23.0769%;">
@@ -697,13 +708,16 @@ multiple times and all scope functions take an boolean to enable <a href="#gener
 </tbody>
 </table>
 </div>
+</div>
 <div class="sect2">
 <h3 id="_subcomponents_and_subgraphs">Subcomponents and Subgraphs</h3>
 <div class="paragraph">
 <p>Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
 of the application from each other e.g. the business layer from the view layer of an application.
-Subcomponents inherit and extend the parent component which means that an object bound in a subgraph
-can access all objects of the parent graph but not vice versa.</p>
+Subgraphs inherit and extend the parent graph which means that an service bound in a
+subgraph can access all services of the parent graph but not vice versa.
+Subgraphs can have a shorter lifetime than their parents and there can be multiple subgraphs with
+the same parent and from the same subcomponent.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -733,11 +747,8 @@ guiGraph.dispose()</code></pre>
 dependencies to the resulting subgraph.</p>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_retrieving_dependencies">Retrieving Dependencies</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_retrieving_dependencies">Retrieving Dependencies</h3>
 <div class="paragraph">
 <p>Dependencies are retrieved from a dependency graph.</p>
 </div>
@@ -806,10 +817,8 @@ optional qualifier for cases where we have the same type registered with differe
 <p>See the <a href="javadoc/winter/io.jentz.winter/-graph/index.html">Graph API docs</a> for further details.</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="generics">Generics</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="generics">Generics</h3>
 <div class="paragraph">
 <p>By default all generics you pass to one of the scope methods or retrieval methods fall victim to
 type erasure which means for example <code>List&lt;Pump&gt;</code> becomes just <code>List</code>.
@@ -844,10 +853,8 @@ you retrieve that type.
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="injection">Injection</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="injection">Injection</h3>
 <div class="paragraph">
 <p>We don&#8217;t want knowledge of how to create or retrieve a dependency graph in our classes and therefor
 <code>Injection</code> was created. <code>Injection</code> allows us to create, get and dispose a dependency graph
@@ -916,10 +923,8 @@ When you use <code>Injection#createGraph</code> to create a graph you should alw
 </table>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_injector">Injector</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_injector">Injector</h3>
 <div class="paragraph">
 <p>It is considered the best way to use constructor based injection to have a consistent state after
 initialisation and proper encapsulation.
@@ -977,10 +982,8 @@ is computationally expensive but may not be required in some cases.</p>
 <p>For more details see <a href="javadoc/winter/io.jentz.winter/-injector/index.html">Injector API docs</a>.</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_winteraware">WinterAware</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_winteraware">WinterAware</h3>
 <div class="paragraph">
 <p>The <code>WinterAware</code> interface marks a class as aware of Winter and gives it access to a variety of
 extension methods to get a dependency graph and to retrieve or inject dependencies.</p>
@@ -1008,10 +1011,8 @@ extension methods to get a dependency graph and to retrieve or inject dependenci
 <a href="javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html">WinterAware</a>.</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_wintertree_graphregistry">WinterTree &amp; GraphRegistry</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_wintertree_graphregistry">WinterTree &amp; GraphRegistry</h3>
 <div class="paragraph">
 <p>A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
 (directed acyclic graph).</p>
@@ -1077,10 +1078,104 @@ and
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="_android">Android</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_winter_android_module">Winter Android Module</h3>
+<div class="paragraph">
+<p>The <code>winter-android</code> module comes with two extendable base Adapters for the <a href="#injection">Injection</a>
+system and a DependencyGraphContextWrapper to attach a different graph to an Android Context.</p>
+</div>
+<div class="paragraph">
+<p>The
+<a href="javadoc/winter-android/io.jentz.winter.android/-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a>
+manages an application dependency graph and an activity child graph.</p>
+</div>
+<div class="paragraph">
+<p>The
+<a href="javadoc/winter-android/io.jentz.winter.android/-android-presentation-scope-adapter/index.html">AndroidPresentationScopeAdapter</a>
+manages an application dependency graph, a presentation child graph that outlives configuration
+changes and an activity child graph.</p>
+</div>
+<div class="paragraph">
+<p>The
+<a href="javadoc/winter-android/io.jentz.winter.android/-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a>
+can be used to attache a different graph to an Android Context than the one that is attached to the
+wrapped Context.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">Injection.getGraph(myActivity) // =&gt; activityGraph
+val viewGraph = activityGraph.openChildGraph("view")
+val viewContext = DependencyGraphContextWrapper(myActivity, viewGraph)
+val newView = LayoutInflater.from(viewContext).inflate(R.layout.view_list, containerView, false)
+Injection.getGraph(newView) // =&gt; viewGraph
+Injection.getGraph(newView.context) // =&gt; viewGraph</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_androidx_lifecycle_support">AndroidX Lifecycle Support</h3>
+<div class="paragraph">
+<p>The <code>winter-androidx-lifecycle</code> module adds extensions to <code>Graph</code> and to <code>LifecycleOwner</code> to
+register a <code>LifecycleObserver</code> on a <code>LifecycleOwner</code> which automatically disposes the graph when
+the <code>LifecycleOwner</code> gets destroyed (or stopped).</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class MyActivity : AppCompatActivity(), WinterAware {
 
+  private val injector = Injector()
+  // ... do something with injector ...
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    createGraphAndInject(injector) // this class is WinterAware so we get this extension method
+    autoDisposeGraph() // no need to override onDestroy() to call Injection.disposeGraph(this)
+    super.onCreate(savedInstanceState)
+  }
+
+}
+
+// Or if you work with graphs directly
+
+class MyClass : ALifecycleOwner() {
+
+  fun someMethod() {
+    val graph = myClassComponent.init()
+    graph.autoDispose(this)
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more details see
+<a href="javadoc/winter-androidx-lifecycle/io.jentz.winter.androidx.lifecycle/index.html">API docs</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_rxjava2_support">RxJava2 Support</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>winter-rxjava2</code> modules contains a Winter Plugin that automatically disposes all singletons
+in a graph which implement <code>Disposable</code>.</p>
+</div>
+<div class="paragraph">
+<p>To activate the plugin call <code>Winter.installDisposablePlugin()</code> before you instantiate any graph.</p>
+</div>
+<div class="paragraph">
+<p>For more details see <a href="avadoc/winter-rxjava2/index.html">API docs</a>.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1199,10 +1294,6 @@ val applicationComponent = component {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_injector_2">Injector</h3>
-
-</div>
-<div class="sect2">
 <h3 id="_plugins">Plugins</h3>
 
 </div>
@@ -1297,7 +1388,7 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-09 13:02:17 +0200
+Last updated 2019-08-09 21:04:09 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
