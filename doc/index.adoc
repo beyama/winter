@@ -16,6 +16,8 @@ dependencies {
     implementation 'io.jentz.winter:winter:x.x.x'
     // Android support
     implementation 'io.jentz.winter:winter-android:x.x.x'
+    // AndroidX lifecycle support
+    implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
     // Optional JSR-330 support
@@ -33,16 +35,16 @@ kapt {
 }
 ----
 Replace `x.x.x` with the version you would like to use.
-The newest version is {winterVersion}.
+The latest version is {winterVersion}.
 
 === Available Modules
 
 [cols=3,options="header"]
 |===
 
-|Module
-|Description
-|API Doc
+| Module
+| Description
+| API Doc
 
 | io.jentz.winter:winter:{winterVersion}
 | Winter core module
@@ -66,8 +68,33 @@ The newest version is {winterVersion}.
 
 |===
 
-
 == Terminology
+
+[cols="2,10",options="header"]
+|===
+
+| Term
+| Definition
+
+| Component
+| The immutable dependency registry for providers, factories and sub-components.
+
+| Sub-Component
+| A component that is defined inside a component used to create child graphs.
+
+| Graph
+| The "instance" of a component that holds actual instances and is used to retrieve dependencies
+  defined in a component.
+
+| Child-Graph
+| Graph created from a sub-component that can access dependencies from its parent graph but the
+  parent has no access to child dependencies.
+
+| Scope
+| The lifetime of an instance in a graph e.g. singleton for only one per graph or prototype for one
+  each time an instance is requested.
+
+|===
 
 == Declaring Dependencies
 
@@ -93,7 +120,7 @@ For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-compo
 
 === Available Scopes
 
-[cols=2,options="header"]
+[cols="3,10",options="header"]
 |===
 
 |Scope methods
@@ -139,23 +166,28 @@ val coffeeAppComponent = component {
     singleton { HttpCache() }
 
     subcomponent("gui") {
-        singleton { ImageLoader(cache = instance<HttpCache>() }
+        singleton { ImageLoader(cache = instance<HttpCache>()) }
     }
 }
 
+// initialize the application component
 val appGraph = coffeeAppComponent.init()
-val guiGraph = appGraph.initSubcomponent("gui")
+// open a child graph
+val guiGraph = appGraph.openChildGraph("gui")
+// close a child graph
+appGraph.closeChildGraph("gui")
+// or
+guiGraph.dispose()
 ----
 
 In this example `guiGraph` can access `HttpCache` but `appGraph` couldn't access `ImageLoader`.
 
-You can also pass an `ComponentBuilder` block to the `initSubcomponent` methods to add new
+You can also pass an `ComponentBuilder` block to the `openChildGraph` method to add new
 dependencies to the resulting subgraph.
 
 == Retrieving Dependencies
 
-Dependencies are retrieved from a graph and a graph is created from a component.
-There are three kinds of retrieval methods to get an instance, a provider function or a factory.
+Dependencies are retrieved from a dependency graph.
 
 [source,kotlin]
 ----
@@ -216,6 +248,8 @@ val pumps: Set<() -> Pump> = graph.providersOfType<Pump>()
 Like the scope methods we used to declare our dependencies all the retrieval functions take an
 optional qualifier for cases where we have the same type registered with different qualifiers
 (except the *OfType methods) and they all take an boolean to enable <<generics,generic type preservation>>.
+
+See the link:javadoc/winter/io.jentz.winter/-graph/index.html[Graph API docs] for further details.
 
 [#generics]
 == Generics
