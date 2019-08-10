@@ -545,7 +545,7 @@ in a graph which implement `Disposable`.
 
 To activate the plugin call `Winter.installDisposablePlugin()` before you instantiate any graph.
 
-For more details see link:avadoc/winter-rxjava2/index.html[API docs].
+For more details see link:javadoc/winter-rxjava2/index.html[API docs].
 
 == JUnit Test
 
