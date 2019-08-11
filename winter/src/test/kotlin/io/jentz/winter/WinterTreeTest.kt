@@ -29,7 +29,7 @@ class WinterTreeTest {
     fun `#get without arguments should throw an exception if root dependency graph isn't initialized`() {
         shouldThrow<WinterException> {
             tree.get()
-        }.message.shouldBe("GraphRegistry.get called but there is no open graph.")
+        }.message.shouldBe("No object graph opened.")
     }
 
     @Test
@@ -37,7 +37,7 @@ class WinterTreeTest {
         openAll("presentation")
         shouldThrow<WinterException> {
             tree.get(*viewPath)
-        }.message.shouldBe("No graph in path `presentation.view` found.")
+        }.message.shouldBe("No object graph in path `presentation.view` found.")
     }
 
     @Test
@@ -80,7 +80,7 @@ class WinterTreeTest {
     fun `#create should throw an exception when root graph isn't open but a non-empty path is given`() {
         shouldThrow<WinterException> {
             tree.create(*viewPath)
-        }.message.shouldBe("Cannot create `presentation.view` because root graph is not open.")
+        }.message.shouldBe("Cannot create `presentation.view` because application graph is not open.")
     }
 
     @Test
@@ -95,7 +95,7 @@ class WinterTreeTest {
     fun `#open should throw an exception when root graph isn't open but path is given`() {
         shouldThrow<WinterException> {
             tree.open(*viewPath)
-        }.message.shouldBe("Cannot open path `presentation.view` because root graph is not opened.")
+        }.message.shouldBe("Cannot open path `presentation.view` because application graph is not opened.")
     }
 
     @Test
@@ -103,14 +103,14 @@ class WinterTreeTest {
         tree.open()
         shouldThrow<WinterException> {
             tree.open()
-        }.message.shouldBe("Cannot open root graph because it is already open.")
+        }.message.shouldBe("Cannot open application graph because it is already open.")
     }
 
     @Test
     fun `#open without path but identifier should throw an exception`() {
         shouldThrow<IllegalArgumentException> {
             tree.open(identifier = "root")
-        }.message.shouldBe("Argument `identifier` for root graph is not supported.")
+        }.message.shouldBe("Argument `identifier` for application graph is not supported.")
     }
 
     @Test
@@ -121,7 +121,7 @@ class WinterTreeTest {
         }.run {
             message.shouldBe("Cannot open `presentation.view`.")
             cause.shouldBeInstanceOf<WinterException>()
-            cause!!.message.shouldBe("Cannot open graph with identifier `view` because it is already open.")
+            cause!!.message.shouldBe("Cannot open subgraph with identifier `view` because it is already open.")
         }
     }
 
@@ -134,7 +134,7 @@ class WinterTreeTest {
         }.run {
             message.shouldBe("Cannot open `presentation.foo`.")
             cause.shouldBeInstanceOf<WinterException>()
-            cause!!.message.shouldBe("Cannot open graph with identifier `foo` because it is already open.")
+            cause!!.message.shouldBe("Cannot open subgraph with identifier `foo` because it is already open.")
         }
     }
 
@@ -143,7 +143,7 @@ class WinterTreeTest {
         tree.open()
         shouldThrow<WinterException> {
             tree.open("presentation", "view")
-        }.message.shouldBe("GraphRegistry.open can't open `presentation.view` because `presentation` is not open.")
+        }.message.shouldBe("Can't open `presentation.view` because `presentation` is not open.")
     }
 
     @Test
@@ -208,7 +208,7 @@ class WinterTreeTest {
     }
 
     @Test
-    fun `#close without path should dispose child dependency graphs and the root dependency graph itself`() {
+    fun `#close without path should dispose subgraphs and the root dependency graph itself`() {
         val root = tree.open()
         val presentation = tree.open("presentation")
         val view = tree.open(*viewPath)
@@ -218,7 +218,7 @@ class WinterTreeTest {
     }
 
     @Test
-    fun `#close with path should dispose child dependency graphs and the dependency graph itself`() {
+    fun `#close with path should dispose subgraphs and the object graph itself`() {
         val root = tree.open()
         val presentation = tree.open("presentation")
         val view = tree.open(*viewPath)
