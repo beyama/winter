@@ -77,17 +77,17 @@ The latest version is {winterVersion}.
 | Definition
 
 | Component
-| The immutable dependency registry for providers, factories and sub-components.
+| The immutable dependency registry for providers, factories and subcomponents.
 
-| Sub-Component
-| A component that is defined inside a component used to create child graphs.
+| Subcomponent
+| A component that is defined inside a component to partition the object graph into subgraphs.
 
 | Graph
 | The "instance" of a component that holds actual instances and is used to retrieve dependencies
   defined in a component.
 
 | Child-Graph
-| Graph created from a sub-component that can access dependencies from its parent graph but the
+| Graph created from a subcomponent that can access dependencies from its parent graph but the
   parent has no access to child dependencies.
 
 | Scope
@@ -293,39 +293,39 @@ that requires an "activity" subcomponent:
 [source,kotlin]
 ----
 class MyApplication : Application() {
-  override fun onCreate() {
-    // declare application component
-    Winter.component {
-      singleton<GitHubApi> { GitHubApiImpl() }
+    override fun onCreate() {
+        // declare application component
+        Winter.component {
+            singleton<GitHubApi> { GitHubApiImpl() }
 
-      singleton { RepoListViewModel(instance()) }
+            singleton { RepoListViewModel(instance()) }
 
-      subcomponent("activity") {
-         singleton { Glide.with(instance<Activity>()) }
-      }
+            subcomponent("activity") {
+                singleton { Glide.with(instance<Activity>()) }
+            }
+        }
+
+        /// Configure Injection to use the simple android adapter
+        Injection.useSimpleAndroidAdapter()
+        // Create application graph by providing the application instance
+        Injection.createGraph(this)
     }
-
-    /// Configure Injection to use the simple android adapter
-    Injection.useSimpleAndroidAdapter()
-    // Create application graph by providing the application instance
-    Injection.createGraph(this)
-  }
 }
 
 class MyActivity : Activity() {
-  private val injector = Injector()
-  private val viewModel: RepoListViewModel by injector.instance()
-  private val glide: RequestManager by injector.instance()
+    private val injector = Injector()
+    private val viewModel: RepoListViewModel by injector.instance()
+    private val glide: RequestManager by injector.instance()
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    Injection.createGraphAndInject(this, injector)
-    super.onCreate(savedInstanceState)
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Injection.createGraphAndInject(this, injector)
+        super.onCreate(savedInstanceState)
+    }
 
-  override fun onDestroy() {
-    Injection.disposeGraph(this)
-    super.onDestroy()
-  }
+    override fun onDestroy() {
+        Injection.disposeGraph(this)
+        super.onDestroy()
+    }
 
 }
 ----
@@ -333,9 +333,13 @@ class MyActivity : Activity() {
 See link:javadoc/winter/io.jentz.winter/-injection.html["Injection API documentation"] for more
 details.
 
+NOTE: We call `Winter.component` here instead of just `component` which registers the component
+as the application component used by the `Injection Adapters` by default.
+
 CAUTION: When you use `Injection#createGraph` to create a graph you should always call
 `Injection#disposeGraph` to close it instead of directly calling `#dispose` on the resulting graph.
 
+[#injector]
 === Injector
 
 It is considered the best way to use constructor based injection to have a consistent state after
@@ -432,7 +436,7 @@ class MyApplication : Application() {
   override fun onCreate() {
     super.onCreate()
 
-    // define a component with one sub-component
+    // define a component with one subcomponent
     Winter.component {
       subcomponent("activity") {
       }
@@ -580,6 +584,7 @@ val coffeeAppComponent = component {
         val coffeeMaker = CoffeeMaker()
         coffeeMaker.heater = instance()
         coffeeMaker.pump = instance()
+        coffeeMaker
     }
 }
 ----
@@ -620,32 +625,9 @@ class CoffeeActivity : Activity() {
 }
 ----
 
-== Advanced Usage
+For more details see the paragraph about the xref:injector[Injector].
 
-=== Include Components
-
-=== Circular Dependencies
-
-Circular dependencies are dependencies that depend on each other.
-To define circular dependencies in Winter one of the dependencies must be injected through a
-property or method. You can then use a `postConstruct` callback to retrieve the circular dependency.
-
-[source,kotlin]
-----
-class Parent(child: Child)
-class Child {
-    var parent: Parent? = null
-}
-
-val applicationComponent = component {
-    singleton { Parent(instance()) }
-    singleton(postConstruct = { it.parent = instance() }) { Child() }
-}
-----
-
-=== Plugins
-
-=== JSR330 Annotation Preprocessor
+== JSR330 Annotation Preprocessor
 
 JSR-330 support is provided by the module `winter-compiler`.
 
@@ -661,7 +643,7 @@ setters or fields.
 And it generates a component containing all those factories and
 members-injectors to avoid the usage of reflection.
 
-==== Configure Kapt
+=== Configure Kapt
 
 [source,groovy]
 ----
@@ -683,7 +665,7 @@ This will generate a component named `generatedComponent` in the configured pack
 In a simple application that only relies on JSR330 for injection this `generatedComponent` can
 directly be used as application component but it is usually included in another component.
 
-==== Custom Scopes
+=== Custom Scopes
 
 A custom scope is created via an extended `Scope` annotation like:
 
@@ -718,3 +700,29 @@ val applicationGraph = generatedComponent.subcomponent(ApplicationScope::class).
 val coffeeMaker: CoffeeMakter = applicationGraph.instance()
 ----
 
+== Advanced Usage
+
+=== Include Components
+
+=== Circular Dependencies
+
+Circular dependencies are dependencies that depend on each other.
+To define circular dependencies in Winter one of the dependencies must be injected through a
+property or method. You can then use a `postConstruct` callback to retrieve the circular dependency.
+
+[source,kotlin]
+----
+class Parent(child: Child)
+class Child {
+    var parent: Parent? = null
+}
+
+val applicationComponent = component {
+    singleton { Parent(instance()) }
+    singleton(postConstruct = { it.parent = instance() }) { Child() }
+}
+----
+
+=== Plugins
+
+=== Usage In Libraries
