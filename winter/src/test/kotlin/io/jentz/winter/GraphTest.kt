@@ -130,7 +130,7 @@ class GraphTest {
 
         @Test
         fun `should return instance returned by factory function`() {
-            testComponent.init().instance<Any>().shouldBeSameInstanceAs(instance)
+            testComponent.createGraph().instance<Any>().shouldBeSameInstanceAs(instance)
         }
 
         @Test
@@ -142,7 +142,7 @@ class GraphTest {
 
         @Test
         fun `should invoke post construct callback with instance`() {
-            val parent = testComponent.init().instance<Parent>()
+            val parent = testComponent.createGraph().instance<Parent>()
             parent.child.parent.shouldBeSameInstanceAs(parent)
         }
 
@@ -155,7 +155,7 @@ class GraphTest {
 
         @Test
         fun `should invoke dispose callback with instance`() {
-            val graph = testComponent.init()
+            val graph = testComponent.createGraph()
             val parent: Parent = graph.instance()
             val child: Child = graph.instance()
             expectValueToChange(parent, null, child::parent) {
@@ -1067,14 +1067,14 @@ class GraphTest {
 
         @Test
         fun `#initSubcomponent should dervie component when builder block is given`() {
-            val graph = component.init().createSubgraph("test") { constant(42) }
+            val graph = component.createGraph().createSubgraph("test") { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
         @Test
         fun `#initSubcomponent should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
-            component.init(testApp)
+            component.createGraph(testApp)
                 .createSubgraph("test")
                 .application.shouldBeSameInstanceAs(testApp)
         }
@@ -1181,7 +1181,7 @@ class GraphTest {
 
         @BeforeEach
         fun beforeEach() {
-            root = component.init()
+            root = component.createGraph()
         }
 
         @Test

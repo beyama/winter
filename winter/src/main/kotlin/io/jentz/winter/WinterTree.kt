@@ -106,7 +106,7 @@ open class WinterTree(private val application: WinterApplication) {
      *
      * @param path The path of the (sub-)graph to initialize.
      * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     init method.
+     *                     createGraph method.
      *
      * @return The created [Graph].
      *
@@ -121,7 +121,7 @@ open class WinterTree(private val application: WinterApplication) {
                 "Cannot create `${pathToString(path)}` because application graph is not open."
             )
         }
-        application.init(block)
+        application.createGraph(block)
     }) { state ->
         val parentGraph = state.getOrNull(path, path.lastIndex)
             ?: throw WinterException(
@@ -139,7 +139,7 @@ open class WinterTree(private val application: WinterApplication) {
      * @param path The path of the (sub-)graph to initialize.
      * @param identifier An optional identifier to store the subgraph under.
      * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     init method.
+     *                     createGraph method.
      *
      * @return The newly created and registered graph.
      *
@@ -171,7 +171,7 @@ open class WinterTree(private val application: WinterApplication) {
                 "Argument `identifier` for application graph is not supported."
             )
         }
-        return application.init(block).also { state = Initialized(it) }
+        return application.createGraph(block).also { state = Initialized(it) }
     }
 
     private fun openSubgraph(

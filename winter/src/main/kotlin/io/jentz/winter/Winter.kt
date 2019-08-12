@@ -2,7 +2,7 @@ package io.jentz.winter
 
 /**
  * The default [WinterApplication] object that is used as default by [GraphRegistry] and
- * [Component.init].
+ * [Component.createGraph].
  *
  * A [WinterApplication] contains all configured plugins and and the application component.
  *
@@ -21,7 +21,7 @@ package io.jentz.winter
  * // install RxJava 2 disposable plugin
  * Winter.installDisposablePlugin()
  * // create dependency graph
- * val graph = Winter.init()
+ * val graph = Winter.createGraph()
  * ```
  */
 object Winter : WinterApplication()

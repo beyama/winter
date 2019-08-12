@@ -93,7 +93,7 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = testApplication.init()
+        val graph = testApplication.createGraph()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)

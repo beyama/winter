@@ -34,14 +34,14 @@ class WinterApplicationTest {
 
     @Test
     fun `#init should create graph from component`() {
-        val graph = app.init()
+        val graph = app.createGraph()
         graph.application.shouldBeSameInstanceAs(app)
         graph.component.shouldBeSameInstanceAs(app.component)
     }
 
     @Test
     fun `#init with builder block should derive component`() {
-        val graph = app.init { constant("") }
+        val graph = app.createGraph { constant("") }
         graph.component.size.shouldBe(1)
     }
 

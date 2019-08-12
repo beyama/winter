@@ -13,7 +13,7 @@ class InjectConstructorTest {
 
     @Before
     fun setUp() {
-        graph = generatedComponent.init()
+        graph = generatedComponent.createGraph()
     }
 
     @Test
@@ -32,7 +32,7 @@ class InjectConstructorTest {
     @Test
     fun `Test inject constructor with named argument`() {
         val message = "Hey Joe!"
-        graph = generatedComponent.init {
+        graph = generatedComponent.createGraph {
             constant("a string")
             constant(message, qualifier = "message")
         }

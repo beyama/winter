@@ -210,7 +210,7 @@ class InjectorTest {
         @Test
         fun `returns a provider block that resolves dependency when called`() {
             val property = Injector.ProviderProperty<Unit, Int>(typeKey<Int>(), Unit)
-            property.inject(testComponent.init())
+            property.inject(testComponent.createGraph())
             val provider = property.value
             atomicInteger.get().shouldBe(0)
             provider().shouldBe(1)
@@ -220,7 +220,7 @@ class InjectorTest {
         fun `returns a provider block that resolves dependency with argument when called`() {
             val property =
                 Injector.ProviderProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
-            property.inject(testComponent.init())
+            property.inject(testComponent.createGraph())
             val provider = property.value
             provider().shouldBe("42")
         }
@@ -248,7 +248,7 @@ class InjectorTest {
         @Test
         fun `returns a provider block that resolves dependency when called`() {
             val property = Injector.ProviderOrNullProperty<Unit, Int>(typeKey<Int>(), Unit)
-            property.inject(testComponent.init())
+            property.inject(testComponent.createGraph())
             val provider = property.value
             atomicInteger.get().shouldBe(0)
             provider?.invoke().shouldBe(1)
@@ -258,7 +258,7 @@ class InjectorTest {
         fun `returns a provider block that resolves dependency with argument when called`() {
             val property =
                 Injector.ProviderOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
-            property.inject(testComponent.init())
+            property.inject(testComponent.createGraph())
             val provider = property.value
             provider?.invoke().shouldBe("42")
         }
@@ -284,14 +284,14 @@ class InjectorTest {
 
         @Test
         fun `should eagerly resolve dependency`() {
-            Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit).inject(testComponent.init())
+            Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit).inject(testComponent.createGraph())
             atomicInteger.get().shouldBe(1)
         }
 
         @Test
         fun `should resolve dependency with argument`() {
             Injector.InstanceProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
-                inject(testComponent.init())
+                inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
         }
@@ -319,14 +319,14 @@ class InjectorTest {
         @Test
         fun `should eagerly resolve dependency`() {
             Injector.InstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit)
-                .inject(testComponent.init())
+                .inject(testComponent.createGraph())
             atomicInteger.get().shouldBe(1)
         }
 
         @Test
         fun `should resolve dependency with argument`() {
             Injector.InstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
-                inject(testComponent.init())
+                inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
         }
@@ -354,7 +354,7 @@ class InjectorTest {
         @Test
         fun `should lazy resolve dependency`() {
             Injector.LazyInstanceProperty<Unit, Int>(typeKey<Int>(), Unit).apply {
-                inject(testComponent.init())
+                inject(testComponent.createGraph())
                 expectValueToChange(0, 1, atomicInteger::get) {
                     value.shouldBe(1)
                 }
@@ -364,7 +364,7 @@ class InjectorTest {
         @Test
         fun `should resolve dependency with argument`() {
             Injector.LazyInstanceProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
-                inject(testComponent.init())
+                inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
         }
@@ -392,7 +392,7 @@ class InjectorTest {
         @Test
         fun `should lazy resolve dependency`() {
             Injector.LazyInstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit).apply {
-                inject(testComponent.init())
+                inject(testComponent.createGraph())
                 expectValueToChange(0, 1, atomicInteger::get) {
                     value.shouldBe(1)
                 }
@@ -403,7 +403,7 @@ class InjectorTest {
         fun `should resolve dependency with argument`() {
             Injector.LazyInstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
                 .apply {
-                    inject(testComponent.init())
+                    inject(testComponent.createGraph())
                     value.shouldBe("42")
                 }
         }
@@ -431,7 +431,7 @@ class InjectorTest {
         @Test
         fun `returns a set of provider blocks that resolves dependency when called`() {
             Injector.ProvidersOfTypeProperty<Int>(typeKey<Int>()).apply {
-                inject(ofTypeTestComponent.init())
+                inject(ofTypeTestComponent.createGraph())
                 value.shouldHaveSize(5)
                 expectValueToChange(0, 5, atomicInteger::get) {
                     value.map { it.invoke() }.toSet().shouldBe((1..5).toSet())
@@ -463,7 +463,7 @@ class InjectorTest {
         fun `should eagerly resolve dependencies`() {
             expectValueToChange(0, 5, atomicInteger::get) {
                 Injector.InstancesOfTypeProperty<Int>(typeKey<Int>()).apply {
-                    inject(ofTypeTestComponent.init())
+                    inject(ofTypeTestComponent.createGraph())
                     value.shouldHaveSize(5)
                 }
             }
@@ -492,7 +492,7 @@ class InjectorTest {
         @Test
         fun `should lazy resolve dependencies`() {
             Injector.LazyInstancesOfTypeProperty<Int>(typeKey<Int>()).apply {
-                inject(ofTypeTestComponent.init())
+                inject(ofTypeTestComponent.createGraph())
                 atomicInteger.get().shouldBe(0)
                 value.shouldHaveSize(5)
                 atomicInteger.get().shouldBe(5)
@@ -518,7 +518,7 @@ class InjectorTest {
             Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit)
                 .map { it * 3 }
                 .apply {
-                    inject(testComponent.init())
+                    inject(testComponent.createGraph())
                     value.shouldBe(3)
                 }
         }

@@ -3,7 +3,7 @@ package io.jentz.winter
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
  *
- * An instance is created by calling [Component.init], [Graph.createSubgraph]
+ * An instance is created by calling [Component.createGraph], [Graph.createSubgraph]
  * or [Graph.openSubgraph].
  */
 class Graph internal constructor(

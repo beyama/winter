@@ -54,7 +54,7 @@ fun emptyComponent(): Component = emptyComponent
 /**
  * Returns a [Graph] with empty component.
  */
-fun emptyGraph(): Graph = emptyComponent.init()
+fun emptyGraph(): Graph = emptyComponent.createGraph()
 
 /**
  * Create an instance of [Component].
@@ -76,7 +76,7 @@ fun component(
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph =
-    component(qualifier, block).init()
+    component(qualifier, block).createGraph()
 
 /**
  * Returns [TypeKey] for [MembersInjector] for type [T].
