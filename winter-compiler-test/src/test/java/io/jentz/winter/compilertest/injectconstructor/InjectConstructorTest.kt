@@ -13,7 +13,7 @@ class InjectConstructorTest {
 
     @Before
     fun setUp() {
-        graph = generatedComponent.init()
+        graph = generatedComponent.createGraph()
     }
 
     @Test
@@ -32,7 +32,7 @@ class InjectConstructorTest {
     @Test
     fun `Test inject constructor with named argument`() {
         val message = "Hey Joe!"
-        graph = generatedComponent.init {
+        graph = generatedComponent.createGraph {
             constant("a string")
             constant(message, qualifier = "message")
         }
@@ -91,7 +91,7 @@ class InjectConstructorTest {
 
     @Test
     fun `Test custom scoped class with no argument inject constructor`() {
-        val subgraph = graph.createChildGraph(CustomScope::class)
+        val subgraph = graph.createSubgraph(CustomScope::class)
         assertSame(
                 subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>(),
                 subgraph.instance<CustomScopedWithNoArgumentInjectConstructor>()

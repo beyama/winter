@@ -5,7 +5,7 @@ import io.jentz.winter.*
 /**
  * Create and return dependency graph for [this] by using [WinterAware.injection].
  *
- * @param block An optional builder block to pass to the component init method.
+ * @param block An optional builder block to pass to the component createGraph method.
  * @return The newly created graph.
  * @throws [io.jentz.winter.WinterException] if [this] type is not supported.
  */
@@ -17,7 +17,7 @@ fun WinterAware.createGraph(block: ComponentBuilderBlock? = null): Graph =
  * [injector] by using [WinterAware.injection].
  *
  * @param injector The [Injector] to inject into.
- * @param block An optional builder block to pass to the component init method.
+ * @param block An optional builder block to pass to the component createGraph method.
  * @return The created dependency graph.
  * @throws [io.jentz.winter.WinterException] if [this] type is not supported.
  */
@@ -34,7 +34,7 @@ fun WinterAware.createGraphAndInject(
  *
  * @param instance The instance to inject into.
  * @param injectSuperClasses If true this will look for members injectors for super classes too.
- * @param block An optional builder block to pass to the component init method.
+ * @param block An optional builder block to pass to the component createGraph method.
  * @return The created dependency graph.
  * @throws [io.jentz.winter.WinterException] if [this] type is not supported.
  */

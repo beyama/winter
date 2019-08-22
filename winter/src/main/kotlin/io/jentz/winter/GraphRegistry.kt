@@ -6,15 +6,16 @@ package io.jentz.winter
  * Here an Android example where we use this to create a presentation graph that
  * survives configuration changes and an Activity graph that gets recreated every time.
  *
- * Those details a usually hidden in a [WinterInjection.Adapter].
+ * It is recommended to hide such details in a [WinterInjection.Adapter].
  *
- * Create the application dependency graph on application start:
+ * Create the application object graph on application start:
  *
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
  *     super.onCreate()
  *
+ *     // Register the application component
  *     Winter.component {
  *       // A presentation subcomponent that survives orientation changes
  *       subcomponent("presentation") {
@@ -24,7 +25,7 @@ package io.jentz.winter
  *       }
  *     }
  *
- *     // open the application root graph
+ *     // open the application graph
  *     GraphRegistry.open() {
  *       constant<Application> { this@MyApplication }
  *       constant<Context> { this@MyApplication }
@@ -33,7 +34,7 @@ package io.jentz.winter
  * }
  * ```
  *
- * Create the presenter and activity dependency graph by its path (of qualifiers):
+ * Create the presenter and activity object subgraphs by their paths (of qualifiers):
  *
  * ```
  * class MyActivity : Activity() {

@@ -29,7 +29,7 @@ dependencies {
 kapt {
     arguments {
         // This tells the Winter compiler under which package name it should store
-        // the generated component. See the advanced section for more details.
+        // the generated component. See the JSR-330 section for more details.
         arg("winterGeneratedComponentPackage", "my.project.root.package.name")
     }
 }
@@ -80,13 +80,13 @@ The latest version is {winterVersion}.
 | The immutable dependency registry for providers, factories and subcomponents.
 
 | Subcomponent
-| A component that is defined inside a component to partition the object graph into subgraphs.
+| A component that is defined inside a component to partition the object graphs into subgraphs.
 
 | Graph
-| The "instance" of a component that holds actual instances and is used to retrieve dependencies
+| The object graph that holds actual instances and is used to retrieve dependencies
   defined in a component.
 
-| Child-Graph
+| Subgraph
 | Graph created from a subcomponent that can access dependencies from its parent graph but the
   parent has no access to child dependencies.
 
@@ -176,17 +176,17 @@ val coffeeAppComponent = component {
 
 // initialize the application component
 val appGraph = coffeeAppComponent.init()
-// open a child graph
-val guiGraph = appGraph.openChildGraph("gui")
-// close a child graph
-appGraph.closeChildGraph("gui")
+// open a subgraph
+val guiGraph = appGraph.openSubgraph("gui")
+// close a subgraph
+appGraph.closeSubgraph("gui")
 // or
 guiGraph.dispose()
 ----
 
 In this example `guiGraph` can access `HttpCache` but `appGraph` couldn't access `ImageLoader`.
 
-You can also pass an `ComponentBuilder` block to the `openChildGraph` method to add new
+You can also pass an `ComponentBuilder` block to the `openSubgraph` method to add new
 dependencies to the resulting subgraph.
 
 === Retrieving Dependencies
@@ -417,11 +417,11 @@ link:javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html[WinterAware].
 
 === WinterTree & GraphRegistry
 
-A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
-(directed acyclic graph).
+A object graph can have multiple subgraphs and may have a parent graph which makes it a tree of
+object graphs (directed acyclic graph).
 
 `WinterTree` and its object version `GraphRegisty` are helper to create (open) and dispose (close)
-graphs by paths of component qualifier.
+(sub-)graphs by paths of component qualifier.
 
 This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
 
@@ -458,14 +458,14 @@ class MyActivity : Activity() {
 
   override fun onDestroy() {
     super.onDestroy()
-    // dispose the "activity" sub-graph with identifier this
+    // dispose the "activity" subgraph with identifier this
     GraphRegistry.close(this)
   }
 
 }
 ----
 
-If you close (dispose) a graph it will also close all registered child graphs.
+If you close (dispose) a graph it will also close all registered subgraphs.
 
 For more details see
 link:javadoc/winter/io.jentz.winter/-winter-tree/index.html[WinterTree API docs]
@@ -481,12 +481,12 @@ system and a DependencyGraphContextWrapper to attach a different graph to an And
 
 The
 link:javadoc/winter-android/io.jentz.winter.android/-simple-android-injection-adapter/index.html[SimpleAndroidInjectionAdapter]
-manages an application dependency graph and an activity child graph.
+manages an application dependency graph and an activity subgraph.
 
 The
 link:javadoc/winter-android/io.jentz.winter.android/-android-presentation-scope-adapter/index.html[AndroidPresentationScopeAdapter]
-manages an application dependency graph, a presentation child graph that outlives configuration
-changes and an activity child graph.
+manages an application dependency graph, a presentation subgraph that outlives configuration
+changes and an activity subgraph.
 
 The
 link:javadoc/winter-android/io.jentz.winter.android/-dependency-graph-context-wrapper/index.html[DependencyGraphContextWrapper]
@@ -497,7 +497,7 @@ For example:
 [source,kotlin]
 ----
 Injection.getGraph(myActivity) // => activityGraph
-val viewGraph = activityGraph.openChildGraph("view")
+val viewGraph = activityGraph.openSubgraph("view")
 val viewContext = DependencyGraphContextWrapper(myActivity, viewGraph)
 val newView = LayoutInflater.from(viewContext).inflate(R.layout.view_list, containerView, false)
 Injection.getGraph(newView) // => viewGraph
@@ -631,10 +631,10 @@ For more details see the paragraph about the xref:injector[Injector].
 
 JSR-330 support is provided by the module `winter-compiler`.
 
-The JSR330 annotation preprocessor generates components and members injectors for you classes
-that are annotated with JSR330 annotations.
+The JSR-330 annotation preprocessor generates components and members injectors for you classes
+that are annotated with JSR-330 annotations.
 
-The JSR330 annotation preprocessor generates factories for your classes that have an @Inject
+The JSR-330 annotation preprocessor generates factories for your classes that have an @Inject
 annotated constructor.
 
 It generates a members-injector for each class that has @Inject annotated
@@ -662,7 +662,7 @@ kapt {
 This will generate a component named `generatedComponent` in the configured package here
 `my.project.root.package.name`.
 
-In a simple application that only relies on JSR330 for injection this `generatedComponent` can
+In a simple application that only relies on JSR-330 for injection this `generatedComponent` can
 directly be used as application component but it is usually included in another component.
 
 === Custom Scopes
@@ -721,7 +721,7 @@ val applicationComponent = component {
     singleton { Parent(instance()) }
     singleton(postConstruct = { it.parent = instance() }) { Child() }
 }
-----
+---
 
 === Plugins
 

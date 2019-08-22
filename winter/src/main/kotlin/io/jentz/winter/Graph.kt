@@ -1,10 +1,10 @@
 package io.jentz.winter
 
 /**
- * The dependency graph class that retrieves and instantiates dependencies from a component.
+ * The object graph class that retrieves and instantiates dependencies registered in its component.
  *
- * An instance is created by calling [Component.init], [Graph.createChildGraph]
- * or [Graph.openChildGraph].
+ * An instance is created by calling [Component.createGraph], [Graph.createSubgraph]
+ * or [Graph.openSubgraph].
  */
 class Graph internal constructor(
     val application: WinterApplication,
@@ -373,32 +373,30 @@ class Graph internal constructor(
     }
 
     /**
-     * Initialize a subcomponent.
-     *
-     * @param qualifier The qualifier of the subcomponent.
-     * @param block An optional builder block to register provider on the subcomponent.
+     * @see createSubgraph
      */
     @Deprecated(
-        "Use createChildGraph instead.",
-        ReplaceWith("createChildGraph(qualifier,block)")
+        "Use createSubgraph instead.",
+        ReplaceWith("createSubgraph(qualifier,block)")
     )
     fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        createChildGraph(qualifier, block)
+        createSubgraph(qualifier, block)
 
     /**
-     * Initialize a subcomponent without registering it on this graph.
+     * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
+     * this graph as parent.
      *
      * A graph initialized with this method doesn't get disposed when its parent gets disposed
      * but becomes inconsistent.
      *
-     * Use it with caution in cases where you need to initialize a lot of short-lived graphs that
-     * are managed by you e.g. a per request child graph on a HTTP server that gets created per
+     * Use it with caution in cases where you need to initialize a lot of short-lived subgraphs that
+     * are managed by you e.g. a per request subgraph on a HTTP server that gets created per
      * request and destroyed at the end.
      *
      * @param subcomponentQualifier The subcomponentQualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
      */
-    fun createChildGraph(
+    fun createSubgraph(
         subcomponentQualifier: Any,
         block: ComponentBuilderBlock? = null
     ): Graph = map {
@@ -406,16 +404,33 @@ class Graph internal constructor(
     }
 
     /**
-     * Opens and returns a child graph by using the subcomponent with [subcomponentQualifier]
-     * and registers it under the [subcomponentQualifier] or when given under [identifier].
+     * @see createSubgraph
+     */
+    @Deprecated(
+        "Use createSubgraph instead.",
+        ReplaceWith("createSubgraph(subcomponentQualifier,block)")
+    )
+    fun createChildGraph(
+        subcomponentQualifier: Any,
+        block: ComponentBuilderBlock? = null
+    ): Graph = createSubgraph(subcomponentQualifier, block)
+
+    /**
+     * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
+     * this graph as parent and register it under the [subcomponentQualifier] or when given under
+     * [identifier].
      *
      * The resulting graph gets automatically disposed when this graph gets disposed.
+     * You can later retrieve the subgraph by calling an instance retrieve method e.g.:
+     * ```
+     * parent.instance<Graph>(identifier)
+     * ```
      *
      * @param subcomponentQualifier The qualifier of the subcomponent.
-     * @param identifier An optional identifier to register the graph with.
+     * @param identifier An optional identifier to register the subgraph with.
      * @param block An optional builder block to register provider on the subcomponent.
      */
-    fun openChildGraph(
+    fun openSubgraph(
         subcomponentQualifier: Any,
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
@@ -425,7 +440,7 @@ class Graph internal constructor(
 
         if (key in registry) {
             throw WinterException(
-                "Cannot open graph with identifier `$name` because it is already open."
+                "Cannot open subgraph with identifier `$name` because it is already open."
             )
         }
 
@@ -435,22 +450,41 @@ class Graph internal constructor(
     }
 
     /**
-     * Close a child graph by disposing it and removing it from the registry.
+     * @see openSubgraph
+     */
+    @Deprecated(
+        "Use openSubgraph instead.",
+        ReplaceWith("openSubgraph(subcomponentQualifier,identifier,block)")
+    )
+    fun openChildGraph(
+        subcomponentQualifier: Any,
+        identifier: Any? = null,
+        block: ComponentBuilderBlock? = null
+    ): Graph = openSubgraph(subcomponentQualifier, identifier, block)
+
+    /**
+     * Close a subgraph by disposing it and removing it from the registry.
      *
      * @param identifier The identifier it was opened with.
      */
-    fun closeChildGraph(identifier: Any) {
+    fun closeSubgraph(identifier: Any) {
         map { (_, _, _, registry) ->
             val key = typeKey<Graph>(identifier)
             val service = registry.remove(key) ?: throw WinterException(
-                "Child graph with identifier `$identifier` doesn't exist."
+                "Subgraph with identifier `$identifier` doesn't exist."
             )
             service.dispose()
         }
     }
 
-    private fun unregisterChild(child: Graph) {
-        val identifier = child.identifier ?: return
+    @Deprecated(
+        "Use closeSubgraph instead.",
+        ReplaceWith("closeSubgraph(identifier)")
+    )
+    fun closeChildGraph(identifier: Any) = closeSubgraph(identifier)
+
+    private fun unregisterSubgraph(sub: Graph) {
+        val identifier = sub.identifier ?: return
 
         fold({}, { state ->
             if (state.isDisposing) return
@@ -475,7 +509,7 @@ class Graph internal constructor(
                 application.plugins.runGraphDispose(this)
 
                 state.registry.values.forEach { boundService -> boundService.dispose() }
-                state.parent?.unregisterChild(this)
+                state.parent?.unregisterSubgraph(this)
             } finally {
                 this.state = State.Disposed
             }

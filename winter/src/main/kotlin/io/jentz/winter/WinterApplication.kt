@@ -49,11 +49,21 @@ open class WinterApplication() {
     }
 
     /**
-     * Initialize and return the dependency graph from the configured [component].
+     * Initialize and return the object graph from the application [component].
      *
      * @param block An optional component builder block to add additional dependencies.
      * @return The new [Graph].
      */
-    fun init(block: ComponentBuilderBlock? = null): Graph = component.init(this, block)
+    fun createGraph(block: ComponentBuilderBlock? = null): Graph =
+        component.createGraph(this, block)
+
+    /**
+     * @see createGraph
+     */
+    @Deprecated(
+        "Use createGraph instead.",
+        ReplaceWith("createGraph(block)")
+    )
+    fun init(block: ComponentBuilderBlock? = null): Graph = createGraph(block)
 
 }

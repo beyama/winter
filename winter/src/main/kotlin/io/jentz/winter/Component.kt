@@ -16,7 +16,7 @@ package io.jentz.winter
  * val derived = appComponent.derive {
  *     provider<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
  * }
- * val graph = derived.init { constant<Application>(myAndroidApplication) }
+ * val graph = derived.createGraph { constant<Application>(myAndroidApplication) }
  * ```
  */
 class Component internal constructor(
@@ -71,17 +71,30 @@ class Component internal constructor(
     }
 
     /**
-     * Create a [dependency graph][Graph] from this component.
+     * Create a [object graph][Graph] from this component.
      *
      * @param application The [WinterApplication] to use.
      * @param block An optional builder block to extend the component before creating the graph.
      * @return An instance of [Graph] backed by this component.
      */
     @JvmOverloads
-    fun init(
+    fun createGraph(
         application: WinterApplication = Winter,
         block: ComponentBuilderBlock? = null
     ): Graph = Graph(application, null, this, null, block)
+
+    /**
+     * @see createGraph
+     */
+    @JvmOverloads
+    @Deprecated(
+        "Use createGraph instead.",
+        ReplaceWith("createGraph(application,block)")
+    )
+    fun init(
+        application: WinterApplication = Winter,
+        block: ComponentBuilderBlock? = null
+    ): Graph = createGraph(application, block)
 
     internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
         dependencies.forEach(block)

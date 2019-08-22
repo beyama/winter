@@ -130,7 +130,7 @@ class GraphTest {
 
         @Test
         fun `should return instance returned by factory function`() {
-            testComponent.init().instance<Any>().shouldBeSameInstanceAs(instance)
+            testComponent.createGraph().instance<Any>().shouldBeSameInstanceAs(instance)
         }
 
         @Test
@@ -142,7 +142,7 @@ class GraphTest {
 
         @Test
         fun `should invoke post construct callback with instance`() {
-            val parent = testComponent.init().instance<Parent>()
+            val parent = testComponent.createGraph().instance<Parent>()
             parent.child.parent.shouldBeSameInstanceAs(parent)
         }
 
@@ -155,7 +155,7 @@ class GraphTest {
 
         @Test
         fun `should invoke dispose callback with instance`() {
-            val graph = testComponent.init()
+            val graph = testComponent.createGraph()
             val parent: Parent = graph.instance()
             val child: Child = graph.instance()
             expectValueToChange(parent, null, child::parent) {
@@ -999,40 +999,40 @@ class GraphTest {
 
         @Test
         fun `#parent should return null when no parent graph exists`() {
-            val graph = graph { subcomponent("child") {} }
+            val graph = graph { subcomponent("sub") {} }
             graph.parent.shouldBeNull()
         }
 
         @Test
         fun `#parent should return parent graph`() {
-            val parent = graph { subcomponent("child") {} }
-            val child = parent.createChildGraph("child")
-            child.parent.shouldBeSameInstanceAs(parent)
+            val parent = graph { subcomponent("sub") {} }
+            val sub = parent.createSubgraph("sub")
+            sub.parent.shouldBeSameInstanceAs(parent)
         }
 
         @Test
         fun `#parent should throw an exception when graph is disposed`() {
-            val child = graph { subcomponent("child") {} }.createChildGraph("child")
+            val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                child.dispose()
-                child.parent
+                sub.dispose()
+                sub.parent
             }.message.shouldBe("Graph is already disposed.")
         }
 
         @Test
         fun `#component should return backing component`() {
             Winter.plugins.unregisterAll() // otherwise it will derive the component
-            val parent = graph { subcomponent("child") {} }
-            val child = parent.createChildGraph("child")
-            child.component.shouldBeSameInstanceAs(parent.component.subcomponent("child"))
+            val parent = graph { subcomponent("sub") {} }
+            val sub = parent.createSubgraph("sub")
+            sub.component.shouldBeSameInstanceAs(parent.component.subcomponent("sub"))
         }
 
         @Test
         fun `#component should throw an exception when graph is disposed`() {
-            val child = graph { subcomponent("child") {} }.createChildGraph("child")
+            val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                child.dispose()
-                child.component
+                sub.dispose()
+                sub.component
             }.message.shouldBe("Graph is already disposed.")
         }
 
@@ -1067,15 +1067,15 @@ class GraphTest {
 
         @Test
         fun `#initSubcomponent should dervie component when builder block is given`() {
-            val graph = component.init().createChildGraph("test") { constant(42) }
+            val graph = component.createGraph().createSubgraph("test") { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
         @Test
         fun `#initSubcomponent should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
-            component.init(testApp)
-                .createChildGraph("test")
+            component.createGraph(testApp)
+                .createSubgraph("test")
                 .application.shouldBeSameInstanceAs(testApp)
         }
 
@@ -1165,7 +1165,7 @@ class GraphTest {
     }
 
     @Nested
-    inner class ChildManagement {
+    inner class SubgraphManagement {
 
         private val component = component {
             subcomponent("presentation") {
@@ -1181,66 +1181,66 @@ class GraphTest {
 
         @BeforeEach
         fun beforeEach() {
-            root = component.init()
+            root = component.createGraph()
         }
 
         @Test
-        fun `#openChildGraph should throw an exception if graph with identifier already exists`() {
-            root.openChildGraph("presentation")
+        fun `#openSubgraph should throw an exception if graph with identifier already exists`() {
+            root.openSubgraph("presentation")
 
             shouldThrow<WinterException> {
-                root.openChildGraph("presentation")
-            }.message.shouldBe("Cannot open graph with identifier `presentation` because it is already open.")
+                root.openSubgraph("presentation")
+            }.message.shouldBe("Cannot open subgraph with identifier `presentation` because it is already open.")
         }
 
         @Test
-        fun `#openChildGraph with identifier should throw an exception if graph with identifier already exists`() {
-            root.openChildGraph("presentation", "foo")
+        fun `#openSubgraph with identifier should throw an exception if graph with identifier already exists`() {
+            root.openSubgraph("presentation", "foo")
 
             shouldThrow<WinterException> {
-                root.openChildGraph("presentation", "foo")
-            }.message.shouldBe("Cannot open graph with identifier `foo` because it is already open.")
+                root.openSubgraph("presentation", "foo")
+            }.message.shouldBe("Cannot open subgraph with identifier `foo` because it is already open.")
         }
 
         @Test
-        fun `#openChildGraph should initialize and return subcomponent by qualifier`() {
-            root.openChildGraph("presentation").component.qualifier.shouldBe("presentation")
+        fun `#openSubgraph should initialize and return subcomponent by qualifier`() {
+            root.openSubgraph("presentation").component.qualifier.shouldBe("presentation")
         }
 
         @Test
-        fun `#openChildGraph should should pass the builder block to the subcomponent init method`() {
-            root.openChildGraph("presentation") {
+        fun `#openSubgraph should should pass the builder block to the subcomponent init method`() {
+            root.openSubgraph("presentation") {
                 constant(42)
             }.instance<Int>().shouldBe(42)
         }
 
         @Test
-        fun `#openChildGraph with identifier should initialize subcomponent and register it under the given identifier`() {
-            val graph = root.openChildGraph("presentation", identifier = "foo")
+        fun `#openSubgraph with identifier should initialize subcomponent and register it under the given identifier`() {
+            val graph = root.openSubgraph("presentation", identifier = "foo")
             graph.component.qualifier.shouldBe("presentation")
             root.instance<Graph>("foo").shouldBeSameInstanceAs(graph)
         }
 
         @Test
-        fun `#closeChildGraph should dispose and remove child graph`() {
-            val graph = root.openChildGraph("presentation")
-            root.closeChildGraph("presentation")
+        fun `#closeSubgraph should dispose and remove subgraph with identifier`() {
+            val graph = root.openSubgraph("presentation")
+            root.closeSubgraph("presentation")
 
             graph.isDisposed.shouldBeTrue()
             root.instanceOrNull<Graph>("presentation").shouldBeNull()
         }
 
         @Test
-        fun `#closeChildGraph should throw an exception when graph doesn't exist`() {
+        fun `#closeSubgraph should throw an exception when graph doesn't exist`() {
             shouldThrow<WinterException> {
-                root.closeChildGraph("foo")
-            }.message.shouldBe("Child graph with identifier `foo` doesn't exist.")
+                root.closeSubgraph("foo")
+            }.message.shouldBe("Subgraph with identifier `foo` doesn't exist.")
         }
 
         @Test
-        fun `#dispose should dispose managed children`() {
-            val presentation = root.openChildGraph("presentation")
-            val view = presentation.openChildGraph("view")
+        fun `#dispose should dispose all managed subgraphs`() {
+            val presentation = root.openSubgraph("presentation")
+            val view = presentation.openSubgraph("view")
 
             presentation.dispose()
 
@@ -1249,12 +1249,12 @@ class GraphTest {
         }
 
         @Test
-        fun `#dispose of child graphs should not lead to concurrent modification exception`() {
-            val presentation = root.openChildGraph("presentation")
-            val view = presentation.openChildGraph("view")
+        fun `#dispose of subgraphs should not lead to concurrent modification exception`() {
+            val presentation = root.openSubgraph("presentation")
+            val view = presentation.openSubgraph("view")
 
             // we need more than one service in our registry to get the exception when unregistering
-            // of children is not prevented during dispose
+            // of subgraphs is not prevented during dispose
             presentation.instance<List<*>>()
             view.instance<Map<*, *>>()
 
