@@ -45,7 +45,13 @@ end
 latest_version = `git describe master --abbrev=0 --tags`.strip
 `asciidoctor --attribute winterVersion=#{latest_version} --destination-dir #{TMP_DIR} doc/index.adoc`
 
-exit 0 if TRY_RUN
+if TRY_RUN
+	if RUBY_PLATFORM =~ /darwin/
+		`open #{File.join(TMP_DIR, "index.html")}`
+	end
+
+	exit 0
+end
 
 cd TMP_DIR
 
