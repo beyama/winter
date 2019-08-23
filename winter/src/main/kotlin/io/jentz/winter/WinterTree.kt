@@ -4,8 +4,8 @@ import io.jentz.winter.WinterTree.State.Initialized
 import io.jentz.winter.WinterTree.State.Uninitialized
 
 /**
- * WinterTree acts as an holder for the root (application) dependency graph and is a helper for
- * opening, closing and accessing child-graphs by paths of identifier.
+ * WinterTree acts as an holder for the application object graph and is a helper for
+ * opening, closing and accessing subgraphs by paths of identifiers.
  *
  * Instances of [WinterTree] are usually not used directly but in injection adapters.
  *
@@ -15,32 +15,33 @@ import io.jentz.winter.WinterTree.State.Uninitialized
  *
  * Example:
  * ```
+ * // register the application component
  * Winter.component {
  *   // ... the component definition
  * }
  * val tree = WinterTree(Winter)
  *
- * // open the root graph
+ * // open the application graph
  * tree.open()
  * // or supply a builder block to extend the resulting graph
  * tree.open { constant<Application>(myApplication) }
  *
- * // the root graph can then be accessed by calling
+ * // the application graph can then be accessed by calling
  * tree.get()
  *
- * // to open a child-graph call
+ * // to open a subgraph call
  * tree.open("subcomponent qualifier")
  *
  * // this graph can be accessed by calling
  * tree.get("subcomponent qualifier")
  *
- * // you can provide an optional identifier for the graph
+ * // you can provide an optional identifier for the subgraph
  * tree.open("subcomponent qualifier", identifier = "other name")
  *
- * // then you can access the the graph by calling
+ * // then you can access the the subgraph by calling
  * tree.get("other name")
  *
- * // to open a subcomponent of this call
+ * // to open a subgraph of this call
  * tree.open("subcomponent qualifier", "sub-subcomponent qualifier")
  * // respectively
  * tree.open("other name", "sub-subcomponent qualifier")
@@ -81,7 +82,7 @@ open class WinterTree(private val application: WinterApplication) {
     }
 
     /**
-     * Get a registered dependency graph by path.
+     * Get a registered object graph by path.
      *
      * @param path The path of the graph.
      * @return The graph that is stored in [path].
@@ -89,10 +90,10 @@ open class WinterTree(private val application: WinterApplication) {
      * @throws WinterException When no graph is open or when no graph was found in [path].
      */
     fun get(vararg path: Any): Graph = fold<Graph>({
-        throw WinterException("GraphRegistry.get called but there is no open graph.")
+        throw WinterException("No object graph opened.")
     }) {
         it.getOrNull(path)
-            ?: throw WinterException("No graph in path `${pathToString(path)}` found.")
+            ?: throw WinterException("No object graph in path `${pathToString(path)}` found.")
     }
 
     /**
@@ -101,11 +102,11 @@ open class WinterTree(private val application: WinterApplication) {
     fun has(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
 
     /**
-     * Create and return dependency graph by (sub-)component path without registering it.
+     * Create and return an object graph by (sub-)component path without registering it.
      *
-     * @param path The path of the (sub-)component to initialize.
+     * @param path The path of the (sub-)graph to initialize.
      * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     init method.
+     *                     createGraph method.
      *
      * @return The created [Graph].
      *
@@ -117,10 +118,10 @@ open class WinterTree(private val application: WinterApplication) {
     ): Graph = fold({
         if (path.isNotEmpty()) {
             throw WinterException(
-                "Cannot create `${pathToString(path)}` because root graph is not open."
+                "Cannot create `${pathToString(path)}` because application graph is not open."
             )
         }
-        application.init(block)
+        application.createGraph(block)
     }) { state ->
         val parentGraph = state.getOrNull(path, path.lastIndex)
             ?: throw WinterException(
@@ -128,17 +129,17 @@ open class WinterTree(private val application: WinterApplication) {
                         "`${pathToString(path, path.lastIndex)}` is not open."
             )
         val qualifier = path.last()
-        parentGraph.openChildGraph(qualifier, block = block)
+        parentGraph.openSubgraph(qualifier, block = block)
     }
 
     /**
-     * Create a dependency graph by (sub-)component path and register it.
-     * Opened components will be children of each other in left to right order.
+     * Create a object graph by (sub-)component path and register it.
+     * Opened object graphs will be children of each other in left to right order.
      *
-     * @param path The path of the (sub-)component to initialize.
-     * @param identifier An optional identifier to store the sub dependency graph under.
+     * @param path The path of the (sub-)graph to initialize.
+     * @param identifier An optional identifier to store the subgraph under.
      * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     init method.
+     *                     createGraph method.
      *
      * @return The newly created and registered graph.
      *
@@ -150,42 +151,42 @@ open class WinterTree(private val application: WinterApplication) {
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
     ): Graph = fold({
-        openRoot(path, identifier, block)
+        openApplicationGraph(path, identifier, block)
     }) { state ->
-        openChild(state, path, identifier, block)
+        openSubgraph(state, path, identifier, block)
     }
 
-    private fun openRoot(
+    private fun openApplicationGraph(
         path: Array<out Any>,
         identifier: Any?,
         block: ComponentBuilderBlock?
     ): Graph {
         if (path.isNotEmpty()) {
             throw WinterException(
-                "Cannot open path `${pathToString(path)}` because root graph is not opened."
+                "Cannot open path `${pathToString(path)}` because application graph is not opened."
             )
         }
         if (identifier != null) {
             throw IllegalArgumentException(
-                "Argument `identifier` for root graph is not supported."
+                "Argument `identifier` for application graph is not supported."
             )
         }
-        return application.init(block).also { state = Initialized(it) }
+        return application.createGraph(block).also { state = Initialized(it) }
     }
 
-    private fun openChild(
+    private fun openSubgraph(
         state: Initialized,
         path: Array<out Any>,
         identifier: Any?,
         block: ComponentBuilderBlock?
     ): Graph {
         if (path.isEmpty()) {
-            throw WinterException("Cannot open root graph because it is already open.")
+            throw WinterException("Cannot open application graph because it is already open.")
         }
 
         val parentGraph = state.getOrNull(path, path.lastIndex)
             ?: throw WinterException(
-                "GraphRegistry.open can't open `${pathToString(path)}` because " +
+                "Can't open `${pathToString(path)}` because " +
                         "`${pathToString(path, path.lastIndex)}` is not open."
             )
 
@@ -193,14 +194,14 @@ open class WinterTree(private val application: WinterApplication) {
         val name = identifier ?: qualifier
 
         try {
-            return parentGraph.openChildGraph(qualifier, name, block)
+            return parentGraph.openSubgraph(qualifier, name, block)
         } catch (e: WinterException) {
             throw WinterException("Cannot open `${pathToString(path, path.lastIndex, name)}`.", e)
         }
     }
 
     /**
-     * Remove and dispose the dependency graph and its children stored in [path].
+     * Remove and dispose the object graph and its subgraphs stored in [path].
      *
      * @param path The path of the graph to dispose.
      *
@@ -219,7 +220,7 @@ open class WinterTree(private val application: WinterApplication) {
     }
 
     /**
-     * Remove and dispose the dependency graph and its children stored in [path] if it is open.
+     * Remove and dispose the object graph and its subgraphs stored in [path] if it is open.
      *
      * @param path The path of the graph to dispose.
      *

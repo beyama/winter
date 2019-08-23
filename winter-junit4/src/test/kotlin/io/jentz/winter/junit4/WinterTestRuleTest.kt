@@ -1,7 +1,6 @@
 package io.jentz.winter.junit4
 
 import io.jentz.winter.*
-import io.jentz.winter.plugin.SimplePlugin
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -43,7 +42,7 @@ class WinterTestRuleTest {
             postConstructCalled = 0
             graphDisposeCalled = 0
 
-            val graph = component.init()
+            val graph = component.createGraph()
 
             initializingComponentCalled.shouldBe(1)
             postConstructCalled.shouldBe(0)

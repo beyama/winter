@@ -34,7 +34,7 @@ open class WinterInjection {
          * The adapter implementation is responsible for storing the created graph.
          *
          * @param instance The instance to create a dependency graph for.
-         * @param block An optional builder block to pass to the component init method.
+         * @param block An optional builder block to pass to the component createGraph method.
          * @return The newly created graph
          * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
          *
@@ -61,7 +61,7 @@ open class WinterInjection {
      * Create and return dependency graph for [instance].
      *
      * @param instance The instance for which a graph should be created.
-     * @param block An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component createGraph method.
      * @return The newly created graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
@@ -74,7 +74,7 @@ open class WinterInjection {
      *
      * @param instance The instance for which a graph should be created.
      * @param injector The injector to inject into.
-     * @param block An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component createGraph method.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
@@ -91,7 +91,7 @@ open class WinterInjection {
      *
      * @param instance The instance to create a graph for and to inject into.
      * @param injectSuperClasses If true this will look for members injectors for super classes too.
-     * @param block An optional builder block to pass to the component init method.
+     * @param block An optional builder block to pass to the component createGraph method.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */

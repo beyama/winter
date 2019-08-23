@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 0.3.1
+-------------
+
+* New #createSubgraph, #openSubgraph, #closeSubgraph
+* New Component#createGraph method
+* New WinterApplication#createGraph
+* Deprecate #createChildGraph, #openChildGraph, #closeChildGraph methods
+* Deprecate Component#init
+* Deprecate WinterApplication#init 
+* Update documentation and exception messages to reflect new naming
+
 Version 0.3.0
 -------------
 

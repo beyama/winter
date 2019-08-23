@@ -2,7 +2,6 @@ package io.jentz.winter.compilertest.membersonly
 
 import io.jentz.winter.Graph
 import io.jentz.winter.compilertest.generatedComponent
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -15,7 +14,7 @@ class MembersOnlyTest {
 
     @Before
     fun setUp() {
-        graph = generatedComponent.init()
+        graph = generatedComponent.createGraph()
     }
 
     @Test
@@ -35,7 +34,7 @@ class MembersOnlyTest {
 
     @Test
     fun `Test injected provider`() {
-        graph = generatedComponent.init {
+        graph = generatedComponent.createGraph {
             constant("constructor", qualifier = "constructor")
             constant("setter", qualifier = "setter")
             constant("field", qualifier = "field")
@@ -49,7 +48,7 @@ class MembersOnlyTest {
     @Test
     fun `Test lazy injection`() {
         val atomic = AtomicInteger(0)
-        val graph = generatedComponent.init { prototype { atomic.incrementAndGet() } }
+        val graph = generatedComponent.createGraph { prototype { atomic.incrementAndGet() } }
         val instance: LazyInjection = graph.instance()
         assertEquals(1, instance.field.value)
         assertEquals(1, instance.field.value)

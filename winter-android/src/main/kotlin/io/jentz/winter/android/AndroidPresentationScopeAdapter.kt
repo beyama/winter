@@ -34,7 +34,7 @@ import io.jentz.winter.*
  * [DependencyGraphContextWrapper] and [ContextWrapper].
  *
  * The optional builder block for [createGraph] with an Activity is applied to the "activity"
- * component init *NOT* the "presentation" component init.
+ * component createGraph *NOT* the "presentation" component createGraph.
  *
  * [getGraph] called with an unknown type will return the application graph.
  *

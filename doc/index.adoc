@@ -16,6 +16,8 @@ dependencies {
     implementation 'io.jentz.winter:winter:x.x.x'
     // Android support
     implementation 'io.jentz.winter:winter-android:x.x.x'
+    // AndroidX lifecycle support
+    implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
     // Optional JSR-330 support
@@ -27,17 +29,76 @@ dependencies {
 kapt {
     arguments {
         // This tells the Winter compiler under which package name it should store
-        // the generated component. See the advanced section for more details.
+        // the generated component. See the JSR-330 section for more details.
         arg("winterGeneratedComponentPackage", "my.project.root.package.name")
     }
 }
 ----
 Replace `x.x.x` with the version you would like to use.
-The newest version is {winterVersion}.
+The latest version is {winterVersion}.
+
+=== Available Modules
+
+[cols=3,options="header"]
+|===
+
+| Module
+| Description
+| API Doc
+
+| io.jentz.winter:winter:{winterVersion}
+| Winter core module
+| link:javadoc/winter/index.html[Winter]
+
+| io.jentz.winter:winter-junit4:{winterVersion}
+| JUnit4 support
+| link:javadoc/winter-junit4/index.html[Winter JUnit4]
+
+| io.jentz.winter:winter-rxjava2:{winterVersion}
+| RxJava2 support
+| link:javadoc/winter-rxjava2/index.html[Winter RxJava2]
+
+| io.jentz.winter:winter-android:{winterVersion}
+| Android support
+| link:javadoc/winter-android/index.html[Winter Android]
+
+| io.jentz.winter:winter-androidx-lifecycle:{winterVersion}
+| Android X lifecycle support
+| link:javadoc/winter-androidx-lifecycle/index.html[Winter AndroidX lifecycle support]
+
+|===
 
 == Terminology
 
-== Declaring Dependencies
+[cols="2,10",options="header"]
+|===
+
+| Term
+| Definition
+
+| Component
+| The immutable dependency registry for providers, factories and subcomponents.
+
+| Subcomponent
+| A component that is defined inside a component to partition the object graphs into subgraphs.
+
+| Graph
+| The object graph that holds actual instances and is used to retrieve dependencies
+  defined in a component.
+
+| Subgraph
+| Graph created from a subcomponent that can access dependencies from its parent graph but the
+  parent has no access to child dependencies.
+
+| Scope
+| The lifetime of an instance in a graph e.g. singleton for only one per graph or prototype for one
+  each time an instance is requested.
+
+|===
+
+== Core
+
+=== Declaring Dependencies
 
 Dependencies are organized in components and declared by using the `component` method which takes
 a block with a `ComponentBuilder` as its receiver.
@@ -57,11 +118,11 @@ val coffeeAppComponent = component {
 All scope functions take an optional `qualifier` for cases where you want to register the same type
 multiple times and all scope functions take an boolean to enable <<generics,generic type preservation>>.
 
-For a list of all builder methods see TODO: API docs of ComponentBuilder.
+For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-component-builder/index.html[API docs of ComponentBuilder].
 
-=== Available Scopes
+==== Available Scopes
 
-[cols=2,options="header"]
+[cols="3,10",options="header"]
 |===
 
 |Scope methods
@@ -98,8 +159,10 @@ For a list of all builder methods see TODO: API docs of ComponentBuilder.
 
 Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
 of the application from each other e.g. the business layer from the view layer of an application.
-Subcomponents inherit and extend the parent component which means that an object bound in a subgraph
-can access all objects of the parent graph but not vice versa.
+Subgraphs inherit and extend the parent graph which means that an service bound in a
+subgraph can access all services of the parent graph but not vice versa.
+Subgraphs can have a shorter lifetime than their parents and there can be multiple subgraphs with
+the same parent and from the same subcomponent.
 
 [source,kotlin]
 ----
@@ -107,25 +170,30 @@ val coffeeAppComponent = component {
     singleton { HttpCache() }
 
     subcomponent("gui") {
-        singleton { ImageLoader(cache = instance<HttpCache>() }
+        singleton { ImageLoader(cache = instance<HttpCache>()) }
     }
 }
 
+// initialize the application component
 val appGraph = coffeeAppComponent.init()
-val guiGraph = appGraph.initSubcomponent("gui")
+// open a subgraph
+val guiGraph = appGraph.openSubgraph("gui")
+// close a subgraph
+appGraph.closeSubgraph("gui")
+// or
+guiGraph.dispose()
 ----
 
 In this example `guiGraph` can access `HttpCache` but `appGraph` couldn't access `ImageLoader`.
 
-You can also pass an `ComponentBuilder` block to the `initSubcomponent` methods to add new
+You can also pass an `ComponentBuilder` block to the `openSubgraph` method to add new
 dependencies to the resulting subgraph.
 
-== Retrieving Dependencies
+=== Retrieving Dependencies
 
-Dependencies are retrieved from a graph and a graph is created from a component.
-There are three kinds of retrieval methods to get an instance, a provider function or a factory.
+Dependencies are retrieved from a dependency graph.
 
-source,kotlin]
+[source,kotlin]
 ----
 val coffeeAppComponent = component {
     prototype { Heater() }
@@ -185,8 +253,10 @@ Like the scope methods we used to declare our dependencies all the retrieval fun
 optional qualifier for cases where we have the same type registered with different qualifiers
 (except the *OfType methods) and they all take an boolean to enable <<generics,generic type preservation>>.
 
+See the link:javadoc/winter/io.jentz.winter/-graph/index.html[Graph API docs] for further details.
+
 [#generics]
-== Generics
+=== Generics
 
 By default all generics you pass to one of the scope methods or retrieval methods fall victim to
 type erasure which means for example `List<Pump>` becomes just `List`.
@@ -209,7 +279,277 @@ val appComponent = component {
 }
 ----
 
+[#injection]
+=== Injection
+
+We don't want knowledge of how to create or retrieve a dependency graph in our classes and therefor
+`Injection` was created. `Injection` allows us to create, get and dispose a dependency graph
+without having knowledge about the details.
+The actual strategy to create, get and dispose a graph is part of an adapter.
+
+Here is a basic example with the `SimpleAndroidInjectionAdapter` from the `winter-android` module
+that requires an "activity" subcomponent:
+
+[source,kotlin]
+----
+class MyApplication : Application() {
+    override fun onCreate() {
+        // declare application component
+        Winter.component {
+            singleton<GitHubApi> { GitHubApiImpl() }
+
+            singleton { RepoListViewModel(instance()) }
+
+            subcomponent("activity") {
+                singleton { Glide.with(instance<Activity>()) }
+            }
+        }
+
+        /// Configure Injection to use the simple android adapter
+        Injection.useSimpleAndroidAdapter()
+        // Create application graph by providing the application instance
+        Injection.createGraph(this)
+    }
+}
+
+class MyActivity : Activity() {
+    private val injector = Injector()
+    private val viewModel: RepoListViewModel by injector.instance()
+    private val glide: RequestManager by injector.instance()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Injection.createGraphAndInject(this, injector)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        Injection.disposeGraph(this)
+        super.onDestroy()
+    }
+
+}
+----
+
+See link:javadoc/winter/io.jentz.winter/-injection.html["Injection API documentation"] for more
+details.
+
+NOTE: We call `Winter.component` here instead of just `component` which registers the component
+as the application component used by the `Injection Adapters` by default.
+
+CAUTION: When you use `Injection#createGraph` to create a graph you should always call
+`Injection#disposeGraph` to close it instead of directly calling `#dispose` on the resulting graph.
+
+[#injector]
+=== Injector
+
+It is considered the best way to use constructor based injection to have a consistent state after
+initialisation and proper encapsulation.
+But sometime classes are instantiated by the system, like Activities on Android.
+
+Then property injection is our only solution.
+
+The usage of the `Injector` class is the recommended way to handle cases were you are not able to
+use constructor injection for your Kotlin classes.
+
+It utilizes Kotlin property delegation and defers the dependency
+retrieval to a point in time were you are able to provide a
+dependency graph to the injector e.g. Activity#onCreate on Android.
+
+Example:
+
+[source,kotlin]
+----
+class MyActivity : Activity() {
+
+    private val injector = Injector()
+    // eager injection of a non-optional dependency
+    private val api: GitHubApi by injector.instance()
+    // eager injection of an optional dependency
+    private val api: GitHubApi? by injector.instanceOrNull()
+    // lazy injection of a non-optional dependency
+    private val api: GitHubApi by injector.lazyInstance()
+    // lazy injection of an optional dependency
+    private val api: GitHubApi? by injector.lazyInstanceOrNull()
+    // injection of a non-optional factory
+    private val factory: (Int) -> ProducedInstance by injector.factory()
+    // injection of an optional factory
+    private val factory: (Int) -> ProducedInstance by injector.factoryOrNull()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+      // ... create or get the dependency graph
+      injector.inject(graph)
+      super.onCreate(savedInstanceState)
+    }
+}
+----
+
+In this example we see retrieval methods prefixed with lazy.
+Lazy injection means that the actual retrieval and therefore the actual
+instantiation of a dependency is deferred to the point where you access
+the property the first time. This is useful in cases where the creation
+is computationally expensive but may not be required in some cases.
+
+For more details see link:javadoc/winter/io.jentz.winter/-injector/index.html[Injector API docs].
+
+=== WinterAware
+
+The `WinterAware` interface marks a class as aware of Winter and gives it access to a variety of
+extension methods to get a dependency graph and to retrieve or inject dependencies.
+
+A simple example:
+
+[source,kotlin]
+----
+class HomeScreen @JvmOverloads constructor(
+  context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : CoordinatorLayout(context, attrs, defStyleAttr), WinterAware {
+
+  private val viewModel: HomeViewModel = instance()
+
+}
+----
+
+The call to `instance` in this example is just syntactical sugar for
+`Injection.getGraph(this).instance<HomeViewModel>()`.
+
+For more details see the API documentation of
+link:javadoc/winter/io.jentz.winter.aware/-winter-aware/index.html[WinterAware].
+
+=== WinterTree & GraphRegistry
+
+A object graph can have multiple subgraphs and may have a parent graph which makes it a tree of
+object graphs (directed acyclic graph).
+
+`WinterTree` and its object version `GraphRegisty` are helper to create (open) and dispose (close)
+(sub-)graphs by paths of component qualifier.
+
+This was inspired by [Toothpick](https://github.com/stephanenicolas/toothpick).
+
+You can use `GraphRegistry` directly but it is usually a better approach to use the `Injection`
+abstraction and use `WinterTree` in an Adapter internally.
+
+For example:
+[source,kotlin]
+----
+// create the application dependency graph on application start
+class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+
+    // define a component with one subcomponent
+    Winter.component {
+      subcomponent("activity") {
+      }
+    }
+
+    GraphRegistry.open { constant<Application> { this@MyApplication } }
+  }
+}
+// you can now retrieve the application dependency graph by calling
+GraphRegistry.get()
+
+// create and dispose a subgraph of the application graph
+class MyActivity : Activity() {
+  override fun onCreate() {
+    super.onCreate()
+    // initialize subcomponent with name "activity" and register it with identifier this
+    GraphRegistry.open("activity", identifier = this) { constant<Activity>(this@MyActivity) }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    // dispose the "activity" subgraph with identifier this
+    GraphRegistry.close(this)
+  }
+
+}
+----
+
+If you close (dispose) a graph it will also close all registered subgraphs.
+
+For more details see
+link:javadoc/winter/io.jentz.winter/-winter-tree/index.html[WinterTree API docs]
+and
+link:javadoc/winter/io.jentz.winter/-graph-registry/index.html[GraphRegistry API docs].
+
 == Android
+
+=== Winter Android Module
+
+The `winter-android` module comes with two extendable base Adapters for the xref:injection[Injection]
+system and a DependencyGraphContextWrapper to attach a different graph to an Android Context.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-simple-android-injection-adapter/index.html[SimpleAndroidInjectionAdapter]
+manages an application dependency graph and an activity subgraph.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-android-presentation-scope-adapter/index.html[AndroidPresentationScopeAdapter]
+manages an application dependency graph, a presentation subgraph that outlives configuration
+changes and an activity subgraph.
+
+The
+link:javadoc/winter-android/io.jentz.winter.android/-dependency-graph-context-wrapper/index.html[DependencyGraphContextWrapper]
+can be used to attache a different graph to an Android Context than the one that is attached to the
+wrapped Context.
+
+For example:
+[source,kotlin]
+----
+Injection.getGraph(myActivity) // => activityGraph
+val viewGraph = activityGraph.openSubgraph("view")
+val viewContext = DependencyGraphContextWrapper(myActivity, viewGraph)
+val newView = LayoutInflater.from(viewContext).inflate(R.layout.view_list, containerView, false)
+Injection.getGraph(newView) // => viewGraph
+Injection.getGraph(newView.context) // => viewGraph
+----
+
+=== AndroidX Lifecycle Support
+
+The `winter-androidx-lifecycle` module adds extensions to `Graph` and to `LifecycleOwner` to
+register a `LifecycleObserver` on a `LifecycleOwner` which automatically disposes the graph when
+the `LifecycleOwner` gets destroyed (or stopped).
+
+For example:
+[source,kotlin]
+----
+class MyActivity : AppCompatActivity(), WinterAware {
+
+  private val injector = Injector()
+  // ... do something with injector ...
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    createGraphAndInject(injector) // this class is WinterAware so we get this extension method
+    autoDisposeGraph() // no need to override onDestroy() to call Injection.disposeGraph(this)
+    super.onCreate(savedInstanceState)
+  }
+
+}
+
+// Or if you work with graphs directly
+
+class MyClass : ALifecycleOwner() {
+
+  fun someMethod() {
+    val graph = myClassComponent.init()
+    graph.autoDispose(this)
+  }
+
+}
+
+----
+
+For more details see
+link:javadoc/winter-androidx-lifecycle/io.jentz.winter.androidx.lifecycle/index.html[API docs].
+
+== RxJava2 Support
+
+The `winter-rxjava2` modules contains a Winter Plugin that automatically disposes all singletons
+in a graph which implement `Disposable`.
+
+To activate the plugin call `Winter.installDisposablePlugin()` before you instantiate any graph.
+
+For more details see link:javadoc/winter-rxjava2/index.html[API docs].
 
 == JUnit Test
 
@@ -244,11 +584,12 @@ val coffeeAppComponent = component {
         val coffeeMaker = CoffeeMaker()
         coffeeMaker.heater = instance()
         coffeeMaker.pump = instance()
+        coffeeMaker
     }
 }
 ----
 
-Anotherway is to use the `postConstruct` callback instead of the factory block.
+Another way is to use the `postConstruct` callback instead of the factory block.
 
 [source,kotlin]
 ----
@@ -284,39 +625,25 @@ class CoffeeActivity : Activity() {
 }
 ----
 
-== Advanced Usage
+For more details see the paragraph about the xref:injector[Injector].
 
-=== Include Components
+== JSR330 Annotation Preprocessor
 
-=== Circular Dependencies
+JSR-330 support is provided by the module `winter-compiler`.
 
-Circular dependencies are dependencies that depend on each other.
-To define circular dependencies in Winter one of the dependencies must be injected through a
-property or method. You can then use a `postConstruct` callback to retrieve the circular dependency.
+The JSR-330 annotation preprocessor generates components and members injectors for you classes
+that are annotated with JSR-330 annotations.
 
-[source,kotlin]
-----
-class Parent(child: Child)
-class Child {
-    var parent: Parent? = null
-}
+The JSR-330 annotation preprocessor generates factories for your classes that have an @Inject
+annotated constructor.
 
-val applicationComponent = component {
-    singleton { Parent(instance()) }
-    singleton(postConstruct = { it.parent = instance() }) { Child() }
-}
-----
+It generates a members-injector for each class that has @Inject annotated
+setters or fields.
 
-=== Injector
+And it generates a component containing all those factories and
+members-injectors to avoid the usage of reflection.
 
-=== Plugins
-
-=== JSR330 Annotation Preprocessor
-
-The JSR330 annotation preprocessor generates components and members injectors for you classes
-that are annotated with JSR330 annotations.
-
-==== Configure Kapt
+=== Configure Kapt
 
 [source,groovy]
 ----
@@ -335,10 +662,10 @@ kapt {
 This will generate a component named `generatedComponent` in the configured package here
 `my.project.root.package.name`.
 
-In a simple application that only relies on JSR330 for injection this `generatedComponent` can
+In a simple application that only relies on JSR-330 for injection this `generatedComponent` can
 directly be used as application component but it is usually included in another component.
 
-==== Custom Scopes
+=== Custom Scopes
 
 A custom scope is created via an extended `Scope` annotation like:
 
@@ -373,3 +700,29 @@ val applicationGraph = generatedComponent.subcomponent(ApplicationScope::class).
 val coffeeMaker: CoffeeMakter = applicationGraph.instance()
 ----
 
+== Advanced Usage
+
+=== Include Components
+
+=== Circular Dependencies
+
+Circular dependencies are dependencies that depend on each other.
+To define circular dependencies in Winter one of the dependencies must be injected through a
+property or method. You can then use a `postConstruct` callback to retrieve the circular dependency.
+
+[source,kotlin]
+----
+class Parent(child: Child)
+class Child {
+    var parent: Parent? = null
+}
+
+val applicationComponent = component {
+    singleton { Parent(instance()) }
+    singleton(postConstruct = { it.parent = instance() }) { Child() }
+}
+---
+
+=== Plugins
+
+=== Usage In Libraries

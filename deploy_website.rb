@@ -1,36 +1,59 @@
-#!/usr/bin/env ruby
-
 require 'fileutils'
 extend FileUtils
 
-REPO='git@github.com:beyama/winter.git'
-GROUP_ID = 'io.jentz.winter'
-DIR = 'tmp_clone'
+REPO ='git@github.com:beyama/winter.git'
+CNAME = "winter.jentz.io"
+TMP_DIR = 'tmp_clone'
+WORKING_DIR = File.dirname(File.expand_path(__FILE__))
+TRY_RUN = !ARGV.empty?
 
-rm_rf DIR
-`git clone #{REPO} #{DIR}`
+cd WORKING_DIR
 
-cd DIR
+current_branch = `git rev-parse --abbrev-ref HEAD`
+puts "Generating website based on branch #{current_branch}"
 
-`git checkout -t origin/gh-pages`
+# checkout gh-pages branch into TMP_DIR
+rm_rf TMP_DIR
 
-# Remove old site
-rm_rf '*'
+if TRY_RUN
+	mkdir TMP_DIR
+else
+	`git clone #{REPO} #{TMP_DIR}`
 
-# Download the latest javadoc
-['winter', 'winter-android', 'winter-compiler', 'winter-junit4', 'winter-rxjava2'].each do |id|
-    `curl -L "http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=#{GROUP_ID}&a=#{id}&v=LATEST&c=javadoc" > javadoc.zip`
-    mkdir 'javadoc' unless File.directory? 'javadoc'
-    `unzip -o javadoc.zip -d javadoc`
-    rm 'javadoc.zip'
+	cd TMP_DIR
+
+	`git checkout -t origin/gh-pages`
+
+	# Remove old site
+	rm_rf '*'
+
+	cd WORKING_DIR
 end
 
-# Checkout doc folder and convert docs to HTML
-`git checkout master -- doc/*`
-latest_version = `git describe master --abbrev=0 --tags`.strip
-`asciidoctor --attribute winterVersion=#{latest_version} --destination-dir . doc/index.adoc`
-rm_rf 'doc'
+# write CNAME file to gh-pages
+File.open(File.join(TMP_DIR, "CNAME"), "w") { |f| f.write(CNAME) }
 
+# build Javadocs
+`./gradlew dokka`
+
+# copy Javadocs
+Dir["*/build/javadoc"].each do |dir|
+  cp_r dir, TMP_DIR
+end
+
+# build asciidoc page
+latest_version = `git describe master --abbrev=0 --tags`.strip
+`asciidoctor --attribute winterVersion=#{latest_version} --destination-dir #{TMP_DIR} doc/index.adoc`
+
+if TRY_RUN
+	if RUBY_PLATFORM =~ /darwin/
+		`open #{File.join(TMP_DIR, "index.html")}`
+	end
+
+	exit 0
+end
+
+cd TMP_DIR
 
 # Stage all files in git and create a commit
 `git add .`
@@ -41,5 +64,5 @@ rm_rf 'doc'
 `git push origin gh-pages`
 
 # Clean up
-cd '..'
-rm_rf DIR
+cd WORKING_DIR
+rm_rf TMP_DIR

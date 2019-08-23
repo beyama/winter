@@ -72,13 +72,13 @@ class ComponentTest {
     @Test
     fun `#init without builder block should return graph with component`() {
         val c = component("root") { }
-        c.init().component.shouldBeSameInstanceAs(c)
+        c.createGraph().component.shouldBeSameInstanceAs(c)
     }
 
     @Test
     fun `#init with builder block should return graph with derived component`() {
         val c = component("root") { }
-        val graph = c.init { }
+        val graph = c.createGraph { }
         graph.component.qualifier.shouldBe("root")
         graph.component.shouldNotBeSameInstanceAs(c)
     }
