@@ -1,0 +1,26 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Graph.createSubgraph - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">Graph</a>&nbsp;/&nbsp;<a href="./create-subgraph.html">createSubgraph</a><br/>
+<br/>
+<h1>createSubgraph</h1>
+<a name="io.jentz.winter.Graph$createSubgraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
+<code><span class="keyword">fun </span><span class="identifier">createSubgraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$createSubgraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$createSubgraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">Graph</span></a></code>
+<p>Initialize and return a subgraph by using the subcomponent with <a href="create-subgraph.html#io.jentz.winter.Graph$createSubgraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</a> and
+this graph as parent.</p>
+<p>A graph initialized with this method doesn't get disposed when its parent gets disposed
+but becomes inconsistent.</p>
+<p>Use it with caution in cases where you need to initialize a lot of short-lived subgraphs that
+are managed by you e.g. a per request subgraph on a HTTP server that gets created per
+request and destroyed at the end.</p>
+<h3>Parameters</h3>
+<p><a name="subcomponentQualifier"></a>
+<code>subcomponentQualifier</code> - The subcomponentQualifier of the subcomponent.</p>
+<p><a name="block"></a>
+<code>block</code> - An optional builder block to register provider on the subcomponent.</p>
+</BODY>
+</HTML>

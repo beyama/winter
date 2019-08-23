@@ -465,7 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_retrieving_dependencies">Retrieving Dependencies</a></li>
 <li><a href="#generics">Generics</a></li>
 <li><a href="#injection">Injection</a></li>
-<li><a href="#_injector">Injector</a></li>
+<li><a href="#injector">Injector</a></li>
 <li><a href="#_winteraware">WinterAware</a></li>
 <li><a href="#_wintertree_graphregistry">WinterTree &amp; GraphRegistry</a></li>
 </ul>
@@ -485,17 +485,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_injector_with_property_delegates">Injector with Property Delegates</a></li>
 </ul>
 </li>
+<li><a href="#_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</a>
+<ul class="sectlevel2">
+<li><a href="#_configure_kapt">Configure Kapt</a></li>
+<li><a href="#_custom_scopes">Custom Scopes</a></li>
+</ul>
+</li>
 <li><a href="#_advanced_usage">Advanced Usage</a>
 <ul class="sectlevel2">
 <li><a href="#_include_components">Include Components</a></li>
 <li><a href="#_circular_dependencies">Circular Dependencies</a></li>
 <li><a href="#_plugins">Plugins</a></li>
-<li><a href="#_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</a>
-<ul class="sectlevel3">
-<li><a href="#_configure_kapt">Configure Kapt</a></li>
-<li><a href="#_custom_scopes">Custom Scopes</a></li>
-</ul>
-</li>
+<li><a href="#_usage_in_libraries">Usage In Libraries</a></li>
 </ul>
 </li>
 </ul>
@@ -532,7 +533,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 kapt {
     arguments {
         // This tells the Winter compiler under which package name it should store
-        // the generated component. See the advanced section for more details.
+        // the generated component. See the JSR-330 section for more details.
         arg("winterGeneratedComponentPackage", "my.project.root.package.name")
     }
 }</code></pre>
@@ -540,7 +541,7 @@ kapt {
 </div>
 <div class="paragraph">
 <p>Replace <code>x.x.x</code> with the version you would like to use.
-The latest version is 0.3.0.</p>
+The latest version is 0.3.1.</p>
 </div>
 <div class="sect2">
 <h3 id="_available_modules">Available Modules</h3>
@@ -559,27 +560,27 @@ The latest version is 0.3.0.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.3.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Winter core module</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter/index.html">Winter</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.3.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit4 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit4/index.html">Winter JUnit4</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.3.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RxJava2 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-rxjava2/index.html">Winter RxJava2</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.3.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-android/index.html">Winter Android</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.3.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.3.1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android X lifecycle support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-androidx-lifecycle/index.html">Winter AndroidX lifecycle support</a></p></td>
 </tr>
@@ -605,20 +606,20 @@ The latest version is 0.3.0.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The immutable dependency registry for providers, factories and sub-components.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The immutable dependency registry for providers, factories and subcomponents.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sub-Component</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A component that is defined inside a component used to create child graphs.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Subcomponent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A component that is defined inside a component to partition the object graphs into subgraphs.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graph</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The "instance" of a component that holds actual instances and is used to retrieve dependencies
+<td class="tableblock halign-left valign-top"><p class="tableblock">The object graph that holds actual instances and is used to retrieve dependencies
   defined in a component.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Child-Graph</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Graph created from a sub-component that can access dependencies from its parent graph but the
+<td class="tableblock halign-left valign-top"><p class="tableblock">Subgraph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graph created from a subcomponent that can access dependencies from its parent graph but the
   parent has no access to child dependencies.</p></td>
 </tr>
 <tr>
@@ -731,10 +732,10 @@ the same parent and from the same subcomponent.</p>
 
 // initialize the application component
 val appGraph = coffeeAppComponent.init()
-// open a child graph
-val guiGraph = appGraph.openChildGraph("gui")
-// close a child graph
-appGraph.closeChildGraph("gui")
+// open a subgraph
+val guiGraph = appGraph.openSubgraph("gui")
+// close a subgraph
+appGraph.closeSubgraph("gui")
 // or
 guiGraph.dispose()</code></pre>
 </div>
@@ -743,7 +744,7 @@ guiGraph.dispose()</code></pre>
 <p>In this example <code>guiGraph</code> can access <code>HttpCache</code> but <code>appGraph</code> couldn&#8217;t access <code>ImageLoader</code>.</p>
 </div>
 <div class="paragraph">
-<p>You can also pass an <code>ComponentBuilder</code> block to the <code>openChildGraph</code> method to add new
+<p>You can also pass an <code>ComponentBuilder</code> block to the <code>openSubgraph</code> method to add new
 dependencies to the resulting subgraph.</p>
 </div>
 </div>
@@ -868,39 +869,39 @@ that requires an "activity" subcomponent:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">class MyApplication : Application() {
-  override fun onCreate() {
-    // declare application component
-    Winter.component {
-      singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
+    override fun onCreate() {
+        // declare application component
+        Winter.component {
+            singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
 
-      singleton { RepoListViewModel(instance()) }
+            singleton { RepoListViewModel(instance()) }
 
-      subcomponent("activity") {
-         singleton { Glide.with(instance&lt;Activity&gt;()) }
-      }
+            subcomponent("activity") {
+                singleton { Glide.with(instance&lt;Activity&gt;()) }
+            }
+        }
+
+        /// Configure Injection to use the simple android adapter
+        Injection.useSimpleAndroidAdapter()
+        // Create application graph by providing the application instance
+        Injection.createGraph(this)
     }
-
-    /// Configure Injection to use the simple android adapter
-    Injection.useSimpleAndroidAdapter()
-    // Create application graph by providing the application instance
-    Injection.createGraph(this)
-  }
 }
 
 class MyActivity : Activity() {
-  private val injector = Injector()
-  private val viewModel: RepoListViewModel by injector.instance()
-  private val glide: RequestManager by injector.instance()
+    private val injector = Injector()
+    private val viewModel: RepoListViewModel by injector.instance()
+    private val glide: RequestManager by injector.instance()
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    Injection.createGraphAndInject(this, injector)
-    super.onCreate(savedInstanceState)
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Injection.createGraphAndInject(this, injector)
+        super.onCreate(savedInstanceState)
+    }
 
-  override fun onDestroy() {
-    Injection.disposeGraph(this)
-    super.onDestroy()
-  }
+    override fun onDestroy() {
+        Injection.disposeGraph(this)
+        super.onDestroy()
+    }
 
 }</code></pre>
 </div>
@@ -908,6 +909,19 @@ class MyActivity : Activity() {
 <div class="paragraph">
 <p>See <a href="javadoc/winter/io.jentz.winter/-injection.html">"Injection API documentation"</a> for more
 details.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+We call <code>Winter.component</code> here instead of just <code>component</code> which registers the component
+as the application component used by the <code>Injection Adapters</code> by default.
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock caution">
 <table>
@@ -924,7 +938,7 @@ When you use <code>Injection#createGraph</code> to create a graph you should alw
 </div>
 </div>
 <div class="sect2">
-<h3 id="_injector">Injector</h3>
+<h3 id="injector">Injector</h3>
 <div class="paragraph">
 <p>It is considered the best way to use constructor based injection to have a consistent state after
 initialisation and proper encapsulation.
@@ -1014,12 +1028,12 @@ extension methods to get a dependency graph and to retrieve or inject dependenci
 <div class="sect2">
 <h3 id="_wintertree_graphregistry">WinterTree &amp; GraphRegistry</h3>
 <div class="paragraph">
-<p>A Graph can have multiple child-graphs and may have a parent graph which makes it a tree of graphs
-(directed acyclic graph).</p>
+<p>A object graph can have multiple subgraphs and may have a parent graph which makes it a tree of
+object graphs (directed acyclic graph).</p>
 </div>
 <div class="paragraph">
 <p><code>WinterTree</code> and its object version <code>GraphRegisty</code> are helper to create (open) and dispose (close)
-graphs by paths of component qualifier.</p>
+(sub-)graphs by paths of component qualifier.</p>
 </div>
 <div class="paragraph">
 <p>This was inspired by [Toothpick](<a href="https://github.com/stephanenicolas/toothpick" class="bare">https://github.com/stephanenicolas/toothpick</a>).</p>
@@ -1038,7 +1052,7 @@ class MyApplication : Application() {
   override fun onCreate() {
     super.onCreate()
 
-    // define a component with one sub-component
+    // define a component with one subcomponent
     Winter.component {
       subcomponent("activity") {
       }
@@ -1060,7 +1074,7 @@ class MyActivity : Activity() {
 
   override fun onDestroy() {
     super.onDestroy()
-    // dispose the "activity" sub-graph with identifier this
+    // dispose the "activity" subgraph with identifier this
     GraphRegistry.close(this)
   }
 
@@ -1068,7 +1082,7 @@ class MyActivity : Activity() {
 </div>
 </div>
 <div class="paragraph">
-<p>If you close (dispose) a graph it will also close all registered child graphs.</p>
+<p>If you close (dispose) a graph it will also close all registered subgraphs.</p>
 </div>
 <div class="paragraph">
 <p>For more details see
@@ -1091,13 +1105,13 @@ system and a DependencyGraphContextWrapper to attach a different graph to an And
 <div class="paragraph">
 <p>The
 <a href="javadoc/winter-android/io.jentz.winter.android/-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a>
-manages an application dependency graph and an activity child graph.</p>
+manages an application dependency graph and an activity subgraph.</p>
 </div>
 <div class="paragraph">
 <p>The
 <a href="javadoc/winter-android/io.jentz.winter.android/-android-presentation-scope-adapter/index.html">AndroidPresentationScopeAdapter</a>
-manages an application dependency graph, a presentation child graph that outlives configuration
-changes and an activity child graph.</p>
+manages an application dependency graph, a presentation subgraph that outlives configuration
+changes and an activity subgraph.</p>
 </div>
 <div class="paragraph">
 <p>The
@@ -1111,7 +1125,7 @@ wrapped Context.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="kotlin">Injection.getGraph(myActivity) // =&gt; activityGraph
-val viewGraph = activityGraph.openChildGraph("view")
+val viewGraph = activityGraph.openSubgraph("view")
 val viewContext = DependencyGraphContextWrapper(myActivity, viewGraph)
 val newView = LayoutInflater.from(viewContext).inflate(R.layout.view_list, containerView, false)
 Injection.getGraph(newView) // =&gt; viewGraph
@@ -1219,6 +1233,7 @@ and doesn&#8217;t offer an appropriate constructor.</p>
         val coffeeMaker = CoffeeMaker()
         coffeeMaker.heater = instance()
         coffeeMaker.pump = instance()
+        coffeeMaker
     }
 }</code></pre>
 </div>
@@ -1262,52 +1277,24 @@ This is often the best option for classes that are created by a framework like A
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>For more details see the paragraph about the <a href="#injector">Injector</a>.</p>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_advanced_usage">Advanced Usage</h2>
+<h2 id="_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_include_components">Include Components</h3>
-
-</div>
-<div class="sect2">
-<h3 id="_circular_dependencies">Circular Dependencies</h3>
-<div class="paragraph">
-<p>Circular dependencies are dependencies that depend on each other.
-To define circular dependencies in Winter one of the dependencies must be injected through a
-property or method. You can then use a <code>postConstruct</code> callback to retrieve the circular dependency.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="kotlin">class Parent(child: Child)
-class Child {
-    var parent: Parent? = null
-}
-
-val applicationComponent = component {
-    singleton { Parent(instance()) }
-    singleton(postConstruct = { it.parent = instance() }) { Child() }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_plugins">Plugins</h3>
-
-</div>
-<div class="sect2">
-<h3 id="_jsr330_annotation_preprocessor">JSR330 Annotation Preprocessor</h3>
 <div class="paragraph">
 <p>JSR-330 support is provided by the module <code>winter-compiler</code>.</p>
 </div>
 <div class="paragraph">
-<p>The JSR330 annotation preprocessor generates components and members injectors for you classes
-that are annotated with JSR330 annotations.</p>
+<p>The JSR-330 annotation preprocessor generates components and members injectors for you classes
+that are annotated with JSR-330 annotations.</p>
 </div>
 <div class="paragraph">
-<p>The JSR330 annotation preprocessor generates factories for your classes that have an @Inject
+<p>The JSR-330 annotation preprocessor generates factories for your classes that have an @Inject
 annotated constructor.</p>
 </div>
 <div class="paragraph">
@@ -1318,8 +1305,8 @@ setters or fields.</p>
 <p>And it generates a component containing all those factories and
 members-injectors to avoid the usage of reflection.</p>
 </div>
-<div class="sect3">
-<h4 id="_configure_kapt">Configure Kapt</h4>
+<div class="sect2">
+<h3 id="_configure_kapt">Configure Kapt</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code data-lang="groovy">dependencies {
@@ -1339,12 +1326,12 @@ kapt {
 <code>my.project.root.package.name</code>.</p>
 </div>
 <div class="paragraph">
-<p>In a simple application that only relies on JSR330 for injection this <code>generatedComponent</code> can
+<p>In a simple application that only relies on JSR-330 for injection this <code>generatedComponent</code> can
 directly be used as application component but it is usually included in another component.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_custom_scopes">Custom Scopes</h4>
+<div class="sect2">
+<h3 id="_custom_scopes">Custom Scopes</h3>
 <div class="paragraph">
 <p>A custom scope is created via an extended <code>Scope</code> annotation like:</p>
 </div>
@@ -1384,11 +1371,48 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_advanced_usage">Advanced Usage</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_include_components">Include Components</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_circular_dependencies">Circular Dependencies</h3>
+<div class="paragraph">
+<p>Circular dependencies are dependencies that depend on each other.
+To define circular dependencies in Winter one of the dependencies must be injected through a
+property or method. You can then use a <code>postConstruct</code> callback to retrieve the circular dependency.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class Parent(child: Child)
+class Child {
+    var parent: Parent? = null
+}
+
+val applicationComponent = component {
+    singleton { Parent(instance()) }
+    singleton(postConstruct = { it.parent = instance() }) { Child() }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_plugins">Plugins</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_usage_in_libraries">Usage In Libraries</h3>
+
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-10 08:18:14 +0200
+Last updated 2019-08-23 11:35:18 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

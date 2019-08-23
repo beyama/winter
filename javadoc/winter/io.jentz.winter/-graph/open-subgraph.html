@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Graph.openSubgraph - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">Graph</a>&nbsp;/&nbsp;<a href="./open-subgraph.html">openSubgraph</a><br/>
+<br/>
+<h1>openSubgraph</h1>
+<a name="io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
+<code><span class="keyword">fun </span><span class="identifier">openSubgraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">Graph</span></a></code>
+<p>Initialize and return a subgraph by using the subcomponent with <a href="open-subgraph.html#io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</a> and
+this graph as parent and register it under the <a href="open-subgraph.html#io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</a> or when given under
+<a href="open-subgraph.html#io.jentz.winter.Graph$openSubgraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</a>.</p>
+<p>The resulting graph gets automatically disposed when this graph gets disposed.
+You can later retrieve the subgraph by calling an instance retrieve method e.g.:</p>
+<pre><code>parent.instance&lt;Graph&gt;(identifier)
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="subcomponentQualifier"></a>
+<code>subcomponentQualifier</code> - The qualifier of the subcomponent.</p>
+<p><a name="identifier"></a>
+<code>identifier</code> - An optional identifier to register the subgraph with.</p>
+<p><a name="block"></a>
+<code>block</code> - An optional builder block to register provider on the subcomponent.</p>
+</BODY>
+</HTML>

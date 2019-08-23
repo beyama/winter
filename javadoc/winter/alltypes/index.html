@@ -131,7 +131,7 @@ Used for post-construct and dispose callbacks.</p>
 <td>
 <a href="../io.jentz.winter/-graph/index.html">io.jentz.winter.Graph</a></td>
 <td>
-<p>The dependency graph class that retrieves and instantiates dependencies from a component.</p>
+<p>The object graph class that retrieves and instantiates dependencies registered in its component.</p>
 </td>
 </tr>
 <tr>
@@ -217,7 +217,7 @@ delegates.</p>
 <a href="../io.jentz.winter/-winter.html">io.jentz.winter.Winter</a></td>
 <td>
 <p>The default <a href="../io.jentz.winter/-winter-application/index.html">WinterApplication</a> object that is used as default by <a href="../io.jentz.winter/-graph-registry.html">GraphRegistry</a> and
-<a href="../io.jentz.winter/-component/init.html">Component.init</a>.</p>
+<a href="../io.jentz.winter/-component/create-graph.html">Component.createGraph</a>.</p>
 </td>
 </tr>
 <tr>
@@ -255,8 +255,8 @@ constructor injection.</p>
 <td>
 <a href="../io.jentz.winter/-winter-tree/index.html">io.jentz.winter.WinterTree</a></td>
 <td>
-<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
-opening, closing and accessing child-graphs by paths of identifier.</p>
+<p>WinterTree acts as an holder for the application object graph and is a helper for
+opening, closing and accessing subgraphs by paths of identifiers.</p>
 </td>
 </tr>
 </tbody>

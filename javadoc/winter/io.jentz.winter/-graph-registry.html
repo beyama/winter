@@ -12,12 +12,13 @@
 <p>An object version of <a href="-winter-tree/index.html">WinterTree</a> that uses <a href="-winter.html">Winter</a> as its <a href="-winter-application/index.html">WinterApplication</a>.</p>
 <p>Here an Android example where we use this to create a presentation graph that
 survives configuration changes and an Activity graph that gets recreated every time.</p>
-<p>Those details a usually hidden in a <a href="-winter-injection/-adapter/index.html">WinterInjection.Adapter</a>.</p>
-<p>Create the application dependency graph on application start:</p>
+<p>It is recommended to hide such details in a <a href="-winter-injection/-adapter/index.html">WinterInjection.Adapter</a>.</p>
+<p>Create the application object graph on application start:</p>
 <pre><code>class MyApplication : Application() {
   override fun onCreate() {
     super.onCreate()
 
+    // Register the application component
     Winter.component {
       // A presentation subcomponent that survives orientation changes
       subcomponent("presentation") {
@@ -27,7 +28,7 @@ survives configuration changes and an Activity graph that gets recreated every t
       }
     }
 
-    // open the application root graph
+    // open the application graph
     GraphRegistry.open() {
       constant&lt;Application&gt; { this@MyApplication }
       constant&lt;Context&gt; { this@MyApplication }
@@ -35,7 +36,7 @@ survives configuration changes and an Activity graph that gets recreated every t
   }
 }
 </code></pre>
-<p>Create the presenter and activity dependency graph by its path (of qualifiers):</p>
+<p>Create the presenter and activity object subgraphs by their paths (of qualifiers):</p>
 <pre><code>class MyActivity : Activity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +79,7 @@ survives configuration changes and an Activity graph that gets recreated every t
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">close</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$close(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Remove and dispose the dependency graph and its children stored in <a href="-winter-tree/close.html#io.jentz.winter.WinterTree$close(kotlin.Array((kotlin.Any)))/path">path</a>.</p>
+<p>Remove and dispose the object graph and its subgraphs stored in <a href="-winter-tree/close.html#io.jentz.winter.WinterTree$close(kotlin.Array((kotlin.Any)))/path">path</a>.</p>
 </td>
 </tr>
 <tr>
@@ -87,7 +88,7 @@ survives configuration changes and an Activity graph that gets recreated every t
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">closeIfOpen</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$closeIfOpen(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
-<p>Remove and dispose the dependency graph and its children stored in <a href="-winter-tree/close-if-open.html#io.jentz.winter.WinterTree$closeIfOpen(kotlin.Array((kotlin.Any)))/path">path</a> if it is open.</p>
+<p>Remove and dispose the object graph and its subgraphs stored in <a href="-winter-tree/close-if-open.html#io.jentz.winter.WinterTree$closeIfOpen(kotlin.Array((kotlin.Any)))/path">path</a> if it is open.</p>
 </td>
 </tr>
 <tr>
@@ -96,7 +97,7 @@ survives configuration changes and an Activity graph that gets recreated every t
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">create</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
-<p>Create and return dependency graph by (sub-)component path without registering it.</p>
+<p>Create and return an object graph by (sub-)component path without registering it.</p>
 </td>
 </tr>
 <tr>
@@ -105,7 +106,7 @@ survives configuration changes and an Activity graph that gets recreated every t
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">get</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$get(kotlin.Array((kotlin.Any)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
-<p>Get a registered dependency graph by path.</p>
+<p>Get a registered object graph by path.</p>
 </td>
 </tr>
 <tr>
@@ -123,8 +124,8 @@ survives configuration changes and an Activity graph that gets recreated every t
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">open</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$open(kotlin.Array((kotlin.Any)), kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code>
-<p>Create a dependency graph by (sub-)component path and register it.
-Opened components will be children of each other in left to right order.</p>
+<p>Create a object graph by (sub-)component path and register it.
+Opened object graphs will be children of each other in left to right order.</p>
 </td>
 </tr>
 </tbody>

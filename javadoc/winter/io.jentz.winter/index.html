@@ -85,7 +85,7 @@ instance of a <a href="-graph/index.html">graph</a>.</p>
 </td>
 <td>
 <code><span class="keyword">class </span><span class="identifier">Graph</span></code>
-<p>The dependency graph class that retrieves and instantiates dependencies from a component.</p>
+<p>The object graph class that retrieves and instantiates dependencies registered in its component.</p>
 </td>
 </tr>
 <tr>
@@ -157,7 +157,7 @@ delegates.</p>
 <td>
 <code><span class="keyword">object </span><span class="identifier">Winter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code>
 <p>The default <a href="-winter-application/index.html">WinterApplication</a> object that is used as default by <a href="-graph-registry.html">GraphRegistry</a> and
-<a href="-component/init.html">Component.init</a>.</p>
+<a href="-component/create-graph.html">Component.createGraph</a>.</p>
 </td>
 </tr>
 <tr>
@@ -186,8 +186,8 @@ constructor injection.</p>
 </td>
 <td>
 <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterTree</span></code>
-<p>WinterTree acts as an holder for the root (application) dependency graph and is a helper for
-opening, closing and accessing child-graphs by paths of identifier.</p>
+<p>WinterTree acts as an holder for the application object graph and is a helper for
+opening, closing and accessing subgraphs by paths of identifiers.</p>
 </td>
 </tr>
 </tbody>

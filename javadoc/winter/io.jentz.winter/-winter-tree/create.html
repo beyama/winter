@@ -10,13 +10,13 @@
 <h1>create</h1>
 <a name="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
 <code><span class="keyword">fun </span><span class="identifier">create</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/path">path</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterTree$create(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
-<p>Create and return dependency graph by (sub-)component path without registering it.</p>
+<p>Create and return an object graph by (sub-)component path without registering it.</p>
 <h3>Parameters</h3>
 <p><a name="path"></a>
-<code>path</code> - The path of the (sub-)component to initialize.</p>
+<code>path</code> - The path of the (sub-)graph to initialize.</p>
 <p><a name="block"></a>
 <code>block</code> - An optional <a href="../-component-builder-block.html">ComponentBuilderBlock</a> that's passed to the (sub-)component
-    init method.</p>
+    createGraph method.</p>
 <h3>Exceptions</h3>
 <p><a name="WinterException"></a>
 <code>WinterException</code> - When application component is not set or path can not be resolved.</p>
