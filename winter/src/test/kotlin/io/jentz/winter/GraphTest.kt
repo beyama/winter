@@ -1053,10 +1053,10 @@ class GraphTest {
         @Test
         fun `should run plugins`() {
             val parent = graph { }
-            verify(plugin, only()).initializingComponent(isNull(), any())
+            verify(plugin, only()).graphInitializing(isNull(), any())
             reset(plugin)
             Graph(Winter, parent, emptyComponent, null, null)
-            verify(plugin, only()).initializingComponent(same(parent), any())
+            verify(plugin, only()).graphInitializing(same(parent), any())
         }
 
         @Test

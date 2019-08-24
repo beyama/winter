@@ -62,7 +62,7 @@ class Graph internal constructor(
         val baseComponent = if (application.plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                application.plugins.runInitializingComponent(parent, this)
+                application.plugins.runGraphInitializing(parent, this)
             }
         } else {
             component

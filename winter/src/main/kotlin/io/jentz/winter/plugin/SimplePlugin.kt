@@ -9,7 +9,7 @@ import io.jentz.winter.Scope
  */
 open class SimplePlugin : Plugin {
 
-    override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
+    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
     }
 
     override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {

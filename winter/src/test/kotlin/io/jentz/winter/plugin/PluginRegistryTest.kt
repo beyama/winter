@@ -113,9 +113,9 @@ class PluginRegistryTest {
         @Test
         fun `#runInitializingComponent should call #initializingComponent on all plugins`() {
             val builder = ComponentBuilder(null)
-            registry.runInitializingComponent(graph, builder)
-            verify(plugin, only()).initializingComponent(graph, builder)
-            verify(plugin2, only()).initializingComponent(graph, builder)
+            registry.runGraphInitializing(graph, builder)
+            verify(plugin, only()).graphInitializing(graph, builder)
+            verify(plugin2, only()).graphInitializing(graph, builder)
         }
 
         @Test

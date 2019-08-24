@@ -14,7 +14,7 @@ import io.reactivex.disposables.Disposable
  * the [Graph] gets disposed.
  */
 object WinterDisposablePlugin : Plugin {
-    override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
+    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
         builder.constant(CompositeDisposable())
     }
 
