@@ -334,10 +334,6 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
             throw WinterException("Entry with key `$key` already exists.")
         }
 
-        if (!alreadyExists && override) {
-            throw WinterException("Entry with key `$key` doesn't exist but override is true.")
-        }
-
         registry[key] = service
     }
 
