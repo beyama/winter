@@ -8,13 +8,14 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.JUnitCore
 
-class WinterTestRuleTest {
+class GraphLifecycleTestRuleTest {
 
-    class UsedWithConstructor {
+    class UnitTestWithRule {
         companion object {
-            var initializingComponentCalled = 0
-            var postConstructCalled = 0
+            var graphInitializingCalled = 0
+            var graphInitializedCalled = 0
             var graphDisposeCalled = 0
+            var postConstructCalled = 0
         }
 
         private val component = component {
@@ -22,9 +23,13 @@ class WinterTestRuleTest {
         }
 
         @get:Rule
-        val rule = object : WinterTestRule() {
-            override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
-                initializingComponentCalled += 1
+        val rule = object : GraphLifecycleTestRule() {
+            override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+                graphInitializingCalled += 1
+            }
+
+            override fun graphInitialized(graph: Graph) {
+                graphInitializedCalled += 1
             }
 
             override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
@@ -38,25 +43,29 @@ class WinterTestRuleTest {
 
         @Test
         fun test() {
-            initializingComponentCalled = 0
+            graphInitializingCalled = 0
+            graphInitializedCalled = 0
             postConstructCalled = 0
             graphDisposeCalled = 0
 
             val graph = component.createGraph()
 
-            initializingComponentCalled.shouldBe(1)
+            graphInitializingCalled.shouldBe(1)
+            graphInitializedCalled.shouldBe(1)
             postConstructCalled.shouldBe(0)
             graphDisposeCalled.shouldBe(0)
 
             graph.instance<String>()
 
-            initializingComponentCalled.shouldBe(1)
+            graphInitializingCalled.shouldBe(1)
+            graphInitializedCalled.shouldBe(1)
             postConstructCalled.shouldBe(1)
             graphDisposeCalled.shouldBe(0)
 
             graph.dispose()
 
-            initializingComponentCalled.shouldBe(1)
+            graphInitializingCalled.shouldBe(1)
+            graphInitializedCalled.shouldBe(1)
             postConstructCalled.shouldBe(1)
             graphDisposeCalled.shouldBe(1)
         }
@@ -69,8 +78,8 @@ class WinterTestRuleTest {
     }
 
     @Test
-    fun `should call each plugin once per test with constructor`() {
-        JUnitCore.runClasses(UsedWithConstructor::class.java).wasSuccessful().shouldBeTrue()
+    fun `should call all lifecycle methods during test`() {
+        JUnitCore.runClasses(UnitTestWithRule::class.java).wasSuccessful().shouldBeTrue()
         Winter.plugins.isEmpty().shouldBeTrue()
     }
 

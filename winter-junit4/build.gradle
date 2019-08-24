@@ -15,9 +15,11 @@ dependencies {
 
     api project(':winter')
     api deps.junit.junit4
+    implementation deps.kotlin.reflect
+    implementation deps.javaxInject
 
     testImplementation deps.kotlintest
-    testImplementation deps.kotlin.reflect
+    testImplementation deps.mockito.core
 }
 
 task javadocJar(type: Jar) {

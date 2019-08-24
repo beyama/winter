@@ -29,7 +29,7 @@ class WinterProcessorTest {
     }
 
     private val plugin = object : SimplePlugin() {
-        override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
+        override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
             builder.constant<SourceWriter>(writer, override = true)
         }
     }

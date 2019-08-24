@@ -8,8 +8,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Graph
 import io.jentz.winter.GraphRegistry
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.isDisplayed
@@ -18,7 +16,7 @@ import io.jentz.winter.android.test.model.QuoteRepository
 import io.jentz.winter.android.test.viewmodel.TestViewModel
 import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.android.test.waitForIt
-import io.jentz.winter.junit4.WinterTestRule
+import io.jentz.winter.junit4.WinterJunit4
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.Rule
@@ -33,17 +31,8 @@ class QuotesActivityTest {
     val activityTestRule = ActivityTestRule(QuotesActivity::class.java, true, false)
 
     @get:Rule
-    val winterTestRule = object : WinterTestRule() {
-        override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
-            if (builder.qualifier == "presentation") {
-                builder.apply {
-                    singleton<ViewModel<QuotesViewState>>(
-                        generics = true,
-                        override = true
-                    ) { viewModel }
-                }
-            }
-        }
+    val winterTestRule = WinterJunit4.rule("presentation") {
+        singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
     }
 
     private val viewModel = TestViewModel<QuotesViewState>()
