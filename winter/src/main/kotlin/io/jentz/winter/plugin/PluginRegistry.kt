@@ -63,8 +63,12 @@ class PluginRegistry {
      */
     fun isNotEmpty(): Boolean = plugins.isNotEmpty()
 
-    internal fun runGraphInitializing(graph: Graph?, builder: ComponentBuilder) {
-        plugins.forEach { it.graphInitializing(graph, builder) }
+    internal fun runGraphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+        plugins.forEach { it.graphInitializing(parentGraph, builder) }
+    }
+
+    internal fun runGraphInitialized(graph: Graph) {
+        plugins.forEach { it.graphInitialized(graph) }
     }
 
     internal fun runGraphDispose(graph: Graph) {

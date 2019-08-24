@@ -12,9 +12,13 @@ open class SimplePlugin : Plugin {
     override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
     }
 
-    override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
+    override fun graphInitialized(graph: Graph) {
     }
 
     override fun graphDispose(graph: Graph) {
     }
+
+    override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
+    }
+
 }

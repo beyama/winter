@@ -18,6 +18,13 @@ interface Plugin {
     fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder)
 
     /**
+     * This is called when a [Graph] is initialized and before eager dependencies are resolved.
+     *
+     * @param graph The [Graph] instance.
+     */
+    fun graphInitialized(graph: Graph)
+
+    /**
      * This is called whenever a [Graph] is going to be disposed.
      *
      * @param graph The [Graph] that is going to be disposed.

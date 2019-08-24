@@ -70,6 +70,8 @@ class Graph internal constructor(
 
         state = State.Initialized(baseComponent, parent, DependenciesStack(this))
 
+        application.plugins.runGraphInitialized(this)
+
         val eagerDependencies = serviceOrNull<Unit, Set<TypeKey>>(eagerDependenciesKey)
         eagerDependencies?.instance(Unit)?.forEach { key ->
             val service = serviceOrNull<Unit, Any>(key)
