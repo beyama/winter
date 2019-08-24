@@ -292,6 +292,12 @@ class Graph internal constructor(
         return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
 
+    /**
+     * Internal method to retrieve an optional instance by [TypeKey].
+     */
+    fun instanceOrNullByKey(key: TypeKey, argument: Any): Any? =
+        serviceOrNull<Any, Any>(key)?.instance(argument)
+
     private fun keys(): Set<TypeKey> {
         val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
