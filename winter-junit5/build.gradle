@@ -10,14 +10,35 @@ group = GROUP
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
 dependencies {
     implementation deps.kotlin.stdlib
 
     api project(':winter')
     api project(':winter-testing')
-    api deps.junit.junit4
+    api deps.junit.jupiterApi
 
     testImplementation deps.kotlintest
+
+    testRuntimeOnly deps.junit.jupiterEngine
 }
 
 task javadocJar(type: Jar) {
@@ -41,7 +62,7 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/beyama/winter/blob/master/winter-junit4/src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-junit5/src/main/kotlin"
         suffix = "#L"
     }
 }

@@ -1,10 +1,10 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.testing
 
 import io.jentz.winter.WinterException
 import io.jentz.winter.typeKey
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PropertyServiceTest {
 
@@ -45,7 +45,7 @@ class PropertyServiceTest {
 
         shouldThrow<WinterException> {
             service.instance(Unit)
-        }.message.shouldBe("Property `io.jentz.winter.junit4.PropertyServiceTest\$NullProperty::property returned null`.")
+        }.message.shouldBe("Property `io.jentz.winter.testing.PropertyServiceTest\$NullProperty::property returned null`.")
     }
 
 }

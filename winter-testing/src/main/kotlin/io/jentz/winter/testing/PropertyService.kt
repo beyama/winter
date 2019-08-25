@@ -1,4 +1,4 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.testing
 
 import io.jentz.winter.*
 import kotlin.reflect.KProperty1

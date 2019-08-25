@@ -16,7 +16,7 @@ import io.jentz.winter.android.test.model.QuoteRepository
 import io.jentz.winter.android.test.viewmodel.TestViewModel
 import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.android.test.waitForIt
-import io.jentz.winter.junit4.WinterJunit4
+import io.jentz.winter.junit4.WinterJUnit4
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.Rule
@@ -31,7 +31,7 @@ class QuotesActivityTest {
     val activityTestRule = ActivityTestRule(QuotesActivity::class.java, true, false)
 
     @get:Rule
-    val winterTestRule = WinterJunit4.rule("presentation") {
+    val winterTestRule = WinterJUnit4.rule("presentation") {
         singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
     }
 

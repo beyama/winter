@@ -1,4 +1,4 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.testing
 
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.TypeKey

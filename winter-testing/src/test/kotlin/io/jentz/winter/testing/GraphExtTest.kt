@@ -1,9 +1,9 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.testing
 
 import io.jentz.winter.graph
 import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -34,7 +34,7 @@ class GraphExtTest {
         prototype { "test" }
     }
 
-    @Before
+    @BeforeEach
     fun beforeEach() {
         privateNamedVar = null
         privateNamedVarWithFieldAnnotation = null

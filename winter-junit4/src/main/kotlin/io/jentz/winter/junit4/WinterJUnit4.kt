@@ -4,7 +4,7 @@ import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
 
-class WinterJunit4 {
+class WinterJUnit4 {
 
     companion object {
 

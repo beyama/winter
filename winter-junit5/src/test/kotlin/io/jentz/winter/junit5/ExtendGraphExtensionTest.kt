@@ -1,20 +1,22 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.junit5
 
 import io.jentz.winter.component
 import io.kotlintest.shouldBe
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import javax.inject.Inject
 
-class ExtendGraphTestRuleTest {
+class ExtendGraphExtensionTest {
 
-    @get:Rule
-    val applicationGraphRule = WinterJUnit4.rule {
+    @JvmField
+    @RegisterExtension
+    val applicationGraphExtension = WinterJUnit5.extension {
         constant("application")
     }
 
-    @get:Rule
-    val subGraphRule = WinterJUnit4.rule("sub") {
+    @JvmField
+    @RegisterExtension
+    val subGraphExtension = WinterJUnit5.extension("sub") {
         constant("sub")
     }
 
@@ -28,11 +30,11 @@ class ExtendGraphTestRuleTest {
     @Test
     fun `should extend graph`() {
         val applicationGraph = component.createGraph()
-        applicationGraphRule.inject(this)
+        applicationGraphExtension.inject(this)
         injectedValue.shouldBe("application")
 
         applicationGraph.createSubgraph("sub")
-        subGraphRule.inject(this)
+        subGraphExtension.inject(this)
         injectedValue.shouldBe("sub")
     }
 

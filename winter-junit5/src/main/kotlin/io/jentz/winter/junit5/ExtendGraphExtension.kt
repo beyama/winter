@@ -1,39 +1,38 @@
-package io.jentz.winter.junit4
+package io.jentz.winter.junit5
 
 import io.jentz.winter.*
 import io.jentz.winter.testing.injectWithReflection
 
 /**
- * [Test rule][org.junit.rules.TestRule] that takes a component qualifier and a
- * [ComponentBuilderBlock] and extends the [Graph] with [componentQualifier] by applying the
- * [ComponentBuilderBlock].
+ * JUnit5 extension that takes a component qualifier and a [ComponentBuilderBlock] and extends
+ * the [Graph] with [componentQualifier] by applying the [ComponentBuilderBlock].
  *
  * It also provides a reflection based [inject] method that injects into all property annotated with
  * [javax.inject.Inject] by using the [Graph] with given [componentQualifier].
  *
  * Example:
  * ```
- * @get:Rule
- * val rule = WinterJUnit4.rule("presentation") {
+ * @JvmField
+ * @RegisterExtension
+ * val extension = WinterJUnit5.extension("presentation") {
  *   singleton<ListPresenter>(override = true) { MockListPresenter() }
  * }
  *
  * @Inject
  * lateinit var presenter: ListPresenter
  *
- *
  * @Before
  * fun beforeEach() {
- *   rule.inject(this)
+ *   extension.inject(this)
  * }
  * ```
  *
  */
-class ExtendGraphTestRule internal constructor(
+class ExtendGraphExtension internal constructor(
     private val componentQualifier: Any? = null,
     application: WinterApplication = Winter,
     private val componentBuilderBlock: ComponentBuilderBlock
-) : GraphLifecycleTestRule(application) {
+) : GraphLifecycleExtension(application) {
 
     var graph: Graph? = null
         private set

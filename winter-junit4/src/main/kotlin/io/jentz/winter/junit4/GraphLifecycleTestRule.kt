@@ -8,7 +8,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * JUnit 4 [test rule][TestRule] that allows to hook into the [io.jentz.winter.Graph] lifecycle.
+ * JUnit4 [test rule][TestRule] that allows to hook into the [io.jentz.winter.Graph] lifecycle.
  *
  * This registers itself as Winter plugin on [application] before executing a test and unregisters
  * itself afterwards.
