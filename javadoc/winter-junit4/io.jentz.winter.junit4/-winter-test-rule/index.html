@@ -8,26 +8,9 @@
 <a href="../../index.html">winter-junit4</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit4</a>&nbsp;/&nbsp;<a href="./index.html">WinterTestRule</a><br/>
 <br/>
 <h1>WinterTestRule</h1>
-<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterTestRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">TestRule</span><span class="symbol">, </span><span class="identifier">Plugin</span></code>
-<p>JUnit 4 <a href="#">test rule</a> that allows to hook into the Component/Graph lifecycle.</p>
-<p>This registers itself as Winter plugin on <a href="#">application</a> before executing a test and unregisters
-itself afterwards.</p>
-<p>Sample where we replace a view model in a presentation graph with a test view model:</p>
-<pre><code>val testViewModel = TestViewModel&lt;ViewState&gt;()
-
-@get:Rule
-val winterTestRule = object : WinterTestRule() {
-  override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
-    if (builder.qualifier == "presentation") {
-      builder.apply {
-        singleton&lt;ViewModel&lt;QuotesViewState&gt;&gt;(generics = true, override = true) {
-          viewModel
-        }
-      }
-    }
-  }
-}
-</code></pre>
+<code><span class="keyword">open</span> <span class="keyword">class </span><s><span class="identifier">WinterTestRule</span></s>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-graph-lifecycle-test-rule/index.html"><span class="identifier">GraphLifecycleTestRule</span></a></code><br/>
+<strong>Deprecated:</strong> Use GraphLifecycleTestRule or WinterJUnit4.rule() instead.<br/>
+<br/>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -36,42 +19,19 @@ val winterTestRule = object : WinterTestRule() {
 <p><a href="-init-.html">&lt;init&gt;</a></p>
 </td>
 <td>
-<code><span class="identifier">WinterTestRule</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span>&nbsp;<span class="symbol">=</span>&nbsp;Winter<span class="symbol">)</span></code>
-<p>JUnit 4 <a href="#">test rule</a> that allows to hook into the Component/Graph lifecycle.</p>
-</td>
+<code><span class="identifier">WinterTestRule</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span>&nbsp;<span class="symbol">=</span>&nbsp;Winter<span class="symbol">)</span></code></td>
 </tr>
 </tbody>
 </table>
-<h3>Functions</h3>
+<h3>Inherited Functions</h3>
 <table>
 <tbody>
 <tr>
 <td>
-<p><a href="apply.html">apply</a></p>
+<p><a href="../-graph-lifecycle-test-rule/apply.html">apply</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">apply</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/base">base</span><span class="symbol">:</span>&nbsp;<span class="identifier">Statement</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/description">description</span><span class="symbol">:</span>&nbsp;<span class="identifier">Description</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Statement</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="graph-dispose.html">graphDispose</a></p>
-</td>
-<td>
-<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">graphDispose</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$graphDispose(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="initializing-component.html">initializingComponent</a></p>
-</td>
-<td>
-<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">initializingComponent</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$initializingComponent(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/parentGraph">parentGraph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$initializingComponent(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/builder">builder</span><span class="symbol">:</span>&nbsp;<span class="identifier">ComponentBuilder</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="post-construct.html">postConstruct</a></p>
-</td>
-<td>
-<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">postConstruct</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/scope">scope</span><span class="symbol">:</span>&nbsp;<span class="identifier">Scope</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$postConstruct(io.jentz.winter.Graph, io.jentz.winter.Scope, kotlin.Any, kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">apply</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.GraphLifecycleTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/base">base</span><span class="symbol">:</span>&nbsp;<span class="identifier">Statement</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.GraphLifecycleTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/description">description</span><span class="symbol">:</span>&nbsp;<span class="identifier">Description</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Statement</span></code></td>
 </tr>
 </tbody>
 </table>

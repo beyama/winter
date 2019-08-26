@@ -10,24 +10,5 @@
 <h1>&lt;init&gt;</h1>
 <a name="io.jentz.winter.junit4.WinterTestRule$&lt;init&gt;(io.jentz.winter.WinterApplication)"></a>
 <code><span class="identifier">WinterTestRule</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterTestRule$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span>&nbsp;<span class="symbol">=</span>&nbsp;Winter<span class="symbol">)</span></code>
-<p>JUnit 4 <a href="#">test rule</a> that allows to hook into the Component/Graph lifecycle.</p>
-<p>This registers itself as Winter plugin on <a href="#">application</a> before executing a test and unregisters
-itself afterwards.</p>
-<p>Sample where we replace a view model in a presentation graph with a test view model:</p>
-<pre><code>val testViewModel = TestViewModel&lt;ViewState&gt;()
-
-@get:Rule
-val winterTestRule = object : WinterTestRule() {
-  override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
-    if (builder.qualifier == "presentation") {
-      builder.apply {
-        singleton&lt;ViewModel&lt;QuotesViewState&gt;&gt;(generics = true, override = true) {
-          viewModel
-        }
-      }
-    }
-  }
-}
-</code></pre>
 </BODY>
 </HTML>

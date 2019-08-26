@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>GraphLifecycleExtension - winter-junit5</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit5</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit5</a>&nbsp;/&nbsp;<a href="./index.html">GraphLifecycleExtension</a><br/>
+<br/>
+<h1>GraphLifecycleExtension</h1>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GraphLifecycleExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">SimplePlugin</span><span class="symbol">, </span><span class="identifier">BeforeEachCallback</span><span class="symbol">, </span><span class="identifier">AfterEachCallback</span></code>
+<p>JUnit5 extension that allows to hook into the <a href="#">io.jentz.winter.Graph</a> lifecycle.</p>
+<p>This registers itself as Winter plugin on <a href="#">application</a> before executing a test and unregisters
+itself afterwards.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">GraphLifecycleExtension</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.GraphLifecycleExtension$<init>(io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span>&nbsp;<span class="symbol">=</span>&nbsp;Winter<span class="symbol">)</span></code>
+<p>JUnit5 extension that allows to hook into the <a href="#">io.jentz.winter.Graph</a> lifecycle.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="after-each.html">afterEach</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">afterEach</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.GraphLifecycleExtension$afterEach(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="before-each.html">beforeEach</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">beforeEach</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.GraphLifecycleExtension$beforeEach(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-extend-graph-extension/index.html">ExtendGraphExtension</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ExtendGraphExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">GraphLifecycleExtension</span></a></code>
+<p>JUnit5 extension that takes a component qualifier and a <a href="#">ComponentBuilderBlock</a> and extends
+the <a href="#">Graph</a> with <a href="#">componentQualifier</a> by applying the <a href="#">ComponentBuilderBlock</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

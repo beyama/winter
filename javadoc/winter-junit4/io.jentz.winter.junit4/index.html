@@ -13,12 +13,37 @@
 <tbody>
 <tr>
 <td>
+<p><a href="-extend-graph-test-rule/index.html">ExtendGraphTestRule</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">ExtendGraphTestRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-graph-lifecycle-test-rule/index.html"><span class="identifier">GraphLifecycleTestRule</span></a></code>
+<p><a href="#">Test rule</a> that takes a component qualifier and a
+<a href="#">ComponentBuilderBlock</a> and extends the <a href="#">Graph</a> with <a href="#">componentQualifier</a> by applying the
+<a href="#">ComponentBuilderBlock</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-graph-lifecycle-test-rule/index.html">GraphLifecycleTestRule</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GraphLifecycleTestRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">SimplePlugin</span><span class="symbol">, </span><span class="identifier">TestRule</span></code>
+<p>JUnit4 <a href="#">test rule</a> that allows to hook into the <a href="#">io.jentz.winter.Graph</a> lifecycle.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-j-unit4/index.html">WinterJUnit4</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">WinterJUnit4</span></code></td>
+</tr>
+<tr>
+<td>
 <p><a href="-winter-test-rule/index.html">WinterTestRule</a></p>
 </td>
 <td>
-<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterTestRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">TestRule</span><span class="symbol">, </span><span class="identifier">Plugin</span></code>
-<p>JUnit 4 <a href="#">test rule</a> that allows to hook into the Component/Graph lifecycle.</p>
-</td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><s><span class="identifier">WinterTestRule</span></s>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-graph-lifecycle-test-rule/index.html"><span class="identifier">GraphLifecycleTestRule</span></a></code></td>
 </tr>
 </tbody>
 </table>

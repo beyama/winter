@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>ExtendGraphTestRule - winter-junit4</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit4</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit4</a>&nbsp;/&nbsp;<a href="./index.html">ExtendGraphTestRule</a><br/>
+<br/>
+<h1>ExtendGraphTestRule</h1>
+<code><span class="keyword">class </span><span class="identifier">ExtendGraphTestRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-graph-lifecycle-test-rule/index.html"><span class="identifier">GraphLifecycleTestRule</span></a></code>
+<p><a href="#">Test rule</a> that takes a component qualifier and a
+<a href="#">ComponentBuilderBlock</a> and extends the <a href="#">Graph</a> with <a href="#">componentQualifier</a> by applying the
+<a href="#">ComponentBuilderBlock</a>.</p>
+<p>It also provides a reflection based <a href="inject.html">inject</a> method that injects into all property annotated with
+<a href="#">javax.inject.Inject</a> by using the <a href="#">Graph</a> with given <a href="#">componentQualifier</a>.</p>
+<p>Example:</p>
+<pre><code>@get:Rule
+val rule = WinterJUnit4.rule("presentation") {
+  singleton&lt;ListPresenter&gt;(override = true) { MockListPresenter() }
+}
+
+@Inject
+lateinit var presenter: ListPresenter
+
+
+@Before
+fun beforeEach() {
+  rule.inject(this)
+}
+</code></pre>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="graph.html">graph</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">graph</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="graph-dispose.html">graphDispose</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">graphDispose</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.ExtendGraphTestRule$graphDispose(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="graph-initialized.html">graphInitialized</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">graphInitialized</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.ExtendGraphTestRule$graphInitialized(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="graph-initializing.html">graphInitializing</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">graphInitializing</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.ExtendGraphTestRule$graphInitializing(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/parentGraph">parentGraph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">?</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.ExtendGraphTestRule$graphInitializing(io.jentz.winter.Graph, io.jentz.winter.ComponentBuilder)/builder">builder</span><span class="symbol">:</span>&nbsp;<span class="identifier">ComponentBuilder</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="inject.html">inject</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.ExtendGraphTestRule$inject(kotlin.Any)/target">target</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-graph-lifecycle-test-rule/apply.html">apply</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">apply</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.GraphLifecycleTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/base">base</span><span class="symbol">:</span>&nbsp;<span class="identifier">Statement</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.GraphLifecycleTestRule$apply(org.junit.runners.model.Statement, org.junit.runner.Description)/description">description</span><span class="symbol">:</span>&nbsp;<span class="identifier">Description</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Statement</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

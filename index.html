@@ -477,7 +477,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_rxjava2_support">RxJava2 Support</a></li>
-<li><a href="#_junit_test">JUnit Test</a></li>
+<li><a href="#_junit_test">JUnit Test</a>
+<ul class="sectlevel2">
+<li><a href="#_junit4">JUnit4</a></li>
+<li><a href="#_junit5">JUnit5</a></li>
+<li><a href="#_mocks_spy">Mocks &amp; Spy</a></li>
+</ul>
+</li>
 <li><a href="#_injection_patterns">Injection Patterns</a>
 <ul class="sectlevel2">
 <li><a href="#_constructor_injection">Constructor Injection</a></li>
@@ -524,6 +530,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
     implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
+    // JUnit4 test support
+    implementation 'io.jentz.winter:winter-junit4:x.x.x'
+    // JUnit5 test support
+    implementation 'io.jentz.winter:winter-junit5:x.x.x'
     // Optional JSR-330 support
     implementation 'javax.inject:javax.inject:1'
     kapt 'io.jentz.winter:winter-compiler:x.x.x'
@@ -541,7 +551,7 @@ kapt {
 </div>
 <div class="paragraph">
 <p>Replace <code>x.x.x</code> with the version you would like to use.
-The latest version is 0.3.1.</p>
+The latest version is 0.4.0.</p>
 </div>
 <div class="sect2">
 <h3 id="_available_modules">Available Modules</h3>
@@ -560,27 +570,37 @@ The latest version is 0.3.1.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.3.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.4.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Winter core module</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter/index.html">Winter</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.3.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.4.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit4 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit4/index.html">Winter JUnit4</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.3.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit5:0.4.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JUnit5 support</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit5/index.html">Winter JUnit5</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-testing:0.4.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Testing support shared between the JUnit4 and JUnit5 modules</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-testing/index.html">Winter Testing</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.4.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RxJava2 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-rxjava2/index.html">Winter RxJava2</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.3.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.4.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-android/index.html">Winter Android</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.3.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.4.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android X lifecycle support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-androidx-lifecycle/index.html">Winter AndroidX lifecycle support</a></p></td>
 </tr>
@@ -1195,7 +1215,122 @@ in a graph which implement <code>Disposable</code>.</p>
 <div class="sect1">
 <h2 id="_junit_test">JUnit Test</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>The <code>JUnit4</code> and <code>JUnit5</code> test support modules provide test extensions to hock into the graph
+lifecycle to extend the object graph of you class under test.</p>
+</div>
+<div class="paragraph">
+<p>They offer the ability to automatically provide all mocks of your test class via the object graph
+and to inject dependencies from your object graph into your test class by using reflection.</p>
+</div>
+<div class="sect2">
+<h3 id="_junit4">JUnit4</h3>
+<div class="paragraph">
+<p>The <a href="javadoc/winter-junit4/index.html">JUnit4 module</a> provides a JUnit4 <code>TestRule</code> that allows
+to extend the test graph to override dependencies of you class under test.</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">// Extend subgraph with subcomponent qualifier "presentation"
+@get:Rule
+val winterRule = WinterJUnit4.rule("presentation") {
+    singleton&lt;Dependency&gt;(override = true) { myTestDependency }
+}
 
+val myTestDependency = TestDependency()
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@Before
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterRule.inject(this)
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_junit5">JUnit5</h3>
+<div class="paragraph">
+<p>The <a href="javadoc/winter-junit5/index.html">JUnit5 module</a> provides a JUnit5 extension that allows
+to extend the test graph to override dependencies of you class under test.</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">// Extend subgraph with subcomponent qualifier "presentation"
+@JvmField
+@RegisterExtension
+val winterExtension = WinterJUnit5.extension("presentation") {
+    singleton&lt;Dependency&gt;(override = true) { myTestDependency }
+}
+
+val myTestDependency = TestDependency()
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@BeforeEach
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterExtension.inject(this)
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mocks_spy">Mocks &amp; Spy</h3>
+<div class="paragraph">
+<p>Whenever you use mocks to mock out certain dependencies of your class under test you have to setup
+your mocks and to somehow set or inject your mocked dependencies in the class under test.</p>
+</div>
+<div class="paragraph">
+<p>Libraries like Mockito or EasyMock do an excellent job in creating mocks. Winter provides a nice
+solution to provide those mocks to your object graph to inject them into the class under test.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="javadoc/winter-testing/index.html">Testing module</a> that is used by the JUnit4 and JUnit5
+modules provides a <code>ComponentBuilder</code> extension to automatically provide all properties that are
+annotated with <code>Mock</code> or <code>Spy</code> via the graph.</p>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">@get:Rule
+val mockitoRule = MockitoJUnit.rule()
+
+@get:Rule
+val winterRule = WinterJUnit4.rule {
+    // provide all mocks declared in MyTest in the application graph
+    bindAllMocks(this@MyTest)
+}
+
+@Mock lateinit var dependency1: MyDependency1
+
+@Mock lateinit var dependency2: MyDependency2
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@Before
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterRule.inject(this)
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1412,7 +1547,7 @@ val applicationComponent = component {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-23 11:35:18 +0200
+Last updated 2019-08-26 21:27:31 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
