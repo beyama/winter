@@ -1,7 +1,6 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.graph
-import io.jentz.winter.typeKey
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -19,22 +18,6 @@ class ComponentBuilderExtTest {
     @field:Spy
     @field:Named("spy")
     private val testSpyField = "test spy"
-
-    @Test
-    fun `#property should register property by name`() {
-        graph {
-            property(this@ComponentBuilderExtTest, "testField")
-        }.instance<Int>().shouldBe(12)
-
-    }
-
-    @Test
-    fun `#property should register property by name and key`() {
-        graph {
-            property(typeKey<Number>(),this@ComponentBuilderExtTest, "testField")
-        }.instance<Number>().shouldBe(12)
-
-    }
 
     @Test
     fun `#property should register property by KProperty1 instance`() {

@@ -27,13 +27,21 @@ fun <reified T : Annotation> KProperty1<*, *>.findAnnotationIncludingField(): T?
         ?: (this as? KMutableProperty1)?.setter?.findAnnotation<T>()
         ?: javaField?.getAnnotation(T::class.java)
 
-/**
- * Get declared member property by name.
- */
-fun KClass<*>.getDeclaredMemberProperty(name: String): KProperty1<Any, *> {
+internal fun KClass<*>.getDeclaredMemberProperty(name: String): KProperty1<Any, *> {
     val property = this.declaredMemberProperties.find { it.name == name }
         ?: throw WinterException("Property with name `$name` not found.")
 
     @Suppress("UNCHECKED_CAST")
     return property as KProperty1<Any, *>
 }
+
+internal fun KProperty1<*, *>.hasMockAnnotation(): Boolean {
+    if (annotations.any { containsMockOrSpy(it.javaClass.name) }) {
+        return true
+    }
+    val field = javaField ?: return false
+    return field.annotations.any { containsMockOrSpy(it.annotationClass.java.name) }
+}
+
+private fun containsMockOrSpy(string: String): Boolean =
+    string.contains("Mock") || string.contains("Spy")
