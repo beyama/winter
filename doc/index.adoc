@@ -20,6 +20,10 @@ dependencies {
     implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
+    // JUnit4 test support
+    implementation 'io.jentz.winter:winter-junit4:x.x.x'
+    // JUnit5 test support
+    implementation 'io.jentz.winter:winter-junit5:x.x.x'
     // Optional JSR-330 support
     implementation 'javax.inject:javax.inject:1'
     kapt 'io.jentz.winter:winter-compiler:x.x.x'
@@ -53,6 +57,14 @@ The latest version is {winterVersion}.
 | io.jentz.winter:winter-junit4:{winterVersion}
 | JUnit4 support
 | link:javadoc/winter-junit4/index.html[Winter JUnit4]
+
+| io.jentz.winter:winter-junit5:{winterVersion}
+| JUnit5 support
+| link:javadoc/winter-junit5/index.html[Winter JUnit5]
+
+| io.jentz.winter:winter-testing:{winterVersion}
+| Testing support shared between the JUnit4 and JUnit5 modules
+| link:javadoc/winter-testing/index.html[Winter Testing]
 
 | io.jentz.winter:winter-rxjava2:{winterVersion}
 | RxJava2 support
@@ -552,6 +564,106 @@ To activate the plugin call `Winter.installDisposablePlugin()` before you instan
 For more details see link:javadoc/winter-rxjava2/index.html[API docs].
 
 == JUnit Test
+
+The `JUnit4` and `JUnit5` test support modules provide test extensions to hock into the graph
+lifecycle to extend the object graph of you class under test.
+
+They offer the ability to automatically provide all mocks of your test class via the object graph
+and to inject dependencies from your object graph into your test class by using reflection.
+
+=== JUnit4
+
+The link:javadoc/winter-junit4/index.html[JUnit4 module] provides a JUnit4 `TestRule` that allows
+to extend the test graph to override dependencies of you class under test.
+
+Example:
+[source,kotlin]
+----
+// Extend subgraph with subcomponent qualifier "presentation"
+@get:Rule
+val winterRule = WinterJUnit4.rule("presentation") {
+    singleton<Dependency>(override = true) { myTestDependency }
+}
+
+val myTestDependency = TestDependency()
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@Before
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterRule.inject(this)
+}
+----
+
+=== JUnit5
+
+The link:javadoc/winter-junit5/index.html[JUnit5 module] provides a JUnit5 extension that allows
+to extend the test graph to override dependencies of you class under test.
+
+Example:
+[source,kotlin]
+----
+// Extend subgraph with subcomponent qualifier "presentation"
+@JvmField
+@RegisterExtension
+val winterExtension = WinterJUnit5.extension("presentation") {
+    singleton<Dependency>(override = true) { myTestDependency }
+}
+
+val myTestDependency = TestDependency()
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@BeforeEach
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterExtension.inject(this)
+}
+----
+
+=== Mocks & Spy
+
+Whenever you use mocks to mock out certain dependencies of your class under test you have to setup
+your mocks and to somehow set or inject your mocked dependencies in the class under test.
+
+Libraries like Mockito or EasyMock do an excellent job in creating mocks. Winter provides a nice
+solution to provide those mocks to your object graph to inject them into the class under test.
+
+The link:javadoc/winter-testing/index.html[Testing module] that is used by the JUnit4 and JUnit5
+modules provides a `ComponentBuilder` extension to automatically provide all properties that are
+annotated with `Mock` or `Spy` via the graph.
+
+Example:
+[source,kotlin]
+----
+@get:Rule
+val mockitoRule = MockitoJUnit.rule()
+
+@get:Rule
+val winterRule = WinterJUnit4.rule {
+    // provide all mocks declared in MyTest in the application graph
+    bindAllMocks(this@MyTest)
+}
+
+@Mock lateinit var dependency1: MyDependency1
+
+@Mock lateinit var dependency2: MyDependency2
+
+@Inject lateinit var classUnderTest: MyClassUnderTest
+
+@Before
+fun beforeEach() {
+    // create application object graph
+    applicationComponent.createGraph()
+    // inject class under test
+    winterRule.inject(this)
+}
+----
 
 == Injection Patterns
 
