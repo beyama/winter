@@ -4,15 +4,13 @@ import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects.forResource
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Graph
-import io.jentz.winter.Winter
 import io.jentz.winter.compiler.kotlinbuilder.KotlinFile
-import io.jentz.winter.plugin.SimplePlugin
+import io.jentz.winter.junit5.WinterJUnit5
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import javax.tools.JavaFileObject
 
 private const val GENERATED_COMPONENT = "generatedComponent"
@@ -28,10 +26,10 @@ class WinterProcessorTest {
         }
     }
 
-    private val plugin = object : SimplePlugin() {
-        override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
-            builder.constant<SourceWriter>(writer, override = true)
-        }
+    @JvmField
+    @RegisterExtension
+    val extension = WinterJUnit5.extension {
+        constant<SourceWriter>(writer, override = true)
     }
 
     private val noArgumentInjectConstructor = forResource("NoArgumentInjectConstructor.java")
@@ -43,13 +41,11 @@ class WinterProcessorTest {
 
     @BeforeEach
     fun beforeEach() {
-        Winter.plugins.register(plugin)
         currentDateFixed = ISO8601_FORMAT.parse("2019-02-10T14:52Z")
     }
 
     @AfterEach
     fun afterEach() {
-        Winter.plugins.unregister(plugin)
         writer.files.clear()
         currentDateFixed = null
     }
