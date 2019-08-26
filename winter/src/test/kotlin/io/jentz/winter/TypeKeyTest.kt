@@ -1,7 +1,7 @@
 package io.jentz.winter
 
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 class TypeKeyTest {
 
@@ -179,13 +179,13 @@ class TypeKeyTest {
     }
 
     private fun assertSameHashAndEquals(left: Any, right: Any) {
-        assertEquals("Should have same hash code", left.hashCode(), right.hashCode())
-        assertEquals("Should be equal", left, right)
+        assertEquals(left.hashCode(), right.hashCode(), "Should have same hash code")
+        assertEquals(left, right, "Should be equal")
     }
 
     private fun assertNotSameHashAndEquals(left: Any, right: Any) {
-        assertNotEquals("Should not have same hash code", left.hashCode(), right.hashCode())
-        assertNotEquals("Should not be equal", left, right)
+        assertNotEquals(left.hashCode(), right.hashCode(), "Should not have same hash code")
+        assertNotEquals(left, right, "Should not be equal")
     }
 
 }

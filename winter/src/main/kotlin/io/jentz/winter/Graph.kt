@@ -62,13 +62,15 @@ class Graph internal constructor(
         val baseComponent = if (application.plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                application.plugins.runInitializingComponent(parent, this)
+                application.plugins.runGraphInitializing(parent, this)
             }
         } else {
             component
         }
 
         state = State.Initialized(baseComponent, parent, DependenciesStack(this))
+
+        application.plugins.runGraphInitialized(this)
 
         val eagerDependencies = serviceOrNull<Unit, Set<TypeKey>>(eagerDependenciesKey)
         eagerDependencies?.instance(Unit)?.forEach { key ->
@@ -289,6 +291,12 @@ class Graph internal constructor(
         @Suppress("UNCHECKED_CAST")
         return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
+
+    /**
+     * Internal method to retrieve an optional instance by [TypeKey].
+     */
+    fun instanceOrNullByKey(key: TypeKey, argument: Any): Any? =
+        serviceOrNull<Any, Any>(key)?.instance(argument)
 
     private fun keys(): Set<TypeKey> {
         val keys = component.keys()

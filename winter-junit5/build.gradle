@@ -1,0 +1,74 @@
+plugins {
+    id 'kotlin'
+    id 'org.jetbrains.dokka'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
+}
+
+version = VERSION_NAME
+group = GROUP
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
+dependencies {
+    implementation deps.kotlin.stdlib
+
+    api project(':winter')
+    api project(':winter-testing')
+    api deps.junit.jupiterApi
+
+    testImplementation deps.kotlintest
+
+    testRuntimeOnly deps.junit.jupiterEngine
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from dokka
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+    includes = ['dokka-packages.md']
+
+    linkMapping {
+        dir = "src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-junit5/src/main/kotlin"
+        suffix = "#L"
+    }
+}
+
+detekt {
+    config = files(rootProject.file('detekt-config.yml'))
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

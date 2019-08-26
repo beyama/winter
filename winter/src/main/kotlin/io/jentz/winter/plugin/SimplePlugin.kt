@@ -9,12 +9,16 @@ import io.jentz.winter.Scope
  */
 open class SimplePlugin : Plugin {
 
-    override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
+    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+    }
+
+    override fun graphInitialized(graph: Graph) {
+    }
+
+    override fun graphDispose(graph: Graph) {
     }
 
     override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
     }
 
-    override fun graphDispose(graph: Graph) {
-    }
 }
