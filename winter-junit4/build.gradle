@@ -14,10 +14,10 @@ dependencies {
     implementation deps.kotlin.stdlib
 
     api project(':winter')
+    api project(':winter-testing')
     api deps.junit.junit4
 
     testImplementation deps.kotlintest
-    testImplementation deps.kotlin.reflect
 }
 
 task javadocJar(type: Jar) {

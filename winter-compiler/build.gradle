@@ -18,6 +18,7 @@ dependencies {
     implementation deps.javaxInject
     implementation deps.kotlinpoet
 
+    testImplementation project(':winter-junit5')
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect

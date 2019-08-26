@@ -4,7 +4,7 @@ import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.Scope
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.plugin.Plugin
+import io.jentz.winter.plugin.SimplePlugin
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -13,8 +13,8 @@ import io.reactivex.disposables.Disposable
  * instances which implement [Disposable] to it and disposes the [CompositeDisposable] when
  * the [Graph] gets disposed.
  */
-object WinterDisposablePlugin : Plugin {
-    override fun initializingComponent(parentGraph: Graph?, builder: ComponentBuilder) {
+object WinterDisposablePlugin : SimplePlugin() {
+    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
         builder.constant(CompositeDisposable())
     }
 

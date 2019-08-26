@@ -74,7 +74,7 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#register should throw an exception if the same key is register twice`() {
+    fun `#register should throw an exception if the same key is registered twice`() {
         shouldThrow<WinterException> {
             component {
                 register(ConstantService(typeKey<String>(), ""), false)
@@ -84,7 +84,7 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#register should override key is if override is true`() {
+    fun `#register should override key if override is true`() {
         component {
             register(ConstantService(typeKey<String>(), ""), false)
             register(ConstantService(typeKey<String>(), ""), true)

@@ -104,18 +104,18 @@ class PluginRegistryTest {
         }
 
         @Test
-        fun `#runPostConstruct should call #postConstruct on all plugins`() {
-            registry.runPostConstruct(graph, Scope.Singleton, argument, instance)
-            verify(plugin, only()).postConstruct(graph, Scope.Singleton, argument, instance)
-            verify(plugin2, only()).postConstruct(graph, Scope.Singleton, argument, instance)
+        fun `#runGraphInitializing should call #graphInitializing on all plugins`() {
+            val builder = ComponentBuilder(null)
+            registry.runGraphInitializing(graph, builder)
+            verify(plugin, only()).graphInitializing(graph, builder)
+            verify(plugin2, only()).graphInitializing(graph, builder)
         }
 
         @Test
-        fun `#runInitializingComponent should call #initializingComponent on all plugins`() {
-            val builder = ComponentBuilder(null)
-            registry.runInitializingComponent(graph, builder)
-            verify(plugin, only()).initializingComponent(graph, builder)
-            verify(plugin2, only()).initializingComponent(graph, builder)
+        fun `#runGraphInitialized should call #graphInitialized on all plugins`() {
+            registry.runGraphInitialized(graph)
+            verify(plugin, only()).graphInitialized(graph)
+            verify(plugin2, only()).graphInitialized(graph)
         }
 
         @Test
@@ -123,6 +123,13 @@ class PluginRegistryTest {
             registry.runGraphDispose(graph)
             verify(plugin, times(1)).graphDispose(graph)
             verify(plugin2, times(1)).graphDispose(graph)
+        }
+
+        @Test
+        fun `#runPostConstruct should call #postConstruct on all plugins`() {
+            registry.runPostConstruct(graph, Scope.Singleton, argument, instance)
+            verify(plugin, only()).postConstruct(graph, Scope.Singleton, argument, instance)
+            verify(plugin2, only()).postConstruct(graph, Scope.Singleton, argument, instance)
         }
 
     }

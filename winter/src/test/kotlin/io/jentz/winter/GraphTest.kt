@@ -677,6 +677,31 @@ class GraphTest {
     }
 
     @Nested
+    @DisplayName("#instanceOrNullByKey")
+    inner class InstanceOrNullByKeyMethod {
+
+        @Test
+        fun `should return null if key is not present`() {
+            graph {  }.instanceOrNullByKey(typeKey<String>(), Unit).shouldBeNull()
+        }
+
+        @Test
+        fun `should resolve instance by key`() {
+            graph {
+                constant("string")
+            }.instanceOrNullByKey(typeKey<String>(), Unit).shouldBe("string")
+        }
+
+        @Test
+        fun `should resolve instance from factory by key`() {
+            graph {
+                factory { i: Int -> i.toString() }
+            }.instanceOrNullByKey(compoundTypeKey<Int, String>(), 42).shouldBe("42")
+        }
+
+    }
+
+    @Nested
     @DisplayName("#provider")
     inner class ProviderMethod {
 
@@ -1053,10 +1078,15 @@ class GraphTest {
         @Test
         fun `should run plugins`() {
             val parent = graph { }
-            verify(plugin, only()).initializingComponent(isNull(), any())
+            verify(plugin, times(1)).graphInitializing(isNull(), any())
+            verify(plugin, times(1)).graphInitialized(any())
             reset(plugin)
-            Graph(Winter, parent, emptyComponent, null, null)
-            verify(plugin, only()).initializingComponent(same(parent), any())
+            val graph = Graph(Winter, parent, emptyComponent, null, null)
+            verify(plugin, times(1)).graphInitializing(same(parent), any())
+            verify(plugin, times(1)).graphInitialized(graph)
+            verify(plugin, never()).graphDispose(any())
+            graph.dispose()
+            verify(plugin, times(1)).graphDispose(graph)
         }
 
         @Test

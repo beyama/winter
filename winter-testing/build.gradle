@@ -30,11 +30,14 @@ test {
 }
 
 dependencies {
+    api project(':winter')
+
     implementation deps.kotlin.stdlib
+    api deps.kotlin.reflect
+    api deps.javaxInject
 
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest
-    testImplementation deps.kotlin.reflect
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
 
@@ -62,7 +65,7 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/beyama/winter/blob/master/winter/src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-testing/src/main/kotlin"
         suffix = "#L"
     }
 }
