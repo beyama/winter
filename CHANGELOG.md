@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.4.0
+-------------
+
+* Add winter-junit5 support module
+* Add ability to provide all Mock and Spy annotated fields in tests via a graph
+* Add Plugin#graphInitialized callback
+* Remove exception in ComponentBuilder#register when override is true but service doesn’t exist
+* Rename Plugin#initializingComponent to #graphInitializing
+* Deprecate WinterTestRule in favor of ExtendGraphTestRule 
+
 Version 0.3.1
 -------------
 
