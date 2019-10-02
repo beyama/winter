@@ -73,7 +73,7 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey get() = unboundService.key
 
     override fun instance(argument: Unit): T {
-        return synchronized(graph) { graph.evaluate(this, argument) }
+        return graph.evaluate(this, argument)
     }
 
     override fun newInstance(argument: Unit): T = unboundService.factory(graph)
@@ -107,7 +107,7 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
 
         synchronized(graph) {
             val v2 = instance
-            if (instance !== io.jentz.winter.UNINITIALIZED_VALUE) {
+            if (instance !== UNINITIALIZED_VALUE) {
                 @Suppress("UNCHECKED_CAST")
                 return v2 as T
             }
@@ -205,7 +205,7 @@ internal class BoundFactoryService<A, R : Any>(
     override val scope: Scope get() = Scope.PrototypeFactory
 
     override fun instance(argument: A): R {
-        return synchronized(graph) { graph.evaluate(this, argument) }
+        return graph.evaluate(this, argument)
     }
 
     override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
