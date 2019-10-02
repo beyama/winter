@@ -19,7 +19,7 @@ class Graph internal constructor(
         data class Initialized(
             val component: Component,
             val parent: Graph?,
-            val stack: DependenciesStack,
+            val serviceEvaluator: ServiceEvaluator,
             val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
         ) : State() {
             var isDisposing = false
@@ -30,11 +30,9 @@ class Graph internal constructor(
 
     private var state: State
 
-    private inline fun <T> withState(block: (State) -> T): T = synchronized(this) { block(state) }
-
     private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
-        withState { state ->
-            when (state) {
+        synchronized(this) {
+            when (val state = this.state) {
                 is State.Disposed -> ifDisposed()
                 is State.Initialized -> ifInitialized(state)
             }
@@ -68,7 +66,7 @@ class Graph internal constructor(
             component
         }
 
-        state = State.Initialized(baseComponent, parent, DependenciesStack(this))
+        state = State.Initialized(baseComponent, parent, ServiceEvaluator(this))
 
         application.plugins.runGraphInitialized(this)
 
@@ -341,7 +339,7 @@ class Graph internal constructor(
      * Don't use this method except in custom [BoundService] implementations.
      */
     fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R =
-        map { (_, _, stack, _) -> stack.evaluate(service, argument) }
+        map { (_, _, serviceEvaluator, _) -> serviceEvaluator.evaluate(service, argument) }
 
     /**
      * Inject members of class [T].
