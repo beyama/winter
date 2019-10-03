@@ -139,7 +139,6 @@ internal class ProviderService<R : Any>(
     }
 }
 
-@PublishedApi
 internal class AliasService(
         private val targetKey: TypeKey,
         private val newKey: TypeKey

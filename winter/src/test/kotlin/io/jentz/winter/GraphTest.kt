@@ -677,31 +677,6 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("#instanceOrNullByKey")
-    inner class InstanceOrNullByKeyMethod {
-
-        @Test
-        fun `should return null if key is not present`() {
-            graph {  }.instanceOrNullByKey(typeKey<String>(), Unit).shouldBeNull()
-        }
-
-        @Test
-        fun `should resolve instance by key`() {
-            graph {
-                constant("string")
-            }.instanceOrNullByKey(typeKey<String>(), Unit).shouldBe("string")
-        }
-
-        @Test
-        fun `should resolve instance from factory by key`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instanceOrNullByKey(compoundTypeKey<Int, String>(), 42).shouldBe("42")
-        }
-
-    }
-
-    @Nested
     @DisplayName("#provider")
     inner class ProviderMethod {
 

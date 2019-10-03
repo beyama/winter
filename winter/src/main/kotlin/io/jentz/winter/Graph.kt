@@ -16,13 +16,25 @@ class Graph internal constructor(
 ) {
 
     private sealed class State {
+
         data class Initialized(
+            val graph: Graph,
             val component: Component,
             val parent: Graph?,
             val serviceEvaluator: ServiceEvaluator,
             val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
         ) : State() {
             var isDisposing = false
+
+            @Suppress("UNCHECKED_CAST")
+            fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
+                registry.getOrPut(key) {
+                    component[key]?.bind(graph) ?: return parent?.serviceOrNull(key)
+                } as? BoundService<A, R>
+
+            fun <A, R : Any> service(key: TypeKey): BoundService<A, R> = serviceOrNull(key)
+                ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
+
         }
 
         object Disposed : State()
@@ -31,15 +43,19 @@ class Graph internal constructor(
     private var state: State
 
     private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
-        synchronized(this) {
-            when (val state = this.state) {
-                is State.Disposed -> ifDisposed()
-                is State.Initialized -> ifInitialized(state)
-            }
+        when (val state = this.state) {
+            is State.Disposed -> ifDisposed()
+            is State.Initialized -> ifInitialized(state)
         }
+
+    private inline fun <T> synchronizedFold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
+        synchronized(this) { fold(ifDisposed, ifInitialized) }
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
         fold({ throw WinterException("Graph is already disposed.") }, block)
+
+    private inline fun <T> synchronizedMap(block: (State.Initialized) -> T): T =
+        synchronizedFold({ throw WinterException("Graph is already disposed.") }, block)
 
     /**
      * The parent [Graph] instance or null if no parent exists.
@@ -66,21 +82,20 @@ class Graph internal constructor(
             component
         }
 
-        state = State.Initialized(baseComponent, parent, ServiceEvaluator(this))
+        state = State.Initialized(this, baseComponent, parent, ServiceEvaluator(this))
 
         application.plugins.runGraphInitialized(this)
 
-        val eagerDependencies = serviceOrNull<Unit, Set<TypeKey>>(eagerDependenciesKey)
-        eagerDependencies?.instance(Unit)?.forEach { key ->
-            val service = serviceOrNull<Unit, Any>(key)
-                ?: throw EntryNotFoundException(
-                    key,
-                    "BUG: Eager dependency with key `$key` doesn't exist."
+        instanceOrNullByKey<Unit, Set<TypeKey>>(eagerDependenciesKey, Unit)?.forEach { key ->
+            try {
+                instanceByKey<Unit, Any>(key, Unit)
+            } catch (e: EntryNotFoundException) {
+                throw EntryNotFoundException(
+                    key, "BUG: Eager dependency with key `$key` doesn't exist."
                 )
-            service.instance(Unit)
+            }
         }
     }
-
 
     /**
      * Retrieve a non-optional instance of `R`.
@@ -94,10 +109,7 @@ class Graph internal constructor(
     inline fun <reified R : Any> instance(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): R {
-        val key = typeKey<R>(qualifier, generics)
-        return service<Unit, R>(key).instance(Unit)
-    }
+    ): R = instanceByKey(typeKey<R>(qualifier, generics), Unit)
 
     /**
      * Retrieve a factory of type `(A) -> R` and apply [argument] to it.
@@ -113,10 +125,21 @@ class Graph internal constructor(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
-    ): R {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        return service<A, R>(key).instance(argument)
-    }
+    ): R = instanceByKey(compoundTypeKey<A, R>(qualifier, generics), argument)
+
+    /**
+     * Retrieve a factory of type `(A) -> R` by [key] and apply [argument] to it.
+     *
+     * @param key The type key of the factory.
+     * @param argument The argument for the factory to retrieve.
+     * @return The result of applying [argument] to the retrieved factory.
+     *
+     * @throws EntryNotFoundException
+     */
+    fun <A, R : Any> instanceByKey(
+        key: TypeKey,
+        argument: A
+    ): R = synchronizedMap { it.service<A, R>(key).instance(argument) }
 
     /**
      * Retrieve an optional instance of `R`.
@@ -128,10 +151,7 @@ class Graph internal constructor(
     inline fun <reified R : Any> instanceOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): R? {
-        val key = typeKey<R>(qualifier, generics)
-        return serviceOrNull<Unit, R>(key)?.instance(Unit)
-    }
+    ): R? = instanceOrNullByKey(typeKey<R>(qualifier, generics), Unit)
 
     /**
      * Retrieve an optional factory of type `(A) -> R` and apply [argument] to it.
@@ -141,16 +161,23 @@ class Graph internal constructor(
      * @param generics Preserves generic type parameters if set to true (default = false).
      * @return The result of applying [argument] to the retrieved factory or null if factory
      *         doesn't exist.
-     *
      */
     inline fun <reified A, reified R : Any> instanceOrNull(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
-    ): R? {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        return serviceOrNull<A, R>(key)?.instance(argument)
-    }
+    ): R? = instanceOrNullByKey(compoundTypeKey<A, R>(qualifier, generics), argument)
+
+    /**
+     * Retrieve an optional factory of type `(A) -> R` by [key] and apply [argument] to it.
+     *
+     * @param key The type key of the factory.
+     * @param argument The argument for the factory to retrieve.
+     * @return The result of applying [argument] to the retrieved factory or null if factory
+     *         doesn't exist.
+     */
+    fun <A, R : Any> instanceOrNullByKey(key: TypeKey, argument: A): R? =
+        synchronizedMap { it.serviceOrNull<A, R>(key)?.instance(argument) }
 
     /**
      * Retrieves a non-optional provider function that returns `R`.
@@ -164,11 +191,7 @@ class Graph internal constructor(
     inline fun <reified R : Any> provider(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Provider<R> {
-        val key = typeKey<R>(qualifier, generics)
-        val service = service<Unit, R>(key)
-        return { service.instance(Unit) }
-    }
+    ): Provider<R> = providerByKey(typeKey<R>(qualifier, generics), Unit)
 
     /**
      * Retrieves a factory of type `(A) -> R` and creates and returns a
@@ -185,10 +208,20 @@ class Graph internal constructor(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Provider<R> {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = service<A, R>(key)
-        return { service.instance(argument) }
+    ): Provider<R> = providerByKey(compoundTypeKey<A, R>(qualifier, generics), argument)
+
+    /**
+     * Retrieves a factory of type `(A) -> R` by [key] and creates and returns a
+     * [provider][Provider] that applies the given [argument] to the factory when called.
+     *
+     * @param argument The argument for the factory to retrieve.
+     * @return The provider function.
+     *
+     * @throws EntryNotFoundException
+     */
+    fun <A, R : Any> providerByKey(key: TypeKey, argument: A): Provider<R> = synchronizedMap {
+        val service = it.service<A, R>(key)
+        return { synchronized(this) { service.instance(argument) } }
     }
 
     /**
@@ -201,11 +234,7 @@ class Graph internal constructor(
     inline fun <reified R : Any> providerOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Provider<R>? {
-        val key = typeKey<R>(qualifier, generics)
-        val service = serviceOrNull<Unit, R>(key) ?: return null
-        return { service.instance(Unit) }
-    }
+    ): Provider<R>? = providerOrNullByKey(typeKey<R>(qualifier, generics), Unit)
 
     /**
      * Retrieves an optional factory of type `(A) -> R` and creates and returns a
@@ -220,11 +249,21 @@ class Graph internal constructor(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Provider<R>? {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = serviceOrNull<A, R>(key) ?: return null
-        return { service.instance(argument) }
-    }
+    ): Provider<R>? = providerOrNullByKey(compoundTypeKey<A, R>(qualifier, generics), argument)
+
+    /**
+     * Retrieves an optional factory of type `(A) -> R` by [key] and creates and returns a
+     * [provider][Provider] that applies the given [argument] to the factory when called.
+     *
+     * @param key The type key of the factory.
+     * @param argument The argument for the factory to retrieve.
+     * @return The provider function or null if factory doesn't exist.
+     */
+    fun <A, R : Any> providerOrNullByKey(key: TypeKey, argument: A): Provider<R>? =
+        synchronizedMap {
+            val service = it.serviceOrNull<A, R>(key) ?: return null
+            return { synchronized(this) { service.instance(argument) } }
+        }
 
     /**
      * Retrieve a non-optional factory function that takes an argument of type `A` and returns `R`.
@@ -238,10 +277,20 @@ class Graph internal constructor(
     inline fun <reified A : Any, reified R : Any> factory(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Factory<A, R> {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = service<A, R>(key)
-        return { argument: A -> service.instance(argument) }
+    ): Factory<A, R> = factoryByKey(compoundTypeKey<A, R>(qualifier, generics))
+
+    /**
+     * Retrieve a non-optional factory function by [key] that takes an argument of type `A` and
+     * returns `R`.
+     *
+     * @param key The type key of the factory.
+     * @return The factory that takes `A` and returns `R`
+     *
+     * @throws EntryNotFoundException
+     */
+    fun <A : Any, R : Any> factoryByKey(key: TypeKey): Factory<A, R> = synchronizedMap {
+        val service = it.service<A, R>(key)
+        return { argument: A -> synchronized(this) { service.instance(argument) } }
     }
 
     /**
@@ -254,10 +303,18 @@ class Graph internal constructor(
     inline fun <reified A : Any, reified R : Any> factoryOrNull(
         qualifier: Any? = null,
         generics: Boolean = false
-    ): Factory<A, R>? {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = serviceOrNull<A, R>(key) ?: return null
-        return { argument: A -> service.instance(argument) }
+    ): Factory<A, R>? = factoryOrNullByKey(compoundTypeKey<A, R>(qualifier, generics))
+
+    /**
+     * Retrieve an optional factory function by [key] that takes an argument of type `A` and
+     * returns `R`.
+     *
+     * @param key The type key of the factory.
+     * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
+     */
+    fun <A : Any, R : Any> factoryOrNullByKey(key: TypeKey): Factory<A, R>? = synchronizedMap {
+        val service = it.serviceOrNull<A, R>(key) ?: return null
+        return { argument: A -> synchronized(this) { service.instance(argument) } }
     }
 
     /**
@@ -290,11 +347,11 @@ class Graph internal constructor(
         return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
     }
 
-    /**
-     * Internal method to retrieve an optional instance by [TypeKey].
-     */
-    fun instanceOrNullByKey(key: TypeKey, argument: Any): Any? =
-        serviceOrNull<Any, Any>(key)?.instance(argument)
+    internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> =
+        synchronizedMap { it.service(key) }
+
+    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
+        synchronizedMap { it.serviceOrNull(key) }
 
     private fun keys(): Set<TypeKey> {
         val keys = component.keys()
@@ -307,39 +364,23 @@ class Graph internal constructor(
 
     @PublishedApi
     internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
-        map { (_, _, _, registry) ->
+        synchronizedMap { state ->
             @Suppress("UNCHECKED_CAST")
-            val service = registry.getOrPut(key) {
+            val service = state.registry.getOrPut(key) {
                 keys()
-                    .asSequence()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
-                    .mapTo(mutableSetOf()) { key -> service<Unit, Any>(key) }
+                    .mapTo(mutableSetOf()) { key -> state.service<Unit, Any>(key) }
                     .run { ConstantService(key, this) }
             } as ConstantService<Set<BoundService<Unit, *>>>
             service.value
         }
-
-    @PublishedApi
-    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
-        @Suppress("UNCHECKED_CAST")
-        map { (component, parent, _, registry) ->
-            registry.getOrPut(key) {
-                component[key]?.bind(this) ?: return parent?.serviceOrNull(key)
-            } as? BoundService<A, R>
-        }
-
-    @PublishedApi
-    internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> {
-        return serviceOrNull(key)
-            ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
-    }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
      */
     fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R =
-        map { (_, _, serviceEvaluator, _) -> serviceEvaluator.evaluate(service, argument) }
+        map { it.serviceEvaluator.evaluate(service, argument) }
 
     /**
      * Inject members of class [T].
@@ -351,13 +392,13 @@ class Graph internal constructor(
      */
     @JvmOverloads
     fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
-        map {
+        synchronizedMap {
             var found = false
             var cls: Class<*>? = instance.javaClass
 
             while (cls != null) {
                 val key = CompoundClassTypeKey(MembersInjector::class.java, cls, null)
-                val service = serviceOrNull<Unit, MembersInjector<T>>(key)
+                val service = it.serviceOrNull<Unit, MembersInjector<T>>(key)
 
                 if (service != null) {
                     found = true
@@ -405,7 +446,7 @@ class Graph internal constructor(
     fun createSubgraph(
         subcomponentQualifier: Any,
         block: ComponentBuilderBlock? = null
-    ): Graph = map {
+    ): Graph = synchronizedMap {
         Graph(application, this, instance(subcomponentQualifier), null, block)
     }
 
@@ -440,7 +481,7 @@ class Graph internal constructor(
         subcomponentQualifier: Any,
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
-    ): Graph = map { (_, _, _, registry) ->
+    ): Graph = synchronizedMap { (_, _, _, _, registry) ->
         val name = identifier ?: subcomponentQualifier
         val key = typeKey<Graph>(name)
 
@@ -474,7 +515,7 @@ class Graph internal constructor(
      * @param identifier The identifier it was opened with.
      */
     fun closeSubgraph(identifier: Any) {
-        map { (_, _, _, registry) ->
+        synchronizedMap { (_, _, _, _, registry) ->
             val key = typeKey<Graph>(identifier)
             val service = registry.remove(key) ?: throw WinterException(
                 "Subgraph with identifier `$identifier` doesn't exist."
@@ -492,7 +533,7 @@ class Graph internal constructor(
     private fun unregisterSubgraph(sub: Graph) {
         val identifier = sub.identifier ?: return
 
-        fold({}, { state ->
+        synchronizedFold({}, { state ->
             if (state.isDisposing) return
             state.registry.remove(typeKey<Graph>(identifier))
         })
@@ -506,7 +547,7 @@ class Graph internal constructor(
      * Subsequent calls are ignored.
      */
     fun dispose() {
-        fold({}) { state ->
+        synchronizedFold({}) { state ->
             try {
                 if (state.isDisposing) return
 
