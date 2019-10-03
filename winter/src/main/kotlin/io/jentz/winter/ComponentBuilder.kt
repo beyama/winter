@@ -29,6 +29,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     private val registry: MutableMap<TypeKey, UnboundService<*, *>> = mutableMapOf()
+    private var requiresLifecycleCallbacks: Boolean = false
     private var eagerDependencies: Set<TypeKey> = emptySet()
     private var subcomponentBuilders: MutableMap<TypeKey, ComponentBuilder>? = null
 
@@ -334,6 +335,10 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
             throw WinterException("Entry with key `$key` already exists.")
         }
 
+        if (!requiresLifecycleCallbacks) {
+            requiresLifecycleCallbacks = service.requiresLifecycleCallbacks
+        }
+
         registry[key] = service
     }
 
@@ -420,6 +425,6 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         eagerDependencies
             .takeIf { it.isNotEmpty() }
             ?.let { register(ConstantService(eagerDependenciesKey, it), false) }
-        return Component(qualifier, registry.toMap())
+        return Component(qualifier, registry.toMap(), requiresLifecycleCallbacks)
     }
 }

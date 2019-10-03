@@ -25,7 +25,13 @@ class Component internal constructor(
      * sub-components).
      */
     val qualifier: Any?,
-    private val dependencies: Map<TypeKey, UnboundService<*, *>>
+
+    private val dependencies: Map<TypeKey, UnboundService<*, *>>,
+
+    /**
+     * Set to true if any of the services requires lifecycle callbacks.
+     */
+    internal val requiresLifecycleCallbacks: Boolean
 ) {
 
     /**
