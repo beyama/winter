@@ -42,13 +42,13 @@ class GraphTest {
     @BeforeEach
     fun beforeEach() {
         reset(plugin)
-        Winter.plugins.unregisterAll()
-        Winter.plugins.register(plugin)
+        Winter.unregisterAllPlugins()
+        Winter.registerPlugin(plugin)
     }
 
     @AfterEach
     fun afterEach() {
-        Winter.plugins.unregisterAll()
+        Winter.unregisterAllPlugins()
     }
 
     @Nested
@@ -214,10 +214,10 @@ class GraphTest {
             val graph = graph { reference { count += 1; count } }
             val service = graph.service<Unit, Int>(typeKey<Int>()) as BoundReferenceService
             service.instance.shouldBe(UNINITIALIZED_VALUE)
-            (1..5).forEach { graph.instance<Int>() }
+            repeat(5) { graph.instance<Int>() }
             service.instance.shouldBe(1)
             service.instance = UNINITIALIZED_VALUE
-            (1..5).forEach { graph.instance<Int>() }
+            repeat(5) { graph.instance<Int>() }
             service.instance.shouldBe(2)
         }
 
@@ -1021,7 +1021,7 @@ class GraphTest {
 
         @Test
         fun `#component should return backing component`() {
-            Winter.plugins.unregisterAll() // otherwise it will derive the component
+            Winter.unregisterAllPlugins() // otherwise it will derive the component
             val parent = graph { subcomponent("sub") {} }
             val sub = parent.createSubgraph("sub")
             sub.component.shouldBeSameInstanceAs(parent.component.subcomponent("sub"))
@@ -1108,7 +1108,7 @@ class GraphTest {
         @Test
         fun `#dispose should run graph dispose plugins before marking graph as disposed`() {
             var called = false
-            Winter.plugins.register(object : SimplePlugin() {
+            Winter.registerPlugin(object : SimplePlugin() {
                 override fun graphDispose(graph: Graph) {
                     called = true
                     graph.isDisposed.shouldBeFalse()
@@ -1121,50 +1121,13 @@ class GraphTest {
 
         @Test
         fun `#dispose should ignore a call to dispose from plugin`() {
-            Winter.plugins.register(object : SimplePlugin() {
+            Winter.registerPlugin(object : SimplePlugin() {
                 override fun graphDispose(graph: Graph) {
                     graph.dispose()
                 }
             })
             graph {}.dispose()
             // no StackOverflowError here
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Cyclic dependencies")
-    inner class CyclicDependencies {
-
-        @Test
-        fun `should detect cyclic dependencies`() {
-            shouldThrow<CyclicDependencyException> {
-                graph {
-                    singleton { Parent(instance()) }
-                    singleton { Child().apply { parent = instance() } }
-                }.instance<Parent>()
-            }
-        }
-
-        @Test
-        fun `should detect cyclic dependencies for self referencing factory`() {
-            shouldThrow<CyclicDependencyException> {
-                graph {
-                    prototype {
-                        instance<Any>()
-                        Any()
-                    }
-                }.instance()
-            }
-        }
-
-        @Test
-        fun `should detect cyclic dependencies for factory`() {
-            shouldThrow<CyclicDependencyException> {
-                graph {
-                    factory { arg: Int -> factory<Int, Int>().invoke(arg) }
-                }.factory<Int, Int>().invoke(42)
-            }
         }
 
     }

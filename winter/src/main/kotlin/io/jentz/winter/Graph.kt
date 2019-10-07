@@ -1,5 +1,9 @@
 package io.jentz.winter
 
+import io.jentz.winter.evaluator.ServiceEvaluator
+import io.jentz.winter.evaluator.createServiceEvaluator
+import io.jentz.winter.plugin.Plugins
+
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
  *
@@ -7,7 +11,7 @@ package io.jentz.winter
  * or [Graph.openSubgraph].
  */
 class Graph internal constructor(
-    val application: WinterApplication,
+    application: WinterApplication,
     parent: Graph?,
     component: Component,
     // only set for graphs that are managed (opened) by the parent graph
@@ -17,10 +21,12 @@ class Graph internal constructor(
 
     private sealed class State {
 
-        data class Initialized(
+        class Initialized(
             val graph: Graph,
             val component: Component,
             val parent: Graph?,
+            val application: WinterApplication,
+            val plugins: Plugins,
             val serviceEvaluator: ServiceEvaluator,
             val registry: MutableMap<TypeKey, BoundService<*, *>> = mutableMapOf()
         ) : State() {
@@ -48,14 +54,21 @@ class Graph internal constructor(
             is State.Initialized -> ifInitialized(state)
         }
 
-    private inline fun <T> synchronizedFold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
-        synchronized(this) { fold(ifDisposed, ifInitialized) }
+    private inline fun <T> synchronizedFold(
+        ifDisposed: () -> T,
+        ifInitialized: (State.Initialized) -> T
+    ): T = synchronized(this) { fold(ifDisposed, ifInitialized) }
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
         fold({ throw WinterException("Graph is already disposed.") }, block)
 
     private inline fun <T> synchronizedMap(block: (State.Initialized) -> T): T =
         synchronizedFold({ throw WinterException("Graph is already disposed.") }, block)
+
+    /**
+     * The [WinterApplication] of this graph.
+     */
+    val application: WinterApplication get() = map { it.application }
 
     /**
      * The parent [Graph] instance or null if no parent exists.
@@ -73,18 +86,32 @@ class Graph internal constructor(
     val isDisposed: Boolean get() = fold({ true }, { false })
 
     init {
-        val baseComponent = if (application.plugins.isNotEmpty() || block != null) {
+        val plugins = application.plugins
+
+        val baseComponent = if (plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                application.plugins.runGraphInitializing(parent, this)
+                plugins.runGraphInitializing(parent, this)
             }
         } else {
             component
         }
 
-        state = State.Initialized(this, baseComponent, parent, ServiceEvaluator(this))
+        state = State.Initialized(
+            graph = this,
+            component = baseComponent,
+            parent = parent,
+            application = application,
+            plugins = plugins,
+            serviceEvaluator = createServiceEvaluator(
+                graph = this,
+                component = baseComponent,
+                plugins = plugins,
+                checkForCyclicDependencies = application.checkForCyclicDependencies
+            )
+        )
 
-        application.plugins.runGraphInitialized(this)
+        plugins.runGraphInitialized(this)
 
         instanceOrNullByKey<Unit, Set<TypeKey>>(eagerDependenciesKey, Unit)?.forEach { key ->
             try {
@@ -446,8 +473,8 @@ class Graph internal constructor(
     fun createSubgraph(
         subcomponentQualifier: Any,
         block: ComponentBuilderBlock? = null
-    ): Graph = synchronizedMap {
-        Graph(application, this, instance(subcomponentQualifier), null, block)
+    ): Graph = synchronizedMap { state ->
+        Graph(state.application, this, instance(subcomponentQualifier), null, block)
     }
 
     /**
@@ -481,18 +508,18 @@ class Graph internal constructor(
         subcomponentQualifier: Any,
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
-    ): Graph = synchronizedMap { (_, _, _, _, registry) ->
+    ): Graph = synchronizedMap { state ->
         val name = identifier ?: subcomponentQualifier
         val key = typeKey<Graph>(name)
 
-        if (key in registry) {
+        if (key in state.registry) {
             throw WinterException(
                 "Cannot open subgraph with identifier `$name` because it is already open."
             )
         }
 
-        val graph = Graph(application, this, instance(subcomponentQualifier), name, block)
-        registry[key] = BoundGraphService(key, graph)
+        val graph = Graph(state.application, this, instance(subcomponentQualifier), name, block)
+        state.registry[key] = BoundGraphService(key, graph)
         graph
     }
 
@@ -515,9 +542,9 @@ class Graph internal constructor(
      * @param identifier The identifier it was opened with.
      */
     fun closeSubgraph(identifier: Any) {
-        synchronizedMap { (_, _, _, _, registry) ->
+        synchronizedMap { state ->
             val key = typeKey<Graph>(identifier)
-            val service = registry.remove(key) ?: throw WinterException(
+            val service = state.registry.remove(key) ?: throw WinterException(
                 "Subgraph with identifier `$identifier` doesn't exist."
             )
             service.dispose()
@@ -553,7 +580,7 @@ class Graph internal constructor(
 
                 state.isDisposing = true
 
-                application.plugins.runGraphDispose(this)
+                state.plugins.runGraphDispose(this)
 
                 state.registry.values.forEach { boundService -> boundService.dispose() }
                 state.parent?.unregisterSubgraph(this)

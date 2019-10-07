@@ -30,7 +30,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
 
     private val registry: MutableMap<TypeKey, UnboundService<*, *>> = mutableMapOf()
     private var requiresLifecycleCallbacks: Boolean = false
-    private var eagerDependencies: Set<TypeKey> = emptySet()
+    private var eagerDependencies: MutableSet<TypeKey> = mutableSetOf()
     private var subcomponentBuilders: MutableMap<TypeKey, ComponentBuilder>? = null
 
     /**
@@ -52,7 +52,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
                 k === eagerDependenciesKey -> {
                     @Suppress("UNCHECKED_CAST")
                     val entry = v as ConstantService<Set<TypeKey>>
-                    eagerDependencies += entry.value
+                    eagerDependencies.addAll(entry.value)
                 }
                 v is ConstantService<*> && v.value is Component -> {
                     @Suppress("UNCHECKED_CAST")
@@ -374,13 +374,14 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
 
     @PublishedApi
     internal fun addEagerDependency(key: TypeKey) {
-        if (!registry.containsKey(key)) throw WinterException("Key `$key` is not registered.")
-        eagerDependencies += key
+        if (!registry.containsKey(key)) {
+            throw WinterException("Key `$key` is not registered.")
+        }
+        eagerDependencies.add(key)
     }
 
     private fun removeEagerDependency(key: TypeKey) {
-        if (!eagerDependencies.contains(key)) return
-        eagerDependencies -= key
+        eagerDependencies.remove(key)
     }
 
     private fun registerSubcomponent(
@@ -422,9 +423,12 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
 
     internal fun build(): Component {
         subcomponentBuilders?.mapValuesTo(registry) { ConstantService(it.key, it.value.build()) }
+        subcomponentBuilders = null
+
         eagerDependencies
             .takeIf { it.isNotEmpty() }
-            ?.let { register(ConstantService(eagerDependenciesKey, it), false) }
+            ?.let { register(ConstantService(eagerDependenciesKey, it.toSet()), false) }
+
         return Component(qualifier, registry.toMap(), requiresLifecycleCallbacks)
     }
 }

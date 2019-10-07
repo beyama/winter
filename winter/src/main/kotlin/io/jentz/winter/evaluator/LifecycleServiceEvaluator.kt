@@ -1,4 +1,9 @@
-package io.jentz.winter
+package io.jentz.winter.evaluator
+
+import io.jentz.winter.BoundService
+import io.jentz.winter.Graph
+import io.jentz.winter.TypeKey
+import io.jentz.winter.plugin.Plugins
 
 private const val STACK_CAPACITY = 3 * 32
 
@@ -6,24 +11,29 @@ private const val SERVICE_INDEX = 0
 private const val ARGUMENT_INDEX = SERVICE_INDEX + 1
 private const val INSTANCE_INDEX = SERVICE_INDEX + 2
 
-internal class ServiceEvaluator(private val graph: Graph) {
+/**
+ * A [ServiceEvaluator] implementation that can optionally check for cyclic dependencies and
+ * that calls service and plugin lifecycle methods.
+ *
+ * This one is used when plugins are registered and/or a service needs lifecycle callbacks.
+ */
+internal class LifecycleServiceEvaluator(
+    private val graph: Graph,
+    private val plugins: Plugins,
+    private val checkForCyclicDependencies: Boolean
+) : ServiceEvaluator {
 
-    private val plugins = graph.application.plugins
-
-    private var stack: Array<Any?> = arrayOfNulls(STACK_CAPACITY)
+    private var stack = arrayOfNulls<Any>(STACK_CAPACITY)
 
     private var stackSize = 0
 
     private var pendingDependenciesCount = 0
 
-    fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R {
+    override fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R {
         val key = service.key
 
-        // check if key is already on the stack
-        for (i in 0 until stackSize step 3) {
-            if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*, *>).key == key) {
-                throw CyclicDependencyException("Cyclic dependency for key `$key`.")
-            }
+        if (checkForCyclicDependencies) {
+            checkForCyclicDependencies(key, { isKeyPending(key) }, { pendingKeys() })
         }
 
         val serviceIndex = stackSize
@@ -52,21 +62,8 @@ internal class ServiceEvaluator(private val graph: Graph) {
             val instance = service.newInstance(argument)
             stack[instanceIndex] = instance
             return instance
-        } catch (e: EntryNotFoundException) {
-            drainStack()
-            throw DependencyResolutionException(
-                "Error while resolving dependency with key: $key " +
-                        "reason: could not find dependency with key ${e.key}",
-                e
-            )
-        } catch (e: WinterException) {
-            throw e
         } catch (t: Throwable) {
-            drainStack()
-            throw DependencyResolutionException(
-                "Factory of dependency with key $key threw an exception on invocation.",
-                t
-            )
+            handleException(key, t)
         } finally {
             pendingDependenciesCount -= 1
 
@@ -100,6 +97,19 @@ internal class ServiceEvaluator(private val graph: Graph) {
             pendingDependenciesCount = 0
             stackSize = 0
         }
+    }
+
+    private fun isKeyPending(key: TypeKey): Boolean {
+        for (i in 0 until stackSize step 3) {
+            if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*, *>).key == key) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun pendingKeys(): List<TypeKey> = (0 until stackSize step 3).mapNotNull { i ->
+        if (stack[i + INSTANCE_INDEX] == null) (stack[i] as BoundService<*, *>).key else null
     }
 
 }

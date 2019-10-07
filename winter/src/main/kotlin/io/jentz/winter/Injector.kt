@@ -448,7 +448,6 @@ class Injector {
 
         private var factory: Factory<A, R>? = null
 
-        // FIXME: Don't use service without synchronization
         override fun resolveFactory(graph: Graph, key: TypeKey) {
             factory = graph.factoryOrNullByKey(key)
         }
