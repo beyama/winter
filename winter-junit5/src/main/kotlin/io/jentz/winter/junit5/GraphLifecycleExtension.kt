@@ -18,10 +18,10 @@ abstract class GraphLifecycleExtension(
 ): SimplePlugin(), BeforeEachCallback, AfterEachCallback {
 
     override fun beforeEach(context: ExtensionContext) {
-        application.plugins.register(this)
+        application.registerPlugin(this)
     }
 
     override fun afterEach(context: ExtensionContext) {
-        application.plugins.unregister(this)
+        application.unregisterPlugin(this)
     }
 }

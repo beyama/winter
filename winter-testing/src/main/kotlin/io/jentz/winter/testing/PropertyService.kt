@@ -15,6 +15,8 @@ internal class PropertyService(
 
     override val scope: Scope get() = Scope.Prototype
 
+    override val requiresLifecycleCallbacks: Boolean get() = false
+
     init {
         property.isAccessible = true
     }

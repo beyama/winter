@@ -74,7 +74,7 @@ class GraphLifecycleTestRuleTest {
 
     @Before
     fun beforeEach() {
-        Winter.plugins.unregisterAll()
+        Winter.unregisterAllPlugins()
     }
 
     @Test

@@ -18,7 +18,7 @@ fun Graph.injectWithReflection(target: Any) {
         .forEach { property ->
             property.isAccessible = true
 
-            val instance = instanceOrNullByKey(property.typeKey, Unit)
+            val instance = instanceOrNullByKey<Any, Any>(property.typeKey, Unit)
             val field = property.javaField
 
             when {
