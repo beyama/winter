@@ -166,7 +166,7 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified A, reified R : Any> lazyInstance(
+    inline fun <reified A : Any, reified R : Any> lazyInstance(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -199,7 +199,7 @@ class Injector {
      * @param generics Preserve generic type parameters.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified A, reified R : Any> lazyInstanceOrNull(
+    inline fun <reified A : Any, reified R : Any> lazyInstanceOrNull(
         argument: A,
         qualifier: Any? = null,
         generics: Boolean = false
@@ -343,12 +343,12 @@ class Injector {
 
         final override fun inject(graph: Graph) {
             this.graph = graph
-            resolveService(graph, key)
+            resolveFactory(graph, key)
         }
 
         final override val value: R get() = memorized.value
 
-        protected open fun resolveService(graph: Graph, key: TypeKey) {
+        protected open fun resolveFactory(graph: Graph, key: TypeKey) {
         }
 
         protected abstract fun getValue(graph: Graph, key: TypeKey, argument: A): R
@@ -386,10 +386,8 @@ class Injector {
         argument: A
     ) : AbstractEagerProperty<A, Provider<R>>(key, argument) {
 
-        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R> {
-            val service = graph.service<A, R>(key)
-            return { service.instance(argument) }
-        }
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R> =
+            graph.providerByKey(key, argument)
 
     }
 
@@ -399,10 +397,8 @@ class Injector {
         argument: A
     ) : AbstractEagerProperty<A, Provider<R>?>(key, argument) {
 
-        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R>? {
-            val service = graph.serviceOrNull<A, R>(key) ?: return null
-            return { service.instance(argument) }
-        }
+        override fun getValue(graph: Graph, key: TypeKey, argument: A): Provider<R>? =
+            graph.providerOrNullByKey(key, argument)
 
     }
 
@@ -413,7 +409,7 @@ class Injector {
     ) : AbstractEagerProperty<A, R>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
-            graph.service<A, R>(key).instance(argument)
+            graph.instanceByKey(key, argument)
 
     }
 
@@ -424,40 +420,40 @@ class Injector {
     ) : AbstractEagerProperty<A, R?>(key, argument) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
-            graph.serviceOrNull<A, R>(key)?.instance(argument)
+            graph.instanceOrNullByKey(key, argument)
 
     }
 
     @PublishedApi
-    internal class LazyInstanceProperty<A, R : Any>(
+    internal class LazyInstanceProperty<A  : Any, R : Any>(
         key: TypeKey,
         argument: A
     ) : AbstractLazyProperty<A, R>(key, argument) {
 
-        private var service: BoundService<A, R>? = null
+        private var factory: Factory<A, R>? = null
 
-        override fun resolveService(graph: Graph, key: TypeKey) {
-            service = graph.service(key)
+        override fun resolveFactory(graph: Graph, key: TypeKey) {
+            factory = graph.factoryByKey(key)
         }
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R =
-            service!!.instance(argument)
+            factory!!.invoke(argument)
     }
 
     @PublishedApi
-    internal class LazyInstanceOrNullProperty<A, R : Any>(
+    internal class LazyInstanceOrNullProperty<A : Any, R : Any>(
         key: TypeKey,
         argument: A
     ) : AbstractLazyProperty<A, R?>(key, argument) {
 
-        private var service: BoundService<A, R>? = null
+        private var factory: Factory<A, R>? = null
 
-        override fun resolveService(graph: Graph, key: TypeKey) {
-            service = graph.serviceOrNull(key)
+        override fun resolveFactory(graph: Graph, key: TypeKey) {
+            factory = graph.factoryOrNullByKey(key)
         }
 
         override fun getValue(graph: Graph, key: TypeKey, argument: A): R? =
-            service?.instance(argument)
+            factory?.invoke(argument)
 
     }
 

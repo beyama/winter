@@ -73,7 +73,7 @@ internal class BoundPrototypeService<T : Any>(
     override val key: TypeKey get() = unboundService.key
 
     override fun instance(argument: Unit): T {
-        return synchronized(graph) { graph.evaluate(this, argument) }
+        return graph.evaluate(this, argument)
     }
 
     override fun newInstance(argument: Unit): T = unboundService.factory(graph)
@@ -99,21 +99,12 @@ internal abstract class AbstractBoundSingletonService<T : Any>(
     final override val key: TypeKey get() = unboundService.key
 
     final override fun instance(argument: Unit): T {
-        val v1 = instance
-        if (v1 !== UNINITIALIZED_VALUE) {
+        val instance = this.instance
+        if (instance !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
             return instance as T
         }
-
-        synchronized(graph) {
-            val v2 = instance
-            if (instance !== io.jentz.winter.UNINITIALIZED_VALUE) {
-                @Suppress("UNCHECKED_CAST")
-                return v2 as T
-            }
-
-            return graph.evaluate(this, Unit)
-        }
+        return graph.evaluate(this, Unit)
     }
 
 }
@@ -127,9 +118,8 @@ internal class BoundSingletonService<T : Any>(
 
     override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun newInstance(argument: Unit): T {
-        return unboundService.factory(graph).also { this.instance = it }
-    }
+    override fun newInstance(argument: Unit): T =
+        unboundService.factory(graph).also { instance = it }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -156,9 +146,8 @@ internal class BoundWeakSingletonService<T : Any>(
 
     private var reference: WeakReference<T>? = null
 
-    override fun newInstance(argument: Unit): T {
-        return unboundService.factory(graph).also { reference = WeakReference(it) }
-    }
+    override fun newInstance(argument: Unit): T =
+        unboundService.factory(graph).also { reference = WeakReference(it) }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -181,9 +170,8 @@ internal class BoundSoftSingletonService<T : Any>(
 
     private var reference: SoftReference<T>? = null
 
-    override fun newInstance(argument: Unit): T {
-        return unboundService.factory(graph).also { reference = SoftReference(it) }
-    }
+    override fun newInstance(argument: Unit): T =
+        unboundService.factory(graph).also { reference = SoftReference(it) }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")
@@ -204,9 +192,7 @@ internal class BoundFactoryService<A, R : Any>(
 
     override val scope: Scope get() = Scope.PrototypeFactory
 
-    override fun instance(argument: A): R {
-        return synchronized(graph) { graph.evaluate(this, argument) }
-    }
+    override fun instance(argument: A): R = graph.evaluate(this, argument)
 
     override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
 
@@ -230,15 +216,11 @@ internal class BoundMultitonFactoryService<A, R : Any>(
 
     private val map = mutableMapOf<A, R>()
 
-    override fun instance(argument: A): R {
-        return synchronized(graph) {
-            map[argument] ?: graph.evaluate(this, argument)
-        }
-    }
+    override fun instance(argument: A): R =
+        map[argument] ?: graph.evaluate(this, argument)
 
-    override fun newInstance(argument: A): R {
-        return unboundService.factory(graph, argument).also { map[argument] = it }
-    }
+    override fun newInstance(argument: A): R =
+        unboundService.factory(graph, argument).also { map[argument] = it }
 
     override fun postConstruct(arg: Any, instance: Any) {
         @Suppress("UNCHECKED_CAST")

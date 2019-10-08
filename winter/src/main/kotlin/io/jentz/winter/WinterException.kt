@@ -15,6 +15,7 @@ class EntryNotFoundException(val key: TypeKey, message: String) : WinterExceptio
  * Exception that is thrown when an error occurs during dependency resolution.
  */
 class DependencyResolutionException(
+    val key: TypeKey,
     message: String,
     cause: Throwable? = null
 ) : WinterException(message, cause)
@@ -22,4 +23,8 @@ class DependencyResolutionException(
 /**
  * Exception that is thrown when a cyclic dependency was detected.
  */
-class CyclicDependencyException(message: String) : WinterException(message)
+class CyclicDependencyException(
+    val key: TypeKey,
+    message: String,
+    cause: Throwable? = null
+) : WinterException(message, cause)

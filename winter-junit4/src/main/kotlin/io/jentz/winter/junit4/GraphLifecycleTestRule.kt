@@ -38,11 +38,11 @@ abstract class GraphLifecycleTestRule(
     final override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                application.plugins.register(this@GraphLifecycleTestRule)
+                application.registerPlugin(this@GraphLifecycleTestRule)
                 try {
                     base.evaluate()
                 } finally {
-                    application.plugins.unregister(this@GraphLifecycleTestRule)
+                    application.unregisterPlugin(this@GraphLifecycleTestRule)
                 }
             }
         }

@@ -41,7 +41,7 @@ class GraphLifecycleExtensionTest {
 
     @BeforeAll
     fun beforeAll() {
-        Winter.plugins.unregisterAll()
+        Winter.unregisterAllPlugins()
     }
 
     @AfterAll
