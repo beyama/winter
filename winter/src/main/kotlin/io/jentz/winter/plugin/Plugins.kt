@@ -4,7 +4,7 @@ import io.jentz.winter.ComponentBuilder
 import io.jentz.winter.Graph
 import io.jentz.winter.Scope
 
-val EMPTY_PLUGINS = Plugins()
+internal val EMPTY_PLUGINS = Plugins()
 
 /**
  * Container for [Winter plugins][Plugin].
