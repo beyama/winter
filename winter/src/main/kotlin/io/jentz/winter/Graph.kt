@@ -350,18 +350,9 @@ class Graph internal constructor(
      * @param generics Preserves generic type parameters if set to true (default = false).
      * @return A [Set] of [providers][Provider] of type `T`.
      */
-    inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> {
-        return providersOfType(typeKeyOfType<T>(generics))
-    }
-
-    @PublishedApi
-    internal fun <T : Any> providersOfType(key: TypeKey): Set<Provider<T>> {
-        @Suppress("UNCHECKED_CAST")
-        return servicesOfType(key)
-            .mapIndexedTo(mutableSetOf()) { _, service ->
-                { service.instance(Unit) }
-            } as Set<Provider<T>>
-    }
+    inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> =
+        keysOfType(typeKeyOfType<T>(generics))
+            .mapTo(mutableSetOf()) { providerByKey<Unit, T>(it, Unit) }
 
     /**
      * Retrieve all instances of type `T`.
@@ -369,16 +360,9 @@ class Graph internal constructor(
      * @param generics Preserves generic type parameters if set to true (default = false).
      * @return A [Set] of instances of type `T`.
      */
-    inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> {
-        @Suppress("UNCHECKED_CAST")
-        return instancesOfType(typeKeyOfType<T>(generics)) as Set<T>
-    }
-
-    internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> =
-        synchronizedMap { it.service(key) }
-
-    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
-        synchronizedMap { it.serviceOrNull(key) }
+    inline fun <reified T : Any> instancesOfType(generics: Boolean = false): Set<T> =
+        keysOfType(typeKeyOfType<T>(generics))
+            .mapTo(mutableSetOf()) { instanceByKey<Unit, T>(it, Unit) }
 
     private fun keys(): Set<TypeKey> {
         val keys = component.keys()
@@ -386,21 +370,22 @@ class Graph internal constructor(
     }
 
     @PublishedApi
-    internal fun instancesOfType(key: TypeKey): Set<*> =
-        servicesOfType(key).mapIndexedTo(mutableSetOf()) { _, service -> service.instance(Unit) }
-
-    @PublishedApi
-    internal fun servicesOfType(key: TypeKey): Set<BoundService<Unit, *>> =
+    internal fun keysOfType(key: TypeKey): Set<TypeKey> =
         synchronizedMap { state ->
             @Suppress("UNCHECKED_CAST")
             val service = state.registry.getOrPut(key) {
                 keys()
                     .filterTo(mutableSetOf()) { it.typeEquals(key) }
-                    .mapTo(mutableSetOf()) { key -> state.service<Unit, Any>(key) }
                     .run { ConstantService(key, this) }
-            } as ConstantService<Set<BoundService<Unit, *>>>
+            } as ConstantService<Set<TypeKey>>
             service.value
         }
+
+    internal fun <A, R : Any> service(key: TypeKey): BoundService<A, R> =
+        synchronizedMap { it.service(key) }
+
+    internal fun <A, R : Any> serviceOrNull(key: TypeKey): BoundService<A, R>? =
+        synchronizedMap { it.serviceOrNull(key) }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.

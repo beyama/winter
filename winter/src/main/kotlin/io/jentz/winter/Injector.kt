@@ -463,7 +463,7 @@ class Injector {
     ) : AbstractEagerProperty<Unit, Set<Provider<T>>>(key, Unit) {
 
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<Provider<T>> =
-            graph.providersOfType(key)
+            graph.keysOfType(key).mapTo(mutableSetOf()) { graph.providerByKey<Unit, T>(it, Unit) }
 
     }
 
@@ -472,9 +472,8 @@ class Injector {
         key: TypeKey
     ) : AbstractEagerProperty<Unit, Set<T>>(key, Unit) {
 
-        @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
-            graph.instancesOfType(key) as Set<T>
+            graph.keysOfType(key).mapTo(mutableSetOf()) { graph.instanceByKey<Unit, T>(it, Unit) }
 
     }
 
@@ -483,9 +482,8 @@ class Injector {
         key: TypeKey
     ) : AbstractLazyProperty<Unit, Set<T>>(key, Unit) {
 
-        @Suppress("UNCHECKED_CAST")
         override fun getValue(graph: Graph, key: TypeKey, argument: Unit): Set<T> =
-            graph.instancesOfType(key) as Set<T>
+            graph.keysOfType(key).mapTo(mutableSetOf()) { graph.instanceByKey<Unit, T>(it, Unit) }
 
     }
 
