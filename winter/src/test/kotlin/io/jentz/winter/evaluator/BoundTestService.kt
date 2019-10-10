@@ -1,13 +1,10 @@
 package io.jentz.winter.evaluator
 
-import io.jentz.winter.BoundService
-import io.jentz.winter.Scope
-import io.jentz.winter.TypeKey
-import io.jentz.winter.typeKey
+import io.jentz.winter.*
 
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
-    override val key: TypeKey = typeKey<String>(),
+    override val key: TypeKey<String, String> = compoundTypeKey(),
     var dependency: BoundService<String, String>? = null,
     var throwOnNewInstance: ((String) -> Throwable)? = null,
     var instance: (String) -> String = { it }
@@ -25,8 +22,8 @@ internal class BoundTestService(
         return this.instance.invoke(argument)
     }
 
-    override fun postConstruct(arg: Any, instance: Any) {
-        postConstructCalled.add(arg to instance)
+    override fun postConstruct(argument: String, instance: String) {
+        postConstructCalled.add(argument to instance)
     }
 
     override fun dispose() {

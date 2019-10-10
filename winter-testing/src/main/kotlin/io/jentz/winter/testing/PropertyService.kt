@@ -8,7 +8,7 @@ import kotlin.reflect.jvm.isAccessible
  * Service that gets its instances from a Kotlin property.
  */
 internal class PropertyService(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, Any>,
     private val source: Any,
     private val property: KProperty1<Any, *>
 ) : UnboundService<Unit, Any>, BoundService<Unit, Any> {
@@ -31,7 +31,7 @@ internal class PropertyService(
         throw IllegalStateException("BUG: Should never been called.")
     }
 
-    override fun postConstruct(arg: Any, instance: Any) {
+    override fun postConstruct(argument: Unit, instance: Any) {
     }
 
     override fun dispose() {

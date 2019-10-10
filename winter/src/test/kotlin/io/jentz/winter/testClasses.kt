@@ -30,7 +30,7 @@ class ExtendedService : Service()
  */
 
 internal class UnboundReferenceService<T : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, T>,
     val block: Graph.() -> T
 ) : UnboundService<Unit, T> {
 
@@ -52,9 +52,9 @@ internal class BoundReferenceService<R : Any>(
 
     override val scope: Scope get() = Scope("referenceTest")
 
-    override fun postConstruct(arg: Any, instance: Any) {
+    override fun postConstruct(argument: Unit, instance: R) {
         postConstructCalledCount += 1
-        postConstructLastArguments = arg to instance
+        postConstructLastArguments = argument to instance
     }
 
     override fun dispose() {

@@ -11,7 +11,7 @@ import io.jentz.winter.TypeKey
  */
 internal class CyclicDependenciesCheckingDirectServiceEvaluator : ServiceEvaluator {
 
-    private var stack = mutableListOf<TypeKey>()
+    private var stack = mutableListOf<TypeKey<*, *>>()
 
     override fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R {
         val key = service.key
@@ -30,8 +30,8 @@ internal class CyclicDependenciesCheckingDirectServiceEvaluator : ServiceEvaluat
 
     }
 
-    private fun MutableList<TypeKey>.push(key: TypeKey) = add(key)
+    private fun MutableList<TypeKey<*, *>>.push(key: TypeKey<*, *>) = add(key)
 
-    private fun MutableList<TypeKey>.pop() = removeAt(lastIndex)
+    private fun MutableList<TypeKey<*, *>>.pop() = removeAt(lastIndex)
 
 }
