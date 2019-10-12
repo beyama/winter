@@ -89,19 +89,6 @@ class Component internal constructor(
         block: ComponentBuilderBlock? = null
     ): Graph = Graph(application, null, this, null, block)
 
-    /**
-     * @see createGraph
-     */
-    @JvmOverloads
-    @Deprecated(
-        "Use createGraph instead.",
-        ReplaceWith("createGraph(application,block)")
-    )
-    fun init(
-        application: WinterApplication = Winter,
-        block: ComponentBuilderBlock? = null
-    ): Graph = createGraph(application, block)
-
     internal inline fun forEach(block: (Map.Entry<TypeKey, UnboundService<*, *>>) -> Unit) {
         dependencies.forEach(block)
     }

@@ -432,16 +432,6 @@ class Graph internal constructor(
     }
 
     /**
-     * @see createSubgraph
-     */
-    @Deprecated(
-        "Use createSubgraph instead.",
-        ReplaceWith("createSubgraph(qualifier,block)")
-    )
-    fun initSubcomponent(qualifier: Any, block: ComponentBuilderBlock? = null): Graph =
-        createSubgraph(qualifier, block)
-
-    /**
      * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
      * this graph as parent.
      *
@@ -461,18 +451,6 @@ class Graph internal constructor(
     ): Graph = synchronizedMap { state ->
         Graph(state.application, this, instance(subcomponentQualifier), null, block)
     }
-
-    /**
-     * @see createSubgraph
-     */
-    @Deprecated(
-        "Use createSubgraph instead.",
-        ReplaceWith("createSubgraph(subcomponentQualifier,block)")
-    )
-    fun createChildGraph(
-        subcomponentQualifier: Any,
-        block: ComponentBuilderBlock? = null
-    ): Graph = createSubgraph(subcomponentQualifier, block)
 
     /**
      * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
@@ -509,19 +487,6 @@ class Graph internal constructor(
     }
 
     /**
-     * @see openSubgraph
-     */
-    @Deprecated(
-        "Use openSubgraph instead.",
-        ReplaceWith("openSubgraph(subcomponentQualifier,identifier,block)")
-    )
-    fun openChildGraph(
-        subcomponentQualifier: Any,
-        identifier: Any? = null,
-        block: ComponentBuilderBlock? = null
-    ): Graph = openSubgraph(subcomponentQualifier, identifier, block)
-
-    /**
      * Close a subgraph by disposing it and removing it from the registry.
      *
      * @param identifier The identifier it was opened with.
@@ -535,12 +500,6 @@ class Graph internal constructor(
             service.dispose()
         }
     }
-
-    @Deprecated(
-        "Use closeSubgraph instead.",
-        ReplaceWith("closeSubgraph(identifier)")
-    )
-    fun closeChildGraph(identifier: Any) = closeSubgraph(identifier)
 
     private fun unregisterSubgraph(sub: Graph) {
         val identifier = sub.identifier ?: return

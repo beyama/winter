@@ -70,27 +70,6 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     /**
-     * Register a prototype scoped factory for instances of type [R].
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [R].
-     * @param override If true this will override a existing provider of this type.
-     * @param factory The factory for type [R].
-     */
-    @Deprecated(
-        message = "Use prototype instead",
-        replaceWith = ReplaceWith("prototype(qualifier,generics,override,factory)")
-    )
-    inline fun <reified R : Any> provider(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        override: Boolean = false,
-        noinline factory: GFactory0<R>
-    ) {
-        prototype(qualifier, generics, override, null, factory)
-    }
-
-    /**
      * Register a prototype scoped factory for an instance of type [R].
      *
      * @param qualifier An optional qualifier.
