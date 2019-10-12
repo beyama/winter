@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.5.0
+
+* Add option to enable cyclic dependency checks (disabled by default)
+* Restructure Graph and Injector to reduce synchronized calls
+* Add configuration dependant ServiceEvaluators to optimize performance 
+
 Version 0.4.0
 -------------
 

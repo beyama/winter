@@ -34,6 +34,8 @@ internal class UnboundReferenceService<T : Any>(
     val block: Graph.() -> T
 ) : UnboundService<Unit, T> {
 
+    override val requiresLifecycleCallbacks: Boolean get() = false
+
     override fun bind(graph: Graph): BoundService<Unit, T> {
         return BoundReferenceService(graph, this)
     }

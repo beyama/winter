@@ -44,7 +44,7 @@ typealias Factory<A, R> = (A) -> R
  */
 internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
 
-private val emptyComponent = Component(null, emptyMap())
+private val emptyComponent = Component(null, emptyMap(), false)
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
