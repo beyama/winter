@@ -218,7 +218,7 @@ class ComponentBuilderTest {
             prototype { Heater() }
             prototype { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
     }
 
     @Test
@@ -235,7 +235,7 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
     }
 
     @Test

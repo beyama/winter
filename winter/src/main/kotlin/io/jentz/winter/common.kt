@@ -2,6 +2,8 @@ package io.jentz.winter
 
 internal val UNINITIALIZED_VALUE = Any()
 
+const val TYPE_KEY_OF_TYPE_QUALIFIER = "__OF_TYPE__"
+
 /**
  * No argument factory function signature with [Graph] as receiver.
  */
@@ -42,7 +44,7 @@ typealias Factory<A, R> = (A) -> R
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<*>>("EAGER_DEPENDENCIES")
+internal val eagerDependenciesKey = typeKey<Set<TypeKey<Unit, Any>>>("EAGER_DEPENDENCIES")
 
 private val emptyComponent = Component(null, emptyMap(), false)
 
@@ -83,38 +85,57 @@ fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph =
  *
  * Used in conjunction with JSR-330 annotation processor.
  */
-inline fun <reified T> membersInjectorKey() = compoundTypeKey<MembersInjector<*>, T>()
+inline fun <reified T> membersInjectorKey(): TypeKey<Unit, MembersInjector<T>> {
+    /**
+     * We use a compound type key without generics to store and retrieve members injectors because
+     * they are cheaper than class type keys with generics. But we retrieve them from a service
+     * of type BoundService<Unit, MembersInjector<T>> hence this cast.
+     */
+    @Suppress("UNCHECKED_CAST")
+    return CompoundClassTypeKey(T::class.java, MembersInjector::class.java)
+            as TypeKey<Unit, MembersInjector<T>>
+}
+
+internal fun membersInjectorKey(clazz: Class<*>): TypeKey<Unit, MembersInjector<Any>> {
+    /**
+     * This is used internally to retrieve members injectors by Java class.
+     * @see membersInjectorKey for more details.
+     */
+    @Suppress("UNCHECKED_CAST")
+    return CompoundClassTypeKey(clazz, MembersInjector::class.java)
+            as TypeKey<Unit, MembersInjector<Any>>
+}
 
 /**
- * Returns [TypeKey] for type [T].
+ * Returns [TypeKey] for type [R].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates a type key that also takes generic type parameters into
  *                 account.
  */
-inline fun <reified T> typeKey(
+inline fun <reified R : Any> typeKey(
     qualifier: Any? = null,
     generics: Boolean = false
-): TypeKey = if (generics) {
-    object : GenericClassTypeKey<T>(qualifier) {}
+): TypeKey<Unit, R> = if (generics) {
+    object : GenericClassTypeKey<R>(qualifier) {}
 } else {
-    ClassTypeKey(T::class.java, qualifier)
+    ClassTypeKey(R::class.java, qualifier)
 }
 
 /**
- * Returns [TypeKey] for type [T0] and [T1].
+ * Returns [TypeKey] for type [A] and [R].
  *
  * @param qualifier An optional qualifier for this key.
  * @param generics If true this creates compound type key that also takes generic type parameters
  *                 into account.
  */
-inline fun <reified T0, reified T1> compoundTypeKey(
+inline fun <reified A, reified R : Any> compoundTypeKey(
     qualifier: Any? = null,
     generics: Boolean = false
-): TypeKey = if (generics) {
-    object : GenericCompoundClassTypeKey<T0, T1>(qualifier) {}
+): TypeKey<A, R> = if (generics) {
+    object : GenericCompoundClassTypeKey<A, R>(qualifier) {}
 } else {
-    CompoundClassTypeKey(T0::class.java, T1::class.java, qualifier)
+    CompoundClassTypeKey(A::class.java, R::class.java, qualifier)
 }
 
 /**
@@ -122,5 +143,5 @@ inline fun <reified T0, reified T1> compoundTypeKey(
  * The qualifier is used to allow the usage of this key for caching to prevent clashes with normal
  * dependency keys.
  */
-inline fun <reified T> typeKeyOfType(generics: Boolean) =
-    typeKey<T>(qualifier = "__OF_TYPE__", generics = generics)
+inline fun <reified R : Any> typeKeyOfType(generics: Boolean = false) =
+    typeKey<R>(qualifier = TYPE_KEY_OF_TYPE_QUALIFIER, generics = generics)

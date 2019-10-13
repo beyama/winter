@@ -13,11 +13,10 @@ import kotlin.reflect.full.declaredMemberProperties
  */
 internal fun ComponentBuilder.property(
     source: Any,
-    property: KProperty1<*, *>,
+    property: KProperty1<Any, *>,
     override: Boolean = false
 ) {
-    @Suppress("UNCHECKED_CAST")
-    register(PropertyService(property.typeKey, source, property as KProperty1<Any, *>), override)
+    register(PropertyService(property.typeKey, source, property), override)
 }
 
 /**
@@ -29,5 +28,8 @@ fun ComponentBuilder.bindAllMocks(source: Any) {
     source::class
         .declaredMemberProperties
         .filter { it.hasMockAnnotation() }
-        .forEach { property(source, it, true) }
+        .forEach {
+            @Suppress("UNCHECKED_CAST")
+            property(source, it as (KProperty1<Any, *>), true)
+        }
 }

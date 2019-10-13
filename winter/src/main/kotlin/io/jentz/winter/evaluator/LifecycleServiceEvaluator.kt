@@ -80,7 +80,8 @@ internal class LifecycleServiceEvaluator(
                 val argumentIndex = serviceIndex + ARGUMENT_INDEX
                 val instanceIndex = serviceIndex + INSTANCE_INDEX
 
-                val service = stack[serviceIndex] as BoundService<*, *>
+                @Suppress("UNCHECKED_CAST")
+                val service = stack[serviceIndex] as BoundService<Any, Any>
                 val argument = stack[argumentIndex]
                 val instance = stack[instanceIndex]
 
@@ -99,7 +100,7 @@ internal class LifecycleServiceEvaluator(
         }
     }
 
-    private fun isKeyPending(key: TypeKey): Boolean {
+    private fun isKeyPending(key: TypeKey<*, *>): Boolean {
         for (i in 0 until stackSize step 3) {
             if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*, *>).key == key) {
                 return true
@@ -108,7 +109,7 @@ internal class LifecycleServiceEvaluator(
         return false
     }
 
-    private fun pendingKeys(): List<TypeKey> = (0 until stackSize step 3).mapNotNull { i ->
+    private fun pendingKeys(): List<TypeKey<*, *>> = (0 until stackSize step 3).mapNotNull { i ->
         if (stack[i + INSTANCE_INDEX] == null) (stack[i] as BoundService<*, *>).key else null
     }
 
