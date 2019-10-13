@@ -30,6 +30,17 @@ val graph = Winter.createGraph()
 <tbody>
 <tr>
 <td>
+<p><a href="-winter-application/check-for-cyclic-dependencies.html">checkForCyclicDependencies</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">checkForCyclicDependencies</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>If this is set to true, Winter will check for cyclic dependencies and throws an error if it
+encounters one. Without this check you will run in a StackOverflowError when you accidentally
+declared a cyclic dependency which may be hard to track down.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="-winter-application/component.html">component</a></p>
 </td>
 <td>
@@ -42,8 +53,8 @@ val graph = Winter.createGraph()
 <p><a href="-winter-application/plugins.html">plugins</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">plugins</span><span class="symbol">: </span><a href="../io.jentz.winter.plugin/-plugin-registry/index.html"><span class="identifier">PluginRegistry</span></a></code>
-<p>The <a href="../io.jentz.winter.plugin/-plugin-registry/index.html">PluginRegistry</a> of this application.</p>
+<code><span class="keyword">var </span><span class="identifier">plugins</span><span class="symbol">: </span><a href="../io.jentz.winter.plugin/-plugins/index.html"><span class="identifier">Plugins</span></a></code>
+<p>The plugins of registered on the application.</p>
 </td>
 </tr>
 </tbody>
@@ -72,10 +83,30 @@ block.</p>
 </tr>
 <tr>
 <td>
-<p><a href="-winter-application/init.html">init</a></p>
+<p><a href="-winter-application/register-plugin.html">registerPlugin</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><s><span class="identifier">init</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$init(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-graph/index.html"><span class="identifier">Graph</span></a></code></td>
+<code><span class="keyword">fun </span><span class="identifier">registerPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$registerPlugin(io.jentz.winter.plugin.Plugin)/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.plugin/-plugin/index.html"><span class="identifier">Plugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Register a plugin.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-application/unregister-all-plugins.html">unregisterAllPlugins</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">unregisterAllPlugins</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Unregister all plugins.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-application/unregister-plugin.html">unregisterPlugin</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">unregisterPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$unregisterPlugin(io.jentz.winter.plugin.Plugin)/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter.plugin/-plugin/index.html"><span class="identifier">Plugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Unregister a plugin.</p>
+</td>
 </tr>
 </tbody>
 </table>

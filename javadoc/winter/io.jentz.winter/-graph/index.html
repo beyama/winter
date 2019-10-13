@@ -20,7 +20,9 @@ or <a href="open-subgraph.html">Graph.openSubgraph</a>.</p>
 <p><a href="application.html">application</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">application</span><span class="symbol">: </span><a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code></td>
+<code><span class="keyword">val </span><span class="identifier">application</span><span class="symbol">: </span><a href="../-winter-application/index.html"><span class="identifier">WinterApplication</span></a></code>
+<p>The <a href="../-winter-application/index.html">WinterApplication</a> of this graph.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -56,26 +58,12 @@ or <a href="open-subgraph.html">Graph.openSubgraph</a>.</p>
 <tbody>
 <tr>
 <td>
-<p><a href="close-child-graph.html">closeChildGraph</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><s><span class="identifier">closeChildGraph</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$closeChildGraph(kotlin.Any)/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
-</tr>
-<tr>
-<td>
 <p><a href="close-subgraph.html">closeSubgraph</a></p>
 </td>
 <td>
 <code><span class="keyword">fun </span><span class="identifier">closeSubgraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$closeSubgraph(kotlin.Any)/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Close a subgraph by disposing it and removing it from the registry.</p>
 </td>
-</tr>
-<tr>
-<td>
-<p><a href="create-child-graph.html">createChildGraph</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><s><span class="identifier">createChildGraph</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$createChildGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$createChildGraph(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -119,6 +107,16 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 </tr>
 <tr>
 <td>
+<p><a href="factory-by-key.html">factoryByKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">factoryByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$factoryByKey(io.jentz.winter.TypeKey)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-factory.html"><span class="identifier">Factory</span></a><span class="symbol">&lt;</span><a href="factory-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="factory-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Retrieve a non-optional factory function by <a href="factory-by-key.html#io.jentz.winter.Graph$factoryByKey(io.jentz.winter.TypeKey)/key">key</a> that takes an argument of type <code>A</code> and
+returns <code>R</code>.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="factory-or-null.html">factoryOrNull</a></p>
 </td>
 <td>
@@ -128,10 +126,13 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 </tr>
 <tr>
 <td>
-<p><a href="init-subcomponent.html">initSubcomponent</a></p>
+<p><a href="factory-or-null-by-key.html">factoryOrNullByKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><s><span class="identifier">initSubcomponent</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$initSubcomponent(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code></td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">factoryOrNullByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$factoryOrNullByKey(io.jentz.winter.TypeKey)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-factory.html"><span class="identifier">Factory</span></a><span class="symbol">&lt;</span><a href="factory-or-null-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="factory-or-null-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">?</span></code>
+<p>Retrieve an optional factory function by <a href="factory-or-null-by-key.html#io.jentz.winter.Graph$factoryOrNullByKey(io.jentz.winter.TypeKey)/key">key</a> that takes an argument of type <code>A</code> and
+returns <code>R</code>.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -155,6 +156,15 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 </tr>
 <tr>
 <td>
+<p><a href="instance-by-key.html">instanceByKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instanceByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="instance-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="instance-by-key.html#R"><span class="identifier">R</span></a></code>
+<p>Retrieve a factory of type <code>(A) -&gt; R</code> by <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceByKey.A)/key">key</a> and apply <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceByKey.A)/argument">argument</a> to it.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="instance-or-null.html">instanceOrNull</a></p>
 </td>
 <td>
@@ -169,8 +179,8 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 <p><a href="instance-or-null-by-key.html">instanceOrNullByKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">instanceOrNullByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, kotlin.Any)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, kotlin.Any)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span></code>
-<p>Internal method to retrieve an optional instance by <a href="../-type-key/index.html">TypeKey</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instanceOrNullByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceOrNullByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceOrNullByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="instance-or-null-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="instance-or-null-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">?</span></code>
+<p>Retrieve an optional factory of type <code>(A) -&gt; R</code> by <a href="instance-or-null-by-key.html#io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceOrNullByKey.A)/key">key</a> and apply <a href="instance-or-null-by-key.html#io.jentz.winter.Graph$instanceOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.instanceOrNullByKey.A)/argument">argument</a> to it.</p>
 </td>
 </tr>
 <tr>
@@ -181,13 +191,6 @@ Don't use this method except in custom <a href="../-bound-service/index.html">Bo
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instancesOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instancesOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html"><span class="identifier">Set</span></a><span class="symbol">&lt;</span><a href="instances-of-type.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span></code>
 <p>Retrieve all instances of type <code>T</code>.</p>
 </td>
-</tr>
-<tr>
-<td>
-<p><a href="open-child-graph.html">openChildGraph</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><s><span class="identifier">openChildGraph</span></s><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/subcomponentQualifier">subcomponentQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/identifier">identifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$openChildGraph(kotlin.Any, kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">Graph</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -214,6 +217,16 @@ this graph as parent and register it under the <a href="open-subgraph.html#io.je
 </tr>
 <tr>
 <td>
+<p><a href="provider-by-key.html">providerByKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">providerByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$providerByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$providerByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="provider-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider.html"><span class="identifier">Provider</span></a><span class="symbol">&lt;</span><a href="provider-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Retrieves a factory of type <code>(A) -&gt; R</code> by <a href="provider-by-key.html#io.jentz.winter.Graph$providerByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerByKey.A)/key">key</a> and creates and returns a
+<a href="../-provider.html">provider</a> that applies the given <a href="provider-by-key.html#io.jentz.winter.Graph$providerByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerByKey.A)/argument">argument</a> to the factory when called.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="provider-or-null.html">providerOrNull</a></p>
 </td>
 <td>
@@ -222,6 +235,16 @@ this graph as parent and register it under the <a href="open-subgraph.html#io.je
 <code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">providerOrNull</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$providerOrNull(io.jentz.winter.Graph.providerOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="provider-or-null.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$providerOrNull(io.jentz.winter.Graph.providerOrNull.A, kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$providerOrNull(io.jentz.winter.Graph.providerOrNull.A, kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="../-provider.html"><span class="identifier">Provider</span></a><span class="symbol">&lt;</span><a href="provider-or-null.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">?</span></code>
 <p>Retrieves an optional factory of type <code>(A) -&gt; R</code> and creates and returns a
 <a href="../-provider.html">provider</a> that applies the given <a href="provider-or-null.html#io.jentz.winter.Graph$providerOrNull(io.jentz.winter.Graph.providerOrNull.A, kotlin.Any, kotlin.Boolean)/argument">argument</a> to the factory when called.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="provider-or-null-by-key.html">providerOrNullByKey</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">providerOrNullByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="provider-or-null-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider.html"><span class="identifier">Provider</span></a><span class="symbol">&lt;</span><a href="provider-or-null-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">?</span></code>
+<p>Retrieves an optional factory of type <code>(A) -&gt; R</code> by <a href="provider-or-null-by-key.html#io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/key">key</a> and creates and returns a
+<a href="../-provider.html">provider</a> that applies the given <a href="provider-or-null-by-key.html#io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/argument">argument</a> to the factory when called.</p>
 </td>
 </tr>
 <tr>

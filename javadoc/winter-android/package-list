@@ -1,39 +1,5 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location:io.jentz.winter.android$dependencyGraph#android.content.ComponentCallbacks2io.jentz.winter.android/android.content.-component-callbacks2/dependency-graph.html
-$dokka.location:io.jentz.winter.android$dependencyGraph#android.view.Viewio.jentz.winter.android/android.view.-view/dependency-graph.html
-$dokka.location:io.jentz.winter.android$factory(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/factory.html
-$dokka.location:io.jentz.winter.android$factory(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/factory.html
-$dokka.location:io.jentz.winter.android$factoryOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/factory-or-null.html
-$dokka.location:io.jentz.winter.android$factoryOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/factory-or-null.html
-$dokka.location:io.jentz.winter.android$instance(android.content.ComponentCallbacks2, io.jentz.winter.android.instance.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/instance.html
-$dokka.location:io.jentz.winter.android$instance(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/instance.html
-$dokka.location:io.jentz.winter.android$instance(android.view.View, io.jentz.winter.android.instance.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance.html
-$dokka.location:io.jentz.winter.android$instance(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance.html
-$dokka.location:io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/instance-or-null.html
-$dokka.location:io.jentz.winter.android$instanceOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/instance-or-null.html
-$dokka.location:io.jentz.winter.android$instanceOrNull(android.view.View, io.jentz.winter.android.instanceOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance-or-null.html
-$dokka.location:io.jentz.winter.android$instanceOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instance-or-null.html
-$dokka.location:io.jentz.winter.android$instancesOfType(android.content.ComponentCallbacks2, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/instances-of-type.html
-$dokka.location:io.jentz.winter.android$instancesOfType(android.view.View, kotlin.Boolean)io.jentz.winter.android/android.view.-view/instances-of-type.html
-$dokka.location:io.jentz.winter.android$lazyInstance(android.content.ComponentCallbacks2, io.jentz.winter.android.lazyInstance.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/lazy-instance.html
-$dokka.location:io.jentz.winter.android$lazyInstance(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/lazy-instance.html
-$dokka.location:io.jentz.winter.android$lazyInstance(android.view.View, io.jentz.winter.android.lazyInstance.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/lazy-instance.html
-$dokka.location:io.jentz.winter.android$lazyInstance(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/lazy-instance.html
-$dokka.location:io.jentz.winter.android$lazyInstanceOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/lazy-instance-or-null.html
-$dokka.location:io.jentz.winter.android$lazyInstanceOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/lazy-instance-or-null.html
-$dokka.location:io.jentz.winter.android$lazyInstanceOrNull(android.view.View, io.jentz.winter.android.lazyInstanceOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/lazy-instance-or-null.html
-$dokka.location:io.jentz.winter.android$lazyInstanceOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/lazy-instance-or-null.html
-$dokka.location:io.jentz.winter.android$provider(android.content.ComponentCallbacks2, io.jentz.winter.android.provider.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/provider.html
-$dokka.location:io.jentz.winter.android$provider(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/provider.html
-$dokka.location:io.jentz.winter.android$provider(android.view.View, io.jentz.winter.android.provider.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider.html
-$dokka.location:io.jentz.winter.android$provider(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider.html
-$dokka.location:io.jentz.winter.android$providerOrNull(android.content.ComponentCallbacks2, io.jentz.winter.android.providerOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/provider-or-null.html
-$dokka.location:io.jentz.winter.android$providerOrNull(android.content.ComponentCallbacks2, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/provider-or-null.html
-$dokka.location:io.jentz.winter.android$providerOrNull(android.view.View, io.jentz.winter.android.providerOrNull.A, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider-or-null.html
-$dokka.location:io.jentz.winter.android$providerOrNull(android.view.View, kotlin.Any, kotlin.Boolean)io.jentz.winter.android/android.view.-view/provider-or-null.html
-$dokka.location:io.jentz.winter.android$providersOfType(android.content.ComponentCallbacks2, kotlin.Boolean)io.jentz.winter.android/android.content.-component-callbacks2/providers-of-type.html
-$dokka.location:io.jentz.winter.android$providersOfType(android.view.View, kotlin.Boolean)io.jentz.winter.android/android.view.-view/providers-of-type.html
 $dokka.location:io.jentz.winter.android$useAndroidPresentationScopeAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterApplication)io.jentz.winter.android/io.jentz.winter.-winter-injection/use-android-presentation-scope-adapter.html
 $dokka.location:io.jentz.winter.android$useAndroidPresentationScopeAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterTree)io.jentz.winter.android/io.jentz.winter.-winter-injection/use-android-presentation-scope-adapter.html
 $dokka.location:io.jentz.winter.android$useSimpleAndroidAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterApplication)io.jentz.winter.android/io.jentz.winter.-winter-injection/use-simple-android-adapter.html

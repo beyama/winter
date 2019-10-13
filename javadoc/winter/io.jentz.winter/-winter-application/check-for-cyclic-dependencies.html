@@ -1,0 +1,19 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterApplication.checkForCyclicDependencies - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">WinterApplication</a>&nbsp;/&nbsp;<a href="./check-for-cyclic-dependencies.html">checkForCyclicDependencies</a><br/>
+<br/>
+<h1>checkForCyclicDependencies</h1>
+<a name="io.jentz.winter.WinterApplication$checkForCyclicDependencies"></a>
+<code><span class="keyword">var </span><span class="identifier">checkForCyclicDependencies</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>If this is set to true, Winter will check for cyclic dependencies and throws an error if it
+encounters one. Without this check you will run in a StackOverflowError when you accidentally
+declared a cyclic dependency which may be hard to track down.</p>
+<p>Cyclic dependency checks are a bit more expensive but usually worth it in debug or test
+builds.</p>
+</BODY>
+</HTML>

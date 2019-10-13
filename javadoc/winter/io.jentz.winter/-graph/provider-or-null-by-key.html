@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Graph.providerOrNullByKey - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">Graph</a>&nbsp;/&nbsp;<a href="./provider-or-null-by-key.html">providerOrNullByKey</a><br/>
+<br/>
+<h1>providerOrNullByKey</h1>
+<a name="io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)"></a>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">providerOrNullByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="provider-or-null-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-provider.html"><span class="identifier">Provider</span></a><span class="symbol">&lt;</span><a href="provider-or-null-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">?</span></code>
+<p>Retrieves an optional factory of type <code>(A) -&gt; R</code> by <a href="provider-or-null-by-key.html#io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/key">key</a> and creates and returns a
+<a href="../-provider.html">provider</a> that applies the given <a href="provider-or-null-by-key.html#io.jentz.winter.Graph$providerOrNullByKey(io.jentz.winter.TypeKey, io.jentz.winter.Graph.providerOrNullByKey.A)/argument">argument</a> to the factory when called.</p>
+<h3>Parameters</h3>
+<p><a name="key"></a>
+<code>key</code> - The type key of the factory.</p>
+<p><a name="argument"></a>
+<code>argument</code> - The argument for the factory to retrieve.</p>
+<p><strong>Return</strong><br/>
+The provider function or null if factory doesn't exist.</p>
+</BODY>
+</HTML>
