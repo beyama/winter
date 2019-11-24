@@ -20,16 +20,18 @@ dependencies {
     implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
+    // Java support module
+    implementation 'io.jentz.winter:winter-java:x.x.x'
     // JUnit4 test support
     implementation 'io.jentz.winter:winter-junit4:x.x.x'
     // JUnit5 test support
     implementation 'io.jentz.winter:winter-junit5:x.x.x'
-    // Optional JSR-330 support
+    // JSR-330 support
     implementation 'javax.inject:javax.inject:1'
     kapt 'io.jentz.winter:winter-compiler:x.x.x'
 }
 
-// The optional JSR-330 support requires also a kapt configuration block like
+// The JSR-330 support requires also a kapt configuration block like
 kapt {
     arguments {
         // This tells the Winter compiler under which package name it should store
@@ -77,6 +79,10 @@ The latest version is {winterVersion}.
 | io.jentz.winter:winter-androidx-lifecycle:{winterVersion}
 | Android X lifecycle support
 | link:javadoc/winter-androidx-lifecycle/index.html[Winter AndroidX lifecycle support]
+
+| io.jentz.winter:winter-java:{winterVersion}
+| Java support
+| link:javadoc/winter-java/index.html[Winter Java]
 
 |===
 
@@ -554,9 +560,26 @@ class MyClass : ALifecycleOwner() {
 For more details see
 link:javadoc/winter-androidx-lifecycle/io.jentz.winter.androidx.lifecycle/index.html[API docs].
 
+== Java Support
+
+The `winter-java` module contains a class named `JWinter` that provides static methods to
+retrieve dependencies from a Graph.
+
+For example:
+[source,java]
+----
+// Retrieve an instance of String with the qualifier "a"
+JWinter.instance(graph, String.class, "a");
+
+// Call the factory with argument type Integer and return type String with argument 42
+JWinter.instance(graph, Integer.class, String.class, 42);
+----
+
+For a list of all available methods see link:javadoc/winter-java/io.jentz.winter.java/-j-winter/index.html[Winter Java].
+
 == RxJava2 Support
 
-The `winter-rxjava2` modules contains a Winter Plugin that automatically disposes all singletons
+The `winter-rxjava2` module contains a Winter Plugin that automatically disposes all singletons
 in a graph which implement `Disposable`.
 
 To activate the plugin call `Winter.installDisposablePlugin()` before you instantiate any graph.
@@ -816,6 +839,8 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()
 
 === Include Components
 
+TODO
+
 === Circular Dependencies
 
 Circular dependencies are dependencies that depend on each other.
@@ -837,4 +862,8 @@ val applicationComponent = component {
 
 === Plugins
 
+TODO
+
 === Usage In Libraries
+
+TODO
