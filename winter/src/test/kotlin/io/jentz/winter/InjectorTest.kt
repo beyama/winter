@@ -51,7 +51,7 @@ class InjectorTest {
         }
 
         @Test
-        fun `#register should throw an exception when graph was already injected`() {
+        fun `#register should throw an exception if graph was already injected`() {
             injector.inject(emptyGraph)
             shouldThrow<IllegalStateException> {
                 injector.provider<String>()
@@ -178,14 +178,14 @@ class InjectorTest {
         }
 
         @Test
-        fun `should return InstanceProperty for #factory`() {
-            injector.factory<Int, String>().shouldBeInstanceOf<Injector.InstanceProperty<*, *>>()
+        fun `should return FactoryProperty for #factory`() {
+            injector.factory<Int, String>().shouldBeInstanceOf<Injector.FactoryProperty<*, *>>()
         }
 
         @Test
-        fun `should return InstanceOrNullProperty for #factoryOrNull`() {
+        fun `should return FactoryOrNullProperty for #factoryOrNull`() {
             injector.factoryOrNull<Int, String>()
-                .shouldBeInstanceOf<Injector.InstanceOrNullProperty<*, *>>()
+                .shouldBeInstanceOf<Injector.FactoryOrNullProperty<*, *>>()
         }
 
     }
@@ -194,22 +194,22 @@ class InjectorTest {
     inner class ProviderProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.ProviderProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.ProviderProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `throws an exception when dependency can't be found`() {
+        fun `throws an exception if dependency can't be found`() {
             shouldThrow<EntryNotFoundException> {
-                Injector.ProviderProperty<Unit, String>(typeKey<String>(), Unit).inject(emptyGraph)
+                Injector.ProviderProperty<Unit, String>(typeKey(), Unit).inject(emptyGraph)
             }
         }
 
         @Test
-        fun `returns a provider block that resolves dependency when called`() {
-            val property = Injector.ProviderProperty<Unit, Int>(typeKey<Int>(), Unit)
+        fun `returns a provider block`() {
+            val property = Injector.ProviderProperty<Unit, Int>(typeKey(), Unit)
             property.inject(testComponent.createGraph())
             val provider = property.value
             atomicInteger.get().shouldBe(0)
@@ -219,7 +219,7 @@ class InjectorTest {
         @Test
         fun `returns a provider block that resolves dependency with argument when called`() {
             val property =
-                Injector.ProviderProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+                Injector.ProviderProperty<Int, String>(compoundTypeKey(), 42)
             property.inject(testComponent.createGraph())
             val provider = property.value
             provider().shouldBe("42")
@@ -231,15 +231,15 @@ class InjectorTest {
     inner class ProviderOrNullProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.ProviderOrNullProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.ProviderOrNullProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `#value should be null when dependency is not found`() {
-            Injector.ProviderOrNullProperty<Unit, String>(typeKey<String>(), Unit).apply {
+        fun `#value should be null if dependency is not found`() {
+            Injector.ProviderOrNullProperty<Unit, String>(typeKey(), Unit).apply {
                 inject(emptyGraph)
                 value.shouldBeNull()
             }
@@ -247,7 +247,7 @@ class InjectorTest {
 
         @Test
         fun `returns a provider block that resolves dependency when called`() {
-            val property = Injector.ProviderOrNullProperty<Unit, Int>(typeKey<Int>(), Unit)
+            val property = Injector.ProviderOrNullProperty<Unit, Int>(typeKey(), Unit)
             property.inject(testComponent.createGraph())
             val provider = property.value
             atomicInteger.get().shouldBe(0)
@@ -257,7 +257,7 @@ class InjectorTest {
         @Test
         fun `returns a provider block that resolves dependency with argument when called`() {
             val property =
-                Injector.ProviderOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+                Injector.ProviderOrNullProperty<Int, String>(compoundTypeKey(), 42)
             property.inject(testComponent.createGraph())
             val provider = property.value
             provider?.invoke().shouldBe("42")
@@ -269,28 +269,28 @@ class InjectorTest {
     inner class InstanceProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.InstanceProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.InstanceProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `throws an exception when dependency can't be found`() {
+        fun `throws an exception if dependency can't be found`() {
             shouldThrow<EntryNotFoundException> {
-                Injector.InstanceProperty<Unit, String>(typeKey<String>(), Unit).inject(emptyGraph)
+                Injector.InstanceProperty<Unit, String>(typeKey(), Unit).inject(emptyGraph)
             }
         }
 
         @Test
         fun `should eagerly resolve dependency`() {
-            Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit).inject(testComponent.createGraph())
+            Injector.InstanceProperty<Unit, Int>(typeKey(), Unit).inject(testComponent.createGraph())
             atomicInteger.get().shouldBe(1)
         }
 
         @Test
         fun `should resolve dependency with argument`() {
-            Injector.InstanceProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
+            Injector.InstanceProperty<Int, String>(compoundTypeKey(), 42).apply {
                 inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
@@ -302,15 +302,15 @@ class InjectorTest {
     inner class InstanceOrNullProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.InstanceOrNullProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.InstanceOrNullProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `#value should be null when dependency is not found`() {
-            Injector.InstanceOrNullProperty<Unit, String>(typeKey<String>(), Unit).apply {
+        fun `#value should be null if dependency is not found`() {
+            Injector.InstanceOrNullProperty<Unit, String>(typeKey(), Unit).apply {
                 inject(emptyGraph)
                 value.shouldBeNull()
             }
@@ -318,14 +318,14 @@ class InjectorTest {
 
         @Test
         fun `should eagerly resolve dependency`() {
-            Injector.InstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit)
+            Injector.InstanceOrNullProperty<Unit, Int>(typeKey(), Unit)
                 .inject(testComponent.createGraph())
             atomicInteger.get().shouldBe(1)
         }
 
         @Test
         fun `should resolve dependency with argument`() {
-            Injector.InstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
+            Injector.InstanceOrNullProperty<Int, String>(compoundTypeKey(), 42).apply {
                 inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
@@ -337,23 +337,23 @@ class InjectorTest {
     inner class LazyInstanceProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.LazyInstanceProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.LazyInstanceProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `throws an exception when dependency can't be found`() {
+        fun `throws an exception if dependency can't be found`() {
             shouldThrow<EntryNotFoundException> {
-                Injector.LazyInstanceProperty<Unit, String>(typeKey<String>(), Unit)
+                Injector.LazyInstanceProperty<Unit, String>(typeKey(), Unit)
                     .inject(emptyGraph)
             }
         }
 
         @Test
         fun `should lazy resolve dependency`() {
-            Injector.LazyInstanceProperty<Unit, Int>(typeKey<Int>(), Unit).apply {
+            Injector.LazyInstanceProperty<Unit, Int>(typeKey(), Unit).apply {
                 inject(testComponent.createGraph())
                 expectValueToChange(0, 1, atomicInteger::get) {
                     value.shouldBe(1)
@@ -363,7 +363,7 @@ class InjectorTest {
 
         @Test
         fun `should resolve dependency with argument`() {
-            Injector.LazyInstanceProperty<Int, String>(compoundTypeKey<Int, String>(), 42).apply {
+            Injector.LazyInstanceProperty<Int, String>(compoundTypeKey(), 42).apply {
                 inject(testComponent.createGraph())
                 value.shouldBe("42")
             }
@@ -375,15 +375,15 @@ class InjectorTest {
     inner class LazyInstanceOrNullProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.LazyInstanceOrNullProperty<Unit, String>(typeKey<String>(), Unit).value
+                Injector.LazyInstanceOrNullProperty<Unit, String>(typeKey(), Unit).value
             }
         }
 
         @Test
-        fun `should resolve to null when dependency isn't found`() {
-            Injector.LazyInstanceOrNullProperty<Unit, String>(typeKey<String>(), Unit).apply {
+        fun `should resolve to null if dependency isn't found`() {
+            Injector.LazyInstanceOrNullProperty<Unit, String>(typeKey(), Unit).apply {
                 inject(emptyGraph)
                 value.shouldBeNull()
             }
@@ -391,7 +391,7 @@ class InjectorTest {
 
         @Test
         fun `should lazy resolve dependency`() {
-            Injector.LazyInstanceOrNullProperty<Unit, Int>(typeKey<Int>(), Unit).apply {
+            Injector.LazyInstanceOrNullProperty<Unit, Int>(typeKey(), Unit).apply {
                 inject(testComponent.createGraph())
                 expectValueToChange(0, 1, atomicInteger::get) {
                     value.shouldBe(1)
@@ -401,7 +401,7 @@ class InjectorTest {
 
         @Test
         fun `should resolve dependency with argument`() {
-            Injector.LazyInstanceOrNullProperty<Int, String>(compoundTypeKey<Int, String>(), 42)
+            Injector.LazyInstanceOrNullProperty<Int, String>(compoundTypeKey(), 42)
                 .apply {
                     inject(testComponent.createGraph())
                     value.shouldBe("42")
@@ -411,26 +411,84 @@ class InjectorTest {
     }
 
     @Nested
-    inner class ProvidersOfTypeProperty {
+    inner class FactoryProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.ProvidersOfTypeProperty<String>(typeKey<String>()).value
+                Injector.FactoryProperty<Int, String>(compoundTypeKey()).value
             }
         }
 
         @Test
-        fun `should return an empty set when no dependency was found`() {
-            Injector.ProvidersOfTypeProperty<String>(typeKey<String>()).apply {
+        fun `throws an exception if dependency can't be found`() {
+            shouldThrow<EntryNotFoundException> {
+                Injector.FactoryProperty<String, String>(compoundTypeKey()).inject(emptyGraph)
+            }
+        }
+
+        @Test
+        fun `should resolve dependency`() {
+            val factory: Factory<Int, String> = Injector.FactoryProperty<Int, String>(compoundTypeKey()).run {
+                    inject(testComponent.createGraph())
+                    value
+                }
+            factory(42).shouldBe("42")
+        }
+
+    }
+
+    @Nested
+    inner class FactoryOrNullProperty {
+
+        @Test
+        fun `should throw an exception if #value is called before injecting`() {
+            shouldThrow<UninitializedPropertyAccessException> {
+                Injector.FactoryOrNullProperty<Int, String>(compoundTypeKey()).value
+            }
+        }
+
+        @Test
+        fun `should resolve dependency`() {
+            val factory: Factory<Int, String>? = Injector.FactoryOrNullProperty<Int, String>(compoundTypeKey()).run {
+                inject(testComponent.createGraph())
+                value
+            }
+            factory?.invoke(42).shouldBe("42")
+        }
+
+        @Test
+        fun `should resolve to null if dependency can't be found`() {
+            val factory: Factory<String, String>? = Injector.FactoryOrNullProperty<String, String>(compoundTypeKey()).run {
+                inject(testComponent.createGraph())
+                value
+            }
+            factory.shouldBeNull()
+        }
+
+    }
+
+    @Nested
+    inner class ProvidersOfTypeProperty {
+
+        @Test
+        fun `should throw an exception if #value is called before injecting`() {
+            shouldThrow<UninitializedPropertyAccessException> {
+                Injector.ProvidersOfTypeProperty<String>(typeKeyOfType()).value
+            }
+        }
+
+        @Test
+        fun `should return an empty set if no dependency was found`() {
+            Injector.ProvidersOfTypeProperty<String>(typeKeyOfType()).apply {
                 inject(emptyGraph)
                 value.shouldBeEmpty()
             }
         }
 
         @Test
-        fun `returns a set of provider blocks that resolves dependency when called`() {
-            Injector.ProvidersOfTypeProperty<Int>(typeKey<Int>()).apply {
+        fun `returns a set of provider blocks`() {
+            Injector.ProvidersOfTypeProperty<Int>(typeKeyOfType()).apply {
                 inject(ofTypeTestComponent.createGraph())
                 value.shouldHaveSize(5)
                 expectValueToChange(0, 5, atomicInteger::get) {
@@ -445,15 +503,15 @@ class InjectorTest {
     inner class InstancesOfTypeProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.InstancesOfTypeProperty<String>(typeKey<String>()).value
+                Injector.InstancesOfTypeProperty<String>(typeKeyOfType()).value
             }
         }
 
         @Test
-        fun `should return an empty set when no dependency was found`() {
-            Injector.InstancesOfTypeProperty<String>(typeKey<String>()).apply {
+        fun `should return an empty set if no dependency was found`() {
+            Injector.InstancesOfTypeProperty<String>(typeKeyOfType()).apply {
                 inject(emptyGraph)
                 value.shouldBeEmpty()
             }
@@ -462,7 +520,7 @@ class InjectorTest {
         @Test
         fun `should eagerly resolve dependencies`() {
             expectValueToChange(0, 5, atomicInteger::get) {
-                Injector.InstancesOfTypeProperty<Int>(typeKey<Int>()).apply {
+                Injector.InstancesOfTypeProperty<Int>(typeKeyOfType()).apply {
                     inject(ofTypeTestComponent.createGraph())
                     value.shouldHaveSize(5)
                 }
@@ -475,15 +533,15 @@ class InjectorTest {
     inner class LazyInstancesOfTypeProperty {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
+        fun `should throw an exception if #value is called before injecting`() {
             shouldThrow<UninitializedPropertyAccessException> {
-                Injector.LazyInstancesOfTypeProperty<String>(typeKey<String>()).value
+                Injector.LazyInstancesOfTypeProperty<String>(typeKeyOfType()).value
             }
         }
 
         @Test
-        fun `should return an empty set when no dependency was found`() {
-            Injector.LazyInstancesOfTypeProperty<String>(typeKey<String>()).apply {
+        fun `should return an empty set if no dependency was found`() {
+            Injector.LazyInstancesOfTypeProperty<String>(typeKeyOfType()).apply {
                 inject(emptyGraph)
                 value.shouldBeEmpty()
             }
@@ -491,7 +549,7 @@ class InjectorTest {
 
         @Test
         fun `should lazy resolve dependencies`() {
-            Injector.LazyInstancesOfTypeProperty<Int>(typeKey<Int>()).apply {
+            Injector.LazyInstancesOfTypeProperty<Int>(typeKeyOfType()).apply {
                 inject(ofTypeTestComponent.createGraph())
                 atomicInteger.get().shouldBe(0)
                 value.shouldHaveSize(5)
@@ -505,8 +563,8 @@ class InjectorTest {
     inner class PropertyMapper {
 
         @Test
-        fun `should throw an exception when #value is called before injecting`() {
-            val property = Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit)
+        fun `should throw an exception if #value is called before injecting`() {
+            val property = Injector.InstanceProperty<Unit, Int>(typeKey(), Unit)
 
             shouldThrow<UninitializedPropertyAccessException> {
                 property.map { it * 2 }.value
@@ -515,7 +573,7 @@ class InjectorTest {
 
         @Test
         fun `#value should apply mapping function to given property value`() {
-            Injector.InstanceProperty<Unit, Int>(typeKey<Int>(), Unit)
+            Injector.InstanceProperty<Unit, Int>(typeKey(), Unit)
                 .map { it * 3 }
                 .apply {
                     inject(testComponent.createGraph())

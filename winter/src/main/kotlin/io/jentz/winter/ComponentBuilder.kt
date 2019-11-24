@@ -28,10 +28,10 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         Merge
     }
 
-    private val registry: MutableMap<TypeKey, UnboundService<*, *>> = mutableMapOf()
+    private val registry: MutableMap<TypeKey<*, *>, UnboundService<*, *>> = mutableMapOf()
     private var requiresLifecycleCallbacks: Boolean = false
-    private var eagerDependencies: MutableSet<TypeKey> = mutableSetOf()
-    private var subcomponentBuilders: MutableMap<TypeKey, ComponentBuilder>? = null
+    private var eagerDependencies: MutableSet<TypeKey<Unit, Any>> = mutableSetOf()
+    private var subcomponentBuilders: MutableMap<TypeKey<Unit, Component>, ComponentBuilder>? = null
 
     /**
      * Include dependency from the given component into the new component.
@@ -42,6 +42,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * @param subcomponentIncludeMode Defines the behaviour when a subcomponent with the same
      *                                qualifier already exists.
      */
+    @Suppress("UNCHECKED_CAST")
     fun include(
         component: Component,
         override: Boolean = true,
@@ -50,14 +51,13 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         component.forEach { (k, v) ->
             when {
                 k === eagerDependenciesKey -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val entry = v as ConstantService<Set<TypeKey>>
+                    val entry = v as ConstantService<Set<TypeKey<Unit, Any>>>
                     eagerDependencies.addAll(entry.value)
                 }
                 v is ConstantService<*> && v.value is Component -> {
-                    @Suppress("UNCHECKED_CAST")
+                    val key = k as TypeKey<Unit, Component>
                     val service = v as ConstantService<Component>
-                    registerSubcomponent(k, service, subcomponentIncludeMode)
+                    registerSubcomponent(key, service, subcomponentIncludeMode)
                 }
                 else -> {
                     if (!override && registry.containsKey(k)) {
@@ -67,27 +67,6 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
                 }
             }
         }
-    }
-
-    /**
-     * Register a prototype scoped factory for instances of type [R].
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [R].
-     * @param override If true this will override a existing provider of this type.
-     * @param factory The factory for type [R].
-     */
-    @Deprecated(
-        message = "Use prototype instead",
-        replaceWith = ReplaceWith("prototype(qualifier,generics,override,factory)")
-    )
-    inline fun <reified R : Any> provider(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        override: Boolean = false,
-        noinline factory: GFactory0<R>
-    ) {
-        prototype(qualifier, generics, override, null, factory)
     }
 
     /**
@@ -346,7 +325,7 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * Remove a dependency from the component.
      * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false.
      */
-    fun remove(key: TypeKey, silent: Boolean = false) {
+    fun remove(key: TypeKey<*, *>, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
             throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
         }
@@ -366,26 +345,30 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
      * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
      * @throws WinterException If [newKey] entry already exists and [override] is false.
      */
-    fun alias(targetKey: TypeKey, newKey: TypeKey, override: Boolean = false) {
+    fun <A0, R0: Any, A1, R1: Any> alias(
+        targetKey: TypeKey<A0, R0>,
+        newKey: TypeKey<A1, R1>,
+        override: Boolean = false
+    ) {
         registry[targetKey]
             ?: throw EntryNotFoundException(targetKey, "Entry with key `$targetKey` doesn't exist.")
         register(AliasService(targetKey, newKey), override)
     }
 
     @PublishedApi
-    internal fun addEagerDependency(key: TypeKey) {
+    internal fun addEagerDependency(key: TypeKey<Unit, Any>) {
         if (!registry.containsKey(key)) {
             throw WinterException("Key `$key` is not registered.")
         }
         eagerDependencies.add(key)
     }
 
-    private fun removeEagerDependency(key: TypeKey) {
+    private fun removeEagerDependency(key: TypeKey<*, *>) {
         eagerDependencies.remove(key)
     }
 
     private fun registerSubcomponent(
-        key: TypeKey,
+        key: TypeKey<Unit, Component>,
         entry: ConstantService<Component>,
         subcomponentIncludeMode: SubcomponentIncludeMode
     ) {
@@ -408,9 +391,9 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
         }
     }
 
-    private fun getOrCreateSubcomponentBuilder(key: TypeKey): ComponentBuilder {
-        val builders = subcomponentBuilders
-            ?: mutableMapOf<TypeKey, ComponentBuilder>().also { subcomponentBuilders = it }
+    private fun getOrCreateSubcomponentBuilder(key: TypeKey<Unit, Component>): ComponentBuilder {
+        val builders = subcomponentBuilders ?: mutableMapOf()
+        subcomponentBuilders = builders
 
         return builders.getOrPut(key) {
             ComponentBuilder(key.qualifier).also { builder ->

@@ -3,9 +3,9 @@ package io.jentz.winter.evaluator
 import io.jentz.winter.*
 
 internal inline fun checkForCyclicDependencies(
-    key: TypeKey,
+    key: TypeKey<*, *>,
     check: () -> Boolean,
-    buildPendingKeysList: () -> List<TypeKey>
+    buildPendingKeysList: () -> List<TypeKey<*, *>>
 ) {
 
     if (!check()) return
@@ -34,7 +34,7 @@ internal inline fun checkForCyclicDependencies(
 
 }
 
-internal fun handleException(key: TypeKey, t: Throwable): Nothing {
+internal fun handleException(key: TypeKey<*, *>, t: Throwable): Nothing {
     when (t) {
         is EntryNotFoundException -> {
             throw DependencyResolutionException(

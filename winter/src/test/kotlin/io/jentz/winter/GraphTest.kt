@@ -11,6 +11,7 @@ import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldFail
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.*
 import java.util.concurrent.ExecutorService
@@ -168,7 +169,7 @@ class GraphTest {
             var initialized = false
             val graph = graph { eagerSingleton { initialized = true; instance } }
             initialized.shouldBeTrue()
-            graph.service<Unit, Any>(typeKey<Any>()).shouldBeInstanceOf<BoundSingletonService<*>>()
+            graph.service(typeKey<Any>()).shouldBeInstanceOf<BoundSingletonService<*>>()
         }
 
         @Test
@@ -908,30 +909,37 @@ class GraphTest {
     @DisplayName("#*OfType methods")
     inner class OfTypeMethods {
 
+        private val testComponent = component {
+            prototype("something else") { Any() }
+            prototype("a") { "a" }
+            prototype("b") { "b" }
+            prototype("c") { "c" }
+        }
+
+        @Test
+        fun `#providersOfTypeByKey should fail if type key is not correct`() {
+            shouldThrow<IllegalArgumentException> {
+                testComponent.createGraph().providersOfTypeByKey(typeKey<String>())
+            }
+        }
+
+        @Test
+        fun `#instancesOfTypeByKey should fail if type key is not correct`() {
+            shouldThrow<IllegalArgumentException> {
+                testComponent.createGraph().instancesOfTypeByKey(typeKey<String>())
+            }
+        }
+
         @Test
         fun `#providersOfType should return a set of providers of a given type`() {
-            val graph = graph {
-                prototype("something else") { Any() }
-                prototype("a") { "a" }
-                prototype("b") { "b" }
-                prototype("c") { "c" }
-            }
-
-            val providers = graph.providersOfType<String>()
+            val providers = testComponent.createGraph().providersOfType<String>()
             providers.shouldHaveSize(3)
             providers.map { it() }.shouldContainAll("a", "b", "c")
         }
 
         @Test
         fun `#instancesOfType should return a set of instances of given type`() {
-            val graph = graph {
-                prototype("something else") { Any() }
-                prototype("a") { "a" }
-                prototype("b") { "b" }
-                prototype("c") { "c" }
-            }
-
-            val instances = graph.instancesOfType<String>()
+            val instances = testComponent.createGraph().instancesOfType<String>()
             instances.shouldHaveSize(3)
             instances.shouldContainAll("a", "b", "c")
         }

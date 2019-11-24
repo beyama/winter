@@ -9,7 +9,7 @@ interface UnboundService<A, R : Any> {
     /**
      * The [TypeKey] of the type this service is providing.
      */
-    val key: TypeKey
+    val key: TypeKey<A, R>
 
     /**
      * Return true if the bound service requires lifecycle calls to [BoundService.postConstruct]
@@ -26,7 +26,7 @@ interface UnboundService<A, R : Any> {
 
 @PublishedApi
 internal class UnboundPrototypeService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val factory: GFactory0<R>,
     val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -41,7 +41,7 @@ internal class UnboundPrototypeService<R : Any>(
 
 @PublishedApi
 internal class UnboundSingletonService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val factory: GFactory0<R>,
     val postConstruct: GFactoryCallback1<R>?,
     val dispose: GFactoryCallback1<R>?
@@ -57,7 +57,7 @@ internal class UnboundSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundWeakSingletonService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val factory: GFactory0<R>,
     val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -72,7 +72,7 @@ internal class UnboundWeakSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundSoftSingletonService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val factory: GFactory0<R>,
     val postConstruct: GFactoryCallback1<R>?
 ) : UnboundService<Unit, R> {
@@ -87,7 +87,7 @@ internal class UnboundSoftSingletonService<R : Any>(
 
 @PublishedApi
 internal class UnboundFactoryService<A, R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<A, R>,
     val factory: GFactory1<A, R>,
     val postConstruct: GFactoryCallback2<A, R>?
 ) : UnboundService<A, R> {
@@ -102,7 +102,7 @@ internal class UnboundFactoryService<A, R : Any>(
 
 @PublishedApi
 internal class UnboundMultitonFactoryService<A, R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<A, R>,
     val factory: GFactory1<A, R>,
     val postConstruct: GFactoryCallback2<A, R>?,
     val dispose: GFactoryCallback2<A, R>?
@@ -118,7 +118,7 @@ internal class UnboundMultitonFactoryService<A, R : Any>(
 
 @PublishedApi
 internal class ConstantService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val value: R
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
@@ -135,7 +135,7 @@ internal class ConstantService<R : Any>(
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun postConstruct(arg: Any, instance: Any) {
+    override fun postConstruct(argument: Unit, instance: R) {
         throw AssertionError("BUG: This method should not be called.")
     }
 
@@ -145,7 +145,7 @@ internal class ConstantService<R : Any>(
 
 @PublishedApi
 internal class ProviderService<R : Any>(
-    override val key: TypeKey,
+    override val key: TypeKey<Unit, R>,
     val provider: Provider<R>
 ) : UnboundService<Unit, R>, BoundService<Unit, R> {
 
@@ -162,7 +162,7 @@ internal class ProviderService<R : Any>(
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun postConstruct(arg: Any, instance: Any) {
+    override fun postConstruct(argument: Unit, instance: R) {
         throw AssertionError("BUG: This method should not be called.")
     }
 
@@ -170,18 +170,19 @@ internal class ProviderService<R : Any>(
     }
 }
 
-internal class AliasService(
-    private val targetKey: TypeKey,
-    private val newKey: TypeKey
-) : UnboundService<Any, Any> {
+internal class AliasService<A0, R0: Any>(
+    private val targetKey: TypeKey<*, *>,
+    private val newKey: TypeKey<A0, R0>
+) : UnboundService<A0, R0> {
 
     override val requiresLifecycleCallbacks: Boolean get() = false
 
-    override val key: TypeKey get() = newKey
+    override val key: TypeKey<A0, R0> get() = newKey
 
-    override fun bind(graph: Graph): BoundService<Any, Any> {
+    override fun bind(graph: Graph): BoundService<A0, R0> {
         try {
-            return graph.service(targetKey)
+            @Suppress("UNCHECKED_CAST")
+            return graph.service(targetKey as TypeKey<A0, R0>)
         } catch (t: Throwable) {
             throw WinterException("Error resolving alias `$newKey` pointing to `$targetKey`.", t)
         }

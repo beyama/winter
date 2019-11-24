@@ -105,13 +105,4 @@ open class WinterApplication() {
     fun createGraph(block: ComponentBuilderBlock? = null): Graph =
         component.createGraph(this, block)
 
-    /**
-     * @see createGraph
-     */
-    @Deprecated(
-        "Use createGraph instead.",
-        ReplaceWith("createGraph(block)")
-    )
-    fun init(block: ComponentBuilderBlock? = null): Graph = createGraph(block)
-
 }

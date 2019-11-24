@@ -1,7 +1,16 @@
 Changelog
 =========
 
+Version 0.6.0 *2019-11-24*
+--------------------------
+
+* Remove all deprecated methods
+* Add winter-java module (JWinter) for easy dependency retrieval from Java
+* Add generic arguments to TypeKey and the methods consuming the key
+
+
 Version 0.5.0
+-------------
 
 * Add option to enable cyclic dependency checks (disabled by default)
 * Restructure Graph and Injector to reduce synchronized calls
@@ -13,7 +22,7 @@ Version 0.4.0
 * Add winter-junit5 support module
 * Add ability to provide all Mock and Spy annotated fields in tests via a graph
 * Add Plugin#graphInitialized callback
-* Remove exception in ComponentBuilder#register when override is true but service doesn’t exist
+* Remove exception in ComponentBuilder#register when override is true but service does not exist
 * Rename Plugin#initializingComponent to #graphInitializing
 * Deprecate WinterTestRule in favor of ExtendGraphTestRule 
 
