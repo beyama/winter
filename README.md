@@ -20,20 +20,22 @@ with annotation processor.
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.5.0'
+  implementation 'io.jentz.winter:winter:0.6.0'
   // Android support
-  implementation 'io.jentz.winter:winter-android:0.5.0'
+  implementation 'io.jentz.winter:winter-android:0.6.0'
   // Android X lifecycle extensions
-  implementation 'io.jentz.winter:winter-androidx-lifecycle:0.5.0'
+  implementation 'io.jentz.winter:winter-androidx-lifecycle:0.6.0'
   // RxJava 2 disposable plugin
-  implementation 'io.jentz.winter:winter-rxjava2:0.5.0'
+  implementation 'io.jentz.winter:winter-rxjava2:0.6.0'
+  // Java support
+  implementation 'io.jentz.winter:winter-java:0.6.0'
   // JUnit 4 test support
-  testImplementation 'io.jentz.winter:winter-junit4:0.5.0'  
+  testImplementation 'io.jentz.winter:winter-junit4:0.6.0'  
   // JUnit 5 test support
-  testImplementation 'io.jentz.winter:winter-junit5:0.5.0'  
+  testImplementation 'io.jentz.winter:winter-junit5:0.6.0'  
   // Optional JSR-330 support
   implementation 'javax.inject:javax.inject:1'
-  kapt 'io.jentz.winter:winter-compiler:0.5.0'
+  kapt 'io.jentz.winter:winter-compiler:0.6.0'
 }
 
 // The optional JSR-330 support requires also a kapt configuration block like
