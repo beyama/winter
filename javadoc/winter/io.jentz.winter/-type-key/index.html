@@ -8,7 +8,7 @@
 <a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">TypeKey</a><br/>
 <br/>
 <h1>TypeKey</h1>
-<code><span class="keyword">interface </span><span class="identifier">TypeKey</span></code>
+<code><span class="keyword">interface </span><span class="identifier">TypeKey</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">A</span><span class="symbol">, </span><span class="keyword">out</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
 <p>Interface for all type keys.</p>
 <h3>Properties</h3>
 <table>
@@ -30,8 +30,8 @@
 <p><a href="type-equals.html">typeEquals</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">typeEquals</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.TypeKey$typeEquals(io.jentz.winter.TypeKey)/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
-<p>Test if <a href="type-equals.html#io.jentz.winter.TypeKey$typeEquals(io.jentz.winter.TypeKey)/other">other</a> has the same type.
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">typeEquals</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.TypeKey$typeEquals(io.jentz.winter.TypeKey((kotlin.Any, kotlin.Any)))/other">other</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">,</span>&nbsp;<span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
+<p>Test if <a href="type-equals.html#io.jentz.winter.TypeKey$typeEquals(io.jentz.winter.TypeKey((kotlin.Any, kotlin.Any)))/other">other</a> has the same type.
 Like <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/equals.html">equals</a> without looking onto the <a href="qualifier.html">qualifier</a>.</p>
 </td>
 </tr>
@@ -45,28 +45,28 @@ Like <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/equals.ht
 <p><a href="../-class-type-key/index.html">ClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">class </span><span class="identifier">ClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="../-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="../-compound-class-type-key/index.html">CompoundClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">CompoundClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">class </span><span class="identifier">CompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="../-compound-class-type-key/index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="../-compound-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="../-generic-class-type-key/index.html">GenericClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="../-generic-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="../-generic-compound-class-type-key/index.html">GenericCompoundClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="../-generic-compound-class-type-key/index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="../-generic-compound-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 </tbody>
 </table>

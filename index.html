@@ -476,6 +476,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_androidx_lifecycle_support">AndroidX Lifecycle Support</a></li>
 </ul>
 </li>
+<li><a href="#_java_support">Java Support</a></li>
 <li><a href="#_rxjava2_support">RxJava2 Support</a></li>
 <li><a href="#_junit_test">JUnit Test</a>
 <ul class="sectlevel2">
@@ -530,16 +531,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
     implementation 'io.jentz.winter:winter-androidx-lifecycle:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
+    // Java support module
+    implementation 'io.jentz.winter:winter-java:x.x.x'
     // JUnit4 test support
     implementation 'io.jentz.winter:winter-junit4:x.x.x'
     // JUnit5 test support
     implementation 'io.jentz.winter:winter-junit5:x.x.x'
-    // Optional JSR-330 support
+    // JSR-330 support
     implementation 'javax.inject:javax.inject:1'
     kapt 'io.jentz.winter:winter-compiler:x.x.x'
 }
 
-// The optional JSR-330 support requires also a kapt configuration block like
+// The JSR-330 support requires also a kapt configuration block like
 kapt {
     arguments {
         // This tells the Winter compiler under which package name it should store
@@ -551,7 +554,7 @@ kapt {
 </div>
 <div class="paragraph">
 <p>Replace <code>x.x.x</code> with the version you would like to use.
-The latest version is 0.5.0.</p>
+The latest version is 0.6.0.</p>
 </div>
 <div class="sect2">
 <h3 id="_available_modules">Available Modules</h3>
@@ -570,39 +573,44 @@ The latest version is 0.5.0.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Winter core module</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter/index.html">Winter</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit4 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit4/index.html">Winter JUnit4</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit5:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit5:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit5 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit5/index.html">Winter JUnit5</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-testing:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-testing:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Testing support shared between the JUnit4 and JUnit5 modules</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-testing/index.html">Winter Testing</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RxJava2 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-rxjava2/index.html">Winter RxJava2</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-android:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-android/index.html">Winter Android</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.5.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx-lifecycle:0.6.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android X lifecycle support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-androidx-lifecycle/index.html">Winter AndroidX lifecycle support</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-java:0.6.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Java support</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-java/index.html">Winter Java</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1198,10 +1206,34 @@ class MyClass : ALifecycleOwner() {
 </div>
 </div>
 <div class="sect1">
+<h2 id="_java_support">Java Support</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>winter-java</code> module contains a class named <code>JWinter</code> that provides static methods to
+retrieve dependencies from a Graph.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="java">// Retrieve an instance of String with the qualifier "a"
+JWinter.instance(graph, String.class, "a");
+
+// Call the factory with argument type Integer and return type String with argument 42
+JWinter.instance(graph, Integer.class, String.class, 42);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a list of all available methods see <a href="javadoc/winter-java/io.jentz.winter.java/-j-winter/index.html">Winter Java</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_rxjava2_support">RxJava2 Support</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>winter-rxjava2</code> modules contains a Winter Plugin that automatically disposes all singletons
+<p>The <code>winter-rxjava2</code> module contains a Winter Plugin that automatically disposes all singletons
 in a graph which implement <code>Disposable</code>.</p>
 </div>
 <div class="paragraph">
@@ -1511,7 +1543,9 @@ val coffeeMaker: CoffeeMakter = applicationGraph.instance()</code></pre>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_include_components">Include Components</h3>
-
+<div class="paragraph">
+<p>TODO</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_circular_dependencies">Circular Dependencies</h3>
@@ -1536,18 +1570,22 @@ val applicationComponent = component {
 </div>
 <div class="sect2">
 <h3 id="_plugins">Plugins</h3>
-
+<div class="paragraph">
+<p>TODO</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_usage_in_libraries">Usage In Libraries</h3>
-
+<div class="paragraph">
+<p>TODO</p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-08-26 21:27:31 +0200
+Last updated 2019-11-24 11:40:53 +0100
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

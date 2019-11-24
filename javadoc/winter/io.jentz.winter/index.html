@@ -37,7 +37,7 @@ the blueprints for the <code>graph</code>.</p>
 <p><a href="-class-type-key/index.html">ClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">class </span><span class="identifier">ClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
@@ -63,21 +63,21 @@ instance of a <a href="-graph/index.html">graph</a>.</p>
 <p><a href="-compound-class-type-key/index.html">CompoundClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">CompoundClassTypeKey</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">class </span><span class="identifier">CompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="-compound-class-type-key/index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="-compound-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="-generic-class-type-key/index.html">GenericClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="-generic-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="-generic-compound-class-type-key/index.html">GenericCompoundClassTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GenericCompoundClassTypeKey</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="-generic-compound-class-type-key/index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="-generic-compound-class-type-key/index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
 <td>
@@ -137,7 +137,7 @@ delegates.</p>
 <p><a href="-type-key/index.html">TypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">interface </span><span class="identifier">TypeKey</span></code>
+<code><span class="keyword">interface </span><span class="identifier">TypeKey</span><span class="symbol">&lt;</span><span class="keyword">in</span>&nbsp;<span class="identifier">A</span><span class="symbol">, </span><span class="keyword">out</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
 <p>Interface for all type keys.</p>
 </td>
 </tr>
@@ -304,6 +304,18 @@ Used for post-construct and dispose callbacks.</p>
 </tr>
 </tbody>
 </table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-t-y-p-e_-k-e-y_-o-f_-t-y-p-e_-q-u-a-l-i-f-i-e-r.html">TYPE_KEY_OF_TYPE_QUALIFIER</a></p>
+</td>
+<td>
+<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">TYPE_KEY_OF_TYPE_QUALIFIER</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
+</tr>
+</tbody>
+</table>
 <h3>Functions</h3>
 <table>
 <tbody>
@@ -321,8 +333,8 @@ Used for post-construct and dispose callbacks.</p>
 <p><a href="compound-type-key.html">compoundTypeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T0</span><span class="symbol">, </span><span class="identifier">T1</span><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
-<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="compound-type-key.html#T0">T0</a> and <a href="compound-type-key.html#T1">T1</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">compoundTypeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$compoundTypeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="compound-type-key.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="compound-type-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="compound-type-key.html#A">A</a> and <a href="compound-type-key.html#R">R</a>.</p>
 </td>
 </tr>
 <tr>
@@ -357,7 +369,7 @@ Used for post-construct and dispose callbacks.</p>
 <p><a href="members-injector-key.html">membersInjectorKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">membersInjectorKey</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="-members-injector/index.html"><span class="identifier">MembersInjector</span></a><span class="symbol">&lt;</span><a href="members-injector-key.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">&gt;</span></code>
 <p>Returns <a href="-type-key/index.html">TypeKey</a> for <a href="-members-injector/index.html">MembersInjector</a> for type <a href="members-injector-key.html#T">T</a>.</p>
 </td>
 </tr>
@@ -366,8 +378,8 @@ Used for post-construct and dispose callbacks.</p>
 <p><a href="type-key.html">typeKey</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
-<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="type-key.html#T">T</a>.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">typeKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter$typeKey(kotlin.Any, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="type-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<p>Returns <a href="-type-key/index.html">TypeKey</a> for type <a href="type-key.html#R">R</a>.</p>
 </td>
 </tr>
 <tr>
@@ -375,7 +387,7 @@ Used for post-construct and dispose callbacks.</p>
 <p><a href="type-key-of-type.html">typeKeyOfType</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <span class="identifier">typeKeyOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKeyOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a></code>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">typeKeyOfType</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter$typeKeyOfType(kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="type-key-of-type.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
 <p>This is used internally to created dependency keys to search for all entries of the given type.
 The qualifier is used to allow the usage of this key for caching to prevent clashes with normal
 dependency keys.</p>
