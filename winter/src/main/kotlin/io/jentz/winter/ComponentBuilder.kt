@@ -3,7 +3,7 @@ package io.jentz.winter
 /**
  * Component builder DSL.
  */
-class ComponentBuilder internal constructor(val qualifier: Any?) {
+class ComponentBuilder internal constructor(val qualifier: Any) {
 
     enum class SubcomponentIncludeMode {
         /**
@@ -392,11 +392,15 @@ class ComponentBuilder internal constructor(val qualifier: Any?) {
     }
 
     private fun getOrCreateSubcomponentBuilder(key: TypeKey<Unit, Component>): ComponentBuilder {
+        val qualifier = requireNotNull(key.qualifier) {
+            "BUG! qualifier for sub-component key must not be null"
+        }
+
         val builders = subcomponentBuilders ?: mutableMapOf()
         subcomponentBuilders = builders
 
         return builders.getOrPut(key) {
-            ComponentBuilder(key.qualifier).also { builder ->
+            ComponentBuilder(qualifier).also { builder ->
                 val constant = registry.remove(key) as? ConstantService<*>
                 val existingSubcomponent = constant?.value as? Component
                 existingSubcomponent?.let { builder.include(it) }

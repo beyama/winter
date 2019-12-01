@@ -29,7 +29,7 @@ import io.jentz.winter.testing.injectWithReflection
  *
  */
 class ExtendGraphExtension internal constructor(
-    private val componentQualifier: Any? = null,
+    private val componentQualifier: Any,
     application: WinterApplication = Winter,
     private val componentBuilderBlock: ComponentBuilderBlock
 ) : GraphLifecycleExtension(application) {

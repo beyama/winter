@@ -21,10 +21,9 @@ package io.jentz.winter
  */
 class Component internal constructor(
     /**
-     * The components qualifier (null for root components and the sub-components qualifier for
-     * sub-components).
+     * The components qualifier.
      */
-    val qualifier: Any?,
+    val qualifier: Any,
 
     private val dependencies: Map<TypeKey<*, *>, UnboundService<*, *>>,
 
@@ -37,14 +36,14 @@ class Component internal constructor(
     /**
      * Create an extended copy of this component.
      *
-     * @param qualifier An optional qualifier (default: [qualifier]).
+     * @param qualifier A qualifier for the new derived component (default: [qualifier]).
      * @param block A builder block that is called in the context of a [ComponentBuilder].
      * @return A new [Component] that contains all provider of the base component plus the one
      *         defined in the builder block.
      */
     @JvmOverloads
     fun derive(
-        qualifier: Any? = this.qualifier,
+        qualifier: Any = this.qualifier,
         block: ComponentBuilderBlock
     ) = component(qualifier) {
         include(this@Component)

@@ -30,7 +30,7 @@ import io.jentz.winter.testing.injectWithReflection
  *
  */
 class ExtendGraphTestRule internal constructor(
-    private val componentQualifier: Any? = null,
+    private val componentQualifier: Any,
     application: WinterApplication = Winter,
     private val componentBuilderBlock: ComponentBuilderBlock
 ) : GraphLifecycleTestRule(application) {

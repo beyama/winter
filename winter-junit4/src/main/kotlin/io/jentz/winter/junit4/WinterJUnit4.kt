@@ -1,5 +1,6 @@
 package io.jentz.winter.junit4
 
+import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
 import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
@@ -14,7 +15,7 @@ class WinterJUnit4 {
          * @see ExtendGraphTestRule
          */
         fun rule(
-            componentQualifier: Any? = null,
+            componentQualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
             application: WinterApplication = Winter,
             block: ComponentBuilderBlock
         ): ExtendGraphTestRule = ExtendGraphTestRule(componentQualifier, application, block)
