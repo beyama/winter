@@ -36,7 +36,7 @@ internal fun KClass<*>.getDeclaredMemberProperty(name: String): KProperty1<Any, 
 }
 
 internal fun KProperty1<*, *>.hasMockAnnotation(): Boolean {
-    if (annotations.any { containsMockOrSpy(it.javaClass.name) }) {
+    if (annotations.any { containsMockOrSpy(it.annotationClass.java.simpleName) }) {
         return true
     }
     val field = javaField ?: return false

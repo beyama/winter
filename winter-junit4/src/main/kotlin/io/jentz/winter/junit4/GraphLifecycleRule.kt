@@ -18,7 +18,7 @@ import org.junit.runners.model.Statement
  * val testViewModel = TestViewModel<ViewState>()
  *
  * @get:Rule
- * val winterTestRule = object : GraphLifecycleTestRule() {
+ * val winterTestRule = object : GraphLifecycleRule() {
  *   override fun initializingGraph(parentGraph: Graph?, builder: ComponentBuilder) {
  *     if (builder.qualifier == "presentation") {
  *       builder.apply {
@@ -31,18 +31,18 @@ import org.junit.runners.model.Statement
  * }
  * ```
  */
-abstract class GraphLifecycleTestRule(
+abstract class GraphLifecycleRule(
     private val application: WinterApplication = Winter
 ) : SimplePlugin(), TestRule {
 
     final override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                application.registerPlugin(this@GraphLifecycleTestRule)
+                application.registerPlugin(this@GraphLifecycleRule)
                 try {
                     base.evaluate()
                 } finally {
-                    application.unregisterPlugin(this@GraphLifecycleTestRule)
+                    application.unregisterPlugin(this@GraphLifecycleRule)
                 }
             }
         }

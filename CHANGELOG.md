@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 0.7.0
+-------------
+
+* New WinterTestSession class for less boilerplate code in tests
+* New JUnit4 WinterRule that utilizes WinterTestSession
+* New JUnit5 WinterEachExtension that utilizes WinterTestSession
+* New JUnit5 WinterAllExtension that utilizes WinterTestSession
+* Rename GraphLifecycleTestRule to GraphLifecycleRule
+* Remove ExtendGraphTestRule in favour of WinterRule
+* Remove ExtendGraphExtension in favour of WinterEachExtension
+* Remove WinterJUnit4 and WinterJUnit5 classes
+
 Version 0.6.0 *2019-11-24*
 --------------------------
 
