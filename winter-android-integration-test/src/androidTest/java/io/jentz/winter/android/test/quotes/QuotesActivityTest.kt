@@ -1,14 +1,13 @@
 package io.jentz.winter.android.test.quotes
 
-import android.content.Intent
-import android.content.pm.ActivityInfo
+import android.app.Activity
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
-import io.jentz.winter.GraphRegistry
 import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.isDisplayed
 import io.jentz.winter.android.test.isNotDisplayed
@@ -22,36 +21,41 @@ import io.kotlintest.matchers.boolean.shouldBeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class QuotesActivityTest {
 
-    @get:Rule
-    val winterTestRule = WinterRule.extend("presentation") {
-        singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
+    private val winterRule = WinterRule(this) {
+        extend("presentation") {
+            singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
+        }
+        testGraph("activity")
     }
 
+    private val activityScenarioRule = ActivityScenarioRule<QuotesActivity>(QuotesActivity::class.java)
+
     @get:Rule
-    val activityTestRule = ActivityTestRule(QuotesActivity::class.java, true, false)
+    val ruleChain: RuleChain = RuleChain.outerRule(winterRule).around(activityScenarioRule)
 
     private val viewModel = TestViewModel<QuotesViewState>()
 
     private lateinit var activity: QuotesActivity
 
+    private lateinit var scenario: ActivityScenario<QuotesActivity>
+
     @Before
     fun beforeEach() {
-        activityTestRule.launchActivity(Intent())
-        activity = activityTestRule.activity
+        scenario = activityScenarioRule.scenario
+        activity = winterRule.requireTestGraph.instance<Activity>() as QuotesActivity
     }
 
     @Test
     fun should_retain_presentation_scope_but_dispose_activity_scope_on_orientation_change() {
-        GraphRegistry.has(QuotesActivity::class.java, activity).shouldBeTrue()
-
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java)
-        val activityGraph = GraphRegistry.get(QuotesActivity::class.java, activity)
+        val activityGraph = winterRule.requireTestGraph
+        val presentationGraph = activityGraph.parent!!
 
         viewModel.downstream.onNext(QuotesViewState(isLoading = true))
 
@@ -66,8 +70,7 @@ class QuotesActivityTest {
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
-        activityTestRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        scenario.recreate()
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
@@ -77,12 +80,12 @@ class QuotesActivityTest {
 
     @Test
     fun should_dispose_presentation_scope_and_dispose_view_model_when_activity_finishes() {
-        val presentationGraph = GraphRegistry.get(QuotesActivity::class.java)
+        val presentationGraph = winterRule.requireTestGraph.parent!!
 
         presentationGraph.isDisposed.shouldBeFalse()
         viewModel.isDisposed.shouldBeFalse()
 
-        activityTestRule.finishActivity()
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
         waitForIt(timeoutMs = 5000) { presentationGraph.isDisposed }
 
