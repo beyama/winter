@@ -4,6 +4,7 @@ Changelog
 Version 0.7.0
 -------------
 
+* Component qualifier is now mandatory
 * New WinterTestSession class for less boilerplate code in tests
 * New JUnit4 WinterRule that utilizes WinterTestSession
 * New JUnit5 WinterEachExtension that utilizes WinterTestSession
