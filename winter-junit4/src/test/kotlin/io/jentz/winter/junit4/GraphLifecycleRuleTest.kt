@@ -6,7 +6,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.JUnitCore
 
-class GraphLifecycleTestRule {
+class GraphLifecycleRuleTest {
 
     object TestApp : WinterApplication()
 
