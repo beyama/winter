@@ -12,7 +12,8 @@ abstract class AbstractWinterExtension(
 ): ParameterResolver {
 
     protected fun before(context: ExtensionContext) {
-        sessionBuilder.build(context.requiredTestInstances.allInstances).apply {
+        val instances = context.testInstances.map { it.allInstances }.orElse(emptyList())
+        sessionBuilder.build(instances).apply {
             start()
             context.getStore(namespace).put(SESSION, this)
         }
