@@ -1,6 +1,6 @@
 package io.jentz.winter.junit4
 
-import io.jentz.winter.*
+import io.jentz.winter.Graph
 import io.jentz.winter.testing.WinterTestSession
 import io.jentz.winter.testing.WinterTestSessionBlock
 import io.jentz.winter.testing.injectWithReflection
@@ -55,64 +55,6 @@ open class WinterRule private constructor(
 
     fun inject(target: Any) {
         requireSession.requireTestGraph.injectWithReflection(target)
-    }
-
-    companion object {
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterRule(testInstance) {
-         *    application = MyWinterApp
-         *    extend(qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterRule
-         *
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterRule = WinterRule {
-            this.application = application
-            extend(qualifier, block)
-        }
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterRule {
-         *    application = MyWinterApp
-         *    extend(parentQualifier, qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterRule
-         *
-         * @param parentQualifier The component qualifier of the parent graph.
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            parentQualifier: Any,
-            qualifier: Any,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterRule = WinterRule {
-            this.application = application
-            extend(parentQualifier, qualifier, block)
-        }
-
     }
 
 }
