@@ -5,6 +5,9 @@ import io.jentz.winter.plugin.SimplePlugin
 
 typealias WinterTestSessionBlock = WinterTestSession.Builder.() -> Unit
 
+typealias OnGraphInitializedCallback = (Graph) -> Unit
+typealias OnGraphDisposeCallback = (Graph) -> Unit
+
 /**
  * [WinterTestSession] helps to write cleaner tests that require `Winter` by eliminating
  * boilerplate code.
@@ -42,7 +45,9 @@ typealias WinterTestSessionBlock = WinterTestSession.Builder.() -> Unit
 class WinterTestSession private constructor(
     private val application: WinterApplication,
     private val testInstances: List<Any>,
-    private val graphExtenders: List<GraphExtender>,
+    private val graphExtenders: List<Pair<ComponentMatcher, ComponentBuilderBlock>>,
+    private val onGraphInitializedCallbacks: List<Pair<ComponentMatcher, OnGraphInitializedCallback>>,
+    private val onGraphDisposeCallbacks: List<Pair<ComponentMatcher, OnGraphDisposeCallback>>,
     private val testGraphComponentMatcher: ComponentMatcher,
     private val autoDisposeMode: AutoDisposeMode,
     private val bindAllMocksMatcher: ComponentMatcher?
@@ -51,7 +56,7 @@ class WinterTestSession private constructor(
     /**
      * The test graph if open otherwise null.
      */
-    var graph: Graph? = null
+    var testGraph: Graph? = null
         private set
 
     /**
@@ -59,8 +64,8 @@ class WinterTestSession private constructor(
      *
      * @throws IllegalStateException If graph is not open.
      */
-    val requireGraph: Graph
-        get() = checkNotNull(graph) {
+    val requireTestGraph: Graph
+        get() = checkNotNull(testGraph) {
             "Test graph is not open."
         }
 
@@ -88,11 +93,30 @@ class WinterTestSession private constructor(
             _allGraphs += graph
 
             if (testGraphComponentMatcher.matches(graph)) {
-                this@WinterTestSession.graph = graph
+                this@WinterTestSession.testGraph = graph
                 testInstances.forEach { graph.injectWithReflection(it) }
+            }
+
+            for ((matcher, callback) in onGraphInitializedCallbacks) {
+                if (matcher.matches(graph)) {
+                    callback(graph)
+                }
             }
         }
 
+        override fun graphDispose(graph: Graph) {
+            _allGraphs -= graph
+
+            for ((matcher, callback) in onGraphDisposeCallbacks) {
+                if (matcher.matches(graph)) {
+                    callback(graph)
+                }
+            }
+
+            if (testGraph == graph) {
+                testGraph = null
+            }
+        }
     }
 
     /**
@@ -108,8 +132,8 @@ class WinterTestSession private constructor(
     fun stop() {
         application.unregisterPlugin(plugin)
 
-        graph?.let { graph ->
-            this.graph = null
+        testGraph?.let { graph ->
+            this.testGraph = null
 
             if (graph.isDisposed) {
                 return
@@ -130,7 +154,7 @@ class WinterTestSession private constructor(
                     }
                 }
                 AutoDisposeMode.AllGraphs -> {
-                    _allGraphs.forEach(Graph::dispose)
+                    allGraphs.forEach(Graph::dispose)
                 }
             }
         }
@@ -145,7 +169,7 @@ class WinterTestSession private constructor(
      * @return The requested type or null if not found.
      */
     fun resolve(type: Class<*>, qualifier: Any? = null): Any =
-        requireGraph.instanceByKey(ClassTypeKey(type, qualifier))
+        requireTestGraph.instanceByKey(ClassTypeKey(type, qualifier))
 
     internal enum class AutoDisposeMode { NoAutoDispose, Graph, GraphAndAncestors, AllGraphs }
 
@@ -169,11 +193,6 @@ class WinterTestSession private constructor(
 
     }
 
-    internal data class GraphExtender(
-        val componentMatcher: ComponentMatcher,
-        val block: ComponentBuilderBlock
-    )
-
     class Builder {
         var application: WinterApplication = Winter
 
@@ -184,7 +203,13 @@ class WinterTestSession private constructor(
 
         private var bindAllMocksMatcher: ComponentMatcher? = null
 
-        private val graphExtenders = mutableListOf<GraphExtender>()
+        private val graphExtenders = mutableListOf<Pair<ComponentMatcher, ComponentBuilderBlock>>()
+
+        private val onGraphInitializedCallbacks =
+            mutableListOf<Pair<ComponentMatcher, OnGraphInitializedCallback>>()
+
+        private val onGraphDisposeCallbacks =
+            mutableListOf<Pair<ComponentMatcher, OnGraphDisposeCallback>>()
 
         /**
          * Use the graph with component [qualifier] and parent component qualifier [parentQualifier]
@@ -242,7 +267,7 @@ class WinterTestSession private constructor(
          * @param block The block to apply to the graph component builder.
          */
         fun extend(parentQualifier: Any, qualifier: Any, block: ComponentBuilderBlock) {
-            graphExtenders += GraphExtender(ComponentMatcher(parentQualifier, qualifier), block)
+            graphExtenders += ComponentMatcher(parentQualifier, qualifier) to block
         }
 
         /**
@@ -252,7 +277,65 @@ class WinterTestSession private constructor(
          * @param block The block to apply to the graph component builder.
          */
         fun extend(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock) {
-            graphExtenders += GraphExtender(ComponentMatcher(null, qualifier), block)
+            graphExtenders += ComponentMatcher(null, qualifier) to block
+        }
+
+        /**
+         * Add callback that gets invoked when a graph with the component [qualifier] and the
+         * parent graph component qualifier [parentQualifier] got created.
+         *
+         * @param parentQualifier The qualifier of the parent graph component.
+         * @param qualifier The qualifier of the graph component.
+         * @param callback The callback that gets invoked with the graph.
+         */
+        fun onGraphInitialized(
+            parentQualifier: Any,
+            qualifier: Any,
+            callback: OnGraphInitializedCallback
+        ) {
+            onGraphInitializedCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
+        }
+
+        /**
+         * Add callback that gets invoked when a graph with the component [qualifier] got created.
+         *
+         * @param qualifier The qualifier of the graph component.
+         * @param callback The callback that gets invoked with the graph.
+         */
+        fun onGraphInitialized(
+            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+            callback: OnGraphInitializedCallback
+        ) {
+            onGraphInitializedCallbacks += ComponentMatcher(null, qualifier) to callback
+        }
+
+        /**
+         * Add callback that gets invoked when a graph with the component [qualifier] and the
+         * parent graph component qualifier [parentQualifier] gets disposed.
+         *
+         * @param parentQualifier The qualifier of the parent graph component.
+         * @param qualifier The qualifier of the graph component.
+         * @param callback The callback that gets invoked with the graph.
+         */
+        fun onGraphDispose(
+            parentQualifier: Any,
+            qualifier: Any,
+            callback: OnGraphDisposeCallback
+        ) {
+            onGraphDisposeCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
+        }
+
+        /**
+         * Add callback that gets invoked when a graph with the component [qualifier] gets disposed.
+         *
+         * @param qualifier The qualifier of the graph component.
+         * @param callback The callback that gets invoked with the graph.
+         */
+        fun onGraphDispose(
+            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+            callback: OnGraphDisposeCallback
+        ) {
+            onGraphDisposeCallbacks += ComponentMatcher(null, qualifier) to callback
         }
 
         /**
@@ -280,6 +363,8 @@ class WinterTestSession private constructor(
             application = application,
             testInstances = testInstances,
             graphExtenders = graphExtenders,
+            onGraphInitializedCallbacks = onGraphInitializedCallbacks,
+            onGraphDisposeCallbacks = onGraphDisposeCallbacks,
             testGraphComponentMatcher = testGraphComponentMatcher,
             autoDisposeMode = autoDisposeMode,
             bindAllMocksMatcher = bindAllMocksMatcher

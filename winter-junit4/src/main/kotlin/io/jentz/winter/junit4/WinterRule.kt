@@ -40,9 +40,9 @@ open class WinterRule private constructor(
         "Winter test session was not created."
     }
 
-    val testGraph: Graph? get() = testSession?.graph
+    val testGraph: Graph? get() = testSession?.testGraph
 
-    val requireTestGraph: Graph get() = requireSession.requireGraph
+    val requireTestGraph: Graph get() = requireSession.requireTestGraph
 
     override fun before() {
         testSession = testSessionBuilder.build(testInstances)
@@ -54,7 +54,7 @@ open class WinterRule private constructor(
     }
 
     fun inject(target: Any) {
-        requireSession.requireGraph.injectWithReflection(target)
+        requireSession.requireTestGraph.injectWithReflection(target)
     }
 
     companion object {

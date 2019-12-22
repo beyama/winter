@@ -4,7 +4,6 @@ import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -33,17 +32,23 @@ class WinterTestSessionTest {
 
     @Mock private val dependency1 = Dependency1()
 
-    @Test
-    fun `#resolve should resolve dependency from test graph`() {
-        session {
-            extend {
-                prototype("test") { "test" }
+    @Nested
+    @DisplayName("#resolve")
+    inner class Resolve {
+
+        @Test
+        fun `should resolve dependency from test graph`() {
+            session {
+                extend {
+                    prototype("test") { "test" }
+                }
+            }.test {
+                createAll()
+                resolve(String::class.java, null).shouldBe("application")
+                resolve(String::class.java, "test").shouldBe("test")
             }
-        }.test {
-            createAll()
-            resolve(String::class.java, null).shouldBe("application")
-            resolve(String::class.java, "test").shouldBe("test")
         }
+
     }
 
     @Nested
@@ -85,11 +90,10 @@ class WinterTestSessionTest {
                 autoDisposeAllGraphs()
             }.apply {
                 start()
-                repeat(3) { createAll() }
-                allGraphs.shouldHaveSize(3)
-                allGraphs.none { it.isDisposed }.shouldBeTrue()
+                val graphs = (0 until 3).map { createAll() }
+                graphs.none { it.isDisposed }.shouldBeTrue()
                 stop()
-                allGraphs.all { it.isDisposed }.shouldBeTrue()
+                graphs.all { it.isDisposed }.shouldBeTrue()
             }
         }
 
@@ -108,30 +112,11 @@ class WinterTestSessionTest {
     }
 
     @Nested
-    inner class Builder {
+    @DisplayName("#extend")
+    inner class Extend {
 
         @Test
-        fun `#testGraph should configure the graph to use`() {
-            session {
-                testGraph("sub")
-            }.test {
-                createAll("sub", "sub")
-                requireGraph.instance<String>().shouldBe("sub sub")
-            }
-        }
-
-        @Test
-        fun `#testGraph with parent matcher should configure the graph to use`() {
-            session {
-                testGraph("sub", "sub")
-            }.test {
-                createAll("sub", "sub")
-                requireGraph.instance<String>().shouldBe("sub sub")
-            }
-        }
-
-        @Test
-        fun `#extend without arguments should extend application graph`() {
+        fun `without arguments should extend application graph`() {
             session {
                 extend { prototype(override = true) { "new string" } }
             }.test {
@@ -141,7 +126,7 @@ class WinterTestSessionTest {
         }
 
         @Test
-        fun `#extend should extend graph with component qualifier`() {
+        fun `should extend graph with component qualifier`() {
             session {
                 extend("sub") { prototype(override = true) { "new string" } }
                 testGraph("sub")
@@ -152,7 +137,7 @@ class WinterTestSessionTest {
         }
 
         @Test
-        fun `#extend should extend graph with parent matcher`() {
+        fun `should extend graph with parent matcher`() {
             session {
                 extend("sub", "sub") { prototype(override = true) { "new string" } }
                 testGraph("sub", "sub")
@@ -162,51 +147,170 @@ class WinterTestSessionTest {
             }
         }
 
-        @Nested
-        @DisplayName("#bindAllMocks")
-        inner class BindAllMocks {
+    }
 
-            @Mock val dependency2 = Dependency2()
+    @Nested
+    @DisplayName("#allGraphs")
+    inner class AllGraphs {
 
-            @Test
-            fun `without arguments should bind all mocks from all test classes to application graph`() {
-                session(this@WinterTestSessionTest, this) {
-                    bindAllMocks()
-                }.test {
-                    createAll().apply {
-                        instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
-                        instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
-                    }
-                }
+        @Test
+        fun `should contain all graphs created during test`() {
+            session {}.test {
+                val graphs = (0 until 3).map { createAll() }
+                allGraphs.shouldBe(graphs)
             }
-
-            @Test
-            fun `with qualifier should bind all mocks on graph with component qualifier`() {
-                session(this@WinterTestSessionTest, this) {
-                    bindAllMocks("sub")
-                }.test {
-                    createAll("sub").apply {
-                        instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
-                        instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
-                        parent!!.instanceOrNull<Dependency1>().shouldBeNull()
-                    }
-                }
-            }
-
-            @Test
-            fun `with parent matcher should bind all mocks on graph that matches`() {
-                session(this@WinterTestSessionTest, this) {
-                    bindAllMocks("sub", "sub")
-                }.test {
-                    createAll("sub", "sub").apply {
-                        instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
-                        instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
-                        parent!!.instanceOrNull<Dependency1>().shouldBeNull()
-                    }
-                }
-            }
-
         }
+
+        @Test
+        fun `should not contain graphs that got disposed during test`() {
+            session {}.test {
+                val graphs = (0 until 3).map { createAll() }
+                graphs.first().dispose()
+                allGraphs.shouldBe(graphs.subList(1, graphs.size))
+            }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("#testGraph")
+    inner class TestGraph {
+
+        @Test
+        fun `should configure the graph to use`() {
+            session {
+                testGraph("sub")
+            }.test {
+                createAll("sub", "sub")
+                requireTestGraph.instance<String>().shouldBe("sub sub")
+            }
+        }
+
+        @Test
+        fun `with parent matcher should configure the graph to use`() {
+            session {
+                testGraph("sub", "sub")
+            }.test {
+                createAll("sub", "sub")
+                requireTestGraph.instance<String>().shouldBe("sub sub")
+            }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("#bindAllMocks")
+    inner class BindAllMocks {
+
+        @Mock val dependency2 = Dependency2()
+
+        @Test
+        fun `without arguments should bind all mocks from all test classes to application graph`() {
+            session(this@WinterTestSessionTest, this) {
+                bindAllMocks()
+            }.test {
+                createAll().apply {
+                    instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
+                    instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
+                }
+            }
+        }
+
+        @Test
+        fun `with qualifier should bind all mocks on graph with component qualifier`() {
+            session(this@WinterTestSessionTest, this) {
+                bindAllMocks("sub")
+            }.test {
+                createAll("sub").apply {
+                    instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
+                    instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
+                    parent!!.instanceOrNull<Dependency1>().shouldBeNull()
+                }
+            }
+        }
+
+        @Test
+        fun `with parent matcher should bind all mocks on graph that matches`() {
+            session(this@WinterTestSessionTest, this) {
+                bindAllMocks("sub", "sub")
+            }.test {
+                createAll("sub", "sub").apply {
+                    instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
+                    instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
+                    parent!!.instanceOrNull<Dependency1>().shouldBeNull()
+                }
+            }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("#onGraphInitialized")
+    inner class OnGraphInitialized {
+
+        @Test
+        fun `with parent matcher should get invoked with graph`() {
+            var called = false
+            session {
+                onGraphInitialized("sub", "sub") { graph ->
+                    graph.instance<String>().shouldBe("sub sub")
+                    called = true
+                }
+            }.test {
+                createAll("sub", "sub")
+                called.shouldBeTrue()
+            }
+        }
+
+        @Test
+        fun `with qualifier should get invoked with graph`() {
+            var called = false
+            session {
+                onGraphInitialized("sub") { graph ->
+                    graph.instance<String>().shouldBe("sub")
+                    called = true
+                }
+            }.test {
+                createAll("sub")
+                called.shouldBeTrue()
+            }
+        }
+
+
+    }
+
+    @Nested
+    @DisplayName("#onGraphDispose")
+    inner class OnGraphDispose {
+
+        @Test
+        fun `with parent matcher should get invoked with graph`() {
+            var called = false
+            session {
+                onGraphDispose("sub", "sub") { graph ->
+                    graph.instance<String>().shouldBe("sub sub")
+                    called = true
+                }
+            }.test {
+                createAll("sub", "sub").dispose()
+                called.shouldBeTrue()
+            }
+        }
+
+        @Test
+        fun `with qualifier should get invoked with graph`() {
+            var called = false
+            session {
+                onGraphDispose("sub") { graph ->
+                    graph.instance<String>().shouldBe("sub")
+                    called = true
+                }
+            }.test {
+                createAll("sub").dispose()
+                called.shouldBeTrue()
+            }
+        }
+
 
     }
 
