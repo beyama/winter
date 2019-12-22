@@ -11,15 +11,15 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 class WinterEachExtensionTest {
 
-    object TestApp : WinterApplication()
-
     companion object {
+
+        val app = WinterApplication()
 
         @JvmField
         @RegisterExtension
         // static extensions are registered before non static so after each is called the last.
         val testExtension: Extension = AfterEachCallback {
-            TestApp.plugins.isEmpty().shouldBeTrue()
+            app.plugins.isEmpty().shouldBeTrue()
         }
 
     }
@@ -27,12 +27,12 @@ class WinterEachExtensionTest {
     @JvmField
     @RegisterExtension
     val winterExtension = WinterEachExtension {
-        application = TestApp
+        application = app
     }
 
     @Test
     fun `session plugin should be registered`() {
-        TestApp.plugins.size.shouldBe(1)
+        app.plugins.size.shouldBe(1)
     }
 
 }

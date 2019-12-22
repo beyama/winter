@@ -7,19 +7,20 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 class WinterAllExtensionStaticTest {
 
-    object TestApp : WinterApplication()
-
     companion object {
+
+        val app = WinterApplication()
+
         @JvmField
         @RegisterExtension
         val extension = WinterAllExtension {
-            application = TestApp
+            application = app
         }
     }
 
     @Test
     fun `session plugin should be registered`() {
-        TestApp.plugins.size.shouldBe(1)
+        app.plugins.size.shouldBe(1)
     }
 
 }

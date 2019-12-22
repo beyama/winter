@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 @ExtendWith(WinterAllExtensionTest.TestExtension::class)
 class WinterAllExtensionTest {
 
-    object TestApp : WinterApplication()
+    private object TestApp : WinterApplication()
 
     class TestExtension : AfterAllCallback {
         override fun afterAll(context: ExtensionContext?) {
