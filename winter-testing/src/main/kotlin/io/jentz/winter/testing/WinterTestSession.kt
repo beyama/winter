@@ -42,6 +42,7 @@ typealias OnGraphDisposeCallback = (Graph) -> Unit
  *
  * @see WinterTestSession.Builder for more details about the possible configurations.
  */
+@Suppress("MaxLineLength") // maybe I should get rid of Detekt...
 class WinterTestSession private constructor(
     private val application: WinterApplication,
     private val testInstances: List<Any>,
