@@ -30,9 +30,9 @@ object WinterDisposablePlugin : SimplePlugin() {
 }
 
 fun WinterApplication.installDisposablePlugin() {
-    registerPlugin(WinterDisposablePlugin)
+    plugins += WinterDisposablePlugin
 }
 
 fun WinterApplication.uninstallDisposablePlugin() {
-    unregisterPlugin(WinterDisposablePlugin)
+    plugins -= WinterDisposablePlugin
 }

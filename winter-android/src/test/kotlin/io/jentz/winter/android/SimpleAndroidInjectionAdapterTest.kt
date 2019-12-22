@@ -9,7 +9,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
-import io.jentz.winter.WinterTree
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -29,17 +28,16 @@ class SimpleAndroidInjectionAdapterTest {
     @Mock private lateinit var view: View
     @Mock private lateinit var contextWrapper: ContextWrapper
 
-    private val testApplication = WinterApplication {
+    private val app = WinterApplication {
         subcomponent("activity") {
         }
     }
 
-    private val tree = WinterTree(testApplication)
-    private val adapter = SimpleAndroidInjectionAdapter(tree)
+    private val adapter = SimpleAndroidInjectionAdapter(app)
 
     @Before
     fun beforeEach() {
-        tree.closeIfOpen()
+        app.closeIfOpen()
     }
 
     @Test
@@ -49,7 +47,6 @@ class SimpleAndroidInjectionAdapterTest {
         graph.component.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
         graph.instance<Application>().shouldBe(application)
         graph.instance<Context>().shouldBe(application)
-        graph.instance<WinterTree>().shouldBeSameInstanceAs(tree)
     }
 
     @Test
@@ -63,7 +60,7 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance should open activity graph with activity as constant`() {
-        tree.open()
+        app.open()
         val graph = adapter.createGraph(activity, null)
 
         graph.component.qualifier.shouldBe("activity")
@@ -81,20 +78,20 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with application should get graph from tree`() {
-        val graph = tree.open()
+        val graph = app.open()
         adapter.getGraph(application).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with activity should get graph from tree`() {
-        tree.open()
-        val graph = tree.open("activity", identifier = activity)
+        app.open()
+        val graph = app.open("activity", identifier = activity)
         adapter.getGraph(activity).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = testApplication.createGraph()
+        val graph = app.create()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
@@ -102,31 +99,31 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with DependencyGraphContextWrapper should get graph from wrapper `() {
-        val graph = tree.open()
+        val graph = app.open()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with ContextWrapper should get graph from base context`() {
-        val graph = tree.open()
+        val graph = app.open()
         whenever(contextWrapper.baseContext).thenReturn(application)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#disposeGraph with Application instance should close root graph`() {
-        tree.open()
+        app.open()
         adapter.disposeGraph(application)
-        tree.has().shouldBe(false)
+        app.has().shouldBe(false)
     }
 
     @Test
     fun `#disposeGraph with Activity instance should close Activity graph`() {
-        tree.open()
-        tree.open("activity", identifier = activity)
+        app.open()
+        app.open("activity", identifier = activity)
         adapter.disposeGraph(activity)
-        tree.has(activity).shouldBeFalse()
+        app.has(activity).shouldBeFalse()
     }
 
 }

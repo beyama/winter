@@ -8,8 +8,8 @@ import android.view.View
 import io.jentz.winter.*
 
 /**
- * Simple extensible injection adapter that operates on a [WinterTree] and requires a root
- * component with an "activity" named subcomponent.
+ * Simple extensible injection adapter that an application component with an "activity" named
+ * subcomponent.
  *
  * The adapters [createGraph] method registers the application instance on the application
  * dependency graph and the activity instance on the activity dependency graph.
@@ -20,18 +20,18 @@ import io.jentz.winter.*
  *
  */
 open class SimpleAndroidInjectionAdapter(
-    protected val tree: WinterTree
+    protected val app: WinterApplication
 ) : WinterInjection.Adapter {
 
     override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
-            is Application -> tree.open {
-                constant(tree)
+            is Application -> app.open {
+                constant(app)
                 constant(instance)
                 constant<Context>(instance)
                 block?.invoke(this)
             }
-            is Activity -> tree.open("activity", identifier = instance) {
+            is Activity -> app.open("activity", identifier = instance) {
                 constant(instance)
                 constant<Context>(instance)
                 block?.invoke(this)
@@ -42,34 +42,22 @@ open class SimpleAndroidInjectionAdapter(
 
     override fun getGraph(instance: Any): Graph {
         return when (instance) {
-            is Application -> tree.get()
-            is Activity -> tree.get(instance)
+            is Application -> app.get()
+            is Activity -> app.get(instance)
             is View -> getGraph(instance.context)
             is DependencyGraphContextWrapper -> instance.graph
             is ContextWrapper -> getGraph(instance.baseContext)
-            else -> tree.get()
+            else -> app.get()
         }
     }
 
     override fun disposeGraph(instance: Any) {
         when (instance) {
-            is Application -> tree.close()
-            is Activity -> tree.close(instance)
+            is Application -> app.close()
+            is Activity -> app.close(instance)
         }
     }
 
-}
-
-/**
- * Register a [SimpleAndroidInjectionAdapter] on this [WinterInjection] instance.
- *
- * Use the [tree] parameter if you have your own object version of [WinterTree] that should be used
- * which may be useful when Winter is used in a library.
- *
- * @param tree The tree to operate on.
- */
-fun WinterInjection.useSimpleAndroidAdapter(tree: WinterTree = GraphRegistry) {
-    adapter = SimpleAndroidInjectionAdapter(tree)
 }
 
 /**
@@ -77,6 +65,6 @@ fun WinterInjection.useSimpleAndroidAdapter(tree: WinterTree = GraphRegistry) {
  *
  * @param application The [WinterApplication] instance to be used by the adapter.
  */
-fun WinterInjection.useSimpleAndroidAdapter(application: WinterApplication) {
-    adapter = SimpleAndroidInjectionAdapter(WinterTree(application))
+fun WinterInjection.useSimpleAndroidAdapter(application: WinterApplication = Winter) {
+    adapter = SimpleAndroidInjectionAdapter(application)
 }

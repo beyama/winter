@@ -4,6 +4,11 @@ Changelog
 Version 0.7.0
 -------------
 
+* Merge WinterTree and WinterApplication
+* Remove WinterTree and GraphRegistry
+* Remove WinterApplication#createGraph in favour of WinterApplication#create that accepts paths
+* Remove WinterApplication #registerPlugin, #unregisterPlugin & unregisterAppPlugins
+* WinterApplication#component will throw an exception if the application graph is already open
 * Component qualifier is now mandatory
 * New WinterTestSession class for less boilerplate code in tests
 * New JUnit4 WinterRule that utilizes WinterTestSession

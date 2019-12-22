@@ -40,10 +40,10 @@ class Plugins private constructor(
      */
     fun isNotEmpty(): Boolean = list.isNotEmpty()
 
-    internal operator fun plus(plugin: Plugin): Plugins =
+    operator fun plus(plugin: Plugin): Plugins =
         if (contains(plugin)) this else Plugins(list + plugin)
 
-    internal operator fun minus(plugin: Plugin): Plugins =
+    operator fun minus(plugin: Plugin): Plugins =
         if (contains(plugin)) Plugins(list - plugin) else this
 
     override fun iterator(): Iterator<Plugin> = list.iterator()

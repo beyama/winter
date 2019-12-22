@@ -1,7 +1,9 @@
 package io.jentz.winter
 
 import com.nhaarman.mockitokotlin2.*
+import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugin
+import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.plugin.SimplePlugin
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -43,13 +45,12 @@ class GraphTest {
     @BeforeEach
     fun beforeEach() {
         reset(plugin)
-        Winter.unregisterAllPlugins()
-        Winter.registerPlugin(plugin)
+        Winter.plugins = Plugins(plugin)
     }
 
     @AfterEach
     fun afterEach() {
-        Winter.unregisterAllPlugins()
+        Winter.plugins = EMPTY_PLUGINS
     }
 
     @Nested
@@ -1029,7 +1030,7 @@ class GraphTest {
 
         @Test
         fun `#component should return backing component`() {
-            Winter.unregisterAllPlugins() // otherwise it will derive the component
+            Winter.plugins = EMPTY_PLUGINS // otherwise it will derive the component
             val parent = graph { subcomponent("sub") {} }
             val sub = parent.createSubgraph("sub")
             sub.component.shouldBeSameInstanceAs(parent.component.subcomponent("sub"))
@@ -1116,12 +1117,12 @@ class GraphTest {
         @Test
         fun `#dispose should run graph dispose plugins before marking graph as disposed`() {
             var called = false
-            Winter.registerPlugin(object : SimplePlugin() {
+            Winter.plugins += object : SimplePlugin() {
                 override fun graphDispose(graph: Graph) {
                     called = true
                     graph.isDisposed.shouldBeFalse()
                 }
-            })
+            }
             val graph = graph {}
             graph.dispose()
             called.shouldBeTrue()
@@ -1129,11 +1130,11 @@ class GraphTest {
 
         @Test
         fun `#dispose should ignore a call to dispose from plugin`() {
-            Winter.registerPlugin(object : SimplePlugin() {
+            Winter.plugins + object : SimplePlugin() {
                 override fun graphDispose(graph: Graph) {
                     graph.dispose()
                 }
-            })
+            }
             graph {}.dispose()
             // no StackOverflowError here
         }
