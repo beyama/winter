@@ -91,7 +91,7 @@ class Graph internal constructor(
         val baseComponent = if (plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                plugins.runGraphInitializing(parent, this)
+                plugins.forEach { it.graphInitializing(parent, this) }
             }
         } else {
             component
@@ -111,7 +111,7 @@ class Graph internal constructor(
             )
         )
 
-        plugins.runGraphInitialized(this)
+        plugins.forEach { it.graphInitialized(this) }
 
         instanceOrNullByKey(eagerDependenciesKey, Unit)?.forEach { key ->
             try {
@@ -585,7 +585,7 @@ class Graph internal constructor(
 
                 state.isDisposing = true
 
-                state.plugins.runGraphDispose(this)
+                state.plugins.forEach { it.graphDispose(this) }
 
                 state.registry.values.forEach { boundService -> boundService.dispose() }
                 state.parent?.unregisterSubgraph(this)

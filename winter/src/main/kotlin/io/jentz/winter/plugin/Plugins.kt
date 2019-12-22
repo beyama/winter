@@ -1,9 +1,5 @@
 package io.jentz.winter.plugin
 
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Graph
-import io.jentz.winter.Scope
-
 internal val EMPTY_PLUGINS = Plugins()
 
 /**
@@ -47,21 +43,5 @@ class Plugins private constructor(
         if (contains(plugin)) Plugins(list - plugin) else this
 
     override fun iterator(): Iterator<Plugin> = list.iterator()
-
-    internal fun runGraphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
-        forEach { it.graphInitializing(parentGraph, builder) }
-    }
-
-    internal fun runGraphInitialized(graph: Graph) {
-        forEach { it.graphInitialized(graph) }
-    }
-
-    internal fun runGraphDispose(graph: Graph) {
-        forEach { it.graphDispose(graph) }
-    }
-
-    internal fun runPostConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
-        forEach { it.postConstruct(graph, scope, argument, instance) }
-    }
 
 }
