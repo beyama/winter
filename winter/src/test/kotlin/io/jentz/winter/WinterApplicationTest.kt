@@ -263,6 +263,13 @@ class WinterApplicationTest {
         root.isDisposed.shouldBeTrue()
     }
 
+    @Test
+    fun `disposing the application graph should have the same effect as calling #close without path`() {
+        val graph = app.open()
+        graph.dispose()
+        app.has().shouldBeFalse()
+    }
+
     private fun openAll(vararg pathTokens: Any): Graph {
         (-1..pathTokens.lastIndex)
             .map { pathTokens.slice(0..it).toTypedArray() }

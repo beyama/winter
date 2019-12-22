@@ -303,7 +303,13 @@ open class WinterApplication() {
             )
         }
 
-        return component.createGraph(this, block).also {
+        return Graph(
+            application = this,
+            parent = null,
+            component = component,
+            onDisposeCallback = { close() },
+            block = block
+        ).also {
             state = Initialized(component, it)
         }
     }

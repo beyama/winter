@@ -43,6 +43,8 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  */
 typealias Factory<A, R> = (A) -> R
 
+internal typealias OnDisposeCallback = (Graph) -> Unit
+
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
