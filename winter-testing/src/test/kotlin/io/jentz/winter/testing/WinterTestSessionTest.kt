@@ -17,7 +17,7 @@ class WinterTestSessionTest {
     class Dependency2
     class Service(val dependency1: Dependency1, val dependency2: Dependency2)
 
-    private object TestApp : WinterApplication(block = {
+    private val app = WinterApplication {
         constant("application")
 
         subcomponent("sub") {
@@ -28,7 +28,7 @@ class WinterTestSessionTest {
                 prototype { Service(instance(), instance()) }
             }
         }
-    })
+    }
 
     @Mock private val dependency1 = Dependency1()
 
@@ -317,10 +317,10 @@ class WinterTestSessionTest {
     private fun session(
         vararg instances: Any = arrayOf(this),
         block: WinterTestSession.Builder.() -> Unit
-    ): WinterTestSession = WinterTestSession.session(*instances) {
+    ): WinterTestSession = WinterTestSession.Builder().apply {
+        application = app
         block()
-        application = TestApp
-    }
+    }.build(instances.toList())
 
     private fun WinterTestSession.test(block: WinterTestSession.() -> Unit) {
         start()
@@ -329,6 +329,6 @@ class WinterTestSessionTest {
     }
 
     private fun createAll(vararg qualifiers: Any): Graph =
-        qualifiers.fold(TestApp.createGraph()) { parent, qualifier -> parent.createSubgraph(qualifier) }
+        qualifiers.fold(app.createGraph()) { parent, qualifier -> parent.createSubgraph(qualifier) }
 
 }
