@@ -1,9 +1,5 @@
 package io.jentz.winter.junit5
 
-import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
-import io.jentz.winter.ComponentBuilderBlock
-import io.jentz.winter.Winter
-import io.jentz.winter.WinterApplication
 import io.jentz.winter.testing.WinterTestSession.Builder
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -39,64 +35,6 @@ open class WinterEachExtension(
 
     final override fun afterEach(context: ExtensionContext) {
         after(context)
-    }
-
-    companion object {
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterEachExtension {
-         *    application = MyWinterApp
-         *    extend(qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterEachExtension
-         *
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterEachExtension = WinterEachExtension {
-            this.application = application
-            extend(qualifier, block)
-        }
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterEachExtension {
-         *    application = MyWinterApp
-         *    extend(parentQualifier, qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterEachExtension
-         *
-         * @param parentQualifier The component qualifier of the parent graph.
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            parentQualifier: Any,
-            qualifier: Any,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterEachExtension = WinterEachExtension {
-            this.application = application
-            extend(parentQualifier, qualifier, block)
-        }
-
     }
 
 }

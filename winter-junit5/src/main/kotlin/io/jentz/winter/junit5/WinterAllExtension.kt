@@ -1,9 +1,5 @@
 package io.jentz.winter.junit5
 
-import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
-import io.jentz.winter.ComponentBuilderBlock
-import io.jentz.winter.Winter
-import io.jentz.winter.WinterApplication
 import io.jentz.winter.testing.WinterTestSession.Builder
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -39,64 +35,6 @@ open class WinterAllExtension(
 
     final override fun afterAll(context: ExtensionContext) {
         after(context)
-    }
-
-    companion object {
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterAllExtension {
-         *    application = MyWinterApp
-         *    extend(qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterAllExtension
-         *
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterAllExtension = WinterAllExtension {
-            this.application = application
-            extend(qualifier, block)
-        }
-
-        /**
-         * Sugar for calling:
-         * ```
-         *  WinterAllExtension {
-         *    application = MyWinterApp
-         *    extend(parentQualifier, qualifier) {
-         *      // extend graph
-         *    }
-         *  }
-         * ```
-         *
-         * @see WinterAllExtension
-         *
-         * @param parentQualifier The component qualifier of the parent graph.
-         * @param qualifier The component qualifier of the graph that should be extended.
-         * @param application The application of the graph.
-         * @param block The block that is applied to the component builder of the graph.
-         */
-        fun extend(
-            parentQualifier: Any,
-            qualifier: Any,
-            application: WinterApplication = Winter,
-            block: ComponentBuilderBlock
-        ): WinterAllExtension = WinterAllExtension {
-            this.application = application
-            extend(parentQualifier, qualifier, block)
-        }
-
     }
 
 }

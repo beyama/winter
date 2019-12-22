@@ -28,8 +28,8 @@ class WinterProcessorTest {
 
     @JvmField
     @RegisterExtension
-    val extension = WinterEachExtension.extend {
-        constant<SourceWriter>(writer, override = true)
+    val extension = WinterEachExtension {
+        extend { constant<SourceWriter>(writer, override = true) }
     }
 
     private val noArgumentInjectConstructor = forResource("NoArgumentInjectConstructor.java")
