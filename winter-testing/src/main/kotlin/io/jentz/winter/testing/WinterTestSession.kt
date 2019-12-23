@@ -373,4 +373,13 @@ class WinterTestSession private constructor(
 
     }
 
+    companion object {
+
+        fun session(
+            vararg testInstances: Any,
+            block: WinterTestSessionBlock
+        ): WinterTestSession = Builder().apply(block).build(testInstances.toList())
+
+    }
+
 }

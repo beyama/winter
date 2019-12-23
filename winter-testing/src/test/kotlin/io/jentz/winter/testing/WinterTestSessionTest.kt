@@ -17,7 +17,7 @@ class WinterTestSessionTest {
     class Dependency2
     class Service(val dependency1: Dependency1, val dependency2: Dependency2)
 
-    private val app = WinterApplication {
+    private val app =  WinterApplication {
         constant("application")
 
         subcomponent("sub") {
@@ -317,10 +317,10 @@ class WinterTestSessionTest {
     private fun session(
         vararg instances: Any = arrayOf(this),
         block: WinterTestSession.Builder.() -> Unit
-    ): WinterTestSession = WinterTestSession.Builder().apply {
-        application = app
+    ): WinterTestSession = WinterTestSession.session(*instances) {
         block()
-    }.build(instances.toList())
+        application = app
+    }
 
     private fun WinterTestSession.test(block: WinterTestSession.() -> Unit) {
         start()
