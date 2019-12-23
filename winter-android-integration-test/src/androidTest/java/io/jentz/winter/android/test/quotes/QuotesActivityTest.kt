@@ -1,8 +1,6 @@
 package io.jentz.winter.android.test.quotes
 
-import android.app.Activity
 import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -14,11 +12,9 @@ import io.jentz.winter.android.test.isNotDisplayed
 import io.jentz.winter.android.test.model.QuoteRepository
 import io.jentz.winter.android.test.viewmodel.TestViewModel
 import io.jentz.winter.android.test.viewmodel.ViewModel
-import io.jentz.winter.android.test.waitForIt
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -42,16 +38,6 @@ class QuotesActivityTest {
 
     private val viewModel = TestViewModel<QuotesViewState>()
 
-    private lateinit var activity: QuotesActivity
-
-    private lateinit var scenario: ActivityScenario<QuotesActivity>
-
-    @Before
-    fun beforeEach() {
-        scenario = activityScenarioRule.scenario
-        activity = winterRule.requireTestGraph.instance<Activity>() as QuotesActivity
-    }
-
     @Test
     fun should_retain_presentation_scope_but_dispose_activity_scope_on_orientation_change() {
         val activityGraph = winterRule.requireTestGraph
@@ -70,7 +56,7 @@ class QuotesActivityTest {
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
-        scenario.recreate()
+        activityScenarioRule.scenario.recreate()
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
@@ -86,8 +72,6 @@ class QuotesActivityTest {
         viewModel.isDisposed.shouldBeFalse()
 
         activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
-
-        waitForIt(timeoutMs = 5000) { presentationGraph.isDisposed }
 
         presentationGraph.isDisposed.shouldBeTrue()
         // WinterDisposablePlugin should dispose view model when graph gets disposed
