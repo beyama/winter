@@ -9,13 +9,13 @@ import org.junit.jupiter.api.extension.ParameterResolver
 abstract class AbstractWinterExtension(
     private val namespace: ExtensionContext.Namespace,
     private val sessionBuilder: WinterTestSession.Builder
-): ParameterResolver {
+) : ParameterResolver {
 
     protected fun before(context: ExtensionContext) {
         val instances = context.testInstances.map { it.allInstances }.orElse(emptyList())
         sessionBuilder.build(instances).apply {
+            context.session = this
             start()
-            context.getStore(namespace).put(SESSION, this)
         }
     }
 
@@ -49,8 +49,9 @@ abstract class AbstractWinterExtension(
         }
     }
 
-    private val ExtensionContext.session: WinterTestSession
+    private var ExtensionContext.session: WinterTestSession
         get() = getStore(namespace).get(SESSION, WinterTestSession::class.java)
+        set(value) = getStore(namespace).put(SESSION, value)
 
     companion object {
         private const val SESSION = "session"
