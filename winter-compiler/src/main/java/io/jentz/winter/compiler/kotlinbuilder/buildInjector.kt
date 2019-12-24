@@ -11,7 +11,11 @@ fun buildInjector(
     val targets = model.targets
     val superclassInjectorClassName = model.superclassInjectorClassName
 
-    return buildKotlinFile(generatedClassName.packageName, generatedClassName.simpleName) {
+    return buildKotlinFile(
+        packageName = generatedClassName.packageName,
+        fileName = generatedClassName.simpleName,
+        originatingElement = model.originatingElement
+    ) {
 
         import(GRAPH_CLASS_NAME)
         import(MEMBERS_INJECTOR_INTERFACE_NAME)

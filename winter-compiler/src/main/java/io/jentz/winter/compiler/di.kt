@@ -13,8 +13,8 @@ val appComponent = component {
     prototype { ProcessorConfiguration.from(instance()) }
 
     prototype<SourceWriter> {
-        val configuration: ProcessorConfiguration = instance()
-        SourceFileWriter(configuration.generatedSourcesDirectory)
+        val environment: ProcessingEnvironment = instance()
+        SourceFileWriter(environment.filer)
     }
 
     prototype { Generator(instance(), instance(), instance()) }

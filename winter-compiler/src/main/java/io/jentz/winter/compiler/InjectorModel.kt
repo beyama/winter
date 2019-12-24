@@ -4,9 +4,12 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import javax.lang.model.element.TypeElement
 
-class InjectorModel(typeElement: TypeElement, superClassWithInjector: TypeElement?) {
+class InjectorModel(
+    val originatingElement: TypeElement,
+    superClassWithInjector: TypeElement?
+) {
 
-    val typeName = typeElement.asClassName()
+    val typeName = originatingElement.asClassName()
 
     val generatedClassName = generatedClassNameForClassName(typeName)
 

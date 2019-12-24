@@ -7,7 +7,7 @@ kapt {
     }
 }
 
-sourceSets.main.kotlin.srcDir "${buildDir.absolutePath}/generated/source/kaptKotlin/main"
+sourceSets.main.kotlin.srcDir "${buildDir.absolutePath}/generated/source/kapt/main"
 
 test {
     useJUnitPlatform()

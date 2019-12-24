@@ -7,7 +7,11 @@ fun buildComponent(
         configuration: ProcessorConfiguration,
         factories: List<ServiceModel>,
         injectors: Map<TypeElement, InjectorModel>
-): KotlinFile = buildKotlinFile(configuration.generatedComponentPackage, "generatedComponent") {
+): KotlinFile = buildKotlinFile(
+    packageName = configuration.generatedComponentPackage,
+    fileName = "generatedComponent",
+    originatingElement = null
+) {
 
     import(COMPONENT_CLASS_NAME)
     import(COMPONENT_METHOD_NAME)
