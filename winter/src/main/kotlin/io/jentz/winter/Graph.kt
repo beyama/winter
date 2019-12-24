@@ -473,7 +473,7 @@ class Graph internal constructor(
                 val className = cls.name + "_WinterMembersInjector"
                 @Suppress("UNCHECKED_CAST")
                 val injectorClass = Class.forName(className) as Class<MembersInjector<T>>
-                injector = injectorClass.newInstance()
+                injector = injectorClass.getConstructor().newInstance()
                 break
             } catch (e: Exception) {
             }
@@ -485,7 +485,7 @@ class Graph internal constructor(
             throw WinterException("No members injector found for `${instance.javaClass}`.")
         }
 
-        injector.injectMembers(this, instance)
+        injector(this, instance)
 
         return instance
     }

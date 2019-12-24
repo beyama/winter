@@ -33,11 +33,11 @@ fun buildInjector(
             val graphClassName = GRAPH_CLASS_NAME.simpleName
             val targetClassName = typeName.simpleName
 
-            block("override fun injectMembers(graph: $graphClassName, target: $targetClassName)") {
+            block("override fun invoke(graph: $graphClassName, target: $targetClassName)") {
 
                 if (superclassInjectorClassName != null) {
                     appendIndent()
-                    append("$superclassInjectorClassName().injectMembers(graph, target)")
+                    append("$superclassInjectorClassName().invoke(graph, target)")
                     newLine()
                 }
 

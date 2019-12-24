@@ -43,6 +43,8 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  */
 typealias Factory<A, R> = (A) -> R
 
+typealias MembersInjector<R> = (Graph, R) -> Unit
+
 internal typealias OnDisposeCallback = (Graph) -> Unit
 
 /**

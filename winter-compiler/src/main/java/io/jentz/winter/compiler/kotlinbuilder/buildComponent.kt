@@ -90,7 +90,7 @@ private class ComponentBuilder(
                 line(createInstance)
             } else {
                 line("val instance = $createInstance")
-                line("${injectorModel.generatedClassName}().injectMembers(this, instance)")
+                line("${injectorModel.generatedClassName}().invoke(this, instance)")
                 line("instance")
             }
         }
