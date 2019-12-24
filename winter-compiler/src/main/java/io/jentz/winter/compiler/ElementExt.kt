@@ -1,6 +1,7 @@
 package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.asClassName
+import javax.inject.Inject
 import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -35,3 +36,16 @@ val VariableElement.isNotNullable: Boolean
     }
 
 val VariableElement.isNullable: Boolean get() = !isNotNullable
+
+val Element.isInjectFieldOrMethod: Boolean
+    get() = getAnnotation(Inject::class.java) != null &&
+            (kind == ElementKind.FIELD || kind == ElementKind.METHOD)
+
+val TypeElement.selfAndSuperclasses: Sequence<TypeElement>
+    get() = generateSequence(this) {
+        if (it.superclass.kind == TypeKind.DECLARED) {
+            (it.superclass as DeclaredType).asElement() as TypeElement
+        } else {
+            null
+        }
+    }

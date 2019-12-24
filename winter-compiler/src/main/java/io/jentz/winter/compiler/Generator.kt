@@ -1,12 +1,11 @@
 package io.jentz.winter.compiler
 
 import io.jentz.winter.compiler.kotlinbuilder.buildComponent
+import io.jentz.winter.compiler.kotlinbuilder.buildFactory
 import io.jentz.winter.compiler.kotlinbuilder.buildInjector
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.*
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
 
 class Generator(
     private val configuration: ProcessorConfiguration,
@@ -58,8 +57,8 @@ class Generator(
         if (factories.isEmpty() && injectors.isEmpty()) return
 
         generateInjectors()
+        generateFactories()
         generateComponent()
-
     }
 
     private fun generateInjectors() {
@@ -69,8 +68,15 @@ class Generator(
         }
     }
 
+    private fun generateFactories() {
+        factories.forEach { factory ->
+            val kCode = buildFactory(configuration, factory)
+            writer.write(kCode)
+        }
+    }
+
     private fun generateComponent() {
-        val kCode = buildComponent(configuration, factories, injectors)
+        val kCode = buildComponent(configuration, factories)
         writer.write(kCode)
     }
 
@@ -81,21 +87,10 @@ class Generator(
             )
 
         return injectors.getOrPut(typeElement) {
-            val superClasses = generateSequence(typeElement) {
-                if (it.superclass.kind == TypeKind.DECLARED) {
-                    (it.superclass as DeclaredType).asElement() as TypeElement
-                } else {
-                    null
-                }
-            }
-            val superClassWithInjector = superClasses
-                .filter { it != typeElement }
-                .firstOrNull { type ->
-                    type.enclosedElements.any {
-                        it.getAnnotation(Inject::class.java) != null &&
-                                (it.kind == ElementKind.FIELD || it.kind == ElementKind.METHOD)
-                    }
-                }
+            val superClassWithInjector = typeElement
+                .selfAndSuperclasses
+                .drop(1)
+                .firstOrNull { type -> type.enclosedElements.any(Element::isInjectFieldOrMethod) }
 
             InjectorModel(typeElement, superClassWithInjector)
         }

@@ -14,6 +14,8 @@ val COMPONENT_CLASS_NAME = ClassName("io.jentz.winter", "Component")
 val COMPONENT_METHOD_NAME = ClassName("io.jentz.winter", "component")
 val MEMBERS_INJECTOR_INTERFACE_NAME =
         ClassName("io.jentz.winter", "MembersInjector")
+val FACTORY_INTERFACE_NAME =
+        ClassName("io.jentz.winter", "Factory")
 val PROVIDER_INTERFACE_NAME = ClassName("javax.inject", "Provider")
 val LAZY_INTERFACE_NAME = ClassName("kotlin", "Lazy")
 val GENERATED_ANNOTATION_NAME = ClassName("javax.annotation", "Generated")
