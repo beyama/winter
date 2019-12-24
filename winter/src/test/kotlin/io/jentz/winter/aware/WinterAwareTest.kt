@@ -206,7 +206,7 @@ class WinterAwareTest {
 
             aware.createGraphAndInject(target)
             verify(injection.adapter, times(1)).createGraph(aware, null)
-            verify(graph, times(1)).inject(target, false)
+            verify(graph, times(1)).inject(target)
         }
 
         @Test
@@ -217,7 +217,7 @@ class WinterAwareTest {
 
             aware.inject(target)
             verify(injection.adapter, times(1)).getGraph(aware)
-            verify(graph, times(1)).inject(target, false)
+            verify(graph, times(1)).inject(target)
         }
 
     }

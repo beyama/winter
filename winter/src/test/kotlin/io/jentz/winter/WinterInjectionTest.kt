@@ -83,23 +83,17 @@ class WinterInjectionTest {
             val graph = mock<Graph>()
             whenever(adapter.getGraph(instance)).thenReturn(graph)
 
-            Injection.inject(instance, false)
-            verify(graph, times(1)).inject(instance, false)
-
-            Injection.inject(instance, true)
-            verify(graph, times(1)).inject(instance, true)
+            Injection.inject(instance)
+            verify(graph, times(1)).inject(instance)
         }
 
         @Test
-        fun `#createGraphAndInject with injection target should  create graph and call graph#inject on it`() {
+        fun `#createGraphAndInject with injection target should create graph and call graph#inject on it`() {
             val graph = mock<Graph>()
             whenever(adapter.createGraph(instance, null)).thenReturn(graph)
 
-            Injection.createGraphAndInject(instance, false)
-            verify(graph, times(1)).inject(instance, false)
-
-            Injection.createGraphAndInject(instance, true)
-            verify(graph, times(1)).inject(instance, true)
+            Injection.createGraphAndInject(instance)
+            verify(graph, times(1)).inject(instance)
         }
     }
 

@@ -9,6 +9,7 @@ fun buildInjector(
     val generatedClassName = model.generatedClassName
     val typeName = model.typeName
     val targets = model.targets
+    val superclassInjectorClassName = model.superclassInjectorClassName
 
     return buildKotlinFile(generatedClassName.packageName, generatedClassName.simpleName) {
 
@@ -29,6 +30,13 @@ fun buildInjector(
             val targetClassName = typeName.simpleName
 
             block("override fun injectMembers(graph: $graphClassName, target: $targetClassName)") {
+
+                if (superclassInjectorClassName != null) {
+                    appendIndent()
+                    append("$superclassInjectorClassName().injectMembers(graph, target)")
+                    newLine()
+                }
+
                 targets.forEach { target ->
                     when (target) {
                         is InjectTargetModel.FieldInjectTarget -> {

@@ -19,6 +19,9 @@ Version 0.7.0
 * Remove ExtendGraphExtension in favour of WinterEachExtension
 * Remove GraphLifecycleExtension in favour of WinterEachExtension
 * Remove WinterJUnit4 and WinterJUnit5 classes
+* Remove injectSuperClasses argument from all JSR330 inject methods because it is obsolete
+* Add call to superclass members injector to members injector
+* Retrieve members injector with Class.forName instead of registering them on the generated component
 
 Version 0.6.0 *2019-11-24*
 --------------------------

@@ -1,10 +1,12 @@
 package io.jentz.winter.compiler.kotlinbuilder
 
 import io.jentz.winter.compiler.*
+import javax.lang.model.element.TypeElement
 
 fun buildComponent(
         configuration: ProcessorConfiguration,
-        model: ComponentModel
+        factories: List<ServiceModel>,
+        injectors: Map<TypeElement, InjectorModel>
 ): KotlinFile = buildKotlinFile(configuration.generatedComponentPackage, "generatedComponent") {
 
     import(COMPONENT_CLASS_NAME)
@@ -14,26 +16,24 @@ fun buildComponent(
     generatedComponent {
         line()
 
-        model.injectors.forEach { (_, injector) -> membersInjector(injector) }
-
-        val grouped = model.factories.groupBy { it.scope ?: "_prototype_" }
+        val grouped = factories.groupBy { it.scope ?: "_prototype_" }
 
         grouped.forEach { (scope, factories) ->
             when (scope) {
                 "_prototype_" -> {
                     factories.forEach { factory ->
-                        prototype(factory, model.injectors[factory.typeElement])
+                        prototype(factory, injectors[factory.typeElement])
                     }
                 }
                 configuration.rootScopeAnnotation -> {
                     factories.forEach { factory ->
-                        singleton(factory, model.injectors[factory.typeElement])
+                        singleton(factory, injectors[factory.typeElement])
                     }
                 }
                 else -> {
                     subcomponent(scope) {
                         factories.forEach { factory ->
-                            singleton(factory, model.injectors[factory.typeElement])
+                            singleton(factory, injectors[factory.typeElement])
                         }
                     }
                 }
@@ -50,14 +50,6 @@ private typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
 private class ComponentBuilder(
         private val builder: KotlinBuilder
 ) {
-
-    fun membersInjector(model: InjectorModel) {
-        builder.import(model.typeName)
-        builder.import(model.generatedClassName)
-        builder.block("membersInjector<${model.typeName.simpleName}>") {
-            line("${model.generatedClassName.simpleName}()")
-        }
-    }
 
     fun prototype(serviceModel: ServiceModel, injectorModel: InjectorModel?) {
         scope("prototype", serviceModel, injectorModel)

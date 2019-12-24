@@ -249,14 +249,6 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
     }
 
     /**
-     * Register a members injector for [R].
-     */
-    inline fun <reified R : Any> membersInjector(noinline provider: Provider<MembersInjector<R>>) {
-        val key = membersInjectorKey<R>()
-        register(ProviderService(key, provider), false)
-    }
-
-    /**
      * Register a subcomponent.
      *
      * @param qualifier The qualifier of the subcomponent.

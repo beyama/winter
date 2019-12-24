@@ -33,17 +33,15 @@ fun WinterAware.createGraphAndInject(
  * This is useful in conjunction with JSR330 `Inject` annotations.
  *
  * @param instance The instance to inject into.
- * @param injectSuperClasses If true this will look for members injectors for super classes too.
  * @param block An optional builder block to pass to the component createGraph method.
  * @return The created dependency graph.
  * @throws [io.jentz.winter.WinterException] if [this] type is not supported.
  */
 fun <T : Any> WinterAware.createGraphAndInject(
     instance: T,
-    injectSuperClasses: Boolean = false,
     block: ComponentBuilderBlock? = null
 ): Graph = createGraph(block).also { graph ->
-    graph.inject(instance, injectSuperClasses)
+    graph.inject(instance)
 }
 
 /**
@@ -72,9 +70,8 @@ fun WinterAware.inject(injector: Injector) {
  *
  * @param instance The instance to retrieve the dependency graph for and inject dependencies
  *                 into.
- * @param injectSuperClasses If true this will look for members injectors for super classes too.
  * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
  */
-fun <T : Any> WinterAware.inject(instance: T, injectSuperClasses: Boolean = false) {
-    graph.inject(instance, injectSuperClasses)
+fun <T : Any> WinterAware.inject(instance: T) {
+    graph.inject(instance)
 }

@@ -5,6 +5,8 @@ import io.jentz.winter.compiler.kotlinbuilder.buildInjector
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.*
+import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeKind
 
 class Generator(
     private val configuration: ProcessorConfiguration,
@@ -12,7 +14,8 @@ class Generator(
     private val logger: Logger
 ) {
 
-    private val componentModel = ComponentModel()
+    private val factories = mutableListOf<ServiceModel>()
+    private val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
     fun process(roundEnv: RoundEnvironment) {
         roundEnv.getElementsAnnotatedWith(Inject::class.java).forEach { element ->
@@ -31,17 +34,17 @@ class Generator(
         when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
                 val executable = element as ExecutableElement
-                componentModel.factories += ServiceModel(executable)
+                factories += ServiceModel(executable)
             }
             ElementKind.FIELD -> {
                 val field = element as VariableElement
-                getOrCreateInjectorModel(element).targets +=
-                    InjectTargetModel.FieldInjectTarget(field)
+                getOrCreateInjectorModel(element)
+                    .targets += InjectTargetModel.FieldInjectTarget(field)
             }
             ElementKind.METHOD -> {
                 val method = element as ExecutableElement
-                getOrCreateInjectorModel(element).targets +=
-                    InjectTargetModel.SetterInjectTarget(method)
+                getOrCreateInjectorModel(element)
+                    .targets += InjectTargetModel.SetterInjectTarget(method)
             }
             else -> {
                 throw IllegalArgumentException(
@@ -52,7 +55,7 @@ class Generator(
     }
 
     private fun generate() {
-        if (componentModel.isEmpty()) return
+        if (factories.isEmpty() && injectors.isEmpty()) return
 
         generateInjectors()
         generateComponent()
@@ -60,14 +63,14 @@ class Generator(
     }
 
     private fun generateInjectors() {
-        componentModel.injectors.forEach { (_, injector) ->
+        injectors.forEach { (_, injector) ->
             val kCode = buildInjector(configuration, injector)
             writer.write(kCode)
         }
     }
 
     private fun generateComponent() {
-        val kCode = buildComponent(configuration, componentModel)
+        val kCode = buildComponent(configuration, factories, injectors)
         writer.write(kCode)
     }
 
@@ -76,8 +79,25 @@ class Generator(
             ?: throw IllegalArgumentException(
                 "Enclosing constructor for $fieldOrSetter must be a class"
             )
-        return componentModel.injectors.getOrPut(typeElement) {
-            InjectorModel(typeElement)
+
+        return injectors.getOrPut(typeElement) {
+            val superClasses = generateSequence(typeElement) {
+                if (it.superclass.kind == TypeKind.DECLARED) {
+                    (it.superclass as DeclaredType).asElement() as TypeElement
+                } else {
+                    null
+                }
+            }
+            val superClassWithInjector = superClasses
+                .filter { it != typeElement }
+                .firstOrNull { type ->
+                    type.enclosedElements.any {
+                        it.getAnnotation(Inject::class.java) != null &&
+                                (it.kind == ElementKind.FIELD || it.kind == ElementKind.METHOD)
+                    }
+                }
+
+            InjectorModel(typeElement, superClassWithInjector)
         }
     }
 
