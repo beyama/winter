@@ -27,7 +27,8 @@ fun buildFactory(
         val constructor = model.originatingElement
         val className = generatedClassName.simpleName
         val interfaceName =
-            "${FACTORY_INTERFACE_NAME.simpleName}<${GRAPH_CLASS_NAME.simpleName}, ${typeName.simpleName}>"
+            "${FACTORY_INTERFACE_NAME.simpleName}<${GRAPH_CLASS_NAME.simpleName}, " +
+                    "${typeName.simpleName}>"
 
         val injectorModel = model.injectorModel
 
