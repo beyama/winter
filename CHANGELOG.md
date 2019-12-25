@@ -1,6 +1,20 @@
 Changelog
 =========
 
+Version 0.7.0
+-------------
+
+* Component qualifier is now mandatory
+* New WinterTestSession class for less boilerplate code in tests
+* New JUnit4 WinterRule that utilizes WinterTestSession
+* New JUnit5 WinterEachExtension that utilizes WinterTestSession
+* New JUnit5 WinterAllExtension that utilizes WinterTestSession
+* Remove GraphLifecycleTestRule in favour of WinterRule
+* Remove ExtendGraphTestRule in favour of WinterRule
+* Remove ExtendGraphExtension in favour of WinterEachExtension
+* Remove GraphLifecycleExtension in favour of WinterEachExtension
+* Remove WinterJUnit4 and WinterJUnit5 classes
+
 Version 0.6.0 *2019-11-24*
 --------------------------
 

@@ -4,6 +4,8 @@ internal val UNINITIALIZED_VALUE = Any()
 
 const val TYPE_KEY_OF_TYPE_QUALIFIER = "__OF_TYPE__"
 
+const val APPLICATION_COMPONENT_QUALIFIER = "application"
+
 /**
  * No argument factory function signature with [Graph] as receiver.
  */
@@ -46,7 +48,7 @@ typealias Factory<A, R> = (A) -> R
  */
 internal val eagerDependenciesKey = typeKey<Set<TypeKey<Unit, Any>>>("EAGER_DEPENDENCIES")
 
-private val emptyComponent = Component(null, emptyMap(), false)
+private val emptyComponent = Component(APPLICATION_COMPONENT_QUALIFIER, emptyMap(), false)
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
@@ -61,23 +63,23 @@ fun emptyGraph(): Graph = emptyComponent.createGraph()
 /**
  * Create an instance of [Component].
  *
- * @param qualifier An optional qualifier for the component.
+ * @param qualifier A qualifier for the component.
  * @param block A builder block to register provider on the component.
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun component(
-    qualifier: Any? = null,
+    qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
     block: ComponentBuilderBlock
 ): Component = ComponentBuilder(qualifier).apply(block).build()
 
 /**
  * Create an ad-hoc instance of [Graph].
  *
- * @param qualifier An optional qualifier for the graph.
+ * @param qualifier A qualifier for the backing component.
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Any? = null, block: ComponentBuilderBlock): Graph =
+fun graph(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
 
 /**

@@ -5,7 +5,7 @@ import com.google.testing.compile.Compiler
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects.forResource
 import io.jentz.winter.compiler.kotlinbuilder.KotlinFile
-import io.jentz.winter.junit5.WinterJUnit5
+import io.jentz.winter.junit5.WinterEachExtension
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -28,8 +28,8 @@ class WinterProcessorTest {
 
     @JvmField
     @RegisterExtension
-    val extension = WinterJUnit5.extension {
-        constant<SourceWriter>(writer, override = true)
+    val extension = WinterEachExtension {
+        extend { constant<SourceWriter>(writer, override = true) }
     }
 
     private val noArgumentInjectConstructor = forResource("NoArgumentInjectConstructor.java")

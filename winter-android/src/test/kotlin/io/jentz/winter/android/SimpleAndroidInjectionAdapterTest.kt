@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import com.nhaarman.mockitokotlin2.whenever
+import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.WinterTree
@@ -42,10 +43,10 @@ class SimpleAndroidInjectionAdapterTest {
     }
 
     @Test
-    fun `#createGraph with an Application instance should open root graph with application and tree as constant`() {
+    fun `#createGraph with an Application instance should open application graph with application and tree as constant`() {
         val graph = adapter.createGraph(application, null)
 
-        graph.component.qualifier.shouldBe(null)
+        graph.component.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
         graph.instance<Application>().shouldBe(application)
         graph.instance<Context>().shouldBe(application)
         graph.instance<WinterTree>().shouldBeSameInstanceAs(tree)

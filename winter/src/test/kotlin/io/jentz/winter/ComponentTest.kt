@@ -9,11 +9,21 @@ import org.junit.jupiter.api.Test
 
 class ComponentTest {
 
-    private val testComponent = component("root") {
+    private val testComponent = component {
         prototype { Heater() }
         singleton<Pump> { Thermosiphon(instance()) }
         singleton { CoffeeMaker(instance(), instance()) }
         factory { c: Color -> Widget(c) }
+    }
+
+    @Test
+    fun `#component should create component with default qualifier`() {
+        testComponent.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
+    }
+
+    @Test
+    fun `#component should create component with given qualifier`() {
+        component("foo") {  }.qualifier.shouldBe("foo")
     }
 
     @Test
@@ -35,7 +45,7 @@ class ComponentTest {
 
     @Test
     fun `#derive should copy the qualifier of the component it is derived from when no qualifier is given`() {
-        testComponent.derive { }.qualifier.shouldBe("root")
+        testComponent.derive { }.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
     }
 
     @Test

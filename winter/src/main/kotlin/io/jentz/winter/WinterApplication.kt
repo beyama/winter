@@ -22,10 +22,13 @@ open class WinterApplication() {
      * }
      * ```
      *
-     * @param qualifier An optional qualifier for the component.
+     * @param qualifier A qualifier for the component.
      * @param block The component builder block.
      */
-    constructor(qualifier: Any? = null, block: ComponentBuilderBlock) : this() {
+    constructor(
+        qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+        block: ComponentBuilderBlock
+    ) : this() {
         component(qualifier, block)
     }
 
@@ -89,10 +92,10 @@ open class WinterApplication() {
      * Sets the application component by supplying an optional qualifier and a component builder
      * block.
      *
-     * @param qualifier The optional qualifier for the new component.
+     * @param qualifier The qualifier for the new component.
      * @param block The component builder block.
      */
-    fun component(qualifier: Any? = null, block: ComponentBuilderBlock) {
+    fun component(qualifier: Any =  APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock) {
         this.component = io.jentz.winter.component(qualifier, block)
     }
 
