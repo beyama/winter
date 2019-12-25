@@ -57,8 +57,12 @@ class Generator(
         if (factories.isEmpty() && injectors.isEmpty()) return
 
         generateInjectors()
+
         generateFactories()
-        generateComponent()
+
+        if (configuration.generatedComponentPackage != null) {
+            generateComponent()
+        }
     }
 
     private fun generateInjectors() {

@@ -9,7 +9,7 @@ fun buildComponent(
         configuration: ProcessorConfiguration,
         factories: List<ServiceModel>
 ): KotlinFile = buildKotlinFile(
-    packageName = configuration.generatedComponentPackage,
+    packageName = checkNotNull(configuration.generatedComponentPackage),
     fileName = "generatedComponent",
     originatingElement = null
 ) {
@@ -72,8 +72,9 @@ private class ComponentBuilder(
 
     fun subcomponent(scopeName: String, block: ComponentBuilderBlock) {
         builder.block("subcomponent($scopeName::class)") {
-            newLine()
+            line()
             ComponentBuilder(builder).apply(block)
+            line()
         }
     }
 

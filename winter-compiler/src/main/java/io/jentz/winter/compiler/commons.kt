@@ -7,7 +7,6 @@ import java.util.*
 
 const val OPTION_GENERATED_COMPONENT_PACKAGE = "winterGeneratedComponentPackage"
 const val OPTION_ROOT_SCOPE_ANNOTATION = "winterRootScopeAnnotation"
-const val OPTION_KAPT_KOTLIN_GENERATED = "kapt.kotlin.generated"
 
 val GRAPH_CLASS_NAME = ClassName("io.jentz.winter", "Graph")
 val COMPONENT_CLASS_NAME = ClassName("io.jentz.winter", "Component")
