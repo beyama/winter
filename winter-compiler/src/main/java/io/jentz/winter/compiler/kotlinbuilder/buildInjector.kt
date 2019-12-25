@@ -1,6 +1,8 @@
 package io.jentz.winter.compiler.kotlinbuilder
 
 import io.jentz.winter.compiler.*
+import io.jentz.winter.compiler.model.InjectTargetModel
+import io.jentz.winter.compiler.model.InjectorModel
 
 fun buildInjector(
         configuration: ProcessorConfiguration,
@@ -9,8 +11,13 @@ fun buildInjector(
     val generatedClassName = model.generatedClassName
     val typeName = model.typeName
     val targets = model.targets
+    val superclassInjectorClassName = model.superclassInjectorClassName
 
-    return buildKotlinFile(generatedClassName.packageName, generatedClassName.simpleName) {
+    return buildKotlinFile(
+        packageName = generatedClassName.packageName,
+        fileName = generatedClassName.simpleName,
+        originatingElement = model.originatingElement
+    ) {
 
         import(GRAPH_CLASS_NAME)
         import(MEMBERS_INJECTOR_INTERFACE_NAME)
@@ -28,7 +35,14 @@ fun buildInjector(
             val graphClassName = GRAPH_CLASS_NAME.simpleName
             val targetClassName = typeName.simpleName
 
-            block("override fun injectMembers(graph: $graphClassName, target: $targetClassName)") {
+            block("override fun invoke(graph: $graphClassName, target: $targetClassName)") {
+
+                if (superclassInjectorClassName != null) {
+                    appendIndent()
+                    append("$superclassInjectorClassName().invoke(graph, target)")
+                    newLine()
+                }
+
                 targets.forEach { target ->
                     when (target) {
                         is InjectTargetModel.FieldInjectTarget -> {

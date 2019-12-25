@@ -20,7 +20,21 @@ enum class Color { RED, GREEN, BLUE }
 
 class Widget(val color: Color)
 
-open class Service
+open class Service {
+    var property = 0
+}
+
+@Suppress("unused", "ClassName")
+class Service_WinterMembersInjector : MembersInjector<Service> {
+    override fun invoke(graph: Graph, target: Service) {
+        target.property = 42
+    }
+}
+
+@Suppress("unused", "ClassName")
+class Service_WinterFactory : Factory<Graph, Service> {
+    override fun invoke(graph: Graph): Service = Service()
+}
 
 class ExtendedService : Service()
 

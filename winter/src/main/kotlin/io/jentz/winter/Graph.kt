@@ -460,37 +460,34 @@ class Graph internal constructor(
      * Inject members of class [T].
      *
      * @param instance The instance to inject members to.
-     * @param injectSuperClasses If true this will look for members injectors for super classes too.
      *
      * @throws WinterException When no members injector was found.
      */
-    @JvmOverloads
-    fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false): T {
-        synchronizedMap {
-            var found = false
-            var cls: Class<*>? = instance.javaClass
+    fun <T : Any> inject(instance: T): T {
+        var injector: MembersInjector<T>? = null
+        var cls: Class<*>? = instance.javaClass
 
-            while (cls != null) {
-                val key = membersInjectorKey(cls)
-                val service = it.serviceOrNull(key)
-
-                if (service != null) {
-                    found = true
-                    val injector = service.instance(Unit)
-                    injector.injectMembers(this, instance)
-                }
-
-                if (!injectSuperClasses) break
-
-                cls = cls.superclass
+        while (cls != null) {
+            @Suppress("EmptyCatchBlock")
+            try {
+                val className = cls.name + "_WinterMembersInjector"
+                @Suppress("UNCHECKED_CAST")
+                val injectorClass = Class.forName(className) as Class<MembersInjector<T>>
+                injector = injectorClass.getConstructor().newInstance()
+                break
+            } catch (e: Exception) {
             }
 
-            if (!found) {
-                throw WinterException("No members injector found for `${instance.javaClass}`.")
-            }
-
-            return instance
+            cls = cls.superclass
         }
+
+        if (injector == null) {
+            throw WinterException("No members injector found for `${instance.javaClass}`.")
+        }
+
+        injector(this, instance)
+
+        return instance
     }
 
     /**

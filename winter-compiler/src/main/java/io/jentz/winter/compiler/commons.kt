@@ -7,13 +7,14 @@ import java.util.*
 
 const val OPTION_GENERATED_COMPONENT_PACKAGE = "winterGeneratedComponentPackage"
 const val OPTION_ROOT_SCOPE_ANNOTATION = "winterRootScopeAnnotation"
-const val OPTION_KAPT_KOTLIN_GENERATED = "kapt.kotlin.generated"
 
 val GRAPH_CLASS_NAME = ClassName("io.jentz.winter", "Graph")
 val COMPONENT_CLASS_NAME = ClassName("io.jentz.winter", "Component")
 val COMPONENT_METHOD_NAME = ClassName("io.jentz.winter", "component")
 val MEMBERS_INJECTOR_INTERFACE_NAME =
         ClassName("io.jentz.winter", "MembersInjector")
+val FACTORY_INTERFACE_NAME =
+        ClassName("io.jentz.winter", "Factory")
 val PROVIDER_INTERFACE_NAME = ClassName("javax.inject", "Provider")
 val LAZY_INTERFACE_NAME = ClassName("kotlin", "Lazy")
 val GENERATED_ANNOTATION_NAME = ClassName("javax.annotation", "Generated")

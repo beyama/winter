@@ -26,7 +26,7 @@ class MembersOnlyTest {
 
     @Test
     fun `Test extended members injector only`() {
-        val i = graph.inject(OnlyInjectedMembersExtended(), injectSuperClasses = true)
+        val i = graph.inject(OnlyInjectedMembersExtended())
         assertNotNull(i.field0)
         assertNotNull(i.field1)
         assertNotNull(i.field2)

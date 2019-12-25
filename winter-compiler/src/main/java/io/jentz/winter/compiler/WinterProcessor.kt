@@ -13,6 +13,7 @@ class WinterProcessor : AbstractProcessor() {
 
     private val injector = Injector()
     private val logger: Logger by injector.instance()
+    private val configuration: ProcessorConfiguration by injector.instance()
     private val generatorProvider: () -> Generator by injector.provider()
 
     override fun init(processingEnv: ProcessingEnvironment) {
@@ -28,7 +29,12 @@ class WinterProcessor : AbstractProcessor() {
 
     override fun getSupportedOptions(): Set<String> = setOf(
         OPTION_GENERATED_COMPONENT_PACKAGE,
-        OPTION_ROOT_SCOPE_ANNOTATION
+        OPTION_ROOT_SCOPE_ANNOTATION,
+        if (configuration.generatedComponentPackage == null) {
+            "org.gradle.annotation.processing.isolating"
+        } else {
+            "org.gradle.annotation.processing.aggregating"
+        }
     )
 
     override fun process(

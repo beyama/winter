@@ -5,10 +5,7 @@ import io.jentz.winter.compiler.GENERATED_ANNOTATION_NAME
 import io.jentz.winter.compiler.ISO8601_FORMAT
 import io.jentz.winter.compiler.WinterProcessor
 import io.jentz.winter.compiler.now
-import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets.*
-import java.nio.file.Files
-import java.nio.file.Path
+import javax.lang.model.element.Element
 
 private const val SPACES_PER_INDENTATION_LEVEL = 4
 
@@ -25,31 +22,9 @@ data class KotlinFile(
         val packageName: String,
         val fileName: String,
         val imports: Set<ClassName>,
-        val code: String
-) {
-
-    fun writeTo(directory: Path) {
-        require(Files.notExists(directory) || Files.isDirectory(directory)) {
-            "path $directory exists but is not a directory."
-        }
-        var outputDirectory = directory
-        if (packageName.isNotEmpty()) {
-            for (packageComponent in packageName.split('.').dropLastWhile { it.isEmpty() }) {
-                outputDirectory = outputDirectory.resolve(packageComponent)
-            }
-        }
-
-        Files.createDirectories(outputDirectory)
-
-        val outputPath = outputDirectory.resolve("$fileName.kt")
-        OutputStreamWriter(Files.newOutputStream(outputPath), UTF_8).use { writer ->
-            writer.write(code)
-            writer.close()
-        }
-    }
-
-}
-
+        val code: String,
+        val originatingElement: Element?
+)
 
 abstract class KotlinBuilder {
 
@@ -129,7 +104,8 @@ val DEFAULT_NAMESPACES = listOf("java.lang", "kotlin")
 
 class KotlinFileBuilder(
         private val packageName: String,
-        private val fileName: String
+        private val fileName: String,
+        private val originatingElement: Element?
 ) : KotlinBuilder() {
 
     fun build(): KotlinFile {
@@ -150,7 +126,7 @@ class KotlinFileBuilder(
             append(builder.toString())
             newLine()
         }
-        return KotlinFile(packageName, fileName, imports, code)
+        return KotlinFile(packageName, fileName, imports, code, originatingElement)
     }
 
 }
@@ -161,8 +137,9 @@ fun buildKotlinCode(block: KotlinBuilderBlock): KotlinCode =
 fun buildKotlinFile(
         packageName: String,
         fileName: String,
+        originatingElement: Element?,
         block: KotlinFileBuilderBlock
-): KotlinFile = KotlinFileBuilder(packageName, fileName).apply(block).build()
+): KotlinFile = KotlinFileBuilder(packageName, fileName, originatingElement).apply(block).build()
 
 fun KotlinBuilder.generatedAnnotation(isAnnotationAvailable: Boolean) {
     val processorName = WinterProcessor::class.java.name

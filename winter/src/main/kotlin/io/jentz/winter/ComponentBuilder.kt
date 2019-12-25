@@ -249,11 +249,19 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
     }
 
     /**
-     * Register a members injector for [R].
+     * Loads the generated factory of the given type.
+     *
+     * Useful in conjunction with a scope method like:
+     *
+     * ```
+     * singleton<Service>(factory = generated)
+     * ```
      */
-    inline fun <reified R : Any> membersInjector(noinline provider: Provider<MembersInjector<R>>) {
-        val key = membersInjectorKey<R>()
-        register(ProviderService(key, provider), false)
+    inline fun <reified R : Any> generated(): GFactory0<R> {
+        val factoryName = R::class.java.name + "_WinterFactory"
+        @Suppress("UNCHECKED_CAST")
+        val factory = Class.forName(factoryName) as Class<Factory<Graph, R>>
+        return factory.getConstructor().newInstance()
     }
 
     /**

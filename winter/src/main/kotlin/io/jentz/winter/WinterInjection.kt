@@ -90,17 +90,15 @@ open class WinterInjection {
      * This is useful in conjunction with JSR330 `Inject` annotations.
      *
      * @param instance The instance to create a graph for and to inject into.
-     * @param injectSuperClasses If true this will look for members injectors for super classes too.
      * @param block An optional builder block to pass to the component createGraph method.
      * @return The created dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun <T : Any> createGraphAndInject(
         instance: T,
-        injectSuperClasses: Boolean = false,
         block: ComponentBuilderBlock? = null
     ): Graph = createGraph(instance, block).also { graph ->
-        graph.inject(instance, injectSuperClasses)
+        graph.inject(instance)
     }
 
     /**
@@ -140,11 +138,10 @@ open class WinterInjection {
      *
      * @param instance The instance to retrieve the dependency graph for and inject dependencies
      *                 into.
-     * @param injectSuperClasses If true this will look for members injectors for super classes too.
      * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
      */
-    fun <T : Any> inject(instance: T, injectSuperClasses: Boolean = false) {
-        getGraph(instance).inject(instance, injectSuperClasses)
+    fun <T : Any> inject(instance: T) {
+        getGraph(instance).inject(instance)
     }
 
 }

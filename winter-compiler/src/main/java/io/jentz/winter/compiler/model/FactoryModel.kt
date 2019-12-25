@@ -1,16 +1,38 @@
-package io.jentz.winter.compiler
+package io.jentz.winter.compiler.model
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
+import io.jentz.winter.compiler.*
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
+import javax.inject.Named
 import javax.inject.Scope
+import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-class ServiceModel(val constructor: ExecutableElement) {
-    val typeElement = constructor.enclosingElement as TypeElement
+class FactoryModel(val originatingElement: ExecutableElement) {
+
+    val typeElement = originatingElement.enclosingElement as TypeElement
+
     val typeName = typeElement.asClassName()
+
     val scope: String?
+
+    val qualifier: String? = typeElement
+        .getAnnotation(Named::class.java)
+        ?.value
+        ?.takeIf { it.isNotBlank() }
+
+    val generatedClassName = ClassName(
+        typeName.packageName,
+        "${typeName.simpleNames.joinToString("_")}_WinterFactory"
+    )
+
+    val injectorModel = typeElement
+        .selfAndSuperclasses
+        .firstOrNull { it.enclosedElements.any(Element::isInjectFieldOrMethod) }
+        ?.let { InjectorModel(it, null) }
 
     init {
         if (typeElement.isInnerClass && !typeElement.isStatic) {

@@ -43,6 +43,8 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
  */
 typealias Factory<A, R> = (A) -> R
 
+typealias MembersInjector<R> = (Graph, R) -> Unit
+
 internal typealias OnDisposeCallback = (Graph) -> Unit
 
 /**
@@ -83,32 +85,6 @@ fun component(
  */
 fun graph(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
-
-/**
- * Returns [TypeKey] for [MembersInjector] for type [T].
- *
- * Used in conjunction with JSR-330 annotation processor.
- */
-inline fun <reified T> membersInjectorKey(): TypeKey<Unit, MembersInjector<T>> {
-    /**
-     * We use a compound type key without generics to store and retrieve members injectors because
-     * they are cheaper than class type keys with generics. But we retrieve them from a service
-     * of type BoundService<Unit, MembersInjector<T>> hence this cast.
-     */
-    @Suppress("UNCHECKED_CAST")
-    return CompoundClassTypeKey(T::class.java, MembersInjector::class.java)
-            as TypeKey<Unit, MembersInjector<T>>
-}
-
-internal fun membersInjectorKey(clazz: Class<*>): TypeKey<Unit, MembersInjector<Any>> {
-    /**
-     * This is used internally to retrieve members injectors by Java class.
-     * @see membersInjectorKey for more details.
-     */
-    @Suppress("UNCHECKED_CAST")
-    return CompoundClassTypeKey(clazz, MembersInjector::class.java)
-            as TypeKey<Unit, MembersInjector<Any>>
-}
 
 /**
  * Returns [TypeKey] for type [R].
