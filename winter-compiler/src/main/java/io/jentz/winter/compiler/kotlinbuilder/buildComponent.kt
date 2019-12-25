@@ -3,11 +3,11 @@ package io.jentz.winter.compiler.kotlinbuilder
 import io.jentz.winter.compiler.COMPONENT_CLASS_NAME
 import io.jentz.winter.compiler.COMPONENT_METHOD_NAME
 import io.jentz.winter.compiler.ProcessorConfiguration
-import io.jentz.winter.compiler.ServiceModel
+import io.jentz.winter.compiler.FactoryModel
 
 fun buildComponent(
         configuration: ProcessorConfiguration,
-        factories: List<ServiceModel>
+        factories: List<FactoryModel>
 ): KotlinFile = buildKotlinFile(
     packageName = checkNotNull(configuration.generatedComponentPackage),
     fileName = "generatedComponent",
@@ -56,18 +56,18 @@ private class ComponentBuilder(
         private val builder: KotlinBuilder
 ) {
 
-    fun prototype(serviceModel: ServiceModel) {
-        scope("prototype", serviceModel)
+    fun prototype(factoryModel: FactoryModel) {
+        scope("prototype", factoryModel)
     }
 
-    fun singleton(serviceModel: ServiceModel) {
-        scope("singleton", serviceModel)
+    fun singleton(factoryModel: FactoryModel) {
+        scope("singleton", factoryModel)
     }
 
-    private fun scope(scopeName: String, serviceModel: ServiceModel) {
-        val typeName = serviceModel.typeName
+    private fun scope(scopeName: String, factoryModel: FactoryModel) {
+        val typeName = factoryModel.typeName
         builder.import(typeName)
-        builder.line("$scopeName(factory = ${serviceModel.generatedClassName}())")
+        builder.line("$scopeName(factory = ${factoryModel.generatedClassName}())")
     }
 
     fun subcomponent(scopeName: String, block: ComponentBuilderBlock) {

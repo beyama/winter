@@ -3,11 +3,11 @@ package io.jentz.winter.compiler.kotlinbuilder
 import io.jentz.winter.compiler.FACTORY_INTERFACE_NAME
 import io.jentz.winter.compiler.GRAPH_CLASS_NAME
 import io.jentz.winter.compiler.ProcessorConfiguration
-import io.jentz.winter.compiler.ServiceModel
+import io.jentz.winter.compiler.FactoryModel
 
 fun buildFactory(
         configuration: ProcessorConfiguration,
-        model: ServiceModel
+        model: FactoryModel
 ): KotlinFile {
     val generatedClassName = model.generatedClassName
     val typeName = model.typeName

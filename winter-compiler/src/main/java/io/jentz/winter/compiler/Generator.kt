@@ -13,7 +13,7 @@ class Generator(
     private val logger: Logger
 ) {
 
-    private val factories = mutableListOf<ServiceModel>()
+    private val factories = mutableListOf<FactoryModel>()
     private val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
     fun process(roundEnv: RoundEnvironment) {
@@ -33,7 +33,7 @@ class Generator(
         when (element.kind) {
             ElementKind.CONSTRUCTOR -> {
                 val executable = element as ExecutableElement
-                factories += ServiceModel(executable)
+                factories += FactoryModel(executable)
             }
             ElementKind.FIELD -> {
                 val field = element as VariableElement

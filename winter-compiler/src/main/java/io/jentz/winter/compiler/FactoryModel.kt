@@ -9,7 +9,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-class ServiceModel(val originatingElement: ExecutableElement) {
+class FactoryModel(val originatingElement: ExecutableElement) {
 
     val typeElement = originatingElement.enclosingElement as TypeElement
 
