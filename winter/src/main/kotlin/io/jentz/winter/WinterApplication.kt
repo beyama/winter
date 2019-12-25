@@ -239,7 +239,7 @@ open class WinterApplication() {
      *
      * @return The created [Graph].
      *
-     * @throws WinterExcepWhen application component is not set or path can not be resolved.
+     * @throws WinterException when application component is not set or path can not be resolved.
      */
     fun create(
         vararg path: Any,
