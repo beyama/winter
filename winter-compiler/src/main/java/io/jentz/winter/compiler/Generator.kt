@@ -3,6 +3,9 @@ package io.jentz.winter.compiler
 import io.jentz.winter.compiler.kotlinbuilder.buildComponent
 import io.jentz.winter.compiler.kotlinbuilder.buildFactory
 import io.jentz.winter.compiler.kotlinbuilder.buildInjector
+import io.jentz.winter.compiler.model.FactoryModel
+import io.jentz.winter.compiler.model.InjectTargetModel
+import io.jentz.winter.compiler.model.InjectorModel
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.*

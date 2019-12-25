@@ -1,4 +1,4 @@
-package io.jentz.winter.compiler
+package io.jentz.winter.compiler.model
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName

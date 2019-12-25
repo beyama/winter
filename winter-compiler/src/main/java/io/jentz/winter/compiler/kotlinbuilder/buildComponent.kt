@@ -3,7 +3,7 @@ package io.jentz.winter.compiler.kotlinbuilder
 import io.jentz.winter.compiler.COMPONENT_CLASS_NAME
 import io.jentz.winter.compiler.COMPONENT_METHOD_NAME
 import io.jentz.winter.compiler.ProcessorConfiguration
-import io.jentz.winter.compiler.FactoryModel
+import io.jentz.winter.compiler.model.FactoryModel
 
 fun buildComponent(
         configuration: ProcessorConfiguration,

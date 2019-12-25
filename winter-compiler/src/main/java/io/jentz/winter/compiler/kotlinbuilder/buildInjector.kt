@@ -1,6 +1,8 @@
 package io.jentz.winter.compiler.kotlinbuilder
 
 import io.jentz.winter.compiler.*
+import io.jentz.winter.compiler.model.InjectTargetModel
+import io.jentz.winter.compiler.model.InjectorModel
 
 fun buildInjector(
         configuration: ProcessorConfiguration,

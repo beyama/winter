@@ -1,7 +1,8 @@
-package io.jentz.winter.compiler
+package io.jentz.winter.compiler.model
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
+import io.jentz.winter.compiler.*
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import javax.inject.Scope

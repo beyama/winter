@@ -1,5 +1,6 @@
-package io.jentz.winter.compiler
+package io.jentz.winter.compiler.model
 
+import io.jentz.winter.compiler.isPrivate
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
