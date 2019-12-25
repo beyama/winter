@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
@@ -249,5 +250,13 @@ class ComponentBuilderTest {
             }
         }
     }
+
+    @Test
+    fun `#generated should load generated factory for class`() {
+        component {
+            generated<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+        }
+    }
+
 
 }

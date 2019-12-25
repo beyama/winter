@@ -249,6 +249,22 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
     }
 
     /**
+     * Loads the generated factory of the given type.
+     *
+     * Useful in conjunction with a scope method like:
+     *
+     * ```
+     * singleton<Service>(factory = generated)
+     * ```
+     */
+    inline fun <reified R : Any> generated(): GFactory0<R> {
+        val factoryName = R::class.java.name + "_WinterFactory"
+        @Suppress("UNCHECKED_CAST")
+        val factory = Class.forName(factoryName) as Class<Factory<Graph, R>>
+        return factory.getConstructor().newInstance()
+    }
+
+    /**
      * Register a subcomponent.
      *
      * @param qualifier The qualifier of the subcomponent.
