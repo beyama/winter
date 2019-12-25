@@ -50,6 +50,30 @@ class GeneratedComponentTest : BaseProcessorTest() {
     }
 
     @Test
+    fun `should generate component for named singleton inject constructor`() {
+        compilerWithOptions(ARG_GENERATED_COMPONENT)
+            .compileSuccessful("NamedSingletonInjectConstructor.java")
+
+        generatedFile(GENERATED_COMPONENT).shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component
+        |import io.jentz.winter.component
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |val generatedComponent: Component = component {
+        |
+        |    singleton(qualifier = "variant1", factory = io.jentz.winter.compilertest.NamedSingletonInjectConstructor_WinterFactory())
+        |
+        |}
+        |""".trimMargin())
+    }
+
+    @Test
     fun `should register class with scope annotation in subcomponent`() {
         compilerWithOptions(ARG_GENERATED_COMPONENT)
             .compileSuccessful("WithCustomApplicationScope.java")

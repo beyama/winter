@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.asClassName
 import io.jentz.winter.compiler.*
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
+import javax.inject.Named
 import javax.inject.Scope
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
@@ -17,6 +18,11 @@ class FactoryModel(val originatingElement: ExecutableElement) {
     val typeName = typeElement.asClassName()
 
     val scope: String?
+
+    val qualifier: String? = typeElement
+        .getAnnotation(Named::class.java)
+        ?.value
+        ?.takeIf { it.isNotBlank() }
 
     val generatedClassName = ClassName(
         typeName.packageName,

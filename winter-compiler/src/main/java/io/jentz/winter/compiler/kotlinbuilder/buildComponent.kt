@@ -66,8 +66,9 @@ private class ComponentBuilder(
 
     private fun scope(scopeName: String, factoryModel: FactoryModel) {
         val typeName = factoryModel.typeName
+        val qualifier = factoryModel.qualifier?.let { "qualifier = \"$it\", " } ?: ""
         builder.import(typeName)
-        builder.line("$scopeName(factory = ${factoryModel.generatedClassName}())")
+        builder.line("$scopeName(${qualifier}factory = ${factoryModel.generatedClassName}())")
     }
 
     fun subcomponent(scopeName: String, block: ComponentBuilderBlock) {
