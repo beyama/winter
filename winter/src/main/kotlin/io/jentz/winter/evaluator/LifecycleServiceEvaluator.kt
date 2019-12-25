@@ -91,7 +91,7 @@ internal class LifecycleServiceEvaluator(
 
                 if (instance != null && argument != null) {
                     service.postConstruct(argument, instance)
-                    plugins.runPostConstruct(graph, service.scope, argument, instance)
+                    plugins.forEach { it.postConstruct(graph, service.scope, argument, instance) }
                 }
             }
         } finally {

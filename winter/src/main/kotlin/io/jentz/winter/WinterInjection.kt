@@ -53,9 +53,9 @@ open class WinterInjection {
     /**
      * Set the application specific [adapter][Adapter].
      *
-     * Default adapter is [ApplicationGraphOnlyAdapter] that operates on [GraphRegistry].
+     * Default adapter is [ApplicationGraphOnlyAdapter] that operates on [Winter].
      */
-    var adapter: Adapter = ApplicationGraphOnlyAdapter(GraphRegistry)
+    var adapter: Adapter = ApplicationGraphOnlyAdapter(Winter)
 
     /**
      * Create and return dependency graph for [instance].

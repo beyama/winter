@@ -10,17 +10,15 @@ import org.junit.jupiter.api.Test
 
 class ApplicationGraphOnlyAdapterTest {
 
-    private val testApplication = WinterApplication {}
+    private val app = WinterApplication {}
 
-    private val tree = WinterTree(testApplication)
-
-    private val adapter = ApplicationGraphOnlyAdapter(tree)
+    private val adapter = ApplicationGraphOnlyAdapter(app)
 
     private val injection = WinterInjection()
 
     @BeforeEach
     fun beforeEach() {
-        tree.closeIfOpen()
+        app.closeIfOpen()
     }
 
     @Test
@@ -30,32 +28,32 @@ class ApplicationGraphOnlyAdapterTest {
 
     @Test
     fun `#getGraph should return root graph for any argument`() {
-        val graph = tree.open()
+        val graph = app.open()
         repeat(2) { adapter.getGraph(Any()).shouldBeSameInstanceAs(graph) }
     }
 
     @Test
     fun `#createGraph should open root graph`() {
         adapter.createGraph(Any(), null)
-        tree.has().shouldBeTrue()
+        app.has().shouldBeTrue()
     }
 
     @Test
     fun `#createGraph should apply builder block`() {
         adapter.createGraph(Any()) { constant("") }
-        tree.get().component.shouldContainService(typeKey<String>())
+        app.get().component.shouldContainService(typeKey<String>())
     }
 
     @Test
     fun `#createGraph should throw an exception if root graph is already open`() {
-        tree.open()
+        app.open()
         shouldThrow<WinterException> { adapter.createGraph(Any(), null) }
     }
 
     @Test
     fun `#disposeGraph should dispose root graph`() {
-        tree.open()
-        expectValueToChange(true, false, { tree.has() }) {
+        app.open()
+        expectValueToChange(true, false, { app.has() }) {
             adapter.disposeGraph(Any())
         }
     }
@@ -67,18 +65,18 @@ class ApplicationGraphOnlyAdapterTest {
 
     @Test
     fun `#useApplicationGraphOnlyAdapter with tree should register adapter with given tree`() {
-        injection.useApplicationGraphOnlyAdapter(tree)
+        injection.useApplicationGraphOnlyAdapter(app)
         injection.adapter.shouldBeInstanceOf<ApplicationGraphOnlyAdapter>()
-        tree.open()
-        injection.adapter.getGraph(Any()).shouldBeSameInstanceAs(tree.get())
+        app.open()
+        injection.adapter.getGraph(Any()).shouldBeSameInstanceAs(app.get())
     }
 
     @Test
     fun `#useApplicationGraphOnlyAdapter with application should register adapter with application`() {
-        injection.useApplicationGraphOnlyAdapter(testApplication)
+        injection.useApplicationGraphOnlyAdapter(app)
         injection.adapter.shouldBeInstanceOf<ApplicationGraphOnlyAdapter>()
         injection.adapter.createGraph(Any(), null)
-            .component.shouldBeSameInstanceAs(testApplication.component)
+            .component.shouldBeSameInstanceAs(app.component)
     }
 
 }

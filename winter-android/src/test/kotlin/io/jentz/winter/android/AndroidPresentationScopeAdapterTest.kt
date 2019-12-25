@@ -9,7 +9,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.jentz.winter.APPLICATION_COMPONENT_QUALIFIER
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
-import io.jentz.winter.WinterTree
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -30,20 +29,18 @@ class AndroidPresentationScopeAdapterTest {
     @Mock private lateinit var view: View
     @Mock private lateinit var contextWrapper: ContextWrapper
 
-    private val testApplication = WinterApplication {
+    private val app = WinterApplication {
         subcomponent("presentation") {
             subcomponent("activity") {
             }
         }
     }
 
-    private val tree = WinterTree(testApplication)
-
-    private val adapter = AndroidPresentationScopeAdapter(tree)
+    private val adapter = AndroidPresentationScopeAdapter(app)
 
     @Before
     fun beforeEach() {
-        tree.closeIfOpen()
+        app.closeIfOpen()
     }
 
     @Test
@@ -53,7 +50,6 @@ class AndroidPresentationScopeAdapterTest {
         graph.component.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
         graph.instance<Application>().shouldBe(application)
         graph.instance<Context>().shouldBe(application)
-        graph.instance<WinterTree>().shouldBeSameInstanceAs(tree)
     }
 
     @Test
@@ -69,7 +65,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance should open presentation and activity graph with activity as constant`() {
-        tree.open()
+        app.open()
         val graph = adapter.createGraph(activity, null)
 
         graph.component.qualifier.shouldBe("activity")
@@ -81,7 +77,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance and a builder block should apply that builder block to component init`() {
-        tree.open()
+        app.open()
         val instance = Any()
         val graph = adapter.createGraph(activity) {
             constant(instance)
@@ -99,23 +95,23 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with application should get graph from tree`() {
-        val graph = tree.open()
+        val graph = app.open()
         adapter.getGraph(application).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with activity should get graph from tree`() {
         val presentationIdentifier = activity.javaClass
-        tree.open()
-        tree.open("presentation", identifier = presentationIdentifier)
+        app.open()
+        app.open("presentation", identifier = presentationIdentifier)
 
-        val graph = tree.open(presentationIdentifier, "activity", identifier = activity)
+        val graph = app.open(presentationIdentifier, "activity", identifier = activity)
         adapter.getGraph(activity).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = testApplication.createGraph()
+        val graph = app.create()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
@@ -123,51 +119,51 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with DependencyGraphContextWrapper should get graph from wrapper `() {
-        val graph = tree.open()
+        val graph = app.open()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with ContextWrapper should get graph from base context`() {
-        val graph = tree.open()
+        val graph = app.open()
         whenever(contextWrapper.baseContext).thenReturn(application)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#disposeGraph with Application instance should close root graph`() {
-        tree.open()
+        app.open()
         adapter.disposeGraph(application)
-        tree.has().shouldBeFalse()
+        app.has().shouldBeFalse()
     }
 
     @Test
     fun `#disposeGraph with Activity instance should only close Activity graph`() {
         val presentationIdentifier = activity.javaClass
-        tree.open()
-        tree.open("presentation", identifier = presentationIdentifier)
-        tree.open(presentationIdentifier, "activity", identifier = activity)
+        app.open()
+        app.open("presentation", identifier = presentationIdentifier)
+        app.open(presentationIdentifier, "activity", identifier = activity)
 
-        tree.has(presentationIdentifier).shouldBeTrue()
-        tree.has(presentationIdentifier, activity).shouldBeTrue()
+        app.has(presentationIdentifier).shouldBeTrue()
+        app.has(presentationIdentifier, activity).shouldBeTrue()
         adapter.disposeGraph(activity)
-        tree.has(presentationIdentifier).shouldBeTrue()
-        tree.has(presentationIdentifier, activity).shouldBeFalse()
+        app.has(presentationIdentifier).shouldBeTrue()
+        app.has(presentationIdentifier, activity).shouldBeFalse()
     }
 
     @Test
     fun `#disposeGraph with Activity instance should close Activity graph when Activity is finishing`() {
         val presentationIdentifier = activity.javaClass
-        tree.open()
-        tree.open("presentation", identifier = presentationIdentifier)
-        tree.open(presentationIdentifier, "activity", identifier = activity)
+        app.open()
+        app.open("presentation", identifier = presentationIdentifier)
+        app.open(presentationIdentifier, "activity", identifier = activity)
 
         whenever(activity.isFinishing).thenReturn(true)
 
-        tree.has(presentationIdentifier).shouldBeTrue()
+        app.has(presentationIdentifier).shouldBeTrue()
         adapter.disposeGraph(activity)
-        tree.has(presentationIdentifier).shouldBeFalse()
+        app.has(presentationIdentifier).shouldBeFalse()
     }
 
 }

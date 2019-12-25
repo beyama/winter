@@ -14,8 +14,7 @@ class Graph internal constructor(
     application: WinterApplication,
     parent: Graph?,
     component: Component,
-    // only set for graphs that are managed (opened) by the parent graph
-    private val identifier: Any?,
+    onDisposeCallback: OnDisposeCallback?,
     block: ComponentBuilderBlock?
 ) {
 
@@ -28,7 +27,8 @@ class Graph internal constructor(
             val application: WinterApplication,
             val plugins: Plugins,
             val serviceEvaluator: ServiceEvaluator,
-            val registry: MutableMap<TypeKey<*, *>, BoundService<*, *>> = mutableMapOf()
+            val registry: MutableMap<TypeKey<*, *>, BoundService<*, *>> = mutableMapOf(),
+            val onDisposeCallback: OnDisposeCallback?
         ) : State() {
             var isDisposing = false
 
@@ -91,7 +91,7 @@ class Graph internal constructor(
         val baseComponent = if (plugins.isNotEmpty() || block != null) {
             component.derive {
                 block?.invoke(this)
-                plugins.runGraphInitializing(parent, this)
+                plugins.forEach { it.graphInitializing(parent, this) }
             }
         } else {
             component
@@ -108,10 +108,11 @@ class Graph internal constructor(
                 component = baseComponent,
                 plugins = plugins,
                 checkForCyclicDependencies = application.checkForCyclicDependencies
-            )
+            ),
+            onDisposeCallback = onDisposeCallback
         )
 
-        plugins.runGraphInitialized(this)
+        plugins.forEach { it.graphInitialized(this) }
 
         instanceOrNullByKey(eagerDependenciesKey, Unit)?.forEach { key ->
             try {
@@ -542,9 +543,21 @@ class Graph internal constructor(
             )
         }
 
-        val graph = Graph(state.application, this, instance(subcomponentQualifier), name, block)
-        state.registry[key] = BoundGraphService(key, graph)
-        graph
+        Graph(
+            application = state.application,
+            parent = this,
+            component = instance(subcomponentQualifier),
+            onDisposeCallback = {
+                synchronizedFold({}, { state ->
+                    if (!state.isDisposing) {
+                        state.registry.remove(key)
+                    }
+                })
+            },
+            block = block
+        ).also {
+            state.registry[key] = BoundGraphService(key, it)
+        }
     }
 
     /**
@@ -562,15 +575,6 @@ class Graph internal constructor(
         }
     }
 
-    private fun unregisterSubgraph(sub: Graph) {
-        val identifier = sub.identifier ?: return
-
-        synchronizedFold({}, { state ->
-            if (state.isDisposing) return
-            state.registry.remove(typeKey<Graph>(identifier))
-        })
-    }
-
     /**
      * Runs [graph dispose plugins][io.jentz.winter.plugin.Plugin.graphDispose] and marks this graph
      * as disposed. All resources get released and every retrieval method will throw an exception
@@ -585,10 +589,11 @@ class Graph internal constructor(
 
                 state.isDisposing = true
 
-                state.plugins.runGraphDispose(this)
+                state.plugins.forEach { it.graphDispose(this) }
 
                 state.registry.values.forEach { boundService -> boundService.dispose() }
-                state.parent?.unregisterSubgraph(this)
+
+                state.onDisposeCallback?.invoke(this)
             } finally {
                 this.state = State.Disposed
             }

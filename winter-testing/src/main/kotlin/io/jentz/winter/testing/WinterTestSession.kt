@@ -124,14 +124,14 @@ class WinterTestSession private constructor(
      * Call this to start the session.
      */
     fun start() {
-        application.registerPlugin(plugin)
+        application.plugins += plugin
     }
 
     /**
      * Call this to stop the session.
      */
     fun stop() {
-        application.unregisterPlugin(plugin)
+        application.plugins -= plugin
 
         testGraph?.let { graph ->
             this.testGraph = null
