@@ -6,17 +6,17 @@ import io.jentz.winter.*
  * Simple adapter for application with only one dependency graph.
  */
 class ApplicationGraphOnlyAdapter(
-    private val app: WinterApplication
+    private val tree: Tree
 ) : WinterInjection.Adapter {
-    override fun getGraph(instance: Any): Graph = app.get()
+    override fun getGraph(instance: Any): Graph = tree.get()
 
     override fun createGraph(
         instance: Any,
         block: ComponentBuilderBlock?
-    ): Graph = app.open(block = block)
+    ): Graph = tree.open(block = block)
 
     override fun disposeGraph(instance: Any) {
-        app.close()
+        tree.close()
     }
 }
 
@@ -26,7 +26,7 @@ class ApplicationGraphOnlyAdapter(
  * @param application The [WinterApplication] instance to be used by the adapter.
  */
 fun WinterInjection.useApplicationGraphOnlyAdapter(application: WinterApplication = Winter) {
-    adapter = ApplicationGraphOnlyAdapter(application)
+    adapter = ApplicationGraphOnlyAdapter(application.tree)
 }
 
 

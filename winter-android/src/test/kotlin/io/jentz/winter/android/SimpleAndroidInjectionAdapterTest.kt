@@ -33,11 +33,13 @@ class SimpleAndroidInjectionAdapterTest {
         }
     }
 
-    private val adapter = SimpleAndroidInjectionAdapter(app)
+    private val tree = app.tree
+
+    private val adapter = SimpleAndroidInjectionAdapter(tree)
 
     @Before
     fun beforeEach() {
-        app.closeIfOpen()
+        tree.closeIfOpen()
     }
 
     @Test
@@ -60,7 +62,7 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance should open activity graph with activity as constant`() {
-        app.open()
+        tree.open()
         val graph = adapter.createGraph(activity, null)
 
         graph.component.qualifier.shouldBe("activity")
@@ -78,20 +80,20 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with application should get graph from tree`() {
-        val graph = app.open()
+        val graph = tree.open()
         adapter.getGraph(application).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with activity should get graph from tree`() {
-        app.open()
-        val graph = app.open("activity", identifier = activity)
+        tree.open()
+        val graph = tree.open("activity", identifier = activity)
         adapter.getGraph(activity).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = app.create()
+        val graph = tree.create()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
@@ -99,31 +101,31 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun `#getGraph called with DependencyGraphContextWrapper should get graph from wrapper `() {
-        val graph = app.open()
+        val graph = tree.open()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with ContextWrapper should get graph from base context`() {
-        val graph = app.open()
+        val graph = tree.open()
         whenever(contextWrapper.baseContext).thenReturn(application)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#disposeGraph with Application instance should close root graph`() {
-        app.open()
+        tree.open()
         adapter.disposeGraph(application)
-        app.has().shouldBe(false)
+        tree.has().shouldBe(false)
     }
 
     @Test
     fun `#disposeGraph with Activity instance should close Activity graph`() {
-        app.open()
-        app.open("activity", identifier = activity)
+        tree.open()
+        tree.open("activity", identifier = activity)
         adapter.disposeGraph(activity)
-        app.has(activity).shouldBeFalse()
+        tree.has(activity).shouldBeFalse()
     }
 
 }

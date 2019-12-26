@@ -40,23 +40,22 @@ import io.jentz.winter.*
  *
  */
 open class AndroidPresentationScopeAdapter(
-    protected val app: WinterApplication
+    protected val tree: Tree
 ) : WinterInjection.Adapter {
 
     override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
-            is Application -> app.open {
-                constant(app)
+            is Application -> tree.open {
                 constant(instance)
                 constant<Context>(instance)
                 block?.invoke(this)
             }
             is Activity -> {
                 val presentationIdentifier = presentationIdentifier(instance)
-                if (!app.has(presentationIdentifier)) {
-                    app.open("presentation", identifier = presentationIdentifier)
+                if (!tree.has(presentationIdentifier)) {
+                    tree.open("presentation", identifier = presentationIdentifier)
                 }
-                app.open(presentationIdentifier, "activity", identifier = instance) {
+                tree.open(presentationIdentifier, "activity", identifier = instance) {
                     constant(instance)
                     constant<Context>(instance)
                     block?.invoke(this)
@@ -69,22 +68,22 @@ open class AndroidPresentationScopeAdapter(
     override fun getGraph(instance: Any): Graph {
         return when (instance) {
             is DependencyGraphContextWrapper -> instance.graph
-            is Application -> app.get()
-            is Activity -> app.get(presentationIdentifier(instance), instance)
+            is Application -> tree.get()
+            is Activity -> tree.get(presentationIdentifier(instance), instance)
             is View -> getGraph(instance.context)
             is ContextWrapper -> getGraph(instance.baseContext)
-            else -> app.get()
+            else -> tree.get()
         }
     }
 
     override fun disposeGraph(instance: Any) {
         when (instance) {
-            is Application -> app.close()
+            is Application -> tree.close()
             is Activity -> {
                 if (instance.isFinishing) {
-                    app.close(presentationIdentifier(instance))
+                    tree.close(presentationIdentifier(instance))
                 } else {
-                    app.close(presentationIdentifier(instance), instance)
+                    tree.close(presentationIdentifier(instance), instance)
                 }
             }
         }
@@ -100,5 +99,5 @@ open class AndroidPresentationScopeAdapter(
  * @param application The [WinterApplication] instance to be used by the adapter.
  */
 fun WinterInjection.useAndroidPresentationScopeAdapter(application: WinterApplication = Winter) {
-    adapter = AndroidPresentationScopeAdapter(application)
+    adapter = AndroidPresentationScopeAdapter(application.tree)
 }

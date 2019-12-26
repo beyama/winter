@@ -20,18 +20,17 @@ import io.jentz.winter.*
  *
  */
 open class SimpleAndroidInjectionAdapter(
-    protected val app: WinterApplication
+    protected val tree: Tree
 ) : WinterInjection.Adapter {
 
     override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
-            is Application -> app.open {
-                constant(app)
+            is Application -> tree.open {
                 constant(instance)
                 constant<Context>(instance)
                 block?.invoke(this)
             }
-            is Activity -> app.open("activity", identifier = instance) {
+            is Activity -> tree.open("activity", identifier = instance) {
                 constant(instance)
                 constant<Context>(instance)
                 block?.invoke(this)
@@ -42,19 +41,19 @@ open class SimpleAndroidInjectionAdapter(
 
     override fun getGraph(instance: Any): Graph {
         return when (instance) {
-            is Application -> app.get()
-            is Activity -> app.get(instance)
+            is Application -> tree.get()
+            is Activity -> tree.get(instance)
             is View -> getGraph(instance.context)
             is DependencyGraphContextWrapper -> instance.graph
             is ContextWrapper -> getGraph(instance.baseContext)
-            else -> app.get()
+            else -> tree.get()
         }
     }
 
     override fun disposeGraph(instance: Any) {
         when (instance) {
-            is Application -> app.close()
-            is Activity -> app.close(instance)
+            is Application -> tree.close()
+            is Activity -> tree.close(instance)
         }
     }
 
@@ -66,5 +65,5 @@ open class SimpleAndroidInjectionAdapter(
  * @param application The [WinterApplication] instance to be used by the adapter.
  */
 fun WinterInjection.useSimpleAndroidAdapter(application: WinterApplication = Winter) {
-    adapter = SimpleAndroidInjectionAdapter(application)
+    adapter = SimpleAndroidInjectionAdapter(application.tree)
 }

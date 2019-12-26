@@ -55,7 +55,7 @@ open class WinterInjection {
      *
      * Default adapter is [ApplicationGraphOnlyAdapter] that operates on [Winter].
      */
-    var adapter: Adapter = ApplicationGraphOnlyAdapter(Winter)
+    var adapter: Adapter = ApplicationGraphOnlyAdapter(Winter.tree)
 
     /**
      * Create and return dependency graph for [instance].

@@ -36,11 +36,13 @@ class AndroidPresentationScopeAdapterTest {
         }
     }
 
-    private val adapter = AndroidPresentationScopeAdapter(app)
+    private val tree = app.tree
+
+    private val adapter = AndroidPresentationScopeAdapter(tree)
 
     @Before
     fun beforeEach() {
-        app.closeIfOpen()
+        tree.closeIfOpen()
     }
 
     @Test
@@ -65,7 +67,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance should open presentation and activity graph with activity as constant`() {
-        app.open()
+        tree.open()
         val graph = adapter.createGraph(activity, null)
 
         graph.component.qualifier.shouldBe("activity")
@@ -77,7 +79,7 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#createGraph with an Activity instance and a builder block should apply that builder block to component init`() {
-        app.open()
+        tree.open()
         val instance = Any()
         val graph = adapter.createGraph(activity) {
             constant(instance)
@@ -95,23 +97,23 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with application should get graph from tree`() {
-        val graph = app.open()
+        val graph = tree.open()
         adapter.getGraph(application).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with activity should get graph from tree`() {
         val presentationIdentifier = activity.javaClass
-        app.open()
-        app.open("presentation", identifier = presentationIdentifier)
+        tree.open()
+        tree.open("presentation", identifier = presentationIdentifier)
 
-        val graph = app.open(presentationIdentifier, "activity", identifier = activity)
+        val graph = tree.open(presentationIdentifier, "activity", identifier = activity)
         adapter.getGraph(activity).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with view should get graph from the views context`() {
-        val graph = app.create()
+        val graph = tree.create()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         whenever(view.context).thenReturn(contextWrapper)
         adapter.getGraph(view).shouldBe(graph)
@@ -119,51 +121,51 @@ class AndroidPresentationScopeAdapterTest {
 
     @Test
     fun `#getGraph called with DependencyGraphContextWrapper should get graph from wrapper `() {
-        val graph = app.open()
+        val graph = tree.open()
         val contextWrapper = DependencyGraphContextWrapper(context, graph)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#getGraph called with ContextWrapper should get graph from base context`() {
-        val graph = app.open()
+        val graph = tree.open()
         whenever(contextWrapper.baseContext).thenReturn(application)
         adapter.getGraph(contextWrapper).shouldBe(graph)
     }
 
     @Test
     fun `#disposeGraph with Application instance should close root graph`() {
-        app.open()
+        tree.open()
         adapter.disposeGraph(application)
-        app.has().shouldBeFalse()
+        tree.has().shouldBeFalse()
     }
 
     @Test
     fun `#disposeGraph with Activity instance should only close Activity graph`() {
         val presentationIdentifier = activity.javaClass
-        app.open()
-        app.open("presentation", identifier = presentationIdentifier)
-        app.open(presentationIdentifier, "activity", identifier = activity)
+        tree.open()
+        tree.open("presentation", identifier = presentationIdentifier)
+        tree.open(presentationIdentifier, "activity", identifier = activity)
 
-        app.has(presentationIdentifier).shouldBeTrue()
-        app.has(presentationIdentifier, activity).shouldBeTrue()
+        tree.has(presentationIdentifier).shouldBeTrue()
+        tree.has(presentationIdentifier, activity).shouldBeTrue()
         adapter.disposeGraph(activity)
-        app.has(presentationIdentifier).shouldBeTrue()
-        app.has(presentationIdentifier, activity).shouldBeFalse()
+        tree.has(presentationIdentifier).shouldBeTrue()
+        tree.has(presentationIdentifier, activity).shouldBeFalse()
     }
 
     @Test
     fun `#disposeGraph with Activity instance should close Activity graph when Activity is finishing`() {
         val presentationIdentifier = activity.javaClass
-        app.open()
-        app.open("presentation", identifier = presentationIdentifier)
-        app.open(presentationIdentifier, "activity", identifier = activity)
+        tree.open()
+        tree.open("presentation", identifier = presentationIdentifier)
+        tree.open(presentationIdentifier, "activity", identifier = activity)
 
         whenever(activity.isFinishing).thenReturn(true)
 
-        app.has(presentationIdentifier).shouldBeTrue()
+        tree.has(presentationIdentifier).shouldBeTrue()
         adapter.disposeGraph(activity)
-        app.has(presentationIdentifier).shouldBeFalse()
+        tree.has(presentationIdentifier).shouldBeFalse()
     }
 
 }
