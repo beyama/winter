@@ -1,8 +1,8 @@
 package io.jentz.winter.aware
 
 import io.jentz.winter.Graph
-import io.jentz.winter.Injection
-import io.jentz.winter.WinterInjection
+import io.jentz.winter.Winter
+import io.jentz.winter.WinterApplication
 
 /**
  * Implementing this interface gives simpler syntax for dependency retrieval and is particularly
@@ -17,15 +17,15 @@ import io.jentz.winter.WinterInjection
  */
 interface WinterAware {
     /**
-     * Get the [WinterInjection] instance to use.
+     * Get the [WinterApplication] instance to use (default [Winter]).
      */
-    val injection: WinterInjection get() = Injection
+    val winterApplication: WinterApplication get() = Winter
 
     /**
      * Get the dependency [Graph] to retrieve dependencies from.
      *
-     * The default implementation uses [WinterInjection] to get the [Graph] if [WinterInjection]
-     * is not used then override this accordingly.
+     * The default implementation uses the [WinterApplication.InjectionAdapter] to get the [Graph]
+     * if [WinterApplication.InjectionAdapter] is not used override this accordingly.
      */
-    val graph: Graph get() = injection.getGraph(this)
+    val graph: Graph get() = winterApplication.getGraph(this)
 }

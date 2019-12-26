@@ -43,8 +43,8 @@ import io.jentz.winter.Tree.State.Uninitialized
  * Here an Android example where we create a presentation graph that survives configuration changes
  * and an Activity graph that gets recreated every time.
  *
- * It is recommended to hide such details in a [WinterInjection.Adapter] and use the [Injection]
- * abstraction.
+ * It is recommended to hide such details in a [WinterApplication.InjectionAdapter] and use the
+ * adapter based [WinterApplication] methods
  *
  * Create the application object graph on application start:
  *

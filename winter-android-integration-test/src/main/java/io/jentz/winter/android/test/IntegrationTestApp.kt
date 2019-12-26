@@ -3,7 +3,6 @@ package io.jentz.winter.android.test
 import android.app.Activity
 import android.app.Application
 import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.DoNotInclude
-import io.jentz.winter.Injection
 import io.jentz.winter.Winter
 import io.jentz.winter.android.generatedComponent
 import io.jentz.winter.android.test.quotes.QuotesAdapter
@@ -40,9 +39,8 @@ class IntegrationTestApp : Application() {
             }
         }
         Winter.installDisposablePlugin()
-
-        Injection.useAndroidPresentationScopeAdapter()
-        Injection.createGraph(this)
+        Winter.useAndroidPresentationScopeAdapter()
+        Winter.createGraph(this)
     }
 
 }

@@ -19,9 +19,9 @@ import io.jentz.winter.*
  * [DependencyGraphContextWrapper] and [ContextWrapper].
  *
  */
-open class SimpleAndroidInjectionAdapter(
+open class SimpleAndroidInjectionInjectionAdapter(
     protected val tree: Tree
-) : WinterInjection.Adapter {
+) : WinterApplication.InjectionAdapter {
 
     override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
@@ -60,10 +60,8 @@ open class SimpleAndroidInjectionAdapter(
 }
 
 /**
- * Register a [SimpleAndroidInjectionAdapter] on this [WinterInjection] instance.
- *
- * @param application The [WinterApplication] instance to be used by the adapter.
+ * Register a [SimpleAndroidInjectionInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterInjection.useSimpleAndroidAdapter(application: WinterApplication = Winter) {
-    adapter = SimpleAndroidInjectionAdapter(application.tree)
+fun WinterApplication.useSimpleAndroidAdapter() {
+    injectionAdapter = SimpleAndroidInjectionInjectionAdapter(tree)
 }

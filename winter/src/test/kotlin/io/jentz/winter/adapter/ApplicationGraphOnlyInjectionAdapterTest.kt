@@ -8,15 +8,13 @@ import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class ApplicationGraphOnlyAdapterTest {
+class ApplicationGraphOnlyInjectionAdapterTest {
 
     private val app = WinterApplication {}
 
     private val tree = app.tree
 
-    private val adapter = ApplicationGraphOnlyAdapter(tree)
-
-    private val injection = WinterInjection()
+    private val adapter = ApplicationGraphOnlyInjectionAdapter(tree)
 
     @BeforeEach
     fun beforeEach() {
@@ -66,17 +64,9 @@ class ApplicationGraphOnlyAdapterTest {
     }
 
     @Test
-    fun `#useApplicationGraphOnlyAdapter with tree should register adapter with given tree`() {
-        injection.useApplicationGraphOnlyAdapter(app)
-        injection.adapter.shouldBeInstanceOf<ApplicationGraphOnlyAdapter>()
-        tree.open()
-        injection.adapter.getGraph(Any()).shouldBeSameInstanceAs(tree.get())
-    }
-
-    @Test
-    fun `#useApplicationGraphOnlyAdapter should register adapter with application`() {
-        injection.useApplicationGraphOnlyAdapter(app)
-        injection.adapter.shouldBeInstanceOf<ApplicationGraphOnlyAdapter>()
+    fun `#useApplicationGraphOnlyAdapter should register adapter`() {
+        app.useApplicationGraphOnlyAdapter()
+        app.injectionAdapter.shouldBeInstanceOf<ApplicationGraphOnlyInjectionAdapter>()
     }
 
 }

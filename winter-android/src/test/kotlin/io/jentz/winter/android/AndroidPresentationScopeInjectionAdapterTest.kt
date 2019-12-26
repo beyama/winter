@@ -21,7 +21,7 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class AndroidPresentationScopeAdapterTest {
+class AndroidPresentationScopeInjectionAdapterTest {
 
     @Mock private lateinit var application: Application
     @Mock private lateinit var context: Context
@@ -38,7 +38,7 @@ class AndroidPresentationScopeAdapterTest {
 
     private val tree = app.tree
 
-    private val adapter = AndroidPresentationScopeAdapter(tree)
+    private val adapter = AndroidPresentationScopeInjectionAdapter(tree)
 
     @Before
     fun beforeEach() {

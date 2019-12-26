@@ -39,9 +39,9 @@ import io.jentz.winter.*
  * [getGraph] called with an unknown type will return the application graph.
  *
  */
-open class AndroidPresentationScopeAdapter(
+open class AndroidPresentationScopeInjectionAdapter(
     protected val tree: Tree
-) : WinterInjection.Adapter {
+) : WinterApplication.InjectionAdapter {
 
     override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
         return when (instance) {
@@ -92,10 +92,8 @@ open class AndroidPresentationScopeAdapter(
 }
 
 /**
- * Register an [AndroidPresentationScopeAdapter] on this [WinterInjection] instance.
- *
- * @param application The [WinterApplication] instance to be used by the adapter.
+ * Register an [AndroidPresentationScopeInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterInjection.useAndroidPresentationScopeAdapter(application: WinterApplication = Winter) {
-    adapter = AndroidPresentationScopeAdapter(application.tree)
+fun WinterApplication.useAndroidPresentationScopeAdapter() {
+    injectionAdapter = AndroidPresentationScopeInjectionAdapter(tree)
 }

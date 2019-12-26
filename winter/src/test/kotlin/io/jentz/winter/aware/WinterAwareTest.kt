@@ -1,10 +1,7 @@
 package io.jentz.winter.aware
 
 import com.nhaarman.mockitokotlin2.*
-import io.jentz.winter.Graph
-import io.jentz.winter.Injection
-import io.jentz.winter.WinterInjection
-import io.jentz.winter.emptyGraph
+import io.jentz.winter.*
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -17,11 +14,11 @@ import java.util.*
 class WinterAwareTest {
 
     private val aware = TestAware()
-    private val injection = aware.injection
+    private val injection = aware.winterApplication
 
     @BeforeEach
     fun beforeEach() {
-        reset(injection.adapter)
+        reset(injection.injectionAdapter)
     }
 
     @Nested
@@ -30,15 +27,15 @@ class WinterAwareTest {
         @Test
         fun `#graph should call #injection#getGraph with instance`() {
             val graph = emptyGraph()
-            whenever(injection.adapter.getGraph(aware)).thenReturn(graph)
+            whenever(injection.injectionAdapter.getGraph(aware)).thenReturn(graph)
             aware.graph.shouldBeSameInstanceAs(graph)
-            verify(injection.adapter, times(1)).getGraph(aware)
+            verify(injection.injectionAdapter, times(1)).getGraph(aware)
         }
 
         @Test
-        fun `#injection should return default Injection object`() {
+        fun `#winterApplication should return default Winter object`() {
             val aware = object : WinterAware {}
-            aware.injection.shouldBeSameInstanceAs(Injection)
+            aware.winterApplication.shouldBeSameInstanceAs(Winter)
         }
 
     }
@@ -47,7 +44,7 @@ class WinterAwareTest {
     inner class RetrievalMethods {
 
         private val aware = object : WinterAware {
-            override val graph: Graph = io.jentz.winter.graph {
+            override val graph: Graph = graph {
                 singleton { 42 }
                 factory { i: Int -> i.toString() }
             }
@@ -202,10 +199,10 @@ class WinterAwareTest {
         fun `#createGraphAndInject should use aware instance to create graph and inject into target`() {
             val graph: Graph = mock()
             val target = Any()
-            whenever(injection.adapter.createGraph(aware, null)).thenReturn(graph)
+            whenever(injection.injectionAdapter.createGraph(aware, null)).thenReturn(graph)
 
             aware.createGraphAndInject(target)
-            verify(injection.adapter, times(1)).createGraph(aware, null)
+            verify(injection.injectionAdapter, times(1)).createGraph(aware, null)
             verify(graph, times(1)).inject(target)
         }
 
@@ -213,18 +210,17 @@ class WinterAwareTest {
         fun `#inject should use aware instance to get graph and inject into target`() {
             val graph: Graph = mock()
             val target = Any()
-            whenever(injection.adapter.getGraph(aware)).thenReturn(graph)
+            whenever(injection.injectionAdapter.getGraph(aware)).thenReturn(graph)
 
             aware.inject(target)
-            verify(injection.adapter, times(1)).getGraph(aware)
+            verify(injection.injectionAdapter, times(1)).getGraph(aware)
             verify(graph, times(1)).inject(target)
         }
 
     }
 
     private open class TestAware : WinterAware {
-        override val injection: WinterInjection =
-            WinterInjection().also { it.adapter = mock() }
+        override val winterApplication = WinterApplication().also { it.injectionAdapter = mock() }
     }
 
 }
