@@ -8,6 +8,9 @@ plugins {
 version = VERSION_NAME
 group = GROUP
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.androidTools
@@ -27,6 +30,7 @@ android {
         test.java.srcDirs += 'src/test/kotlin'
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
+
 }
 
 dependencies {
@@ -36,9 +40,7 @@ dependencies {
 
     implementation deps.androidx.lifecycle_common
 
-    testImplementation deps.junit.jupiterApi
-    testRuntimeOnly deps.junit.jupiterEngine
-
+    testImplementation deps.junit.junit4
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
     testImplementation deps.kotlintest

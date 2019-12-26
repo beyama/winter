@@ -20,7 +20,6 @@ internal abstract class LifecycleAutoDispose(
             disposeEvent == Event.ON_PAUSE
                     || disposeEvent == Event.ON_STOP
                     || disposeEvent == Event.ON_DESTROY
-                    || disposeEvent == Event.ON_ANY
         ) { "disposeEvent must be ON_PAUSE, ON_STOP or ON_DESTROY" }
     }
 

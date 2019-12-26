@@ -2,8 +2,8 @@ package io.jentz.winter.androidx.lifecycle
 
 import androidx.lifecycle.Lifecycle.Event
 import androidx.lifecycle.LifecycleOwner
-import io.jentz.winter.Injection
-import io.jentz.winter.WinterInjection
+import io.jentz.winter.Winter
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.aware.WinterAware
 
 internal class AutoDisposeDependencyGraph(
@@ -11,21 +11,21 @@ internal class AutoDisposeDependencyGraph(
     disposeEvent: Event
 ) : LifecycleAutoDispose(disposeEvent) {
 
-    private val injection: WinterInjection =
-        (lifecycleOwner as? WinterAware)?.injection ?: Injection
+    private val winterApplication: WinterApplication =
+        (lifecycleOwner as? WinterAware)?.winterApplication ?: Winter
 
     override fun dispose() {
-        injection.disposeGraph(lifecycleOwner)
+        winterApplication.disposeGraph(lifecycleOwner)
     }
 
 }
 
 /**
- * Automatically call [WinterInjection.disposeGraph] with [this] when [disposeEvent] is emitted by
- * [androidx.lifecycle.Lifecycle].
+ * Automatically call [WinterApplication.disposeGraph] with [this] when [disposeEvent] is emitted by
+ * the [androidx.lifecycle.Lifecycle].
  *
- * This will use [WinterAware.injection] if the [LifecycleOwner] implements [WinterAware]
- * otherwise it will fallback to the default implementation [Injection].
+ * This will use [WinterAware.winterApplication] if the [LifecycleOwner] implements [WinterAware]
+ * otherwise it will fallback to the default implementation [Winter].
  *
  * @param disposeEvent The [Event] that will dispose the graph.
  */
