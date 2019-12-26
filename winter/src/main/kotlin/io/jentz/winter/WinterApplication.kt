@@ -1,27 +1,27 @@
 package io.jentz.winter
 
+import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.jentz.winter.adapter.ApplicationGraphOnlyInjectionAdapter
 import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugins
 
 /**
- * [WinterApplication] base class that holds Winter plugins and may be configured with the
- * application [Component].
- */
-/**
- * Abstraction to create, get and dispose a dependency graph from a class that can't make use of
- * constructor injection. This takes the burden off of the class to know how exactly a graph
- * or parent graph is stored and how to create and store a new graph.
+ * Holds plugins, the application [Component], the application [Graph] and offers an
+ * abstraction to create, get and dispose dependency graphs for a class that cannot make use of
+ * constructor injection using an [InjectionAdapter] system.
+ *
+ * The [InjectionAdapter] backed abstraction takes the burden off of the using class to know how
+ * exactly a graph or parent graph is constructed and stored.
  *
  * An application specific graph creation and retrieval strategy can be provided by setting a
  * custom [InjectionAdapter].
  *
  * ```
- * Injection.adapter = MyCustomAdapter()
+ * Winter.adapter = MyCustomAdapter()
  * ```
  *
- * To use this abstraction in a library it is recommended to create a library specific object
- * from [WinterApplication].
+ * To use Winter in a library it is recommended to create a library specific object
+ * from [WinterApplication] for use in applications it is recommended to use the [Winter] object.
  *
  * Example using the SimpleAndroidInjectionAdapter which is part of the winter-android module:
  *
@@ -42,9 +42,9 @@ import io.jentz.winter.plugin.Plugins
  *     }
  *
  *     // register adapter
- *     Injection.useSimpleAndroidAdapter()
+ *     Winter.useSimpleAndroidAdapter()
  *     // create root graph
- *     Injection.createGraph(this)
+ *     Winter.createGraph(this)
  *   }
  * }
  *
@@ -53,12 +53,12 @@ import io.jentz.winter.plugin.Plugins
  *   private val viewModel: RepoListViewModel by injector.instance()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     Injection.createGraphAndInject(this, injector)
+ *     Winter.createGraphAndInject(this, injector)
  *     super.onCreate(savedInstanceState)
  *   }
  *
  *   override fun onDestroy() {
- *     Injection.disposeGraph(this)
+ *     Winter.disposeGraph(this)
  *     super.onDestroy()
  *   }
  *
