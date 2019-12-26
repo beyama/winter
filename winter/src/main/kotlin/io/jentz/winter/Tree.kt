@@ -81,7 +81,7 @@ import io.jentz.winter.Tree.State.Uninitialized
  *     // Open the presentation graph if not already open.
  *     // Since we could have multiple activity instances at the same time we use the Activity class
  *     // as an identifier for the presentation graph.
- *     if (!Winter.tree.isOpen(javaClass)) Winter.tree.open("presentation", identifier = javaClass)
+ *     Winter.tree.getOrOpen("presentation", identifier = javaClass)
  *
  *     // Open the activity graph.
  *     // Here the same but we use the instance as identifier for the activity graph.
@@ -143,7 +143,7 @@ class Tree(
     }
 
     /**
-     * Get a registered object graph by path.
+     * Get a dependency graph by path.
      *
      * @param path The path of the graph.
      * @return The graph that is stored in [path].
@@ -163,11 +163,11 @@ class Tree(
     fun isOpen(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
 
     /**
-     * Create and return an object graph by (sub-)component path without registering it.
+     * Create and return a dependency graph by (sub-)component path without registering it.
      *
-     * @param path The path of the (sub-)graph to initialize.
+     * @param path The path of the (sub-)graph to create.
      * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     createGraph method.
+     *              createGraph method.
      *
      * @return The created [Graph].
      *
@@ -195,15 +195,15 @@ class Tree(
     }
 
     /**
-     * Create a object graph by (sub-)component path and register it.
+     * Open a dependency graph by (sub-)component path.
      * Opened object graphs will be children of each other in left to right order.
      *
-     * @param path The path of the (sub-)graph to initialize.
+     * @param path The path of the (sub-)graph to open.
      * @param identifier An optional identifier to store the subgraph under.
-     * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     createGraph method.
+     * @param block An optional [ComponentBuilderBlock] that is passed to the (sub-)component
+     *              createGraph method.
      *
-     * @return The newly created and registered graph.
+     * @return The opened dependency graph.
      *
      * @throws WinterException When application component is not set or path can not be resolved.
      * @throws IllegalArgumentException When [path] is empty (root) but [identifier] is given.
@@ -217,6 +217,42 @@ class Tree(
     }) { state ->
         openSubgraph(state, path, identifier, block)
     }
+
+    /**
+     * Get or open a dependency graph by (sub-)component path.
+     * Opened object graphs will be children of each other in left to right order.
+     *
+     * @param path The path of the (sub-)graph to get or open.
+     * @param identifier An optional identifier to store the subgraph under.
+     * @param block An optional [ComponentBuilderBlock] that is passed to the (sub-)component
+     *              createGraph method.
+     *
+     * @return The dependency graph.
+     *
+     * @throws WinterException When application component is not set or path can not be resolved.
+     * @throws IllegalArgumentException When [path] is empty (root) but [identifier] is given.
+     */
+    fun getOrOpen(
+        vararg path: Any,
+        identifier: Any? = null,
+        block: ComponentBuilderBlock? = null
+    ): Graph = fold({
+        openApplicationGraph(application.component, path, identifier, block)
+    }, { state ->
+        if (path.isEmpty()) {
+            return@fold state.root
+        }
+
+        val qualifier = path.last()
+        val name = identifier ?: qualifier
+
+        state
+            .getOrNull(path, path.lastIndex)
+            ?.instanceOrNull<Graph>(name)
+            ?.let { return@fold it }
+
+        openSubgraph(state, path, identifier, block)
+    })
 
     private fun openApplicationGraph(
         component: Component,

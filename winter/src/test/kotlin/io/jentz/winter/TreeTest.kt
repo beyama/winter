@@ -3,6 +3,7 @@ package io.jentz.winter
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -100,7 +101,7 @@ class TreeTest {
     }
 
     @Test
-    fun `#open without arguments should throw an exception if root dependency dependency graph is already initialized`() {
+    fun `#open without arguments should throw an exception if application dependency graph is already initialized`() {
         tree.open()
         shouldThrow<WinterException> {
             tree.open()
@@ -174,7 +175,75 @@ class TreeTest {
         openAll("presentation")
         val graph1 = tree.open("presentation", "view", identifier = "view0")
         graph1.component.qualifier.shouldBe("view")
-        tree.isOpen("presentation", "view0")
+        tree.isOpen("presentation", "view0").shouldBeTrue()
+    }
+
+    @Test
+    fun `#getOrOpen should throw an exception when application graph isn't open but path is given`() {
+        shouldThrow<WinterException> {
+            tree.getOrOpen(*viewPath)
+        }.message.shouldBe("Cannot open path `presentation.view` because application graph is not opened.")
+    }
+
+    @Test
+    fun `#getOrOpen without arguments should return application graph if it is already open`() {
+        tree.open().shouldBeSameInstanceAs(tree.getOrOpen())
+    }
+
+    @Test
+    fun `#getOrOpen without path but identifier should throw an exception if application graph is not open`() {
+        shouldThrow<IllegalArgumentException> {
+            tree.getOrOpen(identifier = "root")
+        }.message.shouldBe("Argument `identifier` for application graph is not supported.")
+    }
+
+    @Test
+    fun `#getOrOpen should return graph in path when it is already open`() {
+        openAll(*viewPath).shouldBeSameInstanceAs(tree.getOrOpen(*viewPath))
+    }
+
+    @Test
+    fun `#getOrOpen with identifier should return graph in path when it is already open`() {
+        openAll("presentation")
+        tree.open(*viewPath, identifier = "foo").shouldBeSameInstanceAs(tree.getOrOpen(*viewPath, identifier = "foo"))
+    }
+
+    @Test
+    fun `#getOrOpen should throw an exception when parent graph isn't open`() {
+        tree.open()
+        shouldThrow<WinterException> {
+            tree.getOrOpen("presentation", "view")
+        }.message.shouldBe("Can't open `presentation.view` because `presentation` is not open.")
+    }
+
+    @Test
+    fun `#getOrOpen without arguments should open application dependency graph`() {
+        tree.getOrOpen().component.qualifier.shouldBe("root")
+    }
+
+    @Test
+    fun `#getOrOpen should open subgraph by path`() {
+        openAll("presentation")
+        tree.getOrOpen(*viewPath).component.qualifier.shouldBe("view")
+    }
+
+    @Test
+    fun `#getOrOpen without path should extend application component with given block`() {
+        tree.getOrOpen { constant(42) }.instance<Int>().shouldBe(42)
+    }
+
+    @Test
+    fun `#getOrOpen with path should extend subcomponent with given block`() {
+        openAll("presentation")
+        tree.getOrOpen(*viewPath) { constant(42) }.instance<Int>().shouldBe(42)
+    }
+
+    @Test
+    fun `#getOrOpen with identifier should open subgraph by path and register it under the given identifier`() {
+        openAll("presentation")
+        val graph1 = tree.getOrOpen("presentation", "view", identifier = "view0")
+        graph1.component.qualifier.shouldBe("view")
+        tree.isOpen("presentation", "view0").shouldBeTrue()
     }
 
     @Test

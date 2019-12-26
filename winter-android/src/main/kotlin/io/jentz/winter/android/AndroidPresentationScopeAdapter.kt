@@ -52,9 +52,7 @@ open class AndroidPresentationScopeAdapter(
             }
             is Activity -> {
                 val presentationIdentifier = presentationIdentifier(instance)
-                if (!tree.isOpen(presentationIdentifier)) {
-                    tree.open("presentation", identifier = presentationIdentifier)
-                }
+                tree.getOrOpen("presentation", identifier = presentationIdentifier)
                 tree.open(presentationIdentifier, "activity", identifier = instance) {
                     constant(instance)
                     constant<Context>(instance)
