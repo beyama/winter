@@ -81,7 +81,7 @@ import io.jentz.winter.Tree.State.Uninitialized
  *     // Open the presentation graph if not already open.
  *     // Since we could have multiple activity instances at the same time we use the Activity class
  *     // as an identifier for the presentation graph.
- *     if (!Winter.tree.has(javaClass)) Winter.tree.open("presentation", identifier = javaClass)
+ *     if (!Winter.tree.isOpen(javaClass)) Winter.tree.open("presentation", identifier = javaClass)
  *
  *     // Open the activity graph.
  *     // Here the same but we use the instance as identifier for the activity graph.
@@ -160,7 +160,7 @@ class Tree(
     /**
      * Returns true if an entry under the given [path] exists otherwise false.
      */
-    fun has(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
+    fun isOpen(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
 
     /**
      * Create and return an object graph by (sub-)component path without registering it.

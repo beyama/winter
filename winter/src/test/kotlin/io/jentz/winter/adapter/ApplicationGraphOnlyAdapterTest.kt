@@ -37,7 +37,7 @@ class ApplicationGraphOnlyAdapterTest {
     @Test
     fun `#createGraph should open root graph`() {
         adapter.createGraph(Any(), null)
-        tree.has().shouldBeTrue()
+        tree.isOpen().shouldBeTrue()
     }
 
     @Test
@@ -55,7 +55,7 @@ class ApplicationGraphOnlyAdapterTest {
     @Test
     fun `#disposeGraph should dispose root graph`() {
         tree.open()
-        expectValueToChange(true, false, { tree.has() }) {
+        expectValueToChange(true, false, { tree.isOpen() }) {
             adapter.disposeGraph(Any())
         }
     }

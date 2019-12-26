@@ -137,7 +137,7 @@ class AndroidPresentationScopeAdapterTest {
     fun `#disposeGraph with Application instance should close root graph`() {
         tree.open()
         adapter.disposeGraph(application)
-        tree.has().shouldBeFalse()
+        tree.isOpen().shouldBeFalse()
     }
 
     @Test
@@ -147,11 +147,11 @@ class AndroidPresentationScopeAdapterTest {
         tree.open("presentation", identifier = presentationIdentifier)
         tree.open(presentationIdentifier, "activity", identifier = activity)
 
-        tree.has(presentationIdentifier).shouldBeTrue()
-        tree.has(presentationIdentifier, activity).shouldBeTrue()
+        tree.isOpen(presentationIdentifier).shouldBeTrue()
+        tree.isOpen(presentationIdentifier, activity).shouldBeTrue()
         adapter.disposeGraph(activity)
-        tree.has(presentationIdentifier).shouldBeTrue()
-        tree.has(presentationIdentifier, activity).shouldBeFalse()
+        tree.isOpen(presentationIdentifier).shouldBeTrue()
+        tree.isOpen(presentationIdentifier, activity).shouldBeFalse()
     }
 
     @Test
@@ -163,9 +163,9 @@ class AndroidPresentationScopeAdapterTest {
 
         whenever(activity.isFinishing).thenReturn(true)
 
-        tree.has(presentationIdentifier).shouldBeTrue()
+        tree.isOpen(presentationIdentifier).shouldBeTrue()
         adapter.disposeGraph(activity)
-        tree.has(presentationIdentifier).shouldBeFalse()
+        tree.isOpen(presentationIdentifier).shouldBeFalse()
     }
 
 }

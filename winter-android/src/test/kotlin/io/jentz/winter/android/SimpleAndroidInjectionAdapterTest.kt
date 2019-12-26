@@ -117,7 +117,7 @@ class SimpleAndroidInjectionAdapterTest {
     fun `#disposeGraph with Application instance should close root graph`() {
         tree.open()
         adapter.disposeGraph(application)
-        tree.has().shouldBe(false)
+        tree.isOpen().shouldBe(false)
     }
 
     @Test
@@ -125,7 +125,7 @@ class SimpleAndroidInjectionAdapterTest {
         tree.open()
         tree.open("activity", identifier = activity)
         adapter.disposeGraph(activity)
-        tree.has(activity).shouldBeFalse()
+        tree.isOpen(activity).shouldBeFalse()
     }
 
 }

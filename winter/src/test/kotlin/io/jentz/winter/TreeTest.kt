@@ -43,14 +43,14 @@ class TreeTest {
 
     @Test
     fun `#has without arguments should return false if root dependency graph isn't initialized otherwise true`() {
-        expectValueToChange(false, true, { tree.has() }) {
+        expectValueToChange(false, true, { tree.isOpen() }) {
             tree.open()
         }
     }
 
     @Test
     fun `#has with path should return false if dependency graph in path isn't present otherwise true`() {
-        expectValueToChange(false, true, { tree.has(*viewPath) }) {
+        expectValueToChange(false, true, { tree.isOpen(*viewPath) }) {
             openAll(*viewPath)
         }
     }
@@ -174,7 +174,7 @@ class TreeTest {
         openAll("presentation")
         val graph1 = tree.open("presentation", "view", identifier = "view0")
         graph1.component.qualifier.shouldBe("view")
-        tree.has("presentation", "view0")
+        tree.isOpen("presentation", "view0")
     }
 
     @Test
@@ -197,7 +197,7 @@ class TreeTest {
         val root = tree.open()
         tree.close()
         root.isDisposed.shouldBeTrue()
-        tree.has().shouldBeFalse()
+        tree.isOpen().shouldBeFalse()
     }
 
     @Test
@@ -205,7 +205,7 @@ class TreeTest {
         val graph = openAll(*viewPath)
         tree.close(*viewPath)
         graph.isDisposed.shouldBeTrue()
-        tree.has(*viewPath).shouldBeFalse()
+        tree.isOpen(*viewPath).shouldBeFalse()
     }
 
     @Test
@@ -250,13 +250,13 @@ class TreeTest {
     fun `disposing the application graph should have the same effect as calling #close without path`() {
         val graph = tree.open()
         graph.dispose()
-        tree.has().shouldBeFalse()
+        tree.isOpen().shouldBeFalse()
     }
 
     private fun openAll(vararg pathTokens: Any): Graph {
         (-1..pathTokens.lastIndex)
             .map { pathTokens.slice(0..it).toTypedArray() }
-            .filterNot { tree.has(*it) }
+            .filterNot { tree.isOpen(*it) }
             .forEach { tree.open(*it) }
         return tree.get(*pathTokens)
     }
