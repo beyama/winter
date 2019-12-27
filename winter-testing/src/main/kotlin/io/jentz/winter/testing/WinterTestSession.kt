@@ -105,7 +105,7 @@ class WinterTestSession private constructor(
             }
         }
 
-        override fun graphDispose(graph: Graph) {
+        override fun graphClose(graph: Graph) {
             _allGraphs -= graph
 
             for ((matcher, callback) in onGraphDisposeCallbacks) {
@@ -136,7 +136,7 @@ class WinterTestSession private constructor(
         testGraph?.let { graph ->
             this.testGraph = null
 
-            if (graph.isDisposed) {
+            if (graph.isClosed) {
                 return
             }
 
@@ -144,18 +144,18 @@ class WinterTestSession private constructor(
                 AutoDisposeMode.NoAutoDispose -> {
                 }
                 AutoDisposeMode.Graph -> {
-                    graph.dispose()
+                    graph.close()
                 }
                 AutoDisposeMode.GraphAndAncestors -> {
                     var graphToDispose: Graph? = graph
-                    while (graphToDispose != null && !graphToDispose.isDisposed) {
+                    while (graphToDispose != null && !graphToDispose.isClosed) {
                         val parent = graphToDispose.parent
-                        graphToDispose.dispose()
+                        graphToDispose.close()
                         graphToDispose = parent
                     }
                 }
                 AutoDisposeMode.AllGraphs -> {
-                    allGraphs.forEach(Graph::dispose)
+                    allGraphs.forEach(Graph::close)
                 }
             }
         }

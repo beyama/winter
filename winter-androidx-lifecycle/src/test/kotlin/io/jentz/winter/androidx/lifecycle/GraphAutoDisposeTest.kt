@@ -25,7 +25,7 @@ class GraphAutoDisposeTest {
     fun `should dispose Graph when event is emitted`() {
         val observer = GraphAutoDispose(graph, ON_DESTROY)
         observer.onEvent(owner, ON_DESTROY)
-        graph.isDisposed.shouldBeTrue()
+        graph.isClosed.shouldBeTrue()
     }
 
     @Test

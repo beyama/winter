@@ -14,7 +14,7 @@ class Graph internal constructor(
     application: WinterApplication,
     parent: Graph?,
     component: Component,
-    onDisposeCallback: OnDisposeCallback?,
+    onCloseCallback: OnCloseCallback?,
     block: ComponentBuilderBlock?
 ) {
 
@@ -28,9 +28,9 @@ class Graph internal constructor(
             val plugins: Plugins,
             val serviceEvaluator: ServiceEvaluator,
             val registry: MutableMap<TypeKey<*>, BoundService<*>> = mutableMapOf(),
-            val onDisposeCallback: OnDisposeCallback?
+            val onCloseCallback: OnCloseCallback?
         ) : State() {
-            var isDisposing = false
+            var isClosing = false
 
             @Suppress("UNCHECKED_CAST")
             fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
@@ -43,27 +43,27 @@ class Graph internal constructor(
 
         }
 
-        object Disposed : State()
+        object Closed : State()
     }
 
     private var state: State
 
-    private inline fun <T> fold(ifDisposed: () -> T, ifInitialized: (State.Initialized) -> T): T =
+    private inline fun <T> fold(ifClosed: () -> T, ifInitialized: (State.Initialized) -> T): T =
         when (val state = this.state) {
-            is State.Disposed -> ifDisposed()
+            is State.Closed -> ifClosed()
             is State.Initialized -> ifInitialized(state)
         }
 
     private inline fun <T> synchronizedFold(
-        ifDisposed: () -> T,
+        ifClosed: () -> T,
         ifInitialized: (State.Initialized) -> T
-    ): T = synchronized(this) { fold(ifDisposed, ifInitialized) }
+    ): T = synchronized(this) { fold(ifClosed, ifInitialized) }
 
     private inline fun <T> map(block: (State.Initialized) -> T): T =
-        fold({ throw WinterException("Graph is already disposed.") }, block)
+        fold({ throw WinterException("Graph is already closed.") }, block)
 
     private inline fun <T> synchronizedMap(block: (State.Initialized) -> T): T =
-        synchronizedFold({ throw WinterException("Graph is already disposed.") }, block)
+        synchronizedFold({ throw WinterException("Graph is already closed.") }, block)
 
     /**
      * The [WinterApplication] of this graph.
@@ -81,9 +81,9 @@ class Graph internal constructor(
     val component: Component get() = map { it.component }
 
     /**
-     * Indicates if the graph is disposed.
+     * Indicates if the graph is closed.
      */
-    val isDisposed: Boolean get() = fold({ true }, { false })
+    val isClosed: Boolean get() = fold({ true }, { false })
 
     init {
         val plugins = application.plugins
@@ -109,7 +109,7 @@ class Graph internal constructor(
                 plugins = plugins,
                 checkForCyclicDependencies = application.checkForCyclicDependencies
             ),
-            onDisposeCallback = onDisposeCallback
+            onCloseCallback = onCloseCallback
         )
 
         plugins.forEach { it.graphInitialized(this) }
@@ -335,12 +335,12 @@ class Graph internal constructor(
      * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
      * this graph as parent.
      *
-     * A graph initialized with this method doesn't get disposed when its parent gets disposed
+     * A graph initialized with this method doesn't get closed when its parent gets closed
      * but becomes inconsistent.
      *
      * Use it with caution in cases where you need to initialize a lot of short-lived subgraphs that
      * are managed by you e.g. a per request subgraph on a HTTP server that gets created per
-     * request and destroyed at the end.
+     * request and closed at the end.
      *
      * @param subcomponentQualifier The subcomponentQualifier of the subcomponent.
      * @param block An optional builder block to register provider on the subcomponent.
@@ -357,7 +357,7 @@ class Graph internal constructor(
      * this graph as parent and register it under the [subcomponentQualifier] or when given under
      * [identifier].
      *
-     * The resulting graph gets automatically disposed when this graph gets disposed.
+     * The resulting graph gets automatically closed when this graph gets closed.
      * You can later retrieve the subgraph by calling an instance retrieve method e.g.:
      * ```
      * parent.instance<Graph>(identifier)
@@ -385,9 +385,10 @@ class Graph internal constructor(
             application = state.application,
             parent = this,
             component = instance(subcomponentQualifier),
-            onDisposeCallback = {
+            onCloseCallback = {
+                if (state.isClosing) return@Graph
                 synchronizedFold({}, { state ->
-                    if (!state.isDisposing) {
+                    if (!state.isClosing) {
                         state.registry.remove(key)
                     }
                 })
@@ -409,31 +410,31 @@ class Graph internal constructor(
             val service = state.registry.remove(key) ?: throw WinterException(
                 "Subgraph with identifier `$identifier` doesn't exist."
             )
-            service.dispose()
+            service.close()
         }
     }
 
     /**
-     * Runs [graph dispose plugins][io.jentz.winter.plugin.Plugin.graphDispose] and marks this graph
-     * as disposed. All resources get released and every retrieval method will throw an exception
-     * if called after disposing.
+     * Runs [graph close plugins][io.jentz.winter.plugin.Plugin.graphClose] and marks this graph
+     * as closed. All resources get released and every retrieval method will throw an exception
+     * if called after closing.
      *
      * Subsequent calls are ignored.
      */
-    fun dispose() {
+    fun close() {
         synchronizedFold({}) { state ->
             try {
-                if (state.isDisposing) return
+                if (state.isClosing) return
 
-                state.isDisposing = true
+                state.isClosing = true
 
-                state.plugins.forEach { it.graphDispose(this) }
+                state.plugins.forEach { it.graphClose(this) }
 
-                state.registry.values.forEach { boundService -> boundService.dispose() }
+                state.registry.values.forEach { boundService -> boundService.close() }
 
-                state.onDisposeCallback?.invoke(this)
+                state.onCloseCallback?.invoke(this)
             } finally {
-                this.state = State.Disposed
+                this.state = State.Closed
             }
         }
     }

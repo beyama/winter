@@ -29,7 +29,7 @@ internal class BoundTestService(
         postConstructCalled.add(instance)
     }
 
-    override fun dispose() {
+    override fun close() {
         throw Error()
     }
 }

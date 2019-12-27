@@ -13,7 +13,7 @@ interface UnboundService<R : Any> {
 
     /**
      * Return true if the bound service requires lifecycle calls to [BoundService.postConstruct]
-     * or [BoundService.dispose] otherwise false.
+     * or [BoundService.close] otherwise false.
      */
     val requiresLifecycleCallbacks: Boolean
 
@@ -108,7 +108,7 @@ internal class ConstantService<R : Any>(
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun dispose() {
+    override fun close() {
     }
 }
 

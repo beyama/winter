@@ -56,7 +56,7 @@ internal class BoundReferenceService<R : Any>(
 
     var postConstructCalledCount = 0
     var postConstructLastArgument: Any? = null
-    var disposeCalled = 0
+    var closeCalled = 0
 
     override val scope: Scope get() = Scope("referenceTest")
 
@@ -65,8 +65,8 @@ internal class BoundReferenceService<R : Any>(
         postConstructLastArgument = instance
     }
 
-    override fun dispose() {
-        disposeCalled += 1
+    override fun close() {
+        closeCalled += 1
     }
 
     public override var instance: Any = UNINITIALIZED_VALUE

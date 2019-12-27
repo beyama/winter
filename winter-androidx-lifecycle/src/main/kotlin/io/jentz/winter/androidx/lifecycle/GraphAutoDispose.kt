@@ -10,7 +10,7 @@ internal class GraphAutoDispose(
 ) : LifecycleAutoDispose(disposeEvent) {
 
     override fun dispose() {
-        graph.dispose()
+        graph.close()
     }
 }
 

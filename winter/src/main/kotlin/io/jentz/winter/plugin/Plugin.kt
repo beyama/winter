@@ -25,11 +25,11 @@ interface Plugin {
     fun graphInitialized(graph: Graph)
 
     /**
-     * This is called whenever a [Graph] is going to be disposed.
+     * This is called whenever a [Graph] is going to be closed.
      *
-     * @param graph The [Graph] that is going to be disposed.
+     * @param graph The [Graph] that is going to be closed.
      */
-    fun graphDispose(graph: Graph)
+    fun graphClose(graph: Graph)
 
     /**
      * This is called whenever a new instance was created.

@@ -64,8 +64,8 @@ class WinterTestSessionTest {
                 val graph = createAll("sub")
                 val parent = graph.parent!!
                 stop()
-                graph.isDisposed.shouldBeTrue()
-                parent.isDisposed.shouldBeFalse()
+                graph.isClosed.shouldBeTrue()
+                parent.isClosed.shouldBeFalse()
             }
         }
 
@@ -79,8 +79,8 @@ class WinterTestSessionTest {
                 val graph = createAll("sub")
                 val parent = graph.parent!!
                 stop()
-                graph.isDisposed.shouldBeTrue()
-                parent.isDisposed.shouldBeTrue()
+                graph.isClosed.shouldBeTrue()
+                parent.isClosed.shouldBeTrue()
             }
         }
 
@@ -91,9 +91,9 @@ class WinterTestSessionTest {
             }.apply {
                 start()
                 val graphs = (0 until 3).map { createAll() }
-                graphs.none { it.isDisposed }.shouldBeTrue()
+                graphs.none { it.isClosed }.shouldBeTrue()
                 stop()
-                graphs.all { it.isDisposed }.shouldBeTrue()
+                graphs.all { it.isClosed }.shouldBeTrue()
             }
         }
 
@@ -105,7 +105,7 @@ class WinterTestSessionTest {
                 start()
                 val graph = createAll("sub")
                 stop()
-                graph.isDisposed.shouldBeFalse()
+                graph.isClosed.shouldBeFalse()
             }
         }
 
@@ -165,7 +165,7 @@ class WinterTestSessionTest {
         fun `should not contain graphs that got disposed during test`() {
             session {}.test {
                 val graphs = (0 until 3).map { createAll() }
-                graphs.first().dispose()
+                graphs.first().close()
                 allGraphs.shouldBe(graphs.subList(1, graphs.size))
             }
         }
@@ -292,7 +292,7 @@ class WinterTestSessionTest {
                     called = true
                 }
             }.test {
-                createAll("sub", "sub").dispose()
+                createAll("sub", "sub").close()
                 called.shouldBeTrue()
             }
         }
@@ -306,7 +306,7 @@ class WinterTestSessionTest {
                     called = true
                 }
             }.test {
-                createAll("sub").dispose()
+                createAll("sub").close()
                 called.shouldBeTrue()
             }
         }

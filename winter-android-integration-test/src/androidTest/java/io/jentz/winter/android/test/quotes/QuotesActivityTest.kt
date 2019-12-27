@@ -60,20 +60,20 @@ class QuotesActivityTest {
 
         onView(withId(R.id.progressIndicatorView)).isNotDisplayed()
 
-        presentationGraph.isDisposed.shouldBeFalse()
-        activityGraph.isDisposed.shouldBeTrue()
+        presentationGraph.isClosed.shouldBeFalse()
+        activityGraph.isClosed.shouldBeTrue()
     }
 
     @Test
     fun should_dispose_presentation_scope_and_dispose_view_model_when_activity_finishes() {
         val presentationGraph = winterRule.requireTestGraph.parent!!
 
-        presentationGraph.isDisposed.shouldBeFalse()
+        presentationGraph.isClosed.shouldBeFalse()
         viewModel.isDisposed.shouldBeFalse()
 
         activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
-        presentationGraph.isDisposed.shouldBeTrue()
+        presentationGraph.isClosed.shouldBeTrue()
         // WinterDisposablePlugin should dispose view model when graph gets disposed
         viewModel.isDisposed.shouldBeTrue()
     }

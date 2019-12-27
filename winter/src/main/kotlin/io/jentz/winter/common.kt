@@ -37,7 +37,7 @@ typealias Factory<A, R> = (A) -> R
  */
 typealias MembersInjector<R> = (Graph, R) -> Unit
 
-internal typealias OnDisposeCallback = (Graph) -> Unit
+internal typealias OnCloseCallback = (Graph) -> Unit
 
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.

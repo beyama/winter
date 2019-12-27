@@ -34,7 +34,7 @@ internal class PropertyService(
     override fun postConstruct(instance: Any) {
     }
 
-    override fun dispose() {
+    override fun close() {
     }
 
 }

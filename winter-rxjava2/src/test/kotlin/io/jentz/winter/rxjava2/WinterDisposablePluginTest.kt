@@ -41,7 +41,7 @@ class WinterDisposablePluginTest {
         graph {}.apply {
             val disposable: CompositeDisposable = instance()
             disposable.isDisposed.shouldBeFalse()
-            dispose()
+            close()
             disposable.isDisposed.shouldBeTrue()
         }
     }

@@ -90,7 +90,7 @@ class Component internal constructor(
         application = application,
         parent = null,
         component = this,
-        onDisposeCallback = null,
+        onCloseCallback = null,
         block = block
     )
 

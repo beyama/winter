@@ -12,7 +12,6 @@ import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.*
@@ -156,12 +155,12 @@ class GraphTest {
         }
 
         @Test
-        fun `should invoke dispose callback with instance`() {
+        fun `should invoke close callback with instance`() {
             val graph = testComponent.createGraph()
             val parent: Parent = graph.instance()
             val child: Child = graph.instance()
             expectValueToChange(parent, null, child::parent) {
-                graph.dispose()
+                graph.close()
             }
         }
 
@@ -396,9 +395,9 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { instance() }
             }
         }
@@ -437,9 +436,9 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { instanceOrNull() }
             }
         }
@@ -478,9 +477,9 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { provider<Any>() }
             }
         }
@@ -528,9 +527,9 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { providerOrNull<Any>() }
             }
         }
@@ -621,12 +620,12 @@ class GraphTest {
         }
 
         @Test
-        fun `#parent should throw an exception when graph is disposed`() {
+        fun `#parent should throw an exception when graph is closed`() {
             val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                sub.dispose()
+                sub.close()
                 sub.parent
-            }.message.shouldBe("Graph is already disposed.")
+            }.message.shouldBe("Graph is already closed.")
         }
 
         @Test
@@ -638,12 +637,12 @@ class GraphTest {
         }
 
         @Test
-        fun `#component should throw an exception when graph is disposed`() {
+        fun `#component should throw an exception when graph is closed`() {
             val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                sub.dispose()
+                sub.close()
                 sub.component
-            }.message.shouldBe("Graph is already disposed.")
+            }.message.shouldBe("Graph is already closed.")
         }
 
     }
@@ -669,9 +668,9 @@ class GraphTest {
             val graph = Graph(Winter, parent, emptyComponent, null, null)
             verify(plugin, times(1)).graphInitializing(same(parent), any())
             verify(plugin, times(1)).graphInitialized(graph)
-            verify(plugin, never()).graphDispose(any())
-            graph.dispose()
-            verify(plugin, times(1)).graphDispose(graph)
+            verify(plugin, never()).graphClose(any())
+            graph.close()
+            verify(plugin, times(1)).graphClose(graph)
         }
 
         @Test
@@ -697,46 +696,46 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("#dispose and #isDisposed")
-    inner class DisposeMethod {
+    @DisplayName("#close and #isClosed")
+    inner class CloseMethod {
 
         @Test
-        fun `#dispose should mark the graph as disposed`() {
+        fun `#close should mark the graph as closed`() {
             val graph = graph {}
-            expectValueToChange(false, true, graph::isDisposed) {
-                graph.dispose()
+            expectValueToChange(from = false, to = true, valueProvider = graph::isClosed) {
+                graph.close()
             }
         }
 
         @Test
-        fun `subsequent calls to #dispose should be ignored`() {
+        fun `subsequent calls to #close should be ignored`() {
             val graph = graph {}
-            repeat(3) { graph.dispose() }
-            verify(plugin, times(1)).graphDispose(graph)
+            repeat(3) { graph.close() }
+            verify(plugin, times(1)).graphClose(graph)
         }
 
         @Test
-        fun `#dispose should run graph dispose plugins before marking graph as disposed`() {
+        fun `#close should run graph close plugins before marking graph as closed`() {
             var called = false
             Winter.plugins += object : SimplePlugin() {
-                override fun graphDispose(graph: Graph) {
+                override fun graphClose(graph: Graph) {
                     called = true
-                    graph.isDisposed.shouldBeFalse()
+                    graph.isClosed.shouldBeFalse()
                 }
             }
             val graph = graph {}
-            graph.dispose()
+            graph.close()
             called.shouldBeTrue()
         }
 
         @Test
-        fun `#dispose should ignore a call to dispose from plugin`() {
+        fun `#close should ignore calls to close from plugin`() {
             Winter.plugins + object : SimplePlugin() {
-                override fun graphDispose(graph: Graph) {
-                    graph.dispose()
+                override fun graphClose(graph: Graph) {
+                    graph.close()
                 }
             }
-            graph {}.dispose()
+            graph {}.close()
             // no StackOverflowError here
         }
 
@@ -800,11 +799,11 @@ class GraphTest {
         }
 
         @Test
-        fun `#closeSubgraph should dispose and remove subgraph with identifier`() {
+        fun `#closeSubgraph should close and remove subgraph with identifier`() {
             val graph = root.openSubgraph("presentation")
             root.closeSubgraph("presentation")
 
-            graph.isDisposed.shouldBeTrue()
+            graph.isClosed.shouldBeTrue()
             root.instanceOrNull<Graph>("presentation").shouldBeNull()
         }
 
@@ -816,27 +815,27 @@ class GraphTest {
         }
 
         @Test
-        fun `#dispose should dispose all managed subgraphs`() {
+        fun `#close should close all managed subgraphs`() {
             val presentation = root.openSubgraph("presentation")
             val view = presentation.openSubgraph("view")
 
-            presentation.dispose()
+            presentation.close()
 
-            presentation.isDisposed.shouldBeTrue()
-            view.isDisposed.shouldBeTrue()
+            presentation.isClosed.shouldBeTrue()
+            view.isClosed.shouldBeTrue()
         }
 
         @Test
-        fun `#dispose of subgraphs should not lead to concurrent modification exception`() {
+        fun `#close of subgraphs should not lead to concurrent modification exception`() {
             val presentation = root.openSubgraph("presentation")
             val view = presentation.openSubgraph("view")
 
             // we need more than one service in our registry to get the exception when unregistering
-            // of subgraphs is not prevented during dispose
+            // of subgraphs is not prevented during close
             presentation.instance<List<*>>()
             view.instance<Map<*, *>>()
 
-            root.dispose()
+            root.close()
         }
 
     }

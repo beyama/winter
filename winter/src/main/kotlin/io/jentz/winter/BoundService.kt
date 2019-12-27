@@ -56,9 +56,9 @@ interface BoundService<R : Any> {
     fun postConstruct(instance: R)
 
     /**
-     * This is called for each [BoundService] in a [Graph] when [Graph.dispose] is called.
+     * This is called for each [BoundService] in a [Graph] when [Graph.close] is called.
      */
-    fun dispose()
+    fun close()
 }
 
 internal class BoundPrototypeService<R : Any>(
@@ -80,7 +80,7 @@ internal class BoundPrototypeService<R : Any>(
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
-    override fun dispose() {
+    override fun close() {
     }
 
 }
@@ -122,7 +122,7 @@ internal class BoundSingletonService<R : Any>(
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
-    override fun dispose() {
+    override fun close() {
         val instance = instance
         if (instance !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
@@ -150,7 +150,7 @@ internal class BoundWeakSingletonService<R : Any>(
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
-    override fun dispose() {
+    override fun close() {
     }
 
 }
@@ -173,7 +173,7 @@ internal class BoundSoftSingletonService<R : Any>(
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
-    override fun dispose() {
+    override fun close() {
     }
 
 }
@@ -197,7 +197,7 @@ internal class BoundGraphService(
     override fun postConstruct(instance: Graph) {
     }
 
-    override fun dispose() {
-        graph.dispose()
+    override fun close() {
+        graph.close()
     }
 }

@@ -278,7 +278,7 @@ class Tree(
             application = application,
             parent = null,
             component = component,
-            onDisposeCallback = { close() },
+            onCloseCallback = { close() },
             block = block
         ).also {
             state = Initialized(it)
@@ -343,7 +343,7 @@ class Tree(
     private fun close(state: Initialized, path: Array<out Any>): Boolean {
         val graph = state.getOrNull(path) ?: return false
 
-        graph.dispose()
+        graph.close()
 
         if (path.isEmpty()) {
             this.state = Uninitialized

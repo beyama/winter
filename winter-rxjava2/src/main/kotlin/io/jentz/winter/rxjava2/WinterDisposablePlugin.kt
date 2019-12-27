@@ -24,7 +24,7 @@ object WinterDisposablePlugin : SimplePlugin() {
         }
     }
 
-    override fun graphDispose(graph: Graph) {
+    override fun graphClose(graph: Graph) {
         graph.instance<CompositeDisposable>().dispose()
     }
 }

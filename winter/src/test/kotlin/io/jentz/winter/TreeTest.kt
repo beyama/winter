@@ -265,7 +265,7 @@ class TreeTest {
     fun `#close without path should close and dispose root dependency graph`() {
         val root = tree.open()
         tree.close()
-        root.isDisposed.shouldBeTrue()
+        root.isClosed.shouldBeTrue()
         tree.isOpen().shouldBeFalse()
     }
 
@@ -273,7 +273,7 @@ class TreeTest {
     fun `#close with path should close and dispose sub dependency graphs by path`() {
         val graph = openAll(*viewPath)
         tree.close(*viewPath)
-        graph.isDisposed.shouldBeTrue()
+        graph.isClosed.shouldBeTrue()
         tree.isOpen(*viewPath).shouldBeFalse()
     }
 
@@ -284,7 +284,7 @@ class TreeTest {
         val view = tree.open(*viewPath)
 
         tree.close()
-        listOf(root, presentation, view).all { it.isDisposed }.shouldBeTrue()
+        listOf(root, presentation, view).all { it.isClosed }.shouldBeTrue()
     }
 
     @Test
@@ -294,8 +294,8 @@ class TreeTest {
         val view = tree.open(*viewPath)
 
         tree.close("presentation")
-        root.isDisposed.shouldBeFalse()
-        listOf(presentation, view).all { it.isDisposed }.shouldBeTrue()
+        root.isClosed.shouldBeFalse()
+        listOf(presentation, view).all { it.isClosed }.shouldBeTrue()
     }
 
     @Test
@@ -308,17 +308,17 @@ class TreeTest {
     fun `#closeIfOpen should close existing path`() {
         val view = openAll(*viewPath)
         tree.closeIfOpen(*viewPath).shouldBeTrue()
-        view.isDisposed.shouldBeTrue()
+        view.isClosed.shouldBeTrue()
 
         val root = tree.get()
         tree.closeIfOpen().shouldBeTrue()
-        root.isDisposed.shouldBeTrue()
+        root.isClosed.shouldBeTrue()
     }
 
     @Test
     fun `disposing the application graph should have the same effect as calling #close without path`() {
         val graph = tree.open()
-        graph.dispose()
+        graph.close()
         tree.isOpen().shouldBeFalse()
     }
 
