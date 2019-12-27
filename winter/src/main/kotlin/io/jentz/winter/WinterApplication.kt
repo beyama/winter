@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.jentz.winter.adapter.ApplicationGraphOnlyInjectionAdapter
+import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugins
 
@@ -137,6 +138,11 @@ open class WinterApplication() {
     var checkForCyclicDependencies: Boolean = false
 
     /**
+     * Used internally for injected properties.
+     */
+    internal val delegateNotifier = DelegateNotifier()
+
+    /**
      * Sets the application component by supplying an optional qualifier and a component builder
      * block.
      *
@@ -157,22 +163,6 @@ open class WinterApplication() {
      */
     fun createGraph(instance: Any, block: ComponentBuilderBlock? = null): Graph =
         injectionAdapter.createGraph(instance, block)
-
-    /**
-     * Create and return dependency graph for [instance] and also pass the graph to the given
-     * [injector].
-     *
-     * @param instance The instance for which a graph should be created.
-     * @param injector The injector to inject into.
-     * @param block An optional builder block to pass to the component createGraph method.
-     * @return The created dependency graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    fun createGraphAndInject(
-        instance: Any,
-        injector: Injector,
-        block: ComponentBuilderBlock? = null
-    ): Graph = createGraph(instance, block).also(injector::inject)
 
     /**
      * Create and return dependency graph for [instance] and inject all members into instance.
@@ -208,17 +198,6 @@ open class WinterApplication() {
      */
     fun disposeGraph(instance: Any) {
         injectionAdapter.disposeGraph(instance)
-    }
-
-    /**
-     * Get dependency graph for given [instance] and inject dependencies into injector.
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @param injector The injector to inject into.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    fun inject(instance: Any, injector: Injector) {
-        injector.inject(getGraph(instance))
     }
 
     /**

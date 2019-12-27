@@ -2,6 +2,7 @@ package io.jentz.winter.aware
 
 import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.*
+import io.jentz.winter.delegate.*
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -145,6 +146,63 @@ class WinterAwareTest {
             aware.inject(target)
             verify(injection.injectionAdapter, times(1)).getGraph(aware)
             verify(graph, times(1)).inject(target)
+        }
+
+    }
+
+    @Nested
+    inner class DelegateMethods {
+
+        @Test
+        fun `should return ProviderProperty for #injectProvider`() {
+            aware.injectProvider<String>().shouldBeInstanceOf<ProviderProperty<*>>()
+        }
+
+        @Test
+        fun `should return ProviderOrNullProperty for #injectProviderOrNull`() {
+            aware.injectProviderOrNull<String>()
+                .shouldBeInstanceOf<ProviderOrNullProperty<*>>()
+        }
+
+        @Test
+        fun `should return InstanceProperty for #inject`() {
+            aware.inject<String>().shouldBeInstanceOf<InstanceProperty<*>>()
+        }
+
+        @Test
+        fun `should return InstanceOrNullProperty for #injectOrNull`() {
+            aware.injectOrNull<String>()
+                .shouldBeInstanceOf<InstanceOrNullProperty<*>>()
+        }
+
+        @Test
+        fun `should return LazyInstanceProperty for #injectLazy`() {
+            aware.injectLazy<String>()
+                .shouldBeInstanceOf<LazyInstanceProperty<*>>()
+        }
+
+        @Test
+        fun `should return LazyInstanceOrNullProperty for #injectLazyOrNull`() {
+            aware.injectLazyOrNull<String>()
+                .shouldBeInstanceOf<LazyInstanceOrNullProperty<*>>()
+        }
+
+        @Test
+        fun `should return ProvidersOfTypeProperty for #injectProvidersOfType`() {
+            aware.injectProvidersOfType<String>()
+                .shouldBeInstanceOf<ProvidersOfTypeProperty<*>>()
+        }
+
+        @Test
+        fun `should return InstancesOfTypeProperty for #injectInstancesOfType`() {
+            aware.injectInstancesOfType<String>()
+                .shouldBeInstanceOf<InstancesOfTypeProperty<*>>()
+        }
+
+        @Test
+        fun `should return LazyInstancesOfTypeProperty for #injectLazyInstancesOfType`() {
+            aware.injectLazyInstancesOfType<String>()
+                .shouldBeInstanceOf<LazyInstancesOfTypeProperty<*>>()
         }
 
     }

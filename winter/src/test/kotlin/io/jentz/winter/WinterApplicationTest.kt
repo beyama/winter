@@ -83,33 +83,9 @@ class WinterApplicationTest {
         }
 
         @Test
-        fun `#createGraphAndInject with injector argument should inject graph into injector`() {
-            val injector = Injector()
-            whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
-            app.createGraphAndInject(instance, injector).shouldBeSameInstanceAs(rootGraph)
-            injector.injected.shouldBeTrue()
-        }
-
-        @Test
-        fun `#createGraphAndInject should pass builder block to Adapter#createGraph`() {
-            val block: ComponentBuilderBlock = {}
-            val injector = Injector()
-            whenever(adapter.createGraph(instance, block)).thenReturn(rootGraph)
-            app.createGraphAndInject(instance, injector, block).shouldBeSameInstanceAs(rootGraph)
-        }
-
-        @Test
         fun `#disposeGraph should pass instance to Adapter#disposeGraph`() {
             app.disposeGraph(instance)
             verify(adapter, times(1)).disposeGraph(instance)
-        }
-
-        @Test
-        fun `#inject with Injector should get graph for instance and pass it to Injector#inject`() {
-            val injector = Injector()
-            whenever(adapter.getGraph(instance)).thenReturn(rootGraph)
-            app.inject(instance, injector)
-            injector.injected.shouldBeTrue()
         }
 
         @Nested
