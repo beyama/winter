@@ -18,7 +18,7 @@ object WinterDisposablePlugin : SimplePlugin() {
         builder.constant(CompositeDisposable())
     }
 
-    override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
+    override fun postConstruct(graph: Graph, scope: Scope, instance: Any) {
         if (scope == Scope.Singleton && instance is Disposable) {
             graph.instance<CompositeDisposable>().add(instance)
         }

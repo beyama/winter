@@ -25,7 +25,7 @@ class Component internal constructor(
      */
     val qualifier: Any,
 
-    private val dependencies: Map<TypeKey<*, *>, UnboundService<*, *>>,
+    private val dependencies: Map<TypeKey<*>, UnboundService<*>>,
 
     /**
      * Set to true if any of the services requires lifecycle callbacks.
@@ -94,18 +94,18 @@ class Component internal constructor(
         block = block
     )
 
-    internal inline fun forEach(block: (Map.Entry<TypeKey<*, *>, UnboundService<*, *>>) -> Unit) {
+    internal inline fun forEach(block: (Map.Entry<TypeKey<*>, UnboundService<*>>) -> Unit) {
         dependencies.forEach(block)
     }
 
-    internal fun keys(): Set<TypeKey<*, *>> = dependencies.keys
+    internal fun keys(): Set<TypeKey<*>> = dependencies.keys
 
-    internal operator fun get(key: TypeKey<*, *>): UnboundService<*, *>? = dependencies[key]
+    internal operator fun get(key: TypeKey<*>): UnboundService<*>? = dependencies[key]
 
     internal val size: Int get() = dependencies.size
 
     internal fun isEmpty(): Boolean = dependencies.isEmpty()
 
-    internal fun containsKey(typeKey: TypeKey<*, *>): Boolean = dependencies.containsKey(typeKey)
+    internal fun containsKey(typeKey: TypeKey<*>): Boolean = dependencies.containsKey(typeKey)
 
 }

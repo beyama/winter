@@ -28,10 +28,10 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         Merge
     }
 
-    private val registry: MutableMap<TypeKey<*, *>, UnboundService<*, *>> = mutableMapOf()
+    private val registry: MutableMap<TypeKey<*>, UnboundService<*>> = mutableMapOf()
     private var requiresLifecycleCallbacks: Boolean = false
-    private var eagerDependencies: MutableSet<TypeKey<Unit, Any>> = mutableSetOf()
-    private var subcomponentBuilders: MutableMap<TypeKey<Unit, Component>, ComponentBuilder>? = null
+    private var eagerDependencies: MutableSet<TypeKey<Any>> = mutableSetOf()
+    private var subcomponentBuilders: MutableMap<TypeKey<Component>, ComponentBuilder>? = null
 
     /**
      * Include dependency from the given component into the new component.
@@ -51,11 +51,11 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         component.forEach { (k, v) ->
             when {
                 k === eagerDependenciesKey -> {
-                    val entry = v as ConstantService<Set<TypeKey<Unit, Any>>>
+                    val entry = v as ConstantService<Set<TypeKey<Any>>>
                     eagerDependencies.addAll(entry.value)
                 }
                 v is ConstantService<*> && v.value is Component -> {
-                    val key = k as TypeKey<Unit, Component>
+                    val key = k as TypeKey<Component>
                     val service = v as ConstantService<Component>
                     registerSubcomponent(key, service, subcomponentIncludeMode)
                 }
@@ -82,8 +82,8 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback1<R>? = null,
-        noinline factory: GFactory0<R>
+        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundPrototypeService(key, factory, postConstruct)
@@ -104,9 +104,9 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback1<R>? = null,
-        noinline dispose: GFactoryCallback1<R>? = null,
-        noinline factory: GFactory0<R>
+        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline dispose: GFactoryCallback<R>? = null,
+        noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundSingletonService(key, factory, postConstruct, dispose)
@@ -130,9 +130,9 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback1<R>? = null,
-        noinline dispose: GFactoryCallback1<R>? = null,
-        noinline factory: GFactory0<R>
+        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline dispose: GFactoryCallback<R>? = null,
+        noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundSingletonService(key, factory, postConstruct, dispose)
@@ -153,8 +153,8 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback1<R>? = null,
-        noinline factory: GFactory0<R>
+        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundWeakSingletonService(key, factory, postConstruct)
@@ -174,58 +174,11 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback1<R>? = null,
-        noinline factory: GFactory0<R>
+        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
         val service = UnboundSoftSingletonService(key, factory, postConstruct)
-        register(service, override)
-    }
-
-    /**
-     * Register a factory from type `(A) -> R`.
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [A] and [R].
-     * @param override If true this will override a existing factory of this type.
-     * @param postConstruct A post construct callback.
-     * @param factory The factory factory.
-     */
-    inline fun <reified A : Any, reified R : Any> factory(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        override: Boolean = false,
-        noinline postConstruct: GFactoryCallback2<A, R>? = null,
-        noinline factory: GFactory1<A, R>
-    ) {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = UnboundFactoryService(key, factory, postConstruct)
-        register(service, override)
-    }
-
-    /**
-     * Register a multiton factory from type `(A) -> R`.
-     *
-     * A multiton factory is only called once per argument and the result is cached like a
-     * singleton.
-     *
-     * @param qualifier An optional qualifier.
-     * @param generics If true this will preserve generic information of [A] and [R].
-     * @param override If true this will override a existing factory of this type.
-     * @param postConstruct A post construct callback.
-     * @param dispose A callback that gets called when the dependency graph gets disposed.
-     * @param factory The factory factory.
-     */
-    inline fun <reified A : Any, reified R : Any> multiton(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        override: Boolean = false,
-        noinline postConstruct: GFactoryCallback2<A, R>? = null,
-        noinline dispose: GFactoryCallback2<A, R>? = null,
-        noinline factory: GFactory1<A, R>
-    ) {
-        val key = compoundTypeKey<A, R>(qualifier, generics)
-        val service = UnboundMultitonFactoryService(key, factory, postConstruct, dispose)
         register(service, override)
     }
 
@@ -257,7 +210,7 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * singleton<Service>(factory = generated)
      * ```
      */
-    inline fun <reified R : Any> generated(): GFactory0<R> {
+    inline fun <reified R : Any> generated(): GFactory<R> {
         val factoryName = R::class.java.name + "_WinterFactory"
         @Suppress("UNCHECKED_CAST")
         val factory = Class.forName(factoryName) as Class<Factory<Graph, R>>
@@ -314,7 +267,7 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      *
      * Don't use that except if you add your own [UnboundService] implementations.
      */
-    fun register(service: UnboundService<*, *>, override: Boolean) {
+    fun register(service: UnboundService<*>, override: Boolean) {
         val key = service.key
         val alreadyExists = registry.containsKey(key)
 
@@ -333,7 +286,7 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * Remove a dependency from the component.
      * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false.
      */
-    fun remove(key: TypeKey<*, *>, silent: Boolean = false) {
+    fun remove(key: TypeKey<*>, silent: Boolean = false) {
         if (!silent && !registry.containsKey(key)) {
             throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
         }
@@ -353,9 +306,9 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
      * @throws WinterException If [newKey] entry already exists and [override] is false.
      */
-    fun <A0, R0: Any, A1, R1: Any> alias(
-        targetKey: TypeKey<A0, R0>,
-        newKey: TypeKey<A1, R1>,
+    fun <R0: Any, R1: Any> alias(
+        targetKey: TypeKey<R0>,
+        newKey: TypeKey<R1>,
         override: Boolean = false
     ) {
         registry[targetKey]
@@ -364,19 +317,19 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
     }
 
     @PublishedApi
-    internal fun addEagerDependency(key: TypeKey<Unit, Any>) {
+    internal fun addEagerDependency(key: TypeKey<Any>) {
         if (!registry.containsKey(key)) {
             throw WinterException("Key `$key` is not registered.")
         }
         eagerDependencies.add(key)
     }
 
-    private fun removeEagerDependency(key: TypeKey<*, *>) {
+    private fun removeEagerDependency(key: TypeKey<*>) {
         eagerDependencies.remove(key)
     }
 
     private fun registerSubcomponent(
-        key: TypeKey<Unit, Component>,
+        key: TypeKey<Component>,
         entry: ConstantService<Component>,
         subcomponentIncludeMode: SubcomponentIncludeMode
     ) {
@@ -399,7 +352,7 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
         }
     }
 
-    private fun getOrCreateSubcomponentBuilder(key: TypeKey<Unit, Component>): ComponentBuilder {
+    private fun getOrCreateSubcomponentBuilder(key: TypeKey<Component>): ComponentBuilder {
         val qualifier = requireNotNull(key.qualifier) {
             "BUG! qualifier for sub-component key must not be null"
         }

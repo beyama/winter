@@ -90,7 +90,7 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { prototype { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Prototype, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.Prototype, instance)
         }
 
         @Test
@@ -152,7 +152,7 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { singleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Singleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.Singleton, instance)
         }
 
         @Test
@@ -214,7 +214,7 @@ class GraphTest {
         fun `should invoke factory function only when reference is null`() {
             var count = 0
             val graph = graph { reference { count += 1; count } }
-            val service = graph.service<Unit, Int>(typeKey<Int>()) as BoundReferenceService
+            val service = graph.service<Int>(typeKey()) as BoundReferenceService
             service.instance.shouldBe(UNINITIALIZED_VALUE)
             repeat(5) { graph.instance<Int>() }
             service.instance.shouldBe(1)
@@ -226,10 +226,10 @@ class GraphTest {
         @Test
         fun `should invoke post construct callback with instance`() {
             val graph = graph { reference { "test" } }
-            val service = graph.service<Unit, String>(typeKey<String>()) as BoundReferenceService
+            val service = graph.service<String>(typeKey()) as BoundReferenceService
             graph.instance<String>()
             service.postConstructCalledCount.shouldBe(1)
-            service.postConstructLastArguments.shouldBe(Unit to "test")
+            service.postConstructLastArgument.shouldBe("test")
         }
 
         @Test
@@ -267,7 +267,7 @@ class GraphTest {
         fun `#softSingleton should run post construct plugins`() {
             val graph = graph { softSingleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.SoftSingleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.SoftSingleton, instance)
         }
 
         @Test
@@ -307,7 +307,7 @@ class GraphTest {
         fun `#weakSingleton should run post construct plugins`() {
             val graph = graph { weakSingleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.WeakSingleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.WeakSingleton, instance)
         }
 
         @Test
@@ -326,189 +326,6 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("Factory scope")
-    inner class FactoryScope {
-
-        @Test
-        fun `should return instance returned by the factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instance<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should invoke factory for every lookup`() {
-            var count = 0
-            val graph = graph {
-                factory { i: Int ->
-                    count += 1
-                    i.toString()
-                }
-            }
-            (1..5).forEach {
-                graph.instance<Int, String>(it).shouldBe(it.toString())
-            }
-
-        }
-
-        @Test
-        fun `should invoke postConstruct callback with argument and instance`() {
-            var called = false
-            graph {
-                factory(
-                    postConstruct = { a, r ->
-                        called = true
-                        a.shouldBe(42)
-                        r.shouldBe("42")
-                    }
-                ) { i: Int -> i.toString() }
-            }.instance<Int, String>(42)
-            called.shouldBeTrue()
-        }
-
-        @Test
-        fun `should run post construct plugins`() {
-            val graph = graph { factory { i: Int -> i.toString() } }
-            graph.instance<Int, String>(42)
-            verify(plugin, times(1)).postConstruct(graph, Scope.PrototypeFactory, 42, "42")
-        }
-
-        @Test
-        fun `should allow resolution of nested dependencies`() {
-            graph {
-                prototype { Heater() }
-                factory { type: String ->
-                    when (type) {
-                        "rotary" -> RotaryPump()
-                        "thermo" -> Thermosiphon(instance())
-                        else -> throw IllegalArgumentException()
-                    }
-                }
-                factory { pumpType: String ->
-                    CoffeeMaker(instance(), instance(argument = pumpType))
-                }
-            }.instance<String, CoffeeMaker>("thermo").pump.shouldBeInstanceOf<Thermosiphon>()
-        }
-
-        @Test
-        fun `should be thread safe`() {
-            val graph = graph {
-                (0..100).forEach { value ->
-                    factory<Int, String>(qualifier = value) { i -> i.toString() }
-                }
-            }
-
-            (0..100).map {
-                executor.submit {
-                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
-                }
-            }.forEach { it.get() }
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Multiton scope")
-    inner class MultitonScope {
-
-        @Test
-        fun `should return instance returned by factory`() {
-            graph {
-                multiton { c: Color -> Widget(c) }
-            }.instance<Color, Widget>(Color.BLUE).color.shouldBe(Color.BLUE)
-        }
-
-        @Test
-        fun `should invoke factory only on the first lookup with new argument`() {
-            val graph = graph {
-                multiton { c: Color -> Widget(c) }
-            }
-            val a: Widget = graph.instance(argument = Color.BLUE)
-            val b: Widget = graph.instance(argument = Color.BLUE)
-            val c: Widget = graph.instance(argument = Color.RED)
-            a.shouldBeSameInstanceAs(b)
-            c.shouldNotBeSameInstanceAs(b)
-            c.color.shouldBe(Color.RED)
-        }
-
-        @Test
-        fun `should invoke post construct callback with instance and argument`() {
-            var called = false
-            graph {
-                multiton(
-                    postConstruct = { a, r ->
-                        called = true
-                        a.shouldBe(Color.GREEN)
-                        r.shouldBeInstanceOf<Widget>()
-                    }
-                ) { c: Color -> Widget(c) }
-            }.instance<Color, Widget>(Color.GREEN)
-            called.shouldBeTrue()
-        }
-
-        @Test
-        fun `should run post construct plugins`() {
-            val graph = graph { multiton { i: Int -> i.toString() } }
-            graph.instance<Int, String>(42)
-            verify(plugin, times(1)).postConstruct(graph, Scope.MultitonFactory, 42, "42")
-        }
-
-        @Test
-        fun `should invoke dispose callback with instance and argument for each constructed instance`() {
-            var count = 0
-            val graph = graph {
-                multiton(
-                    dispose = { a, r ->
-                        count += 1
-                        a.shouldBeInstanceOf<Color>()
-                        r.shouldBeInstanceOf<Widget>()
-                    }
-                ) { c: Color -> Widget(c) }
-            }
-            graph.instance<Color, Widget>(Color.RED)
-            graph.instance<Color, Widget>(Color.GREEN)
-            graph.instance<Color, Widget>(Color.BLUE)
-            expectValueToChange(0, 3, { count }) { graph.dispose() }
-        }
-
-        @Test
-        fun `should allow resolution of nested dependencies`() {
-            graph {
-                prototype { Heater() }
-                multiton { type: String ->
-                    when (type) {
-                        "rotary" -> RotaryPump()
-                        "thermo" -> Thermosiphon(instance())
-                        else -> throw IllegalArgumentException()
-                    }
-                }
-                factory { pumpType: String ->
-                    CoffeeMaker(instance(), instance(argument = pumpType))
-                }
-            }.let {
-                it.instance<String, CoffeeMaker>("thermo").pump
-                    .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
-            }
-        }
-
-        @Test
-        fun `should be thread safe`() {
-            val graph = graph {
-                (0..100).forEach { value ->
-                    multiton<Int, String>(qualifier = value) { i -> i.toString() }
-                }
-            }
-
-            (0..100).map {
-                executor.submit {
-                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
-                }
-            }.forEach { it.get() }
-        }
-
-    }
-
-    @Nested
     @DisplayName("Alias service")
     inner class AliasService {
 
@@ -519,8 +336,8 @@ class GraphTest {
                 prototype { Thermosiphon(instance()) }
                 alias(typeKey<Thermosiphon>(), typeKey<Pump>())
             }
-            graph.service<Unit, Pump>(typeKey<Pump>())
-                .shouldBeSameInstanceAs(graph.service<Unit, Thermosiphon>(typeKey<Thermosiphon>()))
+            graph.service<Pump>(typeKey())
+                .shouldBeSameInstanceAs(graph.service<Thermosiphon>(typeKey()))
         }
 
         @Test
@@ -541,7 +358,7 @@ class GraphTest {
                     prototype { Thermosiphon(instance()) }
                     alias(typeKey<Thermosiphon>(), typeKey<Pump>())
                     remove(typeKey<Thermosiphon>())
-                }.service<Unit, Pump>(typeKey<Pump>())
+                }.service<Pump>(typeKey())
             }.message.shouldBe("Error resolving alias `${typeKey<Pump>()}` pointing to `${typeKey<Thermosiphon>()}`.")
         }
 
@@ -571,28 +388,6 @@ class GraphTest {
                 prototype("a") { "a" }
                 prototype("b") { "b" }
             }.instance<String>(qualifier = "b").shouldBe("b")
-        }
-
-        @Test
-        fun `should resolve instance from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instance<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.instance<Int, String>(21, "b").shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.instance<Int, Map<Int, String>>(1, generics = true).shouldBe(mapOf(1 to "1"))
         }
 
         @Test
@@ -637,35 +432,8 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve instance from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instanceOrNull<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.instanceOrNull<Int, String>(21, "b").shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.instanceOrNull<Int, Map<Int, String>>(1, generics = true).shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should return null if dependency doesn't exist`() {
             emptyGraph.instanceOrNull<Any>().shouldBe(null)
-        }
-
-        @Test
-        fun `should return null if factory doesn't exist`() {
-            emptyGraph.instanceOrNull<Int, String>(1).shouldBe(null)
         }
 
         @Test
@@ -702,28 +470,6 @@ class GraphTest {
                 prototype("a") { "a" }
                 prototype("b") { "b" }
             }.provider<String>(qualifier = "b").invoke().shouldBe("b")
-        }
-
-        @Test
-        fun `should resolve provider from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.provider<Int, String>(42).invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve provider from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.provider<Int, String>(21, "b").invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.provider<Int, Map<Int, String>>(1, generics = true).invoke().shouldBe(mapOf(1 to "1"))
         }
 
         @Test
@@ -777,29 +523,6 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve provider from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.providerOrNull<Int, String>(42)?.invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve provider from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.providerOrNull<Int, String>(21, "b")?.invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.providerOrNull<Int, Map<Int, String>>(1, generics = true)?.invoke()
-                .shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should return null if dependency doesn't exist`() {
             emptyGraph.providerOrNull<Any>().shouldBe(null)
         }
@@ -819,89 +542,6 @@ class GraphTest {
             counter.shouldBe(0)
             provider.invoke().shouldBe(1)
             provider.invoke().shouldBe(2)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#factory")
-    inner class FactoryMethod {
-
-        @Test
-        fun `should resolve factory by class`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.factory<Int, String>().invoke(5).shouldBe("5")
-        }
-
-        @Test
-        fun `should resolve factory by generic class`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.factory<Int, Map<Int, String>>(generics = true).invoke(5).shouldBe(mapOf(5 to "5"))
-        }
-
-        @Test
-        fun `should resolve factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.factory<Int, String>(qualifier = "b").invoke(5).shouldBe("10")
-        }
-
-        @Test
-        fun `should throw an exception if factory doesn't exist`() {
-            shouldThrow<EntryNotFoundException> { emptyGraph.factory<Int, String>() }
-        }
-
-        @Test
-        fun `should throw an exception when graph is disposed`() {
-            graph { factory { i: Int -> i.toString() } }.apply {
-                dispose()
-                shouldThrow<WinterException> { factory<Int, String>() }
-            }
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#factoryOrNull")
-    inner class FactoryOrNullMethod {
-
-        @Test
-        fun `should resolve factory by class`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.factoryOrNull<Int, String>()?.invoke(5).shouldBe("5")
-        }
-
-        @Test
-        fun `should resolve factory by generic class`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.factoryOrNull<Int, Map<Int, String>>(generics = true)?.invoke(5)
-                .shouldBe(mapOf(5 to "5"))
-        }
-
-        @Test
-        fun `should resolve factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.factoryOrNull<Int, String>(qualifier = "b")?.invoke(5).shouldBe("10")
-        }
-
-        @Test
-        fun `should return null if factory doesn't exist`() {
-            emptyGraph.factoryOrNull<Int, String>().shouldBe(null)
-        }
-
-        @Test
-        fun `should throw an exception when graph is disposed`() {
-            graph { factory { i: Int -> i.toString() } }.apply {
-                dispose()
-                shouldThrow<WinterException> { factoryOrNull<Int, String>() }
-            }
         }
 
     }

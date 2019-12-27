@@ -27,18 +27,18 @@ class Graph internal constructor(
             val application: WinterApplication,
             val plugins: Plugins,
             val serviceEvaluator: ServiceEvaluator,
-            val registry: MutableMap<TypeKey<*, *>, BoundService<*, *>> = mutableMapOf(),
+            val registry: MutableMap<TypeKey<*>, BoundService<*>> = mutableMapOf(),
             val onDisposeCallback: OnDisposeCallback?
         ) : State() {
             var isDisposing = false
 
             @Suppress("UNCHECKED_CAST")
-            fun <A, R : Any> serviceOrNull(key: TypeKey<A, R>): BoundService<A, R>? =
+            fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
                 registry.getOrPut(key) {
                     component[key]?.bind(graph) ?: return parent?.serviceOrNull(key)
-                } as? BoundService<A, R>
+                } as? BoundService<R>
 
-            fun <A, R : Any> service(key: TypeKey<A, R>): BoundService<A, R> = serviceOrNull(key)
+            fun <R : Any> service(key: TypeKey<R>): BoundService<R> = serviceOrNull(key)
                 ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
 
         }
@@ -114,7 +114,7 @@ class Graph internal constructor(
 
         plugins.forEach { it.graphInitialized(this) }
 
-        instanceOrNullByKey(eagerDependenciesKey, Unit)?.forEach { key ->
+        instanceOrNullByKey(eagerDependenciesKey)?.forEach { key ->
             try {
                 instanceByKey(key)
             } catch (e: EntryNotFoundException) {
@@ -140,22 +140,6 @@ class Graph internal constructor(
     ): R = instanceByKey(typeKey(qualifier, generics))
 
     /**
-     * Retrieve a factory of type `(A) -> R` and apply [argument] to it.
-     *
-     * @param argument The argument for the factory to retrieve.
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The result of applying [argument] to the retrieved factory.
-     *
-     * @throws EntryNotFoundException
-     */
-    inline fun <reified A, reified R : Any> instance(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): R = instanceByKey(compoundTypeKey(qualifier, generics), argument)
-
-    /**
      * Retrieve a non-optional instance of `R` by [key].
      *
      * @param key The type key of the instance.
@@ -163,19 +147,8 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> instanceByKey(key: TypeKey<Unit, R>): R = instanceByKey(key, Unit)
-
-    /**
-     * Retrieve a factory of type `(A) -> R` by [key] and apply [argument] to it.
-     *
-     * @param key The type key of the factory.
-     * @param argument The argument for the factory to retrieve.
-     * @return The result of applying [argument] to the retrieved factory.
-     *
-     * @throws EntryNotFoundException
-     */
-    fun <A, R : Any> instanceByKey(key: TypeKey<A, R>, argument: A): R =
-        synchronizedMap { it.service(key).instance(argument) }
+    fun <R : Any> instanceByKey(key: TypeKey<R>): R =
+        synchronizedMap { it.service(key).instance() }
 
     /**
      * Retrieve an optional instance of `R`.
@@ -190,38 +163,13 @@ class Graph internal constructor(
     ): R? = instanceOrNullByKey(typeKey(qualifier, generics))
 
     /**
-     * Retrieve an optional factory of type `(A) -> R` and apply [argument] to it.
-     *
-     * @param argument The argument for the factory to retrieve.
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The result of applying [argument] to the retrieved factory or null if factory
-     *         doesn't exist.
-     */
-    inline fun <reified A, reified R : Any> instanceOrNull(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): R? = instanceOrNullByKey(compoundTypeKey(qualifier, generics), argument)
-
-    /**
      * Retrieve an optional instance of `R` by [key].
      *
      * @param key The type key of the instance.
      * @return An instance of `R` or null if provider doesn't exist.
      */
-    fun <R : Any> instanceOrNullByKey(key: TypeKey<Unit, R>): R? = instanceOrNullByKey(key, Unit)
-
-    /**
-     * Retrieve an optional factory of type `(A) -> R` by [key] and apply [argument] to it.
-     *
-     * @param key The type key of the factory.
-     * @param argument The argument for the factory to retrieve.
-     * @return The result of applying [argument] to the retrieved factory or null if factory
-     *         doesn't exist.
-     */
-    fun <A, R : Any> instanceOrNullByKey(key: TypeKey<A, R>, argument: A): R? =
-        synchronizedMap { it.serviceOrNull(key)?.instance(argument) }
+    fun <R : Any> instanceOrNullByKey(key: TypeKey<R>): R? =
+        synchronizedMap { it.serviceOrNull(key)?.instance() }
 
     /**
      * Retrieves a non-optional provider function that returns `R`.
@@ -238,23 +186,6 @@ class Graph internal constructor(
     ): Provider<R> = providerByKey(typeKey(qualifier, generics))
 
     /**
-     * Retrieves a factory of type `(A) -> R` and creates and returns a
-     * [provider][Provider] that applies the given [argument] to the factory when called.
-     *
-     * @param argument The argument for the factory to retrieve.
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The provider function.
-     *
-     * @throws EntryNotFoundException
-     */
-    inline fun <reified A, reified R : Any> provider(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): Provider<R> = providerByKey(compoundTypeKey(qualifier, generics), argument)
-
-    /**
      * Retrieves a non-optional provider function by [key] that returns `R`.
      *
      * @param key The type key of the instance.
@@ -262,21 +193,9 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> providerByKey(key: TypeKey<Unit, R>): Provider<R> = providerByKey(key, Unit)
-
-    /**
-     * Retrieves a factory of type `(A) -> R` by [key] and creates and returns a
-     * [provider][Provider] that applies the given [argument] to the factory when called.
-     *
-     * @param key The type key of the factory.
-     * @param argument The argument for the factory to retrieve.
-     * @return The provider function.
-     *
-     * @throws EntryNotFoundException
-     */
-    fun <A, R : Any> providerByKey(key: TypeKey<A, R>, argument: A): Provider<R> = synchronizedMap {
+    fun <R : Any> providerByKey(key: TypeKey<R>): Provider<R> = synchronizedMap {
         val service = it.service(key)
-        return { synchronized(this) { service.instance(argument) } }
+        return { synchronized(this) { service.instance() } }
     }
 
     /**
@@ -292,94 +211,16 @@ class Graph internal constructor(
     ): Provider<R>? = providerOrNullByKey(typeKey(qualifier, generics))
 
     /**
-     * Retrieves an optional factory of type `(A) -> R` and creates and returns a
-     * [provider][Provider] that applies the given [argument] to the factory when called.
-     *
-     * @param argument The argument for the factory to retrieve.
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The provider function or null if factory doesn't exist.
-     */
-    inline fun <reified A, reified R : Any> providerOrNull(
-        argument: A,
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): Provider<R>? = providerOrNullByKey(compoundTypeKey(qualifier, generics), argument)
-
-    /**
      * Retrieve an optional provider function by [key] that returns `R`.
      *
      * @param key The type key of the instance.
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
-    fun <R : Any> providerOrNullByKey(key: TypeKey<Unit, R>): Provider<R>? =
-        providerOrNullByKey(key, Unit)
-
-    /**
-     * Retrieves an optional factory of type `(A) -> R` by [key] and creates and returns a
-     * [provider][Provider] that applies the given [argument] to the factory when called.
-     *
-     * @param key The type key of the factory.
-     * @param argument The argument for the factory to retrieve.
-     * @return The provider function or null if factory doesn't exist.
-     */
-    fun <A, R : Any> providerOrNullByKey(key: TypeKey<A, R>, argument: A): Provider<R>? =
+    fun <R : Any> providerOrNullByKey(key: TypeKey<R>): Provider<R>? =
         synchronizedMap {
             val service = it.serviceOrNull(key) ?: return null
-            return { synchronized(this) { service.instance(argument) } }
+            return { synchronized(this) { service.instance() } }
         }
-
-    /**
-     * Retrieve a non-optional factory function that takes an argument of type `A` and returns `R`.
-     *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The factory that takes `A` and returns `R`
-     *
-     * @throws EntryNotFoundException
-     */
-    inline fun <reified A, reified R : Any> factory(
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): Factory<A, R> = factoryByKey(compoundTypeKey(qualifier, generics))
-
-    /**
-     * Retrieve a non-optional factory function by [key] that takes an argument of type `A` and
-     * returns `R`.
-     *
-     * @param key The type key of the factory.
-     * @return The factory that takes `A` and returns `R`
-     *
-     * @throws EntryNotFoundException
-     */
-    fun <A, R : Any> factoryByKey(key: TypeKey<A, R>): Factory<A, R> = synchronizedMap {
-        val service = it.service(key)
-        return { argument: A -> synchronized(this) { service.instance(argument) } }
-    }
-
-    /**
-     * Retrieve an optional factory function that takes an argument of type `A` and returns `R`.
-     *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
-     */
-    inline fun <reified A, reified R : Any> factoryOrNull(
-        qualifier: Any? = null,
-        generics: Boolean = false
-    ): Factory<A, R>? = factoryOrNullByKey(compoundTypeKey(qualifier, generics))
-
-    /**
-     * Retrieve an optional factory function by [key] that takes an argument of type `A` and
-     * returns `R`.
-     *
-     * @param key The type key of the factory.
-     * @return The factory that takes `A` and returns `R` or null if factory provider doesn't exist.
-     */
-    fun <A, R : Any> factoryOrNullByKey(key: TypeKey<A, R>): Factory<A, R>? = synchronizedMap {
-        val service = it.serviceOrNull(key) ?: return null
-        return { argument: A -> synchronized(this) { service.instance(argument) } }
-    }
 
     /**
      * Retrieve all instances of type `R`.
@@ -405,7 +246,7 @@ class Graph internal constructor(
      * @param key The type key.
      * @return A [Set] of instances of type `R`.
      */
-    fun <R : Any> instancesOfTypeByKey(key: TypeKey<Unit, R>): Set<R> {
+    fun <R : Any> instancesOfTypeByKey(key: TypeKey<R>): Set<R> {
         require(key.qualifier == TYPE_KEY_OF_TYPE_QUALIFIER) {
             "Type key qualifier must be `$TYPE_KEY_OF_TYPE_QUALIFIER`."
         }
@@ -418,43 +259,40 @@ class Graph internal constructor(
      * @param key The type key.
      * @return A [Set] of [providers][Provider] of type `T`.
      */
-    fun <R : Any> providersOfTypeByKey(
-        key: TypeKey<Unit, R>
-    ): Set<Provider<R>> {
+    fun <R : Any> providersOfTypeByKey(key: TypeKey<R>): Set<Provider<R>> {
         require(key.qualifier == TYPE_KEY_OF_TYPE_QUALIFIER) {
             "Type key qualifier must be `$TYPE_KEY_OF_TYPE_QUALIFIER`."
         }
         return keysOfType(key).mapTo(mutableSetOf()) { providerByKey(it) }
     }
 
-    private fun <R : Any> keysOfType(
-        key: TypeKey<Unit, R>
-    ): Set<TypeKey<Unit, R>> = synchronizedMap { state ->
-        @Suppress("UNCHECKED_CAST")
-        val service = state.registry.getOrPut(key) {
-            val keys = keys().filter { it.typeEquals(key) }.toSet()
-            ConstantService(key, keys)
-        } as ConstantService<Set<TypeKey<Unit, R>>>
-        service.value
-    }
+    private fun <R : Any> keysOfType(key: TypeKey<R>): Set<TypeKey<R>> =
+        synchronizedMap { state ->
+            @Suppress("UNCHECKED_CAST")
+            val service = state.registry.getOrPut(key) {
+                val keys = keys().filter { it.typeEquals(key) }.toSet()
+                ConstantService(key, keys)
+            } as ConstantService<Set<TypeKey<R>>>
+            service.value
+        }
 
-    private fun keys(): Set<TypeKey<*, *>> {
+    private fun keys(): Set<TypeKey<*>> {
         val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
-    internal fun <A, R : Any> service(key: TypeKey<A, R>): BoundService<A, R> =
+    internal fun <R : Any> service(key: TypeKey<R>): BoundService<R> =
         synchronizedMap { it.service(key) }
 
-    internal fun <A, R : Any> serviceOrNull(key: TypeKey<A, R>): BoundService<A, R>? =
+    internal fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
         synchronizedMap { it.serviceOrNull(key) }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
      */
-    fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R =
-        map { it.serviceEvaluator.evaluate(service, argument) }
+    fun <R : Any> evaluate(service: BoundService<R>): R =
+        map { it.serviceEvaluator.evaluate(service) }
 
     /**
      * Inject members of class [T].

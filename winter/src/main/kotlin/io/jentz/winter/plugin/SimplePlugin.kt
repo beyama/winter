@@ -18,7 +18,7 @@ open class SimplePlugin : Plugin {
     override fun graphDispose(graph: Graph) {
     }
 
-    override fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any) {
+    override fun postConstruct(graph: Graph, scope: Scope, instance: Any) {
     }
 
 }

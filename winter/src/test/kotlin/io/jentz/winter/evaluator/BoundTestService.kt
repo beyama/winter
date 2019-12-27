@@ -1,29 +1,32 @@
 package io.jentz.winter.evaluator
 
-import io.jentz.winter.*
+import io.jentz.winter.BoundService
+import io.jentz.winter.Scope
+import io.jentz.winter.TypeKey
+import io.jentz.winter.typeKey
 
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
-    override val key: TypeKey<String, String> = compoundTypeKey(),
-    var dependency: BoundService<String, String>? = null,
-    var throwOnNewInstance: ((String) -> Throwable)? = null,
-    var instance: (String) -> String = { it }
-) : BoundService<String, String> {
+    override val key: TypeKey<String> = typeKey(),
+    var dependency: BoundService<String>? = null,
+    var throwOnNewInstance: (() -> Throwable)? = null,
+    var instance: () -> String = { "" }
+) : BoundService<String> {
 
-    var postConstructCalled = mutableListOf<Pair<Any, Any>>()
+    var postConstructCalled = mutableListOf<String>()
 
     override val scope: Scope get() = Scope.Prototype
 
-    override fun instance(argument: String): String = throw Error()
+    override fun instance(): String = throw Error()
 
-    override fun newInstance(argument: String): String {
-        dependency?.let { evaluator.evaluate(it, argument) }
-        throwOnNewInstance?.let { throw it(argument) }
-        return this.instance.invoke(argument)
+    override fun newInstance(): String {
+        dependency?.let { evaluator.evaluate(it) }
+        throwOnNewInstance?.let { throw it() }
+        return this.instance.invoke()
     }
 
-    override fun postConstruct(argument: String, instance: String) {
-        postConstructCalled.add(argument to instance)
+    override fun postConstruct(instance: String) {
+        postConstructCalled.add(instance)
     }
 
     override fun dispose() {

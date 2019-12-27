@@ -36,9 +36,8 @@ interface Plugin {
      *
      * @param graph The [Graph] the instance was created in.
      * @param scope The [Scope] of the instance.
-     * @param argument The argument the instance was created with ([Unit] for all non factories).
      * @param instance The instance that was created.
      */
-    fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any)
+    fun postConstruct(graph: Graph, scope: Scope, instance: Any)
 
 }

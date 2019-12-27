@@ -6,11 +6,11 @@ import java.lang.ref.WeakReference
 /**
  * Interface for bound service entries in a [Graph].
  */
-interface BoundService<A, R : Any> {
+interface BoundService<R : Any> {
     /**
      * The [TypeKey] of the type this service is providing.
      */
-    val key: TypeKey<A, R>
+    val key: TypeKey<R>
 
     /**
      * A scope that is unique for this type of service e.g. Scope("myCustomScope").
@@ -24,20 +24,18 @@ interface BoundService<A, R : Any> {
      * initialization in [newInstance] by calling [Graph.evaluate].
      *
      *
-     * @param argument The argument for this request.
      * @return An instance of type `R`.
      */
-    fun instance(argument: A): R
+    fun instance(): R
 
     /**
      * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
      *
      * If you want to memorize the value this is the place to do it.
      *
-     * @param argument The argument for the new instance.
      * @return The new instance of type `R`.
      */
-    fun newInstance(argument: A): R
+    fun newInstance(): R
 
     /**
      * This is called after a new instance was created but not until the complete dependency request
@@ -55,7 +53,7 @@ interface BoundService<A, R : Any> {
      * dependencies in post-construct callbacks.
      *
      */
-    fun postConstruct(argument: A, instance: R)
+    fun postConstruct(instance: R)
 
     /**
      * This is called for each [BoundService] in a [Graph] when [Graph.dispose] is called.
@@ -66,19 +64,19 @@ interface BoundService<A, R : Any> {
 internal class BoundPrototypeService<R : Any>(
     private val graph: Graph,
     private val unboundService: UnboundPrototypeService<R>
-) : BoundService<Unit, R> {
+) : BoundService<R> {
 
     override val scope: Scope get() = Scope.Prototype
 
-    override val key: TypeKey<Unit, R> get() = unboundService.key
+    override val key: TypeKey<R> get() = unboundService.key
 
-    override fun instance(argument: Unit): R {
-        return graph.evaluate(this, argument)
+    override fun instance(): R {
+        return graph.evaluate(this)
     }
 
-    override fun newInstance(argument: Unit): R = unboundService.factory(graph)
+    override fun newInstance(): R = unboundService.factory(graph)
 
-    override fun postConstruct(argument: Unit, instance: R) {
+    override fun postConstruct(instance: R) {
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
@@ -89,21 +87,21 @@ internal class BoundPrototypeService<R : Any>(
 
 internal abstract class AbstractBoundSingletonService<R : Any>(
     protected val graph: Graph
-) : BoundService<Unit, R> {
+) : BoundService<R> {
 
     protected abstract val instance: Any
 
-    protected abstract val unboundService: UnboundService<Unit, R>
+    protected abstract val unboundService: UnboundService<R>
 
-    final override val key: TypeKey<Unit, R> get() = unboundService.key
+    final override val key: TypeKey<R> get() = unboundService.key
 
-    final override fun instance(argument: Unit): R {
+    final override fun instance(): R {
         val instance = this.instance
         if (instance !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
             return instance as R
         }
-        return graph.evaluate(this, Unit)
+        return graph.evaluate(this)
     }
 
 }
@@ -117,10 +115,10 @@ internal class BoundSingletonService<R : Any>(
 
     override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun newInstance(argument: Unit): R =
+    override fun newInstance(): R =
         unboundService.factory(graph).also { instance = it }
 
-    override fun postConstruct(argument: Unit, instance: R) {
+    override fun postConstruct(instance: R) {
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
@@ -145,10 +143,10 @@ internal class BoundWeakSingletonService<R : Any>(
 
     private var reference: WeakReference<R>? = null
 
-    override fun newInstance(argument: Unit): R =
+    override fun newInstance(): R =
         unboundService.factory(graph).also { reference = WeakReference(it) }
 
-    override fun postConstruct(argument: Unit, instance: R) {
+    override fun postConstruct(instance: R) {
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
@@ -168,10 +166,10 @@ internal class BoundSoftSingletonService<R : Any>(
 
     private var reference: SoftReference<R>? = null
 
-    override fun newInstance(argument: Unit): R =
+    override fun newInstance(): R =
         unboundService.factory(graph).also { reference = SoftReference(it) }
 
-    override fun postConstruct(argument: Unit, instance: R) {
+    override fun postConstruct(instance: R) {
         unboundService.postConstruct?.invoke(graph, instance)
     }
 
@@ -180,72 +178,23 @@ internal class BoundSoftSingletonService<R : Any>(
 
 }
 
-internal class BoundFactoryService<A, R : Any>(
-    private val graph: Graph,
-    private val unboundService: UnboundFactoryService<A, R>
-) : BoundService<A, R> {
-
-    override val key: TypeKey<A, R> get() = unboundService.key
-
-    override val scope: Scope get() = Scope.PrototypeFactory
-
-    override fun instance(argument: A): R = graph.evaluate(this, argument)
-
-    override fun newInstance(argument: A): R = unboundService.factory(graph, argument)
-
-    override fun postConstruct(argument: A, instance: R) {
-        unboundService.postConstruct?.invoke(graph, argument, instance)
-    }
-
-    override fun dispose() {
-    }
-}
-
-internal class BoundMultitonFactoryService<A, R : Any>(
-    private val graph: Graph,
-    private val unboundService: UnboundMultitonFactoryService<A, R>
-) : BoundService<A, R> {
-
-    override val key: TypeKey<A, R> get() = unboundService.key
-
-    override val scope: Scope get() = Scope.MultitonFactory
-
-    private val map = mutableMapOf<A, R>()
-
-    override fun instance(argument: A): R =
-        map[argument] ?: graph.evaluate(this, argument)
-
-    override fun newInstance(argument: A): R =
-        unboundService.factory(graph, argument).also { map[argument] = it }
-
-    override fun postConstruct(argument: A, instance: R) {
-        unboundService.postConstruct?.invoke(graph, argument, instance)
-    }
-
-    override fun dispose() {
-        unboundService.dispose?.let { fn ->
-            map.entries.forEach { (argument, instance) -> fn(graph, argument, instance) }
-        }
-    }
-}
-
 internal class BoundGraphService(
-        override val key: TypeKey<Unit, Graph>,
-        private val graph: Graph
-) : BoundService<Unit, Graph> {
+    override val key: TypeKey<Graph>,
+    private val graph: Graph
+) : BoundService<Graph> {
 
     override val scope: Scope
         get() = Scope.Singleton
 
-    override fun instance(argument: Unit): Graph = graph
+    override fun instance(): Graph = graph
 
-    override fun newInstance(argument: Unit): Graph {
+    override fun newInstance(): Graph {
         throw IllegalStateException(
             "BUG: New instance for BoundGraphService should never be called."
         )
     }
 
-    override fun postConstruct(argument: Unit, instance: Graph) {
+    override fun postConstruct(instance: Graph) {
     }
 
     override fun dispose() {

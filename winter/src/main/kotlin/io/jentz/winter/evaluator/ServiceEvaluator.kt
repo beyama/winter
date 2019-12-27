@@ -10,5 +10,5 @@ import io.jentz.winter.BoundService
  * calling plugin and service lifecycle methods and maybe performing cyclic dependency checks.
  */
 internal interface ServiceEvaluator {
-    fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R
+    fun <R : Any> evaluate(service: BoundService<R>): R
 }

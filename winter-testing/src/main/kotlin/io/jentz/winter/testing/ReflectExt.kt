@@ -11,7 +11,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaField
 
-internal val KProperty1<*, *>.typeKey: TypeKey<Unit, Any>
+internal val KProperty1<*, *>.typeKey: TypeKey<Any>
     get() {
         val clazz = (returnType.classifier as? KClass<*>)?.javaObjectType
             ?: throw IllegalArgumentException("Can't get return type for property `$name`")

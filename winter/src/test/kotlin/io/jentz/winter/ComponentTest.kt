@@ -13,7 +13,6 @@ class ComponentTest {
         prototype { Heater() }
         singleton<Pump> { Thermosiphon(instance()) }
         singleton { CoffeeMaker(instance(), instance()) }
-        factory { c: Color -> Widget(c) }
     }
 
     @Test

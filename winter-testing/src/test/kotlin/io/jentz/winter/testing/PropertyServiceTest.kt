@@ -27,7 +27,7 @@ class PropertyServiceTest {
 
         (1 until 5).map(Int::toString).forEach { int ->
             instance.field = int
-            service.instance(Unit).shouldBe(int)
+            service.instance().shouldBe(int)
         }
     }
 
@@ -35,7 +35,7 @@ class PropertyServiceTest {
     fun `#instance should get value from private final field`() {
         val instance = PrivateFinalField()
         val service = PropertyService(typeKey<Int>(), instance, PrivateFinalField::class.getDeclaredMemberProperty("field"))
-        service.instance(Unit).shouldBe(42)
+        service.instance().shouldBe(42)
     }
 
     @Test
@@ -44,7 +44,7 @@ class PropertyServiceTest {
         val service = PropertyService(typeKey<Int>(), instance, NullProperty::class.getDeclaredMemberProperty("property"))
 
         shouldThrow<WinterException> {
-            service.instance(Unit)
+            service.instance()
         }.message.shouldBe("Property `io.jentz.winter.testing.PropertyServiceTest\$NullProperty::property returned null`.")
     }
 

@@ -7,31 +7,15 @@ const val TYPE_KEY_OF_TYPE_QUALIFIER = "__OF_TYPE__"
 const val APPLICATION_COMPONENT_QUALIFIER = "application"
 
 /**
- * No argument factory function signature with [Graph] as receiver.
+ * Factory function signature with [Graph] as receiver.
  */
-typealias GFactory0<R> = Graph.() -> R
+typealias GFactory<R> = Graph.() -> R
 
 /**
- * One argument factory function signature with [Graph] as receiver.
- */
-typealias GFactory1<A, R> = Graph.(A) -> R
-
-/**
- * One argument factory callback function signature with [Graph] as receiver.
+ * Factory callback function signature with [Graph] as receiver.
  * Used for post-construct and dispose callbacks.
  */
-typealias GFactoryCallback1<R> = Graph.(R) -> Unit
-
-/**
- * Two arguments factory callback function signature with [Graph] as receiver.
- * Used for post-construct and dispose callbacks.
- */
-typealias GFactoryCallback2<A, R> = Graph.(A, R) -> Unit
-
-/**
- * Provider function signature.
- */
-typealias Provider<R> = () -> R
+typealias GFactoryCallback<R> = Graph.(R) -> Unit
 
 /**
  * Function signature alias for component builder DSL blocks.
@@ -39,10 +23,18 @@ typealias Provider<R> = () -> R
 typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
 
 /**
+ * Provider function signature.
+ */
+typealias Provider<R> = () -> R
+
+/**
  * Factory function signature.
  */
 typealias Factory<A, R> = (A) -> R
 
+/**
+ * Members injector signature used in conjunction with JSR330.
+ */
 typealias MembersInjector<R> = (Graph, R) -> Unit
 
 internal typealias OnDisposeCallback = (Graph) -> Unit
@@ -50,7 +42,7 @@ internal typealias OnDisposeCallback = (Graph) -> Unit
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<TypeKey<Unit, Any>>>("EAGER_DEPENDENCIES")
+internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>>("EAGER_DEPENDENCIES")
 
 private val emptyComponent = Component(APPLICATION_COMPONENT_QUALIFIER, emptyMap(), false)
 
@@ -96,26 +88,10 @@ fun graph(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuil
 inline fun <reified R : Any> typeKey(
     qualifier: Any? = null,
     generics: Boolean = false
-): TypeKey<Unit, R> = if (generics) {
+): TypeKey<R> = if (generics) {
     object : GenericClassTypeKey<R>(qualifier) {}
 } else {
     ClassTypeKey(R::class.java, qualifier)
-}
-
-/**
- * Returns [TypeKey] for type [A] and [R].
- *
- * @param qualifier An optional qualifier for this key.
- * @param generics If true this creates compound type key that also takes generic type parameters
- *                 into account.
- */
-inline fun <reified A, reified R : Any> compoundTypeKey(
-    qualifier: Any? = null,
-    generics: Boolean = false
-): TypeKey<A, R> = if (generics) {
-    object : GenericCompoundClassTypeKey<A, R>(qualifier) {}
-} else {
-    CompoundClassTypeKey(A::class.java, R::class.java, qualifier)
 }
 
 /**

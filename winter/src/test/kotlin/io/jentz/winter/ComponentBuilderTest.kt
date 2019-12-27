@@ -54,20 +54,6 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#factory should register UnboundFactoryService`() {
-        component {
-            factory("f") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundFactoryService<*, *>>(compoundTypeKey<Color, Widget>("f"))
-    }
-
-    @Test
-    fun `#multiton should register UnboundMultitonFactoryService`() {
-        component {
-            multiton("g") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundMultitonFactoryService<*, *>>(compoundTypeKey<Color, Widget>("g"))
-    }
-
-    @Test
     fun `#constant should register ConstantService`() {
         component {
             constant(42, "h")
@@ -219,7 +205,7 @@ class ComponentBuilderTest {
             prototype { Heater() }
             prototype { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -236,7 +222,7 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
