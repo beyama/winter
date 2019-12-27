@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class WinterApplicationTest {
 
-    private val app = WinterApplication()
+    private val app = WinterApplication {}
 
     @BeforeEach
     fun beforeEach() {
@@ -23,8 +23,8 @@ class WinterApplicationTest {
     @Test
     fun `#component should configure new component`() {
         app.component("test") { constant("") }
-        app.component.qualifier.shouldBe("test")
-        app.component.size.shouldBe(1)
+        app.component!!.qualifier.shouldBe("test")
+        app.component!!.size.shouldBe(1)
     }
 
     @Test

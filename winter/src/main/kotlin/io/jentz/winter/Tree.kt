@@ -132,6 +132,9 @@ class Tree(
 
     private var state: State = Uninitialized
 
+    private val requireComponent: Component
+        get() = checkNotNull(application.component) { "Application component is not set." }
+
     private inline fun <T> fold(
         ifUninitialized: (Uninitialized) -> T,
         ifInitialized: (Initialized) -> T
@@ -183,7 +186,7 @@ class Tree(
             )
         }
 
-        application.component.createGraph(application, block)
+        requireComponent.createGraph(application, block)
     }) { state ->
         val parentGraph = state.getOrNull(path, path.lastIndex)
             ?: throw WinterException(
@@ -213,7 +216,7 @@ class Tree(
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
     ): Graph = fold({
-        openApplicationGraph(application.component, path, identifier, block)
+        openApplicationGraph(requireComponent, path, identifier, block)
     }) { state ->
         openSubgraph(state, path, identifier, block)
     }
@@ -237,7 +240,7 @@ class Tree(
         identifier: Any? = null,
         block: ComponentBuilderBlock? = null
     ): Graph = fold({
-        openApplicationGraph(application.component, path, identifier, block)
+        openApplicationGraph(requireComponent, path, identifier, block)
     }, { state ->
         if (path.isEmpty()) {
             return@fold state.root

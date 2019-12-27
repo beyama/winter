@@ -91,10 +91,10 @@ open class WinterApplication() {
     /**
      * The application component.
      */
-    var component: Component = emptyComponent()
+    var component: Component? = null
         set(value) {
             synchronized(tree) {
-                if (tree.isOpen()) {
+                if (tree.isOpen() && field !== value) {
                     throw WinterException(
                         "Cannot set component because application graph is already open"
                     )
