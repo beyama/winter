@@ -31,10 +31,10 @@ internal class PropertyService(
         throw IllegalStateException("BUG: Should never been called.")
     }
 
-    override fun postConstruct(instance: Any) {
+    override fun onPostConstruct(instance: Any) {
     }
 
-    override fun close() {
+    override fun onClose() {
     }
 
 }

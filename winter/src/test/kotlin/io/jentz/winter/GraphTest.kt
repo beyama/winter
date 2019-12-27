@@ -77,7 +77,7 @@ class GraphTest {
         fun `should invoke post construct callback with instance`() {
             var called = false
             graph {
-                prototype(postConstruct = {
+                prototype(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     called = true
                 }) { instance }
@@ -124,8 +124,8 @@ class GraphTest {
             singleton { instance }
             singleton { Parent(instance()) }
             singleton(
-                postConstruct = { it.parent = instance() },
-                dispose = { it.parent = null }
+                onPostConstruct = { it.parent = instance() },
+                onClose = { it.parent = null }
             ) { Child() }
         }
 
@@ -253,7 +253,7 @@ class GraphTest {
         fun `#softSingleton should invoke post construct callback with instance`() {
             var postConstructCalledCount = 0
             val graph = graph {
-                softSingleton(postConstruct = {
+                softSingleton(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     postConstructCalledCount += 1
                 }) { instance }
@@ -293,7 +293,7 @@ class GraphTest {
         fun `#weakSingleton should invoke post construct callback with instance`() {
             var postConstructCalledCount = 0
             val graph = graph {
-                weakSingleton(postConstruct = {
+                weakSingleton(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     postConstructCalledCount += 1
                 }) { instance }
@@ -898,7 +898,7 @@ class GraphTest {
             shouldThrow<DependencyResolutionException> {
                 graph {
                     prototype(
-                        postConstruct = { called = true }
+                        onPostConstruct = { called = true }
                     ) { Heater() }
                     prototype<Pump> { throw Error("Boom!") }
                     prototype { CoffeeMaker(instance(), instance()) }

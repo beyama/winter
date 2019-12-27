@@ -410,7 +410,7 @@ class Graph internal constructor(
             val service = state.registry.remove(key) ?: throw WinterException(
                 "Subgraph with identifier `$identifier` doesn't exist."
             )
-            service.close()
+            service.onClose()
         }
     }
 
@@ -430,7 +430,7 @@ class Graph internal constructor(
 
                 state.plugins.forEach { it.graphClose(this) }
 
-                state.registry.values.forEach { boundService -> boundService.close() }
+                state.registry.values.forEach { boundService -> boundService.onClose() }
 
                 state.onCloseCallback?.invoke(this)
             } finally {

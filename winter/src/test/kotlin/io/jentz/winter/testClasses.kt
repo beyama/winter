@@ -60,12 +60,12 @@ internal class BoundReferenceService<R : Any>(
 
     override val scope: Scope get() = Scope("referenceTest")
 
-    override fun postConstruct(instance: R) {
+    override fun onPostConstruct(instance: R) {
         postConstructCalledCount += 1
         postConstructLastArgument = instance
     }
 
-    override fun close() {
+    override fun onClose() {
         closeCalled += 1
     }
 

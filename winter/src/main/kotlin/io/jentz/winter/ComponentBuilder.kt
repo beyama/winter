@@ -75,18 +75,18 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param postConstruct A post construct callback.
+     * @param onPostConstruct A post construct callback.
      * @param factory The factory for type [R].
      */
     inline fun <reified R : Any> prototype(
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline onPostConstruct: GFactoryCallback<R>? = null,
         noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
-        val service = UnboundPrototypeService(key, factory, postConstruct)
+        val service = UnboundPrototypeService(key, factory, onPostConstruct)
         register(service, override)
     }
 
@@ -96,20 +96,20 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param postConstruct A post construct callback.
-     * @param dispose A callback that gets called when the dependency graph gets disposed.
+     * @param onPostConstruct A post construct callback.
+     * @param onClose A callback that gets called when the dependency graph gets closed.
      * @param factory The factory for type [R].
      */
     inline fun <reified R : Any> singleton(
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback<R>? = null,
-        noinline dispose: GFactoryCallback<R>? = null,
+        noinline onPostConstruct: GFactoryCallback<R>? = null,
+        noinline onClose: GFactoryCallback<R>? = null,
         noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
-        val service = UnboundSingletonService(key, factory, postConstruct, dispose)
+        val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
         register(service, override)
     }
 
@@ -122,20 +122,20 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param postConstruct A post construct callback.
-     * @param dispose A callback that gets called when the dependency graph gets disposed.
+     * @param onPostConstruct A post construct callback.
+     * @param onClose A callback that gets called when the dependency graph gets closed.
      * @param factory The factory for [R].
      */
     inline fun <reified R : Any> eagerSingleton(
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback<R>? = null,
-        noinline dispose: GFactoryCallback<R>? = null,
+        noinline onPostConstruct: GFactoryCallback<R>? = null,
+        noinline onClose: GFactoryCallback<R>? = null,
         noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
-        val service = UnboundSingletonService(key, factory, postConstruct, dispose)
+        val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
         register(service, override)
         addEagerDependency(key)
     }
@@ -146,18 +146,18 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param postConstruct A post construct callback.
+     * @param onPostConstruct A post construct callback.
      * @param factory The factory for type [R].
      */
     inline fun <reified R : Any> weakSingleton(
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline onPostConstruct: GFactoryCallback<R>? = null,
         noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
-        val service = UnboundWeakSingletonService(key, factory, postConstruct)
+        val service = UnboundWeakSingletonService(key, factory, onPostConstruct)
         register(service, override)
     }
 
@@ -167,18 +167,18 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
      * @param qualifier An optional qualifier.
      * @param generics If true this will preserve generic information of [R].
      * @param override If true this will override a existing provider of this type.
-     * @param postConstruct A post construct callback.
+     * @param onPostConstruct A post construct callback.
      * @param factory The factory for type [R].
      */
     inline fun <reified R : Any> softSingleton(
         qualifier: Any? = null,
         generics: Boolean = false,
         override: Boolean = false,
-        noinline postConstruct: GFactoryCallback<R>? = null,
+        noinline onPostConstruct: GFactoryCallback<R>? = null,
         noinline factory: GFactory<R>
     ) {
         val key = typeKey<R>(qualifier, generics)
-        val service = UnboundSoftSingletonService(key, factory, postConstruct)
+        val service = UnboundSoftSingletonService(key, factory, onPostConstruct)
         register(service, override)
     }
 

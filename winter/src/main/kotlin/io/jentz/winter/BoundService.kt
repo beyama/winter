@@ -39,7 +39,7 @@ interface BoundService<R : Any> {
 
     /**
      * This is called after a new instance was created but not until the complete dependency request
-     * is completed.
+     * is finished.
      *
      * For example:
      * ```
@@ -48,17 +48,17 @@ interface BoundService<R : Any> {
      *   singleton { Child() }
      * }
      * ```
-     * When Parent is requested, Child has to be created but the [postConstruct] method of the
+     * When Parent is requested, Child has to be created but the [onPostConstruct] method of the
      * Child service is called after Parent is initialized. This way we can resolve cyclic
      * dependencies in post-construct callbacks.
      *
      */
-    fun postConstruct(instance: R)
+    fun onPostConstruct(instance: R)
 
     /**
      * This is called for each [BoundService] in a [Graph] when [Graph.close] is called.
      */
-    fun close()
+    fun onClose()
 }
 
 internal class BoundPrototypeService<R : Any>(
@@ -76,11 +76,11 @@ internal class BoundPrototypeService<R : Any>(
 
     override fun newInstance(): R = unboundService.factory(graph)
 
-    override fun postConstruct(instance: R) {
-        unboundService.postConstruct?.invoke(graph, instance)
+    override fun onPostConstruct(instance: R) {
+        unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
-    override fun close() {
+    override fun onClose() {
     }
 
 }
@@ -118,15 +118,15 @@ internal class BoundSingletonService<R : Any>(
     override fun newInstance(): R =
         unboundService.factory(graph).also { instance = it }
 
-    override fun postConstruct(instance: R) {
-        unboundService.postConstruct?.invoke(graph, instance)
+    override fun onPostConstruct(instance: R) {
+        unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
-    override fun close() {
+    override fun onClose() {
         val instance = instance
         if (instance !== UNINITIALIZED_VALUE) {
             @Suppress("UNCHECKED_CAST")
-            unboundService.dispose?.invoke(graph, instance as R)
+            unboundService.onClose?.invoke(graph, instance as R)
         }
     }
 
@@ -146,11 +146,11 @@ internal class BoundWeakSingletonService<R : Any>(
     override fun newInstance(): R =
         unboundService.factory(graph).also { reference = WeakReference(it) }
 
-    override fun postConstruct(instance: R) {
-        unboundService.postConstruct?.invoke(graph, instance)
+    override fun onPostConstruct(instance: R) {
+        unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
-    override fun close() {
+    override fun onClose() {
     }
 
 }
@@ -169,11 +169,11 @@ internal class BoundSoftSingletonService<R : Any>(
     override fun newInstance(): R =
         unboundService.factory(graph).also { reference = SoftReference(it) }
 
-    override fun postConstruct(instance: R) {
-        unboundService.postConstruct?.invoke(graph, instance)
+    override fun onPostConstruct(instance: R) {
+        unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
-    override fun close() {
+    override fun onClose() {
     }
 
 }
@@ -194,10 +194,10 @@ internal class BoundGraphService(
         )
     }
 
-    override fun postConstruct(instance: Graph) {
+    override fun onPostConstruct(instance: Graph) {
     }
 
-    override fun close() {
+    override fun onClose() {
         graph.close()
     }
 }

@@ -12,8 +12,8 @@ interface UnboundService<R : Any> {
     val key: TypeKey<R>
 
     /**
-     * Return true if the bound service requires lifecycle calls to [BoundService.postConstruct]
-     * or [BoundService.close] otherwise false.
+     * Return true if the bound service requires lifecycle calls to [BoundService.onPostConstruct]
+     * or [BoundService.onClose] otherwise false.
      */
     val requiresLifecycleCallbacks: Boolean
 
@@ -28,11 +28,11 @@ interface UnboundService<R : Any> {
 internal class UnboundPrototypeService<R : Any>(
     override val key: TypeKey<R>,
     val factory: GFactory<R>,
-    val postConstruct: GFactoryCallback<R>?
+    val onPostConstruct: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
     override val requiresLifecycleCallbacks: Boolean
-        get() = postConstruct != null
+        get() = onPostConstruct != null
 
     override fun bind(graph: Graph): BoundService<R> {
         return BoundPrototypeService(graph, this)
@@ -43,12 +43,12 @@ internal class UnboundPrototypeService<R : Any>(
 internal class UnboundSingletonService<R : Any>(
     override val key: TypeKey<R>,
     val factory: GFactory<R>,
-    val postConstruct: GFactoryCallback<R>?,
-    val dispose: GFactoryCallback<R>?
+    val onPostConstruct: GFactoryCallback<R>?,
+    val onClose: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
     override val requiresLifecycleCallbacks: Boolean
-        get() = postConstruct != null || dispose != null
+        get() = onPostConstruct != null || onClose != null
 
     override fun bind(graph: Graph): BoundService<R> {
         return BoundSingletonService(graph, this)
@@ -59,11 +59,11 @@ internal class UnboundSingletonService<R : Any>(
 internal class UnboundWeakSingletonService<R : Any>(
     override val key: TypeKey<R>,
     val factory: GFactory<R>,
-    val postConstruct: GFactoryCallback<R>?
+    val onPostConstruct: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
     override val requiresLifecycleCallbacks: Boolean
-        get() = postConstruct != null
+        get() = onPostConstruct != null
 
     override fun bind(graph: Graph): BoundService<R> {
         return BoundWeakSingletonService(graph, this)
@@ -74,11 +74,11 @@ internal class UnboundWeakSingletonService<R : Any>(
 internal class UnboundSoftSingletonService<R : Any>(
     override val key: TypeKey<R>,
     val factory: GFactory<R>,
-    val postConstruct: GFactoryCallback<R>?
+    val onPostConstruct: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
     override val requiresLifecycleCallbacks: Boolean
-        get() = postConstruct != null
+        get() = onPostConstruct != null
 
     override fun bind(graph: Graph): BoundService<R> {
         return BoundSoftSingletonService(graph, this)
@@ -104,11 +104,11 @@ internal class ConstantService<R : Any>(
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun postConstruct(instance: R) {
+    override fun onPostConstruct(instance: R) {
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun close() {
+    override fun onClose() {
     }
 }
 

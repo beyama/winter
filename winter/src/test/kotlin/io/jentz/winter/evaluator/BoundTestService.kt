@@ -25,11 +25,11 @@ internal class BoundTestService(
         return this.instance.invoke()
     }
 
-    override fun postConstruct(instance: String) {
+    override fun onPostConstruct(instance: String) {
         postConstructCalled.add(instance)
     }
 
-    override fun close() {
+    override fun onClose() {
         throw Error()
     }
 }
