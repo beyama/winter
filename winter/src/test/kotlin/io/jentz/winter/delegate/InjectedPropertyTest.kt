@@ -1,6 +1,7 @@
 package io.jentz.winter.delegate
 
 import io.jentz.winter.*
+import io.jentz.winter.adapter.useApplicationGraphOnlyAdapter
 import io.jentz.winter.aware.WinterAware
 import io.jentz.winter.aware.inject
 import io.kotlintest.matchers.collections.shouldBeEmpty
@@ -35,6 +36,7 @@ class InjectedPropertyTest {
     fun beforeEach() {
         atomicInteger.set(0)
         app.tree.closeIfOpen()
+        app.useApplicationGraphOnlyAdapter()
     }
 
     @Nested

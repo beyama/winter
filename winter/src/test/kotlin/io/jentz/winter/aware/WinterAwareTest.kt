@@ -28,9 +28,9 @@ class WinterAwareTest {
         @Test
         fun `#graph should call #injection#getGraph with instance`() {
             val graph = emptyGraph()
-            whenever(injection.injectionAdapter.getGraph(aware)).thenReturn(graph)
+            whenever(injection.injectionAdapter!!.getGraph(aware)).thenReturn(graph)
             aware.graph.shouldBeSameInstanceAs(graph)
-            verify(injection.injectionAdapter, times(1)).getGraph(aware)
+            verify(injection.injectionAdapter!!, times(1)).getGraph(aware)
         }
 
         @Test
@@ -130,10 +130,10 @@ class WinterAwareTest {
         fun `#createGraphAndInject should use aware instance to create graph and inject into target`() {
             val graph: Graph = mock()
             val target = Any()
-            whenever(injection.injectionAdapter.createGraph(aware, null)).thenReturn(graph)
+            whenever(injection.injectionAdapter!!.createGraph(aware, null)).thenReturn(graph)
 
             aware.createGraphAndInject(target)
-            verify(injection.injectionAdapter, times(1)).createGraph(aware, null)
+            verify(injection.injectionAdapter!!, times(1)).createGraph(aware, null)
             verify(graph, times(1)).inject(target)
         }
 
@@ -141,10 +141,10 @@ class WinterAwareTest {
         fun `#inject should use aware instance to get graph and inject into target`() {
             val graph: Graph = mock()
             val target = Any()
-            whenever(injection.injectionAdapter.getGraph(aware)).thenReturn(graph)
+            whenever(injection.injectionAdapter!!.getGraph(aware)).thenReturn(graph)
 
             aware.inject(target)
-            verify(injection.injectionAdapter, times(1)).getGraph(aware)
+            verify(injection.injectionAdapter!!, times(1)).getGraph(aware)
             verify(graph, times(1)).inject(target)
         }
 

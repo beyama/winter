@@ -59,7 +59,7 @@ class WinterApplicationTest {
         fun `#injectionAdapter should throw an exception if tree is already open`() {
             app.tree.open()
             shouldThrow<WinterException> {
-                app.injectionAdapter = adapter; null
+                app.injectionAdapter = mock(); null
             }.message.shouldBe("Cannot set injection adapter because application graph is already open")
         }
 

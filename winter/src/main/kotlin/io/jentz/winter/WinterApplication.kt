@@ -1,7 +1,6 @@
 package io.jentz.winter
 
 import io.jentz.winter.WinterApplication.InjectionAdapter
-import io.jentz.winter.adapter.ApplicationGraphOnlyInjectionAdapter
 import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugins
@@ -109,10 +108,10 @@ open class WinterApplication() {
     @Suppress("LeakingThis")
     val tree = Tree(this)
 
-    var injectionAdapter: InjectionAdapter = ApplicationGraphOnlyInjectionAdapter(tree)
+    var injectionAdapter: InjectionAdapter? = null
         set(value) {
             synchronized(tree) {
-                if (tree.isOpen()) {
+                if (tree.isOpen() && field !== value) {
                     throw WinterException(
                         "Cannot set injection adapter because application graph is already open"
                     )
@@ -120,6 +119,10 @@ open class WinterApplication() {
                 field = value
             }
         }
+
+    private val requireInjectionAdapter: InjectionAdapter get() = checkNotNull(injectionAdapter) {
+        "Application injection adapter is not set."
+    }
 
     /**
      * The plugins registered on the application.
@@ -162,7 +165,7 @@ open class WinterApplication() {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun createGraph(instance: Any, block: ComponentBuilderBlock? = null): Graph =
-        injectionAdapter.createGraph(instance, block)
+        requireInjectionAdapter.createGraph(instance, block)
 
     /**
      * Create and return dependency graph for [instance] and inject all members into instance.
@@ -188,7 +191,7 @@ open class WinterApplication() {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      *
      */
-    fun getGraph(instance: Any): Graph = injectionAdapter.getGraph(instance)
+    fun getGraph(instance: Any): Graph = requireInjectionAdapter.getGraph(instance)
 
     /**
      * Dispose the dependency graph of the given [instance].
@@ -197,7 +200,7 @@ open class WinterApplication() {
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun disposeGraph(instance: Any) {
-        injectionAdapter.disposeGraph(instance)
+        requireInjectionAdapter.disposeGraph(instance)
     }
 
     /**

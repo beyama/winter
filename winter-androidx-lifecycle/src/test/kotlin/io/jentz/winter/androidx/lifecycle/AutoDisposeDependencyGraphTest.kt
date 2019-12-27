@@ -25,7 +25,7 @@ class AutoDisposeDependencyGraphTest {
         val owner = WinterAwareLifecycleOwner()
         val observer = AutoDisposeDependencyGraph(owner, ON_DESTROY)
         observer.onEvent(owner, ON_DESTROY)
-        verify(owner.winterApplication.injectionAdapter, times(1)).disposeGraph(owner)
+        verify(owner.winterApplication.injectionAdapter!!, times(1)).disposeGraph(owner)
     }
 
     @Test
@@ -33,7 +33,7 @@ class AutoDisposeDependencyGraphTest {
         val owner = mockLifecycleOwner()
         val observer = AutoDisposeDependencyGraph(owner, ON_DESTROY)
         observer.onEvent(owner, ON_DESTROY)
-        verify(Winter.injectionAdapter, times(1)).disposeGraph(owner)
+        verify(Winter.injectionAdapter!!, times(1)).disposeGraph(owner)
     }
 
     @Test
