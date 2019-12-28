@@ -40,6 +40,7 @@ dependencies {
 
     implementation deps.androidx.lifecycle_common
 
+    testImplementation deps.androidx.lifecycle_runtime
     testImplementation deps.junit.junit4
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
