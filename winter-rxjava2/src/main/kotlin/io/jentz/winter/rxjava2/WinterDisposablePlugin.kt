@@ -11,7 +11,7 @@ import io.reactivex.disposables.Disposable
 /**
  * Winter plugin that adds a [CompositeDisposable] to every graph, adds all singleton scoped
  * instances which implement [Disposable] to it and disposes the [CompositeDisposable] when
- * the [Graph] gets disposed.
+ * the [Graph] gets closed.
  */
 object WinterDisposablePlugin : SimplePlugin() {
     override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {

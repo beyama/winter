@@ -37,7 +37,7 @@ class WinterDisposablePluginTest {
     }
 
     @Test
-    fun `should dispose CompositeDisposable when graph gets disposed`() {
+    fun `should dispose CompositeDisposable when graph gets closed`() {
         graph {}.apply {
             val disposable: CompositeDisposable = instance()
             disposable.isDisposed.shouldBeFalse()
