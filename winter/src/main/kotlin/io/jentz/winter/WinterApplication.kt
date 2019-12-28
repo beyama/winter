@@ -43,22 +43,21 @@ import io.jentz.winter.plugin.Plugins
  *
  *     // register adapter
  *     Winter.useSimpleAndroidAdapter()
- *     // create root graph
- *     Winter.createGraph(this)
+ *     // open application graph
+ *     Winter.openGraph(this)
  *   }
  * }
  *
- * class MyActivity : Activity() {
- *   private val injector = Injector()
- *   private val viewModel: RepoListViewModel by injector.instance()
+ * class MyActivity : Activity(), WinterAware {
+ *   private val viewModel: RepoListViewModel by inject()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     Winter.createGraphAndInject(this, injector)
+ *     openGraphAndInject()
  *     super.onCreate(savedInstanceState)
  *   }
  *
  *   override fun onDestroy() {
- *     Winter.disposeGraph(this)
+ *     closeGraph()
  *     super.onDestroy()
  *   }
  *
@@ -175,7 +174,7 @@ open class WinterApplication() {
      *
      * @param instance The instance to open a graph for and to inject into.
      * @param block An optional builder block to derive the component with.
-     * @return The created dependency graph.
+     * @return The opened dependency graph.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      */
     fun openGraphAndInject(
@@ -217,7 +216,7 @@ open class WinterApplication() {
     fun isGraphOpen(instance: Any): Boolean = requireInjectionAdapter.get(instance) != null
 
     /**
-     * Dispose the dependency graph of the given [instance].
+     * Close the dependency graph of the given [instance].
      *
      * @param instance The instance to close the graph for.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.

@@ -320,9 +320,9 @@ class Tree(
     }
 
     /**
-     * Remove and dispose the object graph and its subgraphs stored in [path].
+     * Remove and close the object graph and its subgraphs stored in [path].
      *
-     * @param path The path of the graph to dispose.
+     * @param path The path of the graph to close.
      *
      * @throws WinterException When no graph was found in path.
      */
@@ -339,9 +339,9 @@ class Tree(
     }
 
     /**
-     * Remove and dispose the object graph and its subgraphs stored in [path] if it is open.
+     * Remove and close the object graph and its subgraphs stored in [path] if it is open.
      *
-     * @param path The path of the graph to dispose.
+     * @param path The path of the graph to close.
      *
      * @return true if given [path] was open otherwise false.
      */

@@ -278,7 +278,7 @@ class TreeTest {
     }
 
     @Test
-    fun `#close without path should close and dispose root dependency graph`() {
+    fun `#close without path should close the root dependency graph`() {
         val root = tree.open()
         tree.close()
         root.isClosed.shouldBeTrue()
@@ -286,7 +286,7 @@ class TreeTest {
     }
 
     @Test
-    fun `#close with path should close and dispose sub dependency graphs by path`() {
+    fun `#close with path should close sub dependency graphs by path`() {
         val graph = openAll(*viewPath)
         tree.close(*viewPath)
         graph.isClosed.shouldBeTrue()
@@ -294,7 +294,7 @@ class TreeTest {
     }
 
     @Test
-    fun `#close without path should dispose subgraphs and the root dependency graph itself`() {
+    fun `#close without path should close subgraphs and the root dependency graph itself`() {
         val root = tree.open()
         val presentation = tree.open("presentation")
         val view = tree.open(*viewPath)
@@ -304,7 +304,7 @@ class TreeTest {
     }
 
     @Test
-    fun `#close with path should dispose subgraphs and the object graph itself`() {
+    fun `#close with path should close subgraphs and the object graph itself`() {
         val root = tree.open()
         val presentation = tree.open("presentation")
         val view = tree.open(*viewPath)

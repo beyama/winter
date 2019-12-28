@@ -13,7 +13,7 @@ typealias GFactory<R> = Graph.() -> R
 
 /**
  * Factory callback function signature with [Graph] as receiver.
- * Used for post-construct and dispose callbacks.
+ * Used for onPostConstruct and onClose callbacks.
  */
 typealias GFactoryCallback<R> = Graph.(R) -> Unit
 
