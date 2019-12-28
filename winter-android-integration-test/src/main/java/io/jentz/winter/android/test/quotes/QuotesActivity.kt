@@ -8,7 +8,7 @@ import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.androidx.lifecycle.autoDisposeGraph
 import io.jentz.winter.aware.WinterAware
-import io.jentz.winter.aware.createGraphAndInject
+import io.jentz.winter.aware.openGraphAndInject
 import io.jentz.winter.aware.inject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -22,7 +22,7 @@ class QuotesActivity : AppCompatActivity(), WinterAware {
     private var disposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        createGraphAndInject()
+        openGraphAndInject()
         autoDisposeGraph()
 
         super.onCreate(savedInstanceState)

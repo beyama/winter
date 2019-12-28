@@ -340,7 +340,7 @@ class InjectedPropertyTest {
         val property: String by inject()
 
         init {
-            inject(this)
+            graph.inject(this)
         }
     }
 
