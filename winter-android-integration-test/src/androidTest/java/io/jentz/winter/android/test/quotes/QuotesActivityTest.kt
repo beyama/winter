@@ -39,7 +39,7 @@ class QuotesActivityTest {
     private val viewModel = TestViewModel<QuotesViewState>()
 
     @Test
-    fun should_retain_presentation_scope_but_dispose_activity_scope_on_orientation_change() {
+    fun should_retain_presentation_scope_but_close_activity_scope_on_orientation_change() {
         val activityGraph = winterRule.requireTestGraph
         val presentationGraph = activityGraph.parent!!
 
@@ -65,7 +65,7 @@ class QuotesActivityTest {
     }
 
     @Test
-    fun should_dispose_presentation_scope_and_dispose_view_model_when_activity_finishes() {
+    fun should_close_presentation_scope_and_dispose_view_model_when_activity_finishes() {
         val presentationGraph = winterRule.requireTestGraph.parent!!
 
         presentationGraph.isClosed.shouldBeFalse()
@@ -74,7 +74,7 @@ class QuotesActivityTest {
         activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
         presentationGraph.isClosed.shouldBeTrue()
-        // WinterDisposablePlugin should dispose view model when graph gets disposed
+        // WinterDisposablePlugin should dispose view model when graph gets closed
         viewModel.isDisposed.shouldBeTrue()
     }
 
