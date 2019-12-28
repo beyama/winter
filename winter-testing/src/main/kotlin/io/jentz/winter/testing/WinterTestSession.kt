@@ -6,7 +6,7 @@ import io.jentz.winter.plugin.SimplePlugin
 typealias WinterTestSessionBlock = WinterTestSession.Builder.() -> Unit
 
 typealias OnGraphInitializedCallback = (Graph) -> Unit
-typealias OnGraphDisposeCallback = (Graph) -> Unit
+typealias OnGraphCloseCallback = (Graph) -> Unit
 
 /**
  * [WinterTestSession] helps to write cleaner tests that require `Winter` by eliminating
@@ -48,9 +48,9 @@ class WinterTestSession private constructor(
     private val testInstances: List<Any>,
     private val graphExtenders: List<Pair<ComponentMatcher, ComponentBuilderBlock>>,
     private val onGraphInitializedCallbacks: List<Pair<ComponentMatcher, OnGraphInitializedCallback>>,
-    private val onGraphDisposeCallbacks: List<Pair<ComponentMatcher, OnGraphDisposeCallback>>,
+    private val onGraphCloseCallbacks: List<Pair<ComponentMatcher, OnGraphCloseCallback>>,
     private val testGraphComponentMatcher: ComponentMatcher,
-    private val autoDisposeMode: AutoDisposeMode,
+    private val autoCloseMode: AutoCloseMode,
     private val bindAllMocksMatcher: ComponentMatcher?
 ) {
 
@@ -108,7 +108,7 @@ class WinterTestSession private constructor(
         override fun graphClose(graph: Graph) {
             _allGraphs -= graph
 
-            for ((matcher, callback) in onGraphDisposeCallbacks) {
+            for ((matcher, callback) in onGraphCloseCallbacks) {
                 if (matcher.matches(graph)) {
                     callback(graph)
                 }
@@ -140,21 +140,21 @@ class WinterTestSession private constructor(
                 return
             }
 
-            when (autoDisposeMode) {
-                AutoDisposeMode.NoAutoDispose -> {
+            when (autoCloseMode) {
+                AutoCloseMode.NoAutoClose -> {
                 }
-                AutoDisposeMode.Graph -> {
+                AutoCloseMode.Graph -> {
                     graph.close()
                 }
-                AutoDisposeMode.GraphAndAncestors -> {
-                    var graphToDispose: Graph? = graph
-                    while (graphToDispose != null && !graphToDispose.isClosed) {
-                        val parent = graphToDispose.parent
-                        graphToDispose.close()
-                        graphToDispose = parent
+                AutoCloseMode.GraphAndAncestors -> {
+                    var graphToClose: Graph? = graph
+                    while (graphToClose != null && !graphToClose.isClosed) {
+                        val parent = graphToClose.parent
+                        graphToClose.close()
+                        graphToClose = parent
                     }
                 }
-                AutoDisposeMode.AllGraphs -> {
+                AutoCloseMode.AllGraphs -> {
                     allGraphs.forEach(Graph::close)
                 }
             }
@@ -172,7 +172,7 @@ class WinterTestSession private constructor(
     fun resolve(type: Class<*>, qualifier: Any? = null): Any =
         requireTestGraph.instanceByKey(ClassTypeKey(type.kotlin.javaObjectType, qualifier))
 
-    internal enum class AutoDisposeMode { NoAutoDispose, Graph, GraphAndAncestors, AllGraphs }
+    internal enum class AutoCloseMode { NoAutoClose, Graph, GraphAndAncestors, AllGraphs }
 
     internal class ComponentMatcher(
         private val parentQualifier: Any?,
@@ -197,7 +197,7 @@ class WinterTestSession private constructor(
     class Builder {
         var application: WinterApplication = Winter
 
-        private var autoDisposeMode: AutoDisposeMode = AutoDisposeMode.NoAutoDispose
+        private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
         private var testGraphComponentMatcher =
             ComponentMatcher(null, APPLICATION_COMPONENT_QUALIFIER)
@@ -209,8 +209,8 @@ class WinterTestSession private constructor(
         private val onGraphInitializedCallbacks =
             mutableListOf<Pair<ComponentMatcher, OnGraphInitializedCallback>>()
 
-        private val onGraphDisposeCallbacks =
-            mutableListOf<Pair<ComponentMatcher, OnGraphDisposeCallback>>()
+        private val onGraphCloseCallbacks =
+            mutableListOf<Pair<ComponentMatcher, OnGraphCloseCallback>>()
 
         /**
          * Use the graph with component [qualifier] and parent component qualifier [parentQualifier]
@@ -232,31 +232,31 @@ class WinterTestSession private constructor(
         }
 
         /**
-         * Auto-dispose the test graph when [stop] is called.
+         * Auto-close the test graph when [stop] is called.
          *
-         * Default: No auto-dispose.
+         * Default: No auto-close.
          */
-        fun autoDisposeTestGraph() {
-            autoDisposeMode = AutoDisposeMode.Graph
+        fun autoCloseTestGraph() {
+            autoCloseMode = AutoCloseMode.Graph
         }
 
         /**
-         * Auto-dispose the test graph and all its ancestors when [stop] is called.
+         * Auto-close the test graph and all its ancestors when [stop] is called.
          *
-         * Default: No auto-dispose.
+         * Default: No auto-close.
          */
-        fun autoDisposeTestGraphAndAncestors() {
-            autoDisposeMode = AutoDisposeMode.GraphAndAncestors
+        fun autoCloseTestGraphAndAncestors() {
+            autoCloseMode = AutoCloseMode.GraphAndAncestors
         }
 
         /**
-         * Auto-dispose all graphs that where opened after [start] was called when [stop] is
+         * Auto-close all graphs that where opened after [start] was called when [stop] is
          * called.
          *
-         * Default: No auto-dispose.
+         * Default: No auto-close.
          */
-        fun autoDisposeAllGraphs() {
-            autoDisposeMode = AutoDisposeMode.AllGraphs
+        fun autoCloseAllGraphs() {
+            autoCloseMode = AutoCloseMode.AllGraphs
         }
 
         /**
@@ -312,31 +312,31 @@ class WinterTestSession private constructor(
 
         /**
          * Add callback that gets invoked when a graph with the component [qualifier] and the
-         * parent graph component qualifier [parentQualifier] gets disposed.
+         * parent graph component qualifier [parentQualifier] gets closed.
          *
          * @param parentQualifier The qualifier of the parent graph component.
          * @param qualifier The qualifier of the graph component.
          * @param callback The callback that gets invoked with the graph.
          */
-        fun onGraphDispose(
+        fun onGraphClose(
             parentQualifier: Any,
             qualifier: Any,
-            callback: OnGraphDisposeCallback
+            callback: OnGraphCloseCallback
         ) {
-            onGraphDisposeCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
+            onGraphCloseCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
         }
 
         /**
-         * Add callback that gets invoked when a graph with the component [qualifier] gets disposed.
+         * Add callback that gets invoked when a graph with the component [qualifier] gets closed.
          *
          * @param qualifier The qualifier of the graph component.
          * @param callback The callback that gets invoked with the graph.
          */
-        fun onGraphDispose(
+        fun onGraphClose(
             qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
-            callback: OnGraphDisposeCallback
+            callback: OnGraphCloseCallback
         ) {
-            onGraphDisposeCallbacks += ComponentMatcher(null, qualifier) to callback
+            onGraphCloseCallbacks += ComponentMatcher(null, qualifier) to callback
         }
 
         /**
@@ -365,9 +365,9 @@ class WinterTestSession private constructor(
             testInstances = testInstances,
             graphExtenders = graphExtenders,
             onGraphInitializedCallbacks = onGraphInitializedCallbacks,
-            onGraphDisposeCallbacks = onGraphDisposeCallbacks,
+            onGraphCloseCallbacks = onGraphCloseCallbacks,
             testGraphComponentMatcher = testGraphComponentMatcher,
-            autoDisposeMode = autoDisposeMode,
+            autoCloseMode = autoCloseMode,
             bindAllMocksMatcher = bindAllMocksMatcher
         )
 
