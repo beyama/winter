@@ -11,14 +11,14 @@ import io.jentz.winter.WinterApplication
 class ApplicationGraphOnlyInjectionAdapter internal constructor(
     private val tree: Tree
 ) : WinterApplication.InjectionAdapter {
-    override fun getGraph(instance: Any): Graph = tree.get()
+    override fun get(instance: Any): Graph? = tree.getOrNull()
 
-    override fun createGraph(
+    override fun open(
         instance: Any,
         block: ComponentBuilderBlock?
     ): Graph = tree.open(block = block)
 
-    override fun disposeGraph(instance: Any) {
+    override fun close(instance: Any) {
         tree.close()
     }
 }

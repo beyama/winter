@@ -5,7 +5,10 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import io.jentz.winter.*
+import io.jentz.winter.ComponentBuilderBlock
+import io.jentz.winter.Graph
+import io.jentz.winter.Tree
+import io.jentz.winter.WinterApplication
 
 /**
  * Android injection adapter that retains a `presentation` sub graph during Activity
@@ -29,21 +32,18 @@ import io.jentz.winter.*
  * The adapter registers the [Application] as [Context] and [Application] on the application graph
  * and the [Activity] as [Context] and [Activity] on the "activity" graph.
  *
- * The [createGraph] and [disposeGraph] methods support instances of [Application] and [Activity].
- * The retrieval method [getGraph] supports instances of [Application], [Activity], [View],
+ * The [open] and [close] methods support instances of [Application] and [Activity].
+ * The retrieval method [get] supports instances of [Application], [Activity], [View],
  * [DependencyGraphContextWrapper] and [ContextWrapper].
  *
- * The optional builder block for [createGraph] with an Activity is applied to the "activity"
+ * The optional builder block for [open] with an Activity is applied to the "activity"
  * component createGraph *NOT* the "presentation" component createGraph.
- *
- * [getGraph] called with an unknown type will return the application graph.
- *
  */
 open class AndroidPresentationScopeInjectionAdapter(
     protected val tree: Tree
 ) : WinterApplication.InjectionAdapter {
 
-    override fun createGraph(instance: Any, block: ComponentBuilderBlock?): Graph {
+    override fun open(instance: Any, block: ComponentBuilderBlock?): Graph? {
         return when (instance) {
             is Application -> tree.open {
                 constant(instance)
@@ -59,22 +59,22 @@ open class AndroidPresentationScopeInjectionAdapter(
                     block?.invoke(this)
                 }
             }
-            else -> throw WinterException("Can't create dependency graph for instance <$instance>.")
+            else -> null
         }
     }
 
-    override fun getGraph(instance: Any): Graph {
+    override fun get(instance: Any): Graph? {
         return when (instance) {
             is DependencyGraphContextWrapper -> instance.graph
-            is Application -> tree.get()
-            is Activity -> tree.get(presentationIdentifier(instance), instance)
-            is View -> getGraph(instance.context)
-            is ContextWrapper -> getGraph(instance.baseContext)
-            else -> tree.get()
+            is Application -> tree.getOrNull()
+            is Activity -> tree.getOrNull(presentationIdentifier(instance), instance)
+            is View -> get(instance.context)
+            is ContextWrapper -> get(instance.baseContext)
+            else -> null
         }
     }
 
-    override fun disposeGraph(instance: Any) {
+    override fun close(instance: Any) {
         when (instance) {
             is Application -> tree.close()
             is Activity -> {

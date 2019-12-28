@@ -3,6 +3,7 @@ package io.jentz.winter
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -40,6 +41,21 @@ class TreeTest {
         shouldThrow<WinterException> {
             tree.get(*viewPath)
         }.message.shouldBe("No object graph in path `presentation.view` found.")
+    }
+
+    @Test
+    fun `#get without arguments should return root graph`() {
+        tree.open().shouldBe(tree.get())
+    }
+
+    @Test
+    fun `#getOrNull without arguments should null if root graph is not open`() {
+        tree.getOrNull().shouldBeNull()
+    }
+
+    @Test
+    fun `#getOrNull without arguments should root graph if open`() {
+        tree.open().shouldBe(tree.getOrNull())
     }
 
     @Test

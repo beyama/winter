@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.WinterApplication.InjectionAdapter
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -64,51 +65,96 @@ class WinterApplicationTest {
         }
 
         @Test
-        fun `#getGraph should pass instance to Adapter#getGraph and return the result`() {
-            whenever(adapter.getGraph(instance)).thenReturn(rootGraph)
-            app.getGraph(instance).shouldBeSameInstanceAs(rootGraph)
+        fun `#getGraph should pass instance to Adapter#get and return the result`() {
+            whenever(adapter.get(instance)).thenReturn(rootGraph)
+            app.getGraph(instance)
+            verify(adapter, times(1)).get(instance)
         }
 
         @Test
-        fun `#createGraph should pass instance to Adapter#createGraph and return the result`() {
-            whenever(adapter.createGraph(instance, null)).thenReturn(rootGraph)
-            app.createGraph(instance).shouldBeSameInstanceAs(rootGraph)
+        fun `#getGraph should throw an exception when adapter returns null`() {
+            shouldThrow<WinterException> {
+                app.getGraph(instance)
+            }.message.shouldBe("No graph found for instance `$instance`.")
         }
 
         @Test
-        fun `#createGraph should pass builder block to Adapter#createGraph`() {
+        fun `#openGraph should pass instance to Adapter#open and return the result`() {
             val block: ComponentBuilderBlock = {}
-            whenever(adapter.createGraph(instance, block)).thenReturn(rootGraph)
-            app.createGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
+            whenever(adapter.open(instance, block)).thenReturn(rootGraph)
+            app.openGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
+            verify(adapter, times(1)).open(instance, block)
         }
 
         @Test
-        fun `#disposeGraph should pass instance to Adapter#disposeGraph`() {
-            app.disposeGraph(instance)
-            verify(adapter, times(1)).disposeGraph(instance)
+        fun `#getOrOpenGraph should pass instance to Adapter#open and return the result if graph is not open`() {
+            val block: ComponentBuilderBlock = {}
+            whenever(adapter.open(instance, block)).thenReturn(rootGraph)
+            app.getOrOpenGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
+            verify(adapter, times(1)).open(instance, block)
         }
 
-        @Nested
-        @DisplayName("JSR330 methods")
-        inner class JSR330MemberInjector {
+        @Test
+        fun `#getOrOpenGraph should call Adapter#get and return the result if graph is open`() {
+            val block: ComponentBuilderBlock = {}
 
-            @Test
-            fun `#inject with injection target should call graph#inject`() {
-                val graph = mock<Graph>()
-                whenever(adapter.getGraph(instance)).thenReturn(graph)
+            whenever(adapter.get(instance)).thenReturn(rootGraph)
+            app.getOrOpenGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
+            verify(adapter, times(1)).get(instance)
+        }
 
-                app.inject(instance)
-                verify(graph, times(1)).inject(instance)
-            }
+        @Test
+        fun `#isGraphOpen should return true if Adapter#get returns a graph`() {
+            whenever(adapter.get(instance)).thenReturn(rootGraph)
+            app.isGraphOpen(instance).shouldBeTrue()
+        }
 
-            @Test
-            fun `#createGraphAndInject with injection target should create graph and call graph#inject on it`() {
-                val graph = mock<Graph>()
-                whenever(adapter.createGraph(instance, null)).thenReturn(graph)
+        @Test
+        fun `#isGraphOpen should return false if Adapter#get returns null`() {
+            app.isGraphOpen(instance).shouldBeFalse()
+        }
 
-                app.createGraphAndInject(instance)
-                verify(graph, times(1)).inject(instance)
-            }
+        @Test
+        fun `#closeGraph should pass instance to Adapter#close`() {
+            app.closeGraph(instance)
+            verify(adapter, times(1)).close(instance)
+        }
+
+        @Test
+        fun `#closeGraphIfOpen should call Adapter#close when Adapter#get returned graph`() {
+            whenever(adapter.get(instance)).thenReturn(rootGraph)
+            app.closeGraphIfOpen(instance)
+            verify(adapter, times(1)).get(instance)
+            verify(adapter, times(1)).close(instance)
+        }
+
+        @Test
+        fun `#closeGraphIfOpen should not call Adapter#close when Adapter#get returned null`() {
+            app.closeGraphIfOpen(instance)
+            verify(adapter, times(1)).get(instance)
+            verify(adapter, never()).close(instance)
+        }
+
+        @Test
+        fun `#inject with injection target should call graph#inject`() {
+            val graph = mock<Graph>()
+            whenever(adapter.get(instance)).thenReturn(graph)
+
+            app.inject(instance)
+            verify(graph, times(1)).inject(instance)
+        }
+
+        @Test
+        fun `#openGraphAndInject with injection target should open graph and call graph#inject on it`() {
+            val block: ComponentBuilderBlock = {}
+            val graph = mock<Graph>()
+
+            whenever(adapter.open(instance, block)).thenReturn(graph)
+
+            app.openGraphAndInject(instance, block)
+
+            verify(adapter, times(1)).open(instance, block)
+            verify(graph, times(1)).inject(instance)
         }
 
     }

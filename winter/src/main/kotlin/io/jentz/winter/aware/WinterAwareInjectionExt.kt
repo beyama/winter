@@ -11,7 +11,7 @@ import io.jentz.winter.Graph
  * @throws [io.jentz.winter.WinterException] if [this] type is not supported.
  */
 fun WinterAware.createGraph(block: ComponentBuilderBlock? = null): Graph =
-    winterApplication.createGraph(this, block)
+    winterApplication.openGraph(this, block)
 
 /**
  * Create and return dependency graph for [this] and inject all members into [instance] by using
@@ -37,7 +37,7 @@ fun WinterAware.createGraphAndInject(
  * @throws [io.jentz.winter.WinterException] if type of [this] is not supported.
  */
 fun WinterAware.disposeGraph() {
-    winterApplication.disposeGraph(this)
+    winterApplication.closeGraph(this)
 }
 
 /**

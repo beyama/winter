@@ -15,13 +15,13 @@ internal class AutoDisposeDependencyGraph(
         (lifecycleOwner as? WinterAware)?.winterApplication ?: Winter
 
     override fun dispose() {
-        winterApplication.disposeGraph(lifecycleOwner)
+        winterApplication.closeGraph(lifecycleOwner)
     }
 
 }
 
 /**
- * Automatically call [WinterApplication.disposeGraph] with [this] when [disposeEvent] is emitted by
+ * Automatically call [WinterApplication.closeGraph] with [this] when [disposeEvent] is emitted by
  * the [androidx.lifecycle.Lifecycle].
  *
  * This will use [WinterAware.winterApplication] if the [LifecycleOwner] implements [WinterAware]

@@ -3,6 +3,7 @@ package io.jentz.winter.adapter
 import io.jentz.winter.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
+import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -22,45 +23,45 @@ class ApplicationGraphOnlyInjectionAdapterTest {
     }
 
     @Test
-    fun `#getGraph should throw an exception if no root graph is open`() {
-        shouldThrow<WinterException> { adapter.getGraph(Any()) }
+    fun `#get should return null if no root graph is open`() {
+        adapter.get(Any()).shouldBeNull()
     }
 
     @Test
-    fun `#getGraph should return root graph for any argument`() {
+    fun `#get should return root graph for any argument`() {
         val graph = tree.open()
-        repeat(2) { adapter.getGraph(Any()).shouldBeSameInstanceAs(graph) }
+        repeat(2) { adapter.get(Any()).shouldBeSameInstanceAs(graph) }
     }
 
     @Test
-    fun `#createGraph should open root graph`() {
-        adapter.createGraph(Any(), null)
+    fun `#open should open root graph`() {
+        adapter.open(Any(), null)
         tree.isOpen().shouldBeTrue()
     }
 
     @Test
-    fun `#createGraph should apply builder block`() {
-        adapter.createGraph(Any()) { constant("") }
+    fun `#open should apply builder block`() {
+        adapter.open(Any()) { constant("") }
         tree.get().component.shouldContainService(typeKey<String>())
     }
 
     @Test
-    fun `#createGraph should throw an exception if root graph is already open`() {
+    fun `#open should throw an exception if root graph is already open`() {
         tree.open()
-        shouldThrow<WinterException> { adapter.createGraph(Any(), null) }
+        shouldThrow<WinterException> { adapter.open(Any(), null) }
     }
 
     @Test
-    fun `#disposeGraph should dispose root graph`() {
+    fun `#close should close root graph`() {
         tree.open()
         expectValueToChange(true, false, { tree.isOpen() }) {
-            adapter.disposeGraph(Any())
+            adapter.close(Any())
         }
     }
 
     @Test
-    fun `#disposeGraph should throw an excpetion if root graph is not open`() {
-        shouldThrow<WinterException> { adapter.disposeGraph(Any()) }
+    fun `#close should throw an exception if root graph is not open`() {
+        shouldThrow<WinterException> { adapter.close(Any()) }
     }
 
     @Test

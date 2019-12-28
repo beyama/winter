@@ -161,6 +161,14 @@ class Tree(
     }
 
     /**
+     * Get a dependency graph by path.
+     *
+     * @param path The path of the graph.
+     * @return The graph that is stored in [path] or null if not graph in path is open.
+     */
+    fun getOrNull(vararg path: Any): Graph? = fold({ null }, { it.getOrNull(path) })
+
+    /**
      * Returns true if an entry under the given [path] exists otherwise false.
      */
     fun isOpen(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
