@@ -42,8 +42,8 @@ class LifecycleAutoCloseTest {
     }
 
     private class LifecycleAutoCloseImpl(
-        disposeEvent: Lifecycle.Event
-    ) : LifecycleAutoClose(disposeEvent) {
+        closeEvent: Lifecycle.Event
+    ) : LifecycleAutoClose(closeEvent) {
 
         var closeCalled = false
 

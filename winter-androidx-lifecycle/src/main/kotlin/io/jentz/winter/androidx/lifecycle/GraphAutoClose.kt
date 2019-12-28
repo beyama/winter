@@ -6,8 +6,8 @@ import io.jentz.winter.Graph
 
 internal class GraphAutoClose(
     private val graph: Graph,
-    disposeEvent: Event
-) : LifecycleAutoClose(disposeEvent) {
+    closeEvent: Event
+) : LifecycleAutoClose(closeEvent) {
 
     override fun close() {
         graph.close()
@@ -19,9 +19,9 @@ internal class GraphAutoClose(
  * [androidx.lifecycle.Lifecycle].
  *
  * @param lifecycleOwner The [LifecycleOwner] to observe.
- * @param closeEvent The [Event] which dispose the graph.
+ * @param closeEvent The [Event] that will close the graph.
  */
-private fun Graph.autoClose(lifecycleOwner: LifecycleOwner, closeEvent: Event = Event.ON_DESTROY) {
+fun Graph.autoClose(lifecycleOwner: LifecycleOwner, closeEvent: Event = Event.ON_DESTROY) {
     lifecycleOwner.lifecycle.addObserver(GraphAutoClose(this, closeEvent))
 }
 

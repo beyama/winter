@@ -20,7 +20,7 @@ internal abstract class LifecycleAutoClose(
             closeEvent == Event.ON_PAUSE
                     || closeEvent == Event.ON_STOP
                     || closeEvent == Event.ON_DESTROY
-        ) { "disposeEvent must be ON_PAUSE, ON_STOP or ON_DESTROY" }
+        ) { "closeEvent must be ON_PAUSE, ON_STOP or ON_DESTROY" }
     }
 
     @Suppress("unused")
