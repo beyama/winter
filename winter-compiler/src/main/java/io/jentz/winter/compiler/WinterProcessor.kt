@@ -2,8 +2,8 @@ package io.jentz.winter.compiler
 
 import io.jentz.winter.WinterException
 import io.jentz.winter.aware.WinterAware
-import io.jentz.winter.aware.inject
-import io.jentz.winter.aware.injectProvider
+import io.jentz.winter.delegate.inject
+import io.jentz.winter.delegate.injectProvider
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment

@@ -171,63 +171,6 @@ class WinterAwareTest {
 
     }
 
-    @Nested
-    inner class DelegateMethods {
-
-        @Test
-        fun `should return ProviderProperty for #injectProvider`() {
-            aware.injectProvider<String>().shouldBeInstanceOf<ProviderProperty<*>>()
-        }
-
-        @Test
-        fun `should return ProviderOrNullProperty for #injectProviderOrNull`() {
-            aware.injectProviderOrNull<String>()
-                .shouldBeInstanceOf<ProviderOrNullProperty<*>>()
-        }
-
-        @Test
-        fun `should return InstanceProperty for #inject`() {
-            aware.inject<String>().shouldBeInstanceOf<InstanceProperty<*>>()
-        }
-
-        @Test
-        fun `should return InstanceOrNullProperty for #injectOrNull`() {
-            aware.injectOrNull<String>()
-                .shouldBeInstanceOf<InstanceOrNullProperty<*>>()
-        }
-
-        @Test
-        fun `should return LazyInstanceProperty for #injectLazy`() {
-            aware.injectLazy<String>()
-                .shouldBeInstanceOf<LazyInstanceProperty<*>>()
-        }
-
-        @Test
-        fun `should return LazyInstanceOrNullProperty for #injectLazyOrNull`() {
-            aware.injectLazyOrNull<String>()
-                .shouldBeInstanceOf<LazyInstanceOrNullProperty<*>>()
-        }
-
-        @Test
-        fun `should return ProvidersOfTypeProperty for #injectProvidersOfType`() {
-            aware.injectProvidersOfType<String>()
-                .shouldBeInstanceOf<ProvidersOfTypeProperty<*>>()
-        }
-
-        @Test
-        fun `should return InstancesOfTypeProperty for #injectInstancesOfType`() {
-            aware.injectInstancesOfType<String>()
-                .shouldBeInstanceOf<InstancesOfTypeProperty<*>>()
-        }
-
-        @Test
-        fun `should return LazyInstancesOfTypeProperty for #injectLazyInstancesOfType`() {
-            aware.injectLazyInstancesOfType<String>()
-                .shouldBeInstanceOf<LazyInstancesOfTypeProperty<*>>()
-        }
-
-    }
-
     private open class TestAware : WinterAware {
         override val winterApplication: WinterApplication = mock()
     }

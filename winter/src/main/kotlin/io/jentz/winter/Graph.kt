@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.evaluator.ServiceEvaluator
 import io.jentz.winter.evaluator.createServiceEvaluator
 import io.jentz.winter.plugin.Plugins
@@ -305,7 +306,7 @@ class Graph internal constructor(
         var injector: MembersInjector<T>? = null
         var cls: Class<*>? = instance.javaClass
 
-        var found = application.delegateNotifier.notify(instance, this)
+        var found = DelegateNotifier.notify(instance, this)
 
         while (cls != null) {
             @Suppress("EmptyCatchBlock")

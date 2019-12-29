@@ -8,8 +8,8 @@ import io.jentz.winter.android.test.R
 import io.jentz.winter.android.test.viewmodel.ViewModel
 import io.jentz.winter.androidx.lifecycle.autoCloseGraphOnDestroy
 import io.jentz.winter.aware.WinterAware
-import io.jentz.winter.aware.inject
 import io.jentz.winter.aware.openGraphAndInject
+import io.jentz.winter.delegate.inject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_quotes.*

@@ -4,18 +4,124 @@ import io.jentz.winter.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-abstract class InjectedProperty<out T>(
-    private val application: WinterApplication
-) : ReadOnlyProperty<Any?, T> {
+/**
+ * Creates a property delegate for a [Provider] of type `() -> R`.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectProvider(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<Provider<R>> = ProviderProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a property delegate for an optional [Provider] of type `R`.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectProviderOrNull(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<Provider<R>?> = ProviderOrNullProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a property delegate for an instance of type `R`.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> inject(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<R> = InstanceProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a property delegate for an optional instance of type `R`.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectOrNull(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<R?> = InstanceOrNullProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a lazy property delegate for an instance of type `R`.
+ *
+ * The instance gets retrieved/created on first property access.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectLazy(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<R> = LazyInstanceProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a lazy property delegate for an optional instance of type `R`.
+ *
+ * The instance gets retrieved/created on first property access.
+ *
+ * @param qualifier An optional qualifier.
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectLazyOrNull(
+    qualifier: Any? = null,
+    generics: Boolean = false
+): InjectedProperty<R?> = LazyInstanceOrNullProperty(typeKey(qualifier, generics))
+
+/**
+ * Creates a property delegate for a [Set] of [providers][Provider] of type `R`.
+ *
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectProvidersOfType(
+    generics: Boolean = false
+): InjectedProperty<Set<Provider<R>>> = ProvidersOfTypeProperty(typeKeyOfType(generics))
+
+/**
+ * Creates a property delegate for a [Set] of instances of type `R`.
+ *
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectInstancesOfType(
+    generics: Boolean = false
+): InjectedProperty<Set<R>> = InstancesOfTypeProperty(typeKeyOfType(generics))
+
+/**
+ * Creates a lazy property delegate for a [Set] of instances of type `R`.
+ *
+ * The instances get retrieved/created on first property access.
+ *
+ * @param generics Preserve generic type parameters.
+ * @return The created [InjectedProperty].
+ */
+inline fun <reified R : Any> injectLazyInstancesOfType(
+    generics: Boolean = false
+): InjectedProperty<Set<R>> = LazyInstancesOfTypeProperty(typeKeyOfType(generics))
+
+abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
 
     abstract val value: T
     abstract fun inject(graph: Graph)
 
     fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
-        PropertyMapper(application,this, mapper)
+        PropertyMapper(this, mapper)
 
     operator fun provideDelegate(thisRef: Any, prop: KProperty<*>): InjectedProperty<T> {
-        application.delegateNotifier.register(thisRef, this)
+        DelegateNotifier.register(thisRef, this)
         return this
     }
 
@@ -29,13 +135,11 @@ abstract class InjectedProperty<out T>(
 
 }
 
-
 @PublishedApi
 internal class PropertyMapper<in I, out O>(
-    application: WinterApplication,
     base: InjectedProperty<I>,
     mapper: (I) -> O
-) : InjectedProperty<O>(application) {
+) : InjectedProperty<O>() {
 
     private var base: InjectedProperty<I>? = base
 
@@ -62,9 +166,8 @@ internal class PropertyMapper<in I, out O>(
 
 @PublishedApi
 internal abstract class AbstractEagerProperty<R : Any, T>(
-    application: WinterApplication,
     private val key: TypeKey<R>
-) : InjectedProperty<T>(application) {
+) : InjectedProperty<T>() {
 
     private var _value: Any? = UNINITIALIZED_VALUE
 
@@ -87,9 +190,8 @@ internal abstract class AbstractEagerProperty<R : Any, T>(
 
 @PublishedApi
 internal abstract class AbstractLazyProperty<R : Any, T>(
-    application: WinterApplication,
     private val key: TypeKey<R>
-) : InjectedProperty<T>(application) {
+) : InjectedProperty<T>() {
 
     private var graph: Graph? = null
 
@@ -114,9 +216,8 @@ internal abstract class AbstractLazyProperty<R : Any, T>(
 
 @PublishedApi
 internal class InstanceProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, R>(application, key) {
+) : AbstractEagerProperty<R, R>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): R =
         graph.instanceByKey(key)
@@ -125,9 +226,8 @@ internal class InstanceProperty<R : Any>(
 
 @PublishedApi
 internal class InstanceOrNullProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, R?>(application, key) {
+) : AbstractEagerProperty<R, R?>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): R? =
         graph.instanceOrNullByKey(key)
@@ -136,9 +236,8 @@ internal class InstanceOrNullProperty<R : Any>(
 
 @PublishedApi
 internal class LazyInstanceProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractLazyProperty<R, R>(application, key) {
+) : AbstractLazyProperty<R, R>(key) {
 
     private lateinit var provider: Provider<R>
 
@@ -152,9 +251,8 @@ internal class LazyInstanceProperty<R : Any>(
 
 @PublishedApi
 internal class LazyInstanceOrNullProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractLazyProperty<R, R?>(application, key) {
+) : AbstractLazyProperty<R, R?>(key) {
 
     private var provider: Provider<R>? = null
 
@@ -169,9 +267,8 @@ internal class LazyInstanceOrNullProperty<R : Any>(
 
 @PublishedApi
 internal class ProviderProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, Provider<R>>(application, key) {
+) : AbstractEagerProperty<R, Provider<R>>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R> =
         graph.providerByKey(key)
@@ -180,9 +277,8 @@ internal class ProviderProperty<R : Any>(
 
 @PublishedApi
 internal class ProviderOrNullProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, Provider<R>?>(application, key) {
+) : AbstractEagerProperty<R, Provider<R>?>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R>? =
         graph.providerOrNullByKey(key)
@@ -191,9 +287,8 @@ internal class ProviderOrNullProperty<R : Any>(
 
 @PublishedApi
 internal class ProvidersOfTypeProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, Set<Provider<R>>>(application, key) {
+) : AbstractEagerProperty<R, Set<Provider<R>>>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Set<Provider<R>> =
         graph.providersOfTypeByKey(key)
@@ -202,9 +297,8 @@ internal class ProvidersOfTypeProperty<R : Any>(
 
 @PublishedApi
 internal class InstancesOfTypeProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractEagerProperty<R, Set<R>>(application, key) {
+) : AbstractEagerProperty<R, Set<R>>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Set<R> =
         graph.instancesOfTypeByKey(key)
@@ -213,9 +307,8 @@ internal class InstancesOfTypeProperty<R : Any>(
 
 @PublishedApi
 internal class LazyInstancesOfTypeProperty<R : Any>(
-    application: WinterApplication,
     key: TypeKey<R>
-) : AbstractLazyProperty<R, Set<R>>(application, key) {
+) : AbstractLazyProperty<R, Set<R>>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Set<R> =
         graph.instancesOfTypeByKey(key)

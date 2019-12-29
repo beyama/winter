@@ -9,7 +9,7 @@ import java.util.*
  *
  * Inspired by Toothpick KTP.
  */
-internal class DelegateNotifier {
+internal object DelegateNotifier {
 
     private val delegates =
         Collections.synchronizedMap(WeakHashMap<Any, MutableList<InjectedProperty<*>>>())

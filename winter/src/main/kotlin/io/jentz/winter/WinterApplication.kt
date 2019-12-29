@@ -1,7 +1,6 @@
 package io.jentz.winter
 
 import io.jentz.winter.WinterApplication.InjectionAdapter
-import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugins
 
@@ -139,11 +138,6 @@ open class WinterApplication() {
      *
      */
     var checkForCyclicDependencies: Boolean = false
-
-    /**
-     * Used internally for injected properties.
-     */
-    internal val delegateNotifier = DelegateNotifier()
 
     /**
      * Sets the application component by supplying an optional qualifier and a component builder
