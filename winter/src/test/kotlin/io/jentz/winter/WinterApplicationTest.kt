@@ -4,11 +4,9 @@ import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -79,60 +77,14 @@ class WinterApplicationTest {
         }
 
         @Test
-        fun `#openGraph should pass instance to Adapter#open and return the result`() {
-            val block: ComponentBuilderBlock = {}
-            whenever(adapter.open(instance, block)).thenReturn(rootGraph)
-            app.openGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
-            verify(adapter, times(1)).open(instance, block)
-        }
-
-        @Test
-        fun `#getOrOpenGraph should pass instance to Adapter#open and return the result if graph is not open`() {
-            val block: ComponentBuilderBlock = {}
-            whenever(adapter.open(instance, block)).thenReturn(rootGraph)
-            app.getOrOpenGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
-            verify(adapter, times(1)).open(instance, block)
-        }
-
-        @Test
-        fun `#getOrOpenGraph should call Adapter#get and return the result if graph is open`() {
-            val block: ComponentBuilderBlock = {}
-
+        fun `#hasGraph should return true if Adapter#get returns a graph`() {
             whenever(adapter.get(instance)).thenReturn(rootGraph)
-            app.getOrOpenGraph(instance, block).shouldBeSameInstanceAs(rootGraph)
-            verify(adapter, times(1)).get(instance)
+            app.hasGraph(instance).shouldBeTrue()
         }
 
         @Test
-        fun `#isGraphOpen should return true if Adapter#get returns a graph`() {
-            whenever(adapter.get(instance)).thenReturn(rootGraph)
-            app.isGraphOpen(instance).shouldBeTrue()
-        }
-
-        @Test
-        fun `#isGraphOpen should return false if Adapter#get returns null`() {
-            app.isGraphOpen(instance).shouldBeFalse()
-        }
-
-        @Test
-        fun `#closeGraph should pass instance to Adapter#close`() {
-            app.closeGraph(instance)
-            verify(adapter, times(1)).close(instance)
-        }
-
-        @Test
-        fun `#closeGraphIfOpen should call Adapter#close when Adapter#get returned graph`() {
-            whenever(adapter.get(instance)).thenReturn(rootGraph)
-            app.closeGraphIfOpen(instance)
-            verify(adapter, times(1)).get(instance)
-            verify(adapter, times(1)).close(instance)
-        }
-
-        @Test
-        fun `#closeGraphIfOpen should not call Adapter#close when Adapter#get returned null`() {
-            app.closeGraphIfOpen(instance)
-            verify(adapter, times(1)).get(instance)
-            verify(adapter, never()).close(instance)
+        fun `#hasGraph should return false if Adapter#get returns null`() {
+            app.hasGraph(instance).shouldBeFalse()
         }
 
         @Test
@@ -141,19 +93,6 @@ class WinterApplicationTest {
             whenever(adapter.get(instance)).thenReturn(graph)
 
             app.inject(instance)
-            verify(graph, times(1)).inject(instance)
-        }
-
-        @Test
-        fun `#openGraphAndInject with injection target should open graph and call graph#inject on it`() {
-            val block: ComponentBuilderBlock = {}
-            val graph = mock<Graph>()
-
-            whenever(adapter.open(instance, block)).thenReturn(graph)
-
-            app.openGraphAndInject(instance, block)
-
-            verify(adapter, times(1)).open(instance, block)
             verify(graph, times(1)).inject(instance)
         }
 

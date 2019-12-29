@@ -11,7 +11,7 @@ import io.jentz.winter.android.test.quotes.QuotesViewState
 import io.jentz.winter.android.test.scope.ActivityScope
 import io.jentz.winter.android.test.scope.ApplicationScope
 import io.jentz.winter.android.test.viewmodel.ViewModel
-import io.jentz.winter.android.useAndroidPresentationScopeAdapter
+import io.jentz.winter.androidx.useAndroidPresentationScopeAdapter
 import io.jentz.winter.rxjava2.installDisposablePlugin
 
 class IntegrationTestApp : Application() {
@@ -40,7 +40,7 @@ class IntegrationTestApp : Application() {
         }
         Winter.installDisposablePlugin()
         Winter.useAndroidPresentationScopeAdapter()
-        Winter.openGraph(this)
+        Winter.getGraph(this) // initialize
     }
 
 }

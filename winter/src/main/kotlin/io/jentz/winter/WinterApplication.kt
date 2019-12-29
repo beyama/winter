@@ -151,55 +151,21 @@ open class WinterApplication() {
     }
 
     /**
-     * Open and return dependency graph for [instance].
-     *
-     * @param instance The instance for which a graph should be opened.
-     * @param block An optional builder block to derive the component with.
-     * @return The newly opened graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    fun openGraph(instance: Any, block: ComponentBuilderBlock? = null): Graph =
-        requireInjectionAdapter.open(instance, block) ?: throw WinterException(
-            "Could not open graph for `$instance` type is not supported."
-        )
-
-    /**
-     * Open and return dependency graph for [instance] and inject all members into instance.
-     *
-     * @param instance The instance to open a graph for and to inject into.
-     * @param block An optional builder block to derive the component with.
-     * @return The opened dependency graph.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    fun openGraphAndInject(
-        instance: Any,
-        block: ComponentBuilderBlock? = null
-    ): Graph = openGraph(instance, block).also { graph ->
-        graph.inject(instance)
-    }
-
-    /**
      * Get dependency graph for [instance].
      *
      * @param instance The instance to retrieve the dependency graph for.
      * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
      *
      */
-    fun getGraph(instance: Any): Graph = requireInjectionAdapter.get(instance)
+    fun getGraph(instance: Any): Graph = getGraphOrNull(instance)
         ?: throw WinterException("No graph found for instance `$instance`.")
 
     /**
-     * Get or open dependency graph for [instance].
+     * Get dependency graph for [instance] or null if not available.
      *
-     * @param instance The instance for which a graph should be retrieved or opened.
-     * @param block An optional builder block to derive the component with.
-     * @return The graph for [instance].
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
+     * @param instance The instance to retrieve the dependency graph for.
      */
-    fun getOrOpenGraph(
-        instance: Any,
-        block: ComponentBuilderBlock?
-    ): Graph = requireInjectionAdapter.get(instance) ?: openGraph(instance, block)
+    fun getGraphOrNull(instance: Any): Graph? = requireInjectionAdapter.get(instance)
 
     /**
      * Check if graph for [instance] is open.
@@ -207,26 +173,7 @@ open class WinterApplication() {
      * @param instance The instance to check for a open graph for.
      * @return True if graph for instance is open otherwise false.
      */
-    fun isGraphOpen(instance: Any): Boolean = requireInjectionAdapter.get(instance) != null
-
-    /**
-     * Close the dependency graph of the given [instance].
-     *
-     * @param instance The instance to close the graph for.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     */
-    fun closeGraph(instance: Any) {
-        requireInjectionAdapter.close(instance)
-    }
-
-    /**
-     * Close dependency graph for [instance] if open.
-     *
-     * @param instance The instance to close the graph for.
-     */
-    fun closeGraphIfOpen(instance: Any) {
-        if (isGraphOpen(instance)) closeGraph(instance)
-    }
+    fun hasGraph(instance: Any): Boolean = requireInjectionAdapter.get(instance) != null
 
     /**
      * Inject into [instance] by using the dependency graph of the [instance].
@@ -250,26 +197,10 @@ open class WinterApplication() {
          * Get dependency graph for [instance].
          *
          * @param instance The instance to get the graph for.
-         * @return The graph for [instance] or null when no open graph for instance was found.
+         * @return The graph for [instance] or null when instance type is not supported.
          */
         fun get(instance: Any): Graph?
 
-        /**
-         * Open dependency graph for [instance].
-         *
-         * @param instance The instance to open a dependency graph for.
-         * @param block An optional builder block to derive the component with.
-         * @return The newly opened graph or null if [instance] type is not supported.
-         */
-        fun open(instance: Any, block: ComponentBuilderBlock?): Graph?
-
-        /**
-         * Close the dependency graph of the given [instance].
-         *
-         * @param instance The instance to close the graph for.
-         * @throws [io.jentz.winter.WinterException] if no graph for this [instance] type exists.
-         */
-        fun close(instance: Any)
     }
 
 }
