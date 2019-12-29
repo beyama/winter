@@ -17,7 +17,9 @@ android {
 
     defaultConfig {
         minSdkVersion versions.minSdk
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        targetSdkVersion versions.compileSdk
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        multiDexEnabled true
     }
 
     compileOptions {
@@ -43,14 +45,15 @@ dependencies {
 
     testImplementation deps.androidx.lifecycle_runtime
     testImplementation deps.junit.junit4
-    testImplementation deps.mockito.core
-    testImplementation deps.mockito.kotlin
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect
 
-    androidTestImplementation deps.junit.junit4
+    androidTestImplementation project(":winter-junit4")
     androidTestImplementation deps.kotlintest
-    androidTestImplementation deps.support.test.runner
+    androidTestImplementation deps.androidx.test.runner
+    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.junit
+    androidTestImplementation deps.androidx.test.espressoCore
 }
 
 task androidJavadocJar(type: Jar) {

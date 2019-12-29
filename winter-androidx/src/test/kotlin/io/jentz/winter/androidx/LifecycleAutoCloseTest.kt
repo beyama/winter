@@ -3,18 +3,24 @@ package io.jentz.winter.androidx
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.*
 import androidx.lifecycle.LifecycleOwner
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import androidx.lifecycle.LifecycleRegistry
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import org.junit.Before
 import org.junit.Test
 
-class LifecycleAutoCloseTest {
+class LifecycleAutoCloseTest : LifecycleOwner {
 
-    private val lifecycleOwner: LifecycleOwner = mock { on(it.lifecycle).doReturn(mock()) }
+    private val registry = LifecycleRegistry(this)
+
+    override fun getLifecycle(): Lifecycle = registry
+
+    @Before
+    fun beforeEach() {
+        registry.markState(Lifecycle.State.CREATED)
+    }
 
     @Test
     fun `should throw an exception if the close event is a start event or ON_ANY`() {
@@ -30,7 +36,7 @@ class LifecycleAutoCloseTest {
         listOf(ON_PAUSE, ON_STOP, ON_DESTROY).forEach { event ->
             val observer = LifecycleAutoCloseImpl(event)
             observer.closeCalled.shouldBeFalse()
-            observer.onEvent(lifecycleOwner, event)
+            observer.onEvent(this, event)
             observer.closeCalled.shouldBeTrue()
         }
     }
@@ -38,8 +44,9 @@ class LifecycleAutoCloseTest {
     @Test
     fun `should unregister itself if the close event was emitted`() {
         val observer = LifecycleAutoCloseImpl(ON_STOP)
-        observer.onEvent(lifecycleOwner, ON_STOP)
-        verify(lifecycleOwner.lifecycle, times(1)).removeObserver(observer)
+        registry.addObserver(observer)
+        observer.onEvent(this, ON_STOP)
+        registry.observerCount.shouldBe(0)
     }
 
     private class LifecycleAutoCloseImpl(

@@ -2,6 +2,9 @@ package io.jentz.winter.androidx
 
 import android.app.Activity
 import android.app.Application
+import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.ContentProvider
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
@@ -33,6 +36,9 @@ open class SimpleAndroidInjectionAdapter(
         is Activity -> getActivityGraph(instance)
         is Fragment -> getFragmentGraph(instance)
         is View -> getViewGraph(instance)
+        is BroadcastReceiver -> getBroadcastReceiverGraph(instance)
+        is ContentProvider -> getContentProviderGraph(instance)
+        is Service -> getServiceGraph(instance)
         is ContextWrapper -> getContextWrapperGraph(instance)
         else -> null
     }
@@ -57,6 +63,15 @@ open class SimpleAndroidInjectionAdapter(
         get(fragment.requireActivity())
 
     protected open fun getViewGraph(view: View): Graph? = get(view.context)
+
+    protected open fun getBroadcastReceiverGraph(receiver: BroadcastReceiver): Graph? =
+        tree.get()
+
+    protected open fun getContentProviderGraph(contentProvider: ContentProvider): Graph? =
+        tree.get()
+
+    protected open fun getServiceGraph(service: Service): Graph? =
+        tree.get()
 
     protected open fun getContextWrapperGraph(contextWrapper: ContextWrapper): Graph? =
         get(contextWrapper.baseContext)
@@ -95,4 +110,11 @@ open class SimpleAndroidInjectionAdapter(
         })
     }
 
+}
+
+/**
+ * Register an [SimpleAndroidInjectionAdapter] on this [WinterApplication] instance.
+ */
+fun WinterApplication.useSimpleAndroidAdapter() {
+    injectionAdapter = SimpleAndroidInjectionAdapter(this)
 }

@@ -1,8 +1,8 @@
 package io.jentz.winter.androidx
 
 import android.content.Context
-import android.support.test.InstrumentationRegistry
 import android.view.LayoutInflater
+import androidx.test.platform.app.InstrumentationRegistry
 import io.jentz.winter.emptyGraph
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -13,7 +13,7 @@ class DependencyGraphContextWrapperTest {
 
     private val graph = emptyGraph()
 
-    private val context = InstrumentationRegistry.getContext()
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
     private val wrapper = DependencyGraphContextWrapper(context, graph)
 
