@@ -680,13 +680,18 @@ class GraphTest {
         }
 
         @Test
-        fun `#initSubcomponent should dervie component when builder block is given`() {
+        fun `should add itself to the registry for ability to inject the graph itself`() {
+            emptyGraph.instance<Graph>().shouldBeSameInstanceAs(emptyGraph)
+        }
+
+        @Test
+        fun `#createSubgraph should derive component when builder block is given`() {
             val graph = component.createGraph().createSubgraph("test") { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
         @Test
-        fun `#initSubcomponent should pass WinterApplication to new graph`() {
+        fun `#createSubgraph should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
             component.createGraph(testApp)
                 .createSubgraph("test")

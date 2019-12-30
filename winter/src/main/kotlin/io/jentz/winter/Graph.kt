@@ -28,10 +28,16 @@ class Graph internal constructor(
             val application: WinterApplication,
             val plugins: Plugins,
             val serviceEvaluator: ServiceEvaluator,
-            val registry: MutableMap<TypeKey<*>, BoundService<*>> = mutableMapOf(),
             val onCloseCallback: OnCloseCallback?
         ) : State() {
+            val registry: MutableMap<TypeKey<*>, BoundService<*>> = hashMapOf()
+
             var isClosing = false
+
+            init {
+                val selfKey = typeKey<Graph>()
+                registry[selfKey] = ConstantService(selfKey, graph)
+            }
 
             @Suppress("UNCHECKED_CAST")
             fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
