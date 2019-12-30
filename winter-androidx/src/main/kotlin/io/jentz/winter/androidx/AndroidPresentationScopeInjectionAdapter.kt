@@ -30,13 +30,13 @@ open class AndroidPresentationScopeInjectionAdapter(
 
     override fun getActivityGraph(activity: Activity): Graph? {
         val presentationIdentifier = presentationIdentifier(activity)
-        tree.getOrOpen("presentation", identifier = presentationIdentifier)
+        app.getOrOpen("presentation", identifier = presentationIdentifier)
 
-        tree.getOrNull(presentationIdentifier, activity)?.let { return it }
+        app.getOrNull(presentationIdentifier, activity)?.let { return it }
 
         setupAutoClose(activity)
 
-        return tree.open(presentationIdentifier, "activity", identifier = activity) {
+        return app.open(presentationIdentifier, "activity", identifier = activity) {
             constant(activity)
             constant<Context>(activity)
         }
@@ -44,9 +44,9 @@ open class AndroidPresentationScopeInjectionAdapter(
 
     override fun closeActivityGraph(activity: Activity) {
         if (activity.isFinishing) {
-            tree.close(presentationIdentifier(activity))
+            app.close(presentationIdentifier(activity))
         } else {
-            tree.close(presentationIdentifier(activity), activity)
+            app.close(presentationIdentifier(activity), activity)
         }
     }
 

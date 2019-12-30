@@ -35,7 +35,7 @@ class WinterEachExtensionTest {
 
     @BeforeEach
     fun beforeEach() {
-        app.tree.create()
+        app.create()
     }
 
     @Test

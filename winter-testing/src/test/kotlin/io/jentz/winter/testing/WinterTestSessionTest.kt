@@ -329,6 +329,6 @@ class WinterTestSessionTest {
     }
 
     private fun createAll(vararg qualifiers: Any): Graph =
-        qualifiers.fold(app.tree.create()) { parent, qualifier -> parent.createSubgraph(qualifier) }
+        qualifiers.fold(app.create()) { parent, qualifier -> parent.createSubgraph(qualifier) }
 
 }

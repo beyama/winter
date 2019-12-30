@@ -11,23 +11,21 @@ class ApplicationGraphOnlyInjectionAdapterTest {
 
     private val app = WinterApplication {}
 
-    private val tree = app.tree
-
-    private val adapter = ApplicationGraphOnlyInjectionAdapter(tree)
+    private val adapter = ApplicationGraphOnlyInjectionAdapter(app)
 
     @BeforeEach
     fun beforeEach() {
-        tree.closeIfOpen()
+        app.closeIfOpen()
     }
 
     @Test
     fun `#get should open root graph if not open`() {
-        adapter.get(Any()).shouldBe(tree.get())
+        adapter.get(Any()).shouldBe(app.get())
     }
 
     @Test
     fun `#get should return root graph for any argument`() {
-        val graph = tree.open()
+        val graph = app.open()
         repeat(2) { adapter.get(Any()).shouldBeSameInstanceAs(graph) }
     }
 
