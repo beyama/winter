@@ -43,7 +43,7 @@ import io.jentz.winter.plugin.Plugins
  *     // register adapter
  *     Winter.useSimpleAndroidAdapter()
  *     // open application graph
- *     Winter.openGraph(this)
+ *     Winter.inject(this)
  *   }
  * }
  *
@@ -51,13 +51,8 @@ import io.jentz.winter.plugin.Plugins
  *   private val viewModel: RepoListViewModel by inject()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     openGraphAndInject()
+ *     Winter.inject(this)
  *     super.onCreate(savedInstanceState)
- *   }
- *
- *   override fun onDestroy() {
- *     closeGraph()
- *     super.onDestroy()
  *   }
  *
  * }
@@ -151,31 +146,6 @@ open class WinterApplication() {
     }
 
     /**
-     * Get dependency graph for [instance].
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @throws [io.jentz.winter.WinterException] if given [instance] type is not supported.
-     *
-     */
-    fun getGraph(instance: Any): Graph = getGraphOrNull(instance)
-        ?: throw WinterException("No graph found for instance `$instance`.")
-
-    /**
-     * Get dependency graph for [instance] or null if not available.
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     */
-    fun getGraphOrNull(instance: Any): Graph? = requireInjectionAdapter.get(instance)
-
-    /**
-     * Check if graph for [instance] is open.
-     *
-     * @param instance The instance to check for a open graph for.
-     * @return True if graph for instance is open otherwise false.
-     */
-    fun hasGraph(instance: Any): Boolean = requireInjectionAdapter.get(instance) != null
-
-    /**
      * Inject into [instance] by using the dependency graph of the [instance].
      *
      * Sugar for calling `getGraph(instance).inject(instance)`.
@@ -185,7 +155,10 @@ open class WinterApplication() {
      * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
      */
     fun inject(instance: Any) {
-        getGraph(instance).inject(instance)
+        val graph = requireInjectionAdapter.get(instance) ?: throw WinterException(
+            "No graph found for instance `$instance`."
+        )
+        graph.inject(instance)
     }
 
     /**

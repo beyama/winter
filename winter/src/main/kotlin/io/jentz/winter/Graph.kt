@@ -306,7 +306,7 @@ class Graph internal constructor(
         var injector: MembersInjector<T>? = null
         var cls: Class<*>? = instance.javaClass
 
-        var found = DelegateNotifier.notify(instance, this)
+        DelegateNotifier.notify(instance, this)
 
         while (cls != null) {
             @Suppress("EmptyCatchBlock")
@@ -315,16 +315,11 @@ class Graph internal constructor(
                 @Suppress("UNCHECKED_CAST")
                 val injectorClass = Class.forName(className) as Class<MembersInjector<T>>
                 injector = injectorClass.getConstructor().newInstance()
-                found = true
                 break
             } catch (e: Exception) {
             }
 
             cls = cls.superclass
-        }
-
-        if (!found) {
-            throw WinterException("No members injector found for `${instance.javaClass}`.")
         }
 
         injector?.invoke(this, instance)

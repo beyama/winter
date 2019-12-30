@@ -15,6 +15,9 @@ buildscript {
                     'stdlib' : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
                     'reflect': "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}"
             ],
+
+            'inject'     : 'javax.inject:javax.inject:1',
+
             'androidx'   : [
                     'coreKtx'          : 'androidx.core:core-ktx:1.0.1',
                     'recyclerview'     : 'androidx.recyclerview:recyclerview:1.0.0',
@@ -36,6 +39,7 @@ buildscript {
                     ]
 
             ],
+
             'junit'      : [
                     'junit4'       : "junit:junit:4.12",
                     'jupiterApi'   : "org.junit.jupiter:junit-jupiter-api:${versions.junit5}",
@@ -43,12 +47,14 @@ buildscript {
                     'vintageEngine': "org.junit.vintage:junit-vintage-engine:${versions.junit5}"
             ],
             'kotlintest' : "io.kotlintest:kotlintest-assertions:3.4.0",
+
             'mockito'    : [
                     'core'  : "org.mockito:mockito-core:${versions.mockito}",
                     'kotlin': "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}"
             ],
-            'javaxInject': 'javax.inject:javax.inject:1',
+
             'kotlinpoet' : 'com.squareup:kotlinpoet:1.2.0',
+
             'rx'         : [
                     'rxjava'   : 'io.reactivex.rxjava2:rxjava:2.2.10',
                     'rxandroid': 'io.reactivex.rxjava2:rxandroid:2.1.1'

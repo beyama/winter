@@ -46,8 +46,6 @@ class WinterApplicationTest {
 
         private val instance = Any()
 
-        private val rootGraph = graph {}
-
         @BeforeEach
         fun beforeEach() {
             reset(adapter)
@@ -60,31 +58,6 @@ class WinterApplicationTest {
             shouldThrow<WinterException> {
                 app.injectionAdapter = mock(); null
             }.message.shouldBe("Cannot set injection adapter because application graph is already open")
-        }
-
-        @Test
-        fun `#getGraph should pass instance to Adapter#get and return the result`() {
-            whenever(adapter.get(instance)).thenReturn(rootGraph)
-            app.getGraph(instance)
-            verify(adapter, times(1)).get(instance)
-        }
-
-        @Test
-        fun `#getGraph should throw an exception when adapter returns null`() {
-            shouldThrow<WinterException> {
-                app.getGraph(instance)
-            }.message.shouldBe("No graph found for instance `$instance`.")
-        }
-
-        @Test
-        fun `#hasGraph should return true if Adapter#get returns a graph`() {
-            whenever(adapter.get(instance)).thenReturn(rootGraph)
-            app.hasGraph(instance).shouldBeTrue()
-        }
-
-        @Test
-        fun `#hasGraph should return false if Adapter#get returns null`() {
-            app.hasGraph(instance).shouldBeFalse()
         }
 
         @Test

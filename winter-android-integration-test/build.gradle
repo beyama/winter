@@ -43,10 +43,8 @@ android {
 dependencies {
     implementation project(':winter-androidx')
     implementation project(':winter-rxjava2')
-    implementation project(':winter-junit4')
 
     kapt project(':winter-compiler')
-    implementation deps.javaxInject
 
     implementation deps.kotlin.stdlib
 
@@ -57,7 +55,7 @@ dependencies {
     implementation deps.rx.rxjava
     implementation deps.rx.rxandroid
 
-    testImplementation deps.junit.junit4
+    androidTestImplementation project(':winter-junit4')
 
     androidTestImplementation deps.kotlintest
     androidTestImplementation deps.kotlin.reflect

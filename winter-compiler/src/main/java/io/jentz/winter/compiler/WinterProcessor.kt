@@ -1,7 +1,6 @@
 package io.jentz.winter.compiler
 
 import io.jentz.winter.WinterException
-import io.jentz.winter.aware.WinterAware
 import io.jentz.winter.delegate.inject
 import io.jentz.winter.delegate.injectProvider
 import javax.annotation.processing.AbstractProcessor
@@ -11,7 +10,7 @@ import javax.inject.Inject
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
-class WinterProcessor : AbstractProcessor(), WinterAware {
+class WinterProcessor : AbstractProcessor() {
 
     private val logger: Logger by inject()
     private val configuration: ProcessorConfiguration by inject()

@@ -40,7 +40,7 @@ class IntegrationTestApp : Application() {
         }
         Winter.installDisposablePlugin()
         Winter.useAndroidPresentationScopeAdapter()
-        Winter.getGraph(this) // initialize
+        Winter.inject(this)
     }
 
 }

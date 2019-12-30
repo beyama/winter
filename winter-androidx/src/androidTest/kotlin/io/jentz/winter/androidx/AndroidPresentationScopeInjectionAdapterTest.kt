@@ -20,6 +20,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidPresentationScopeInjectionAdapterTest {
 
+    private val adapter = AndroidPresentationScopeInjectionAdapter(Winter)
+
     private val winterRule = WinterRule {
         testGraph("activity")
     }
@@ -39,8 +41,8 @@ class AndroidPresentationScopeInjectionAdapterTest {
                         }
                     }
                 }
-                Winter.useAndroidPresentationScopeAdapter()
-                Winter.getGraph(application)
+                Winter.injectionAdapter = adapter
+                Winter.inject(application)
             }
         })
         .around(winterRule)
@@ -49,7 +51,7 @@ class AndroidPresentationScopeInjectionAdapterTest {
     @Test
     fun should_get_activity_graph_for_activity_instance() {
         activityScenarioRule.scenario.onActivity { activity ->
-            winterRule.requireTestGraph.shouldBeSameInstanceAs(Winter.getGraph(activity))
+            winterRule.requireTestGraph.shouldBeSameInstanceAs(adapter.get(activity))
         }
     }
 
