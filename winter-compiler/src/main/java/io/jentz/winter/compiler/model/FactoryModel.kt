@@ -58,20 +58,18 @@ class FactoryModel(val originatingElement: ExecutableElement) {
                             "allowed. ($scopesString})"
             )
         }
-        val scopeAnnotation = scopes.firstOrNull()
-        scope = if (scopeAnnotation != null) {
+
+        scope = scopes.firstOrNull()?.let { scopeAnnotation ->
             val scopeAnnotationName = scopeAnnotation.qualifiedName.toString()
             val retention = scopeAnnotation.getAnnotation(Retention::class.java)
 
             if (retention?.value != RetentionPolicy.RUNTIME) {
                 throw IllegalArgumentException(
-                        "Scope annotation `$scopeAnnotationName` doesn't have RUNTIME retention."
+                    "Scope annotation `$scopeAnnotationName` doesn't have RUNTIME retention."
                 )
             }
 
             scopeAnnotationName
-        } else {
-            null
         }
     }
 

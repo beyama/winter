@@ -238,9 +238,16 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#generated should load generated factory for class`() {
+    fun `#generated should register generated factory for class`() {
         component {
-            generated<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+            generated<Service>()
+        }.shouldContainService(typeKey<Service>())
+    }
+
+    @Test
+    fun `#generatedFactory should load generated factory for class`() {
+        component {
+            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
         }
     }
 

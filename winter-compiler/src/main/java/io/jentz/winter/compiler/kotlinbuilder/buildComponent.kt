@@ -26,20 +26,14 @@ fun buildComponent(
         grouped.forEach { (scope, factories) ->
             when (scope) {
                 "_prototype_" -> {
-                    factories.forEach { factory ->
-                        prototype(factory)
-                    }
+                    factories.forEach { factory -> register(factory) }
                 }
                 configuration.rootScopeAnnotation -> {
-                    factories.forEach { factory ->
-                        singleton(factory)
-                    }
+                    factories.forEach { factory -> register(factory) }
                 }
                 else -> {
                     subcomponent(scope) {
-                        factories.forEach { factory ->
-                            singleton(factory)
-                        }
+                        factories.forEach { factory -> register(factory) }
                     }
                 }
             }
@@ -56,19 +50,8 @@ private class ComponentBuilder(
         private val builder: KotlinBuilder
 ) {
 
-    fun prototype(factoryModel: FactoryModel) {
-        scope("prototype", factoryModel)
-    }
-
-    fun singleton(factoryModel: FactoryModel) {
-        scope("singleton", factoryModel)
-    }
-
-    private fun scope(scopeName: String, factoryModel: FactoryModel) {
-        val typeName = factoryModel.typeName
-        val qualifier = factoryModel.qualifier?.let { "qualifier = \"$it\", " } ?: ""
-        builder.import(typeName)
-        builder.line("$scopeName(${qualifier}factory = ${factoryModel.generatedClassName}())")
+    fun register(model: FactoryModel) {
+        builder.line("${model.generatedClassName}().register(this)")
     }
 
     fun subcomponent(scopeName: String, block: ComponentBuilderBlock) {

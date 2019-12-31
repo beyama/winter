@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.Factory
+
 /**
  * Component builder DSL.
  */
@@ -202,18 +204,19 @@ class ComponentBuilder internal constructor(val qualifier: Any) {
     }
 
     /**
-     * Loads the generated factory of the given type.
-     *
-     * Useful in conjunction with a scope method like:
-     *
-     * ```
-     * singleton<Service>(factory = generated)
-     * ```
+     * Register a generated factory.
      */
-    inline fun <reified R : Any> generated(): GFactory<R> {
+    inline fun <reified R : Any> generated() {
+        generatedFactory<R>().register(this)
+    }
+
+    /**
+     * Loads the generated factory of the given type.
+     */
+    inline fun <reified R : Any> generatedFactory(): Factory<R> {
         val factoryName = R::class.java.name + "_WinterFactory"
         @Suppress("UNCHECKED_CAST")
-        val factory = Class.forName(factoryName) as Class<Factory<Graph, R>>
+        val factory = Class.forName(factoryName) as Class<Factory<R>>
         return factory.getConstructor().newInstance()
     }
 

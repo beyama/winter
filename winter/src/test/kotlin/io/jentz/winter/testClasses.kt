@@ -1,5 +1,7 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.Factory
+
 interface Pump
 
 class Heater
@@ -26,7 +28,11 @@ class Service_WinterMembersInjector : MembersInjector<Service> {
 }
 
 @Suppress("unused", "ClassName")
-class Service_WinterFactory : Factory<Graph, Service> {
+class Service_WinterFactory : Factory<Service> {
+    override fun register(builder: ComponentBuilder) {
+        builder.prototype(factory = this)
+    }
+
     override fun invoke(graph: Graph): Service = Service()
 }
 

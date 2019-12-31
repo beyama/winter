@@ -28,11 +28,6 @@ typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
 typealias Provider<R> = () -> R
 
 /**
- * Factory function signature.
- */
-typealias Factory<A, R> = (A) -> R
-
-/**
  * Members injector signature used in conjunction with JSR330.
  */
 typealias MembersInjector<R> = (Graph, R) -> Unit
