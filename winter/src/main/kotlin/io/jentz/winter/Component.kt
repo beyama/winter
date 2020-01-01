@@ -22,7 +22,7 @@ import io.jentz.winter.inject.Factory
  * val graph = derived.createGraph { constant<Application>(myAndroidApplication) }
  * ```
  */
-class Component internal constructor(
+class Component private constructor(
     /**
      * The components qualifier.
      */
