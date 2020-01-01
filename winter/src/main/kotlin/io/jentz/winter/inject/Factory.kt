@@ -1,6 +1,6 @@
 package io.jentz.winter.inject
 
-import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Component
 import io.jentz.winter.Graph
 
 /**
@@ -11,6 +11,6 @@ interface Factory<R> : (Graph) -> R {
     /**
      * Register the factory on the given [builder] instance.
      */
-    fun register(builder: ComponentBuilder)
+    fun register(builder: Component.Builder)
 
 }

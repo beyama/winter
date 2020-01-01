@@ -1,6 +1,6 @@
 package io.jentz.winter.plugin
 
-import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.Scope
 
@@ -9,7 +9,7 @@ import io.jentz.winter.Scope
  */
 open class SimplePlugin : Plugin {
 
-    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+    override fun graphInitializing(parentGraph: Graph?, builder: Component.Builder) {
     }
 
     override fun graphInitialized(graph: Graph) {

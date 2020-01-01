@@ -79,7 +79,7 @@ class WinterTestSession private constructor(
 
     private val plugin = object : SimplePlugin() {
 
-        override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+        override fun graphInitializing(parentGraph: Graph?, builder: Component.Builder) {
             for ((matcher, block) in graphExtenders) {
                 if (matcher.matches(parentGraph, builder)) {
                     builder.apply(block)
@@ -189,7 +189,7 @@ class WinterTestSession private constructor(
         fun matches(graph: Graph): Boolean =
             matches(graph.parent?.component?.qualifier, graph.component.qualifier)
 
-        fun matches(parentGraph: Graph?, builder: ComponentBuilder): Boolean =
+        fun matches(parentGraph: Graph?, builder: Component.Builder): Boolean =
             matches(parentGraph?.component?.qualifier, builder.qualifier)
 
     }

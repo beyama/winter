@@ -13,7 +13,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("NoArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -24,7 +24,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class NoArgumentInjectConstructor_WinterFactory : Factory<NoArgumentInjectConstructor> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.singleton(factory = this)
         |    }
         |
@@ -44,7 +44,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("OneArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -55,7 +55,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class OneArgumentInjectConstructor_WinterFactory : Factory<OneArgumentInjectConstructor> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.prototype(factory = this)
         |    }
         |
@@ -75,7 +75,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("OneNamedArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -86,7 +86,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class OneNamedArgumentInjectConstructor_WinterFactory : Factory<OneNamedArgumentInjectConstructor> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.prototype(factory = this)
         |    }
         |
@@ -106,7 +106,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("InjectConstructorWithProviderAndLazyArguments_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import java.util.List
@@ -119,7 +119,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class InjectConstructorWithProviderAndLazyArguments_WinterFactory : Factory<InjectConstructorWithProviderAndLazyArguments> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.prototype(factory = this)
         |    }
         |
@@ -142,7 +142,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("WithInjectedField_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -153,7 +153,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class WithInjectedField_WinterFactory : Factory<WithInjectedField> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.prototype(factory = this)
         |    }
         |
@@ -175,7 +175,7 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("NamedSingletonInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -186,7 +186,7 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class NamedSingletonInjectConstructor_WinterFactory : Factory<NamedSingletonInjectConstructor> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.singleton(qualifier = "variant1", factory = this)
         |    }
         |

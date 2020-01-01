@@ -39,7 +39,7 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
         generatedFile("InjectConstructorAnnotation_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.ComponentBuilder
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
@@ -50,7 +50,7 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
         |)
         |class InjectConstructorAnnotation_WinterFactory : Factory<InjectConstructorAnnotation> {
         |
-        |    override fun register(builder: ComponentBuilder) {
+        |    override fun register(builder: Builder) {
         |        builder.prototype(factory = this)
         |    }
         |

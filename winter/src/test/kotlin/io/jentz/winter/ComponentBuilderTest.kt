@@ -1,6 +1,6 @@
 package io.jentz.winter
 
-import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
@@ -250,6 +250,5 @@ class ComponentBuilderTest {
             generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
         }
     }
-
 
 }

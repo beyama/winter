@@ -1,9 +1,6 @@
 package io.jentz.winter.rxjava2
 
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Graph
-import io.jentz.winter.Scope
-import io.jentz.winter.WinterApplication
+import io.jentz.winter.*
 import io.jentz.winter.plugin.SimplePlugin
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -14,7 +11,7 @@ import io.reactivex.disposables.Disposable
  * the [Graph] gets closed.
  */
 object WinterDisposablePlugin : SimplePlugin() {
-    override fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder) {
+    override fun graphInitializing(parentGraph: Graph?, builder: Component.Builder) {
         builder.constant(CompositeDisposable())
     }
 

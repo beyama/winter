@@ -40,14 +40,13 @@ fun buildFactory(
             val graphClassName = GRAPH_CLASS_NAME.simpleName
             val resultClassName = typeName.simpleName
 
-            block("override fun register(builder: ComponentBuilder)") {
+            block("override fun register(builder: Builder)") {
 
                 val scopeName = if (model.scope == null) {
                     "prototype"
                 } else {
                     "singleton"
                 }
-                val typeName = model.typeName
                 val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
                 import(typeName)
                 line("builder.$scopeName(${qualifier}factory = this)")

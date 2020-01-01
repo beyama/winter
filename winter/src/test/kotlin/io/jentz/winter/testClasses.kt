@@ -29,7 +29,7 @@ class Service_WinterMembersInjector : MembersInjector<Service> {
 
 @Suppress("unused", "ClassName")
 class Service_WinterFactory : Factory<Service> {
-    override fun register(builder: ComponentBuilder) {
+    override fun register(builder: Component.Builder) {
         builder.prototype(factory = this)
     }
 
@@ -83,6 +83,6 @@ internal class BoundReferenceService<R : Any>(
 
 }
 
-internal inline fun <reified R : Any> ComponentBuilder.reference(noinline block: GFactory<R>) {
+internal inline fun <reified R : Any> Component.Builder.reference(noinline block: GFactory<R>) {
     register(UnboundReferenceService(typeKey(), block), false)
 }

@@ -1,6 +1,6 @@
 package io.jentz.winter.plugin
 
-import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.Scope
 
@@ -13,9 +13,9 @@ interface Plugin {
      * [io.jentz.winter.Component].
      *
      * @param parentGraph The parent graph of the new graph that is being initialized.
-     * @param builder The [ComponentBuilder] for the new graph.
+     * @param builder The [Component.Builder] for the new graph.
      */
-    fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder)
+    fun graphInitializing(parentGraph: Graph?, builder: Component.Builder)
 
     /**
      * This is called when a [Graph] is initialized and before eager dependencies are resolved.

@@ -20,7 +20,7 @@ typealias GFactoryCallback<R> = Graph.(R) -> Unit
 /**
  * Function signature alias for component builder DSL blocks.
  */
-typealias ComponentBuilderBlock = ComponentBuilder.() -> Unit
+typealias ComponentBuilderBlock = Component.Builder.() -> Unit
 
 /**
  * Provider function signature.
@@ -61,7 +61,7 @@ fun emptyGraph(): Graph = emptyComponent.createGraph()
 fun component(
     qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
     block: ComponentBuilderBlock
-): Component = ComponentBuilder(qualifier).apply(block).build()
+): Component = Component.Builder(qualifier).apply(block).build()
 
 /**
  * Create an ad-hoc instance of [Graph].
