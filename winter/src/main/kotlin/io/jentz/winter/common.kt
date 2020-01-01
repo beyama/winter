@@ -39,17 +39,15 @@ internal typealias OnCloseCallback = (Graph) -> Unit
  */
 internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>>("EAGER_DEPENDENCIES")
 
-private val emptyComponent = component {}
-
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
  */
-fun emptyComponent(): Component = emptyComponent
+fun emptyComponent(): Component = Component.EMPTY
 
 /**
  * Returns a [Graph] with empty component.
  */
-fun emptyGraph(): Graph = emptyComponent.createGraph()
+fun emptyGraph(): Graph = Component.EMPTY.createGraph()
 
 /**
  * Create an instance of [Component].

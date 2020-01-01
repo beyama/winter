@@ -36,6 +36,10 @@ class Component private constructor(
     internal val requiresLifecycleCallbacks: Boolean
 ) {
 
+    companion object {
+        val EMPTY = Component(APPLICATION_COMPONENT_QUALIFIER, emptyMap(), false)
+    }
+
     /**
      * Create an extended copy of this component.
      *
@@ -48,10 +52,7 @@ class Component private constructor(
     fun derive(
         qualifier: Any = this.qualifier,
         block: ComponentBuilderBlock
-    ) = component(qualifier) {
-        include(this@Component)
-        block()
-    }
+    ) = Builder(qualifier, this).apply(block).build()
 
     /**
      * Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.
@@ -97,10 +98,6 @@ class Component private constructor(
         block = block
     )
 
-    internal inline fun forEach(block: (Map.Entry<TypeKey<*>, UnboundService<*>>) -> Unit) {
-        dependencies.forEach(block)
-    }
-
     internal fun keys(): Set<TypeKey<*>> = dependencies.keys
 
     internal operator fun get(key: TypeKey<*>): UnboundService<*>? = dependencies[key]
@@ -111,7 +108,10 @@ class Component private constructor(
 
     internal fun containsKey(typeKey: TypeKey<*>): Boolean = dependencies.containsKey(typeKey)
 
-    class Builder internal constructor(val qualifier: Any) {
+    class Builder internal constructor(
+        val qualifier: Any,
+        private var base: Component = EMPTY
+    ) {
 
         enum class SubcomponentIncludeMode {
             /**
@@ -136,10 +136,32 @@ class Component private constructor(
             Merge
         }
 
-        private val registry: MutableMap<TypeKey<*>, UnboundService<*>> = mutableMapOf()
-        private var requiresLifecycleCallbacks: Boolean = false
-        private var eagerDependencies: MutableSet<TypeKey<Any>> = mutableSetOf()
-        private var subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>? = null
+
+        private var _registry: MutableMap<TypeKey<*>, UnboundService<*>>? = null
+
+        private var _eagerDependencies: MutableSet<TypeKey<Any>>? = null
+
+        private var _subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>? = null
+
+        private var requiresLifecycleCallbacks: Boolean = base.requiresLifecycleCallbacks
+
+        private val registry: MutableMap<TypeKey<*>, UnboundService<*>>
+            get() = _registry ?: HashMap(base.dependencies).also { _registry = it }
+
+        private val eagerDependencies: MutableSet<TypeKey<Any>>
+            get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
+                val base = registry.remove(eagerDependenciesKey)
+                @Suppress("UNCHECKED_CAST")
+                (base as? ConstantService<Set<TypeKey<Any>>>)?.let { constantService ->
+                    set.addAll(constantService.value)
+                }
+                _eagerDependencies = set
+            }
+
+        private val subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>
+            get() = _subcomponentBuilders ?: hashMapOf<TypeKey<Component>, Builder>().also {
+                _subcomponentBuilders = it
+            }
 
         /**
          * Include dependency from the given component into the new component.
@@ -156,7 +178,7 @@ class Component private constructor(
             override: Boolean = true,
             subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
         ) {
-            component.forEach { (k, v) ->
+            component.dependencies.forEach { (k, v) ->
                 when {
                     k === eagerDependenciesKey -> {
                         val entry = v as ConstantService<Set<TypeKey<Any>>>
@@ -350,7 +372,7 @@ class Component private constructor(
             val key = typeKey<Component>(qualifier)
 
             val doesAlreadyExist =
-                registry.containsKey(key) || subcomponentBuilders?.containsKey(key) == true
+                registry.containsKey(key) || subcomponentBuilders.containsKey(key)
 
             if (doesAlreadyExist && !(override || deriveExisting)) {
                 throw WinterException("Subcomponent with qualifier `$qualifier` already exists.")
@@ -369,7 +391,7 @@ class Component private constructor(
                 )
             }
 
-            getOrCreateSubcomponentBuilder(key).also(block)
+            getOrCreateSubcomponentBuilder(key).apply(block)
         }
 
         /**
@@ -451,12 +473,13 @@ class Component private constructor(
                 }
                 SubcomponentIncludeMode.DoNotIncludeIfAlreadyPresent -> {
                     if (!registry.containsKey(key)
-                        && subcomponentBuilders?.containsKey(key) != true) {
+                        && (_subcomponentBuilders == null
+                                || !subcomponentBuilders.containsKey(key))) {
                         registry[key] = entry
                     }
                 }
                 SubcomponentIncludeMode.Replace -> {
-                    subcomponentBuilders?.remove(key)
+                    _subcomponentBuilders?.remove(key)
                     registry[key] = entry
                 }
                 SubcomponentIncludeMode.Merge -> {
@@ -471,10 +494,7 @@ class Component private constructor(
                 "BUG! qualifier for sub-component key must not be null"
             }
 
-            val builders = subcomponentBuilders ?: mutableMapOf()
-            subcomponentBuilders = builders
-
-            return builders.getOrPut(key) {
+            return subcomponentBuilders.getOrPut(key) {
                 Builder(qualifier).also { builder ->
                     val constant = registry.remove(key) as? ConstantService<*>
                     val existingSubcomponent = constant?.value as? Component
@@ -484,16 +504,32 @@ class Component private constructor(
         }
 
         internal fun build(): Component {
-            subcomponentBuilders?.mapValuesTo(registry) {
+            if (_registry == null) {
+                return if (base.qualifier == qualifier) {
+                    base
+                } else {
+                    Component(qualifier, base.dependencies, base.requiresLifecycleCallbacks)
+                }
+            }
+
+            _subcomponentBuilders?.mapValuesTo(registry) {
                 ConstantService(it.key, it.value.build())
             }
-            subcomponentBuilders = null
 
-            eagerDependencies
-                .takeIf { it.isNotEmpty() }
-                ?.let { register(ConstantService(eagerDependenciesKey, it.toSet()), false) }
+            _subcomponentBuilders = null
 
-            return Component(qualifier, registry.toMap(), requiresLifecycleCallbacks)
+            _eagerDependencies
+                ?.takeIf { it.isNotEmpty() }
+                ?.let {
+                    registry[eagerDependenciesKey] = ConstantService(eagerDependenciesKey, it)
+                }
+
+            _eagerDependencies = null
+
+            return Component(qualifier, registry, requiresLifecycleCallbacks).also {
+                _registry = null
+                base = it
+            }
         }
     }
 
