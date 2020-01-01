@@ -3,6 +3,7 @@ package io.jentz.winter.compiler
 import io.jentz.winter.WinterException
 import io.jentz.winter.delegate.inject
 import io.jentz.winter.delegate.injectProvider
+import io.jentz.winter.inject.InjectConstructor
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -25,7 +26,7 @@ class WinterProcessor : AbstractProcessor() {
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> =
-        setOf(Inject::class.java.canonicalName)
+        setOf(Inject::class.java.canonicalName, InjectConstructor::class.java.canonicalName)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 

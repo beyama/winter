@@ -26,7 +26,7 @@ fun buildFactory(
 
         generatedAnnotation(configuration.generatedAnnotationAvailable)
 
-        val constructor = model.originatingElement
+        val constructor = model.constructorElement
         val className = generatedClassName.simpleName
         val interfaceName =
             "${FACTORY_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
