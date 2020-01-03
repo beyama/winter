@@ -31,8 +31,8 @@ class AndroidPresentationScopeInjectionAdapterTest {
     @get:Rule val rule: RuleChain = RuleChain
         .outerRule(object : ExternalResource() {
             override fun before() {
-                val application: Application = Winter.get().instance()
-                Winter.closeIfOpen()
+                val application: Application = Winter.graph.instance()
+                Winter.closeGraph()
 
                 Winter.component {
                     subcomponent("presentation") {

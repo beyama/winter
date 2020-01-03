@@ -29,14 +29,13 @@ open class AndroidPresentationScopeInjectionAdapter(
 ) : SimpleAndroidInjectionAdapter(winterApplication) {
 
     override fun getActivityGraph(activity: Activity): Graph? {
-        val presentationIdentifier = presentationIdentifier(activity)
-        app.getOrOpen("presentation", identifier = presentationIdentifier)
+        val presentationGraph = getPresentationGraph(activity)
 
-        app.getOrNull(presentationIdentifier, activity)?.let { return it }
+        presentationGraph.getSubgraphOrNull(activity)?.let { return it }
 
         setupAutoClose(activity)
 
-        return app.open(presentationIdentifier, "activity", identifier = activity) {
+        return presentationGraph.openSubgraph("activity", activity) {
             constant(activity)
             constant<Context>(activity)
         }
@@ -44,11 +43,14 @@ open class AndroidPresentationScopeInjectionAdapter(
 
     override fun closeActivityGraph(activity: Activity) {
         if (activity.isFinishing) {
-            app.close(presentationIdentifier(activity))
+            getPresentationGraph(activity).close()
         } else {
-            app.close(presentationIdentifier(activity), activity)
+            getPresentationGraph(activity).closeSubgraph(activity)
         }
     }
+
+    private fun getPresentationGraph(activity: Activity): Graph = app.graph
+        .getOrOpenSubgraph("presentation", presentationIdentifier(activity))
 
     private fun presentationIdentifier(activity: Activity) = activity.javaClass
 

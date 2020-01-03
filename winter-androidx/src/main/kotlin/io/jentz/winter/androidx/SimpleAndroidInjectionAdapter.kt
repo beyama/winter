@@ -27,7 +27,7 @@ import io.jentz.winter.WinterException
 open class SimpleAndroidInjectionAdapter(
     protected val app: WinterApplication
 ) : WinterApplication.InjectionAdapter {
-    
+
     override fun get(instance: Any): Graph? = when (instance) {
         is DependencyGraphContextWrapper -> instance.graph
         is Application -> getApplicationGraph(instance)
@@ -41,17 +41,18 @@ open class SimpleAndroidInjectionAdapter(
         else -> null
     }
 
-    protected open fun getApplicationGraph(application: Application): Graph? = app.getOrOpen {
-        constant(application)
-        constant<Context>(application)
-    }
+    protected open fun getApplicationGraph(application: Application): Graph? =
+        app.getOrOpenGraph {
+            constant(application)
+            constant<Context>(application)
+        }
 
     protected open fun getActivityGraph(activity: Activity): Graph? {
-        app.getOrNull(activity)?.let { return it }
+        app.graph.getSubgraphOrNull(activity)?.let { return it }
 
         setupAutoClose(activity)
 
-        return app.open("activity", identifier = activity) {
+        return app.graph.openSubgraph("activity", activity) {
             constant(activity)
             constant<Context>(activity)
         }
@@ -63,13 +64,13 @@ open class SimpleAndroidInjectionAdapter(
     protected open fun getViewGraph(view: View): Graph? = get(view.context)
 
     protected open fun getBroadcastReceiverGraph(receiver: BroadcastReceiver): Graph? =
-        app.get()
+        app.graph
 
     protected open fun getContentProviderGraph(contentProvider: ContentProvider): Graph? =
-        app.get()
+        app.graph
 
     protected open fun getServiceGraph(service: Service): Graph? =
-        app.get()
+        app.graph
 
     protected open fun getContextWrapperGraph(contextWrapper: ContextWrapper): Graph? =
         get(contextWrapper.baseContext)
@@ -83,7 +84,7 @@ open class SimpleAndroidInjectionAdapter(
     }
 
     protected open fun closeActivityGraph(activity: Activity) {
-        app.close(activity)
+        app.graph.closeSubgraph(activity)
     }
 
     protected open fun closeFragmentGraph(fragment: Fragment) {

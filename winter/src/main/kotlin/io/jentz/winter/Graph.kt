@@ -345,7 +345,7 @@ class Graph internal constructor(
      * request and closed at the end.
      *
      * @param subcomponentQualifier The subcomponentQualifier of the subcomponent.
-     * @param block An optional builder block to register provider on the subcomponent.
+     * @param block An optional builder block to derive the subcomponent with.
      */
     fun createSubgraph(
         subcomponentQualifier: Any,
@@ -367,7 +367,7 @@ class Graph internal constructor(
      *
      * @param subcomponentQualifier The qualifier of the subcomponent.
      * @param identifier An optional identifier to register the subgraph with.
-     * @param block An optional builder block to register provider on the subcomponent.
+     * @param block An optional builder block to derive the subcomponent with.
      */
     fun openSubgraph(
         subcomponentQualifier: Any,
@@ -414,6 +414,40 @@ class Graph internal constructor(
             )
             service.onClose()
         }
+    }
+
+    /**
+     * Get a subgraph by [identifier].
+     *
+     * Alias for `instance<Graph>(identifier)`
+     *
+     * @param identifier The identifier it was opened with.
+     */
+    fun getSubgraph(identifier: Any): Graph = instance(identifier)
+
+    /**
+     * Get an optional subgraph by [identifier].
+     *
+     * Alias for `instanceOrNull<Graph>(identifier)`
+     *
+     * @param identifier The identifier it was opened with.
+     */
+    fun getSubgraphOrNull(identifier: Any): Graph? = instanceOrNull(identifier)
+
+    /**
+     * Get a subgraph by [identifier] if present or open and return it.
+     *
+     * @param subcomponentQualifier The qualifier of the subcomponent.
+     * @param identifier An optional qualifier for the graph.
+     * @param block An optional builder block to derive the subcomponent with.
+     */
+    fun getOrOpenSubgraph(
+        subcomponentQualifier: Any,
+        identifier: Any? = null,
+        block: ComponentBuilderBlock? = null
+    ): Graph = synchronizedMap {
+        val qualifier = identifier ?: subcomponentQualifier
+        instanceOrNull(qualifier) ?: openSubgraph(subcomponentQualifier, identifier, block)
     }
 
     /**

@@ -34,7 +34,7 @@ class WinterRuleTest {
 
         @Test
         fun `should inject into target by using reflection`() {
-            TestApp.create()
+            TestApp.createGraph()
             Service().apply {
                 rule.inject(this)
                 dependency.shouldNotBeNull()

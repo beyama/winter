@@ -1,7 +1,6 @@
 package io.jentz.winter
 
 import com.nhaarman.mockitokotlin2.*
-import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.plugin.SimplePlugin
@@ -49,7 +48,7 @@ class GraphTest {
 
     @AfterEach
     fun afterEach() {
-        Winter.plugins = EMPTY_PLUGINS
+        Winter.plugins = Plugins.EMPTY
     }
 
     @Nested
@@ -630,7 +629,6 @@ class GraphTest {
 
         @Test
         fun `#component should return backing component`() {
-            Winter.plugins = EMPTY_PLUGINS // otherwise it will derive the component
             val parent = graph { subcomponent("sub") {} }
             val sub = parent.createSubgraph("sub")
             sub.component.shouldBeSameInstanceAs(parent.component.subcomponent("sub"))
@@ -786,7 +784,8 @@ class GraphTest {
 
         @Test
         fun `#openSubgraph should initialize and return subcomponent by qualifier`() {
-            root.openSubgraph("presentation").component.qualifier.shouldBe("presentation")
+            root.openSubgraph("presentation").component
+                .shouldBeSameInstanceAs(component.subcomponent("presentation"))
         }
 
         @Test
@@ -799,8 +798,54 @@ class GraphTest {
         @Test
         fun `#openSubgraph with identifier should initialize subcomponent and register it under the given identifier`() {
             val graph = root.openSubgraph("presentation", identifier = "foo")
-            graph.component.qualifier.shouldBe("presentation")
+            graph.component.shouldBeSameInstanceAs(component.subcomponent("presentation"))
             root.instance<Graph>("foo").shouldBeSameInstanceAs(graph)
+        }
+
+        @Test
+        fun `#getSubgraph should return subgraph by identifier`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getSubgraph should throw an exception if subgraph is not open`() {
+            shouldThrow<WinterException> { root.getSubgraph("presentation") }
+        }
+
+        @Test
+        fun `#getSubgraphOrNull should return null if subgraph is not open`() {
+            root.getSubgraphOrNull("presentation").shouldBeNull()
+        }
+
+        @Test
+        fun `#getSubgraphOrNull should return subgraph by identifier`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraphOrNull("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should return subgraph if already open`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getOrOpenSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should open subgraph if not present`() {
+            root.getOrOpenSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should open subgraph with identifier`() {
+            root.getOrOpenSubgraph("presentation", "foo")
+                .shouldBeSameInstanceAs(root.getSubgraph("foo"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should get subgraph with identifier`() {
+            root.openSubgraph("presentation", "foo")
+                .shouldBeSameInstanceAs(root.getOrOpenSubgraph("presentation", "foo"))
         }
 
         @Test

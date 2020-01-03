@@ -40,8 +40,8 @@ class SimpleAndroidInjectionAdapterTest {
     @get:Rule val rule: RuleChain = RuleChain
         .outerRule(object : ExternalResource() {
             override fun before() {
-                val application: Application = Winter.get().instance()
-                Winter.closeIfOpen()
+                val application: Application = Winter.graph.instance()
+                Winter.closeGraph()
 
                 Winter.component {
                     subcomponent("activity") {
@@ -58,7 +58,7 @@ class SimpleAndroidInjectionAdapterTest {
     @Test
     fun should_get_application_graph_for_application_instance() {
         activityScenarioRule.scenario.onActivity { activity ->
-            Winter.get().shouldBeSameInstanceAs(adapter.get(activity.application))
+            Winter.graph.shouldBeSameInstanceAs(adapter.get(activity.application))
         }
     }
 
@@ -102,7 +102,7 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun should_get_application_graph_for_broadcast_receiver_instance() {
-        Winter.get().shouldBeSameInstanceAs(adapter.get(object : BroadcastReceiver() {
+        Winter.graph.shouldBeSameInstanceAs(adapter.get(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
             }
         }))
@@ -110,14 +110,14 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun should_get_application_graph_for_service_instance() {
-        Winter.get().shouldBeSameInstanceAs(adapter.get(object : Service() {
+        Winter.graph.shouldBeSameInstanceAs(adapter.get(object : Service() {
             override fun onBind(intent: Intent?): IBinder? = null
         }))
     }
 
     @Test
     fun should_get_application_graph_for_content_provider_instance() {
-        Winter.get().shouldBeSameInstanceAs(adapter.get(FileProvider()))
+        Winter.graph.shouldBeSameInstanceAs(adapter.get(FileProvider()))
     }
 
     @Test

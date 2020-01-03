@@ -10,7 +10,7 @@ open class ApplicationGraphOnlyInjectionAdapter(
     protected val app: WinterApplication
 ) : WinterApplication.InjectionAdapter {
 
-    override fun get(instance: Any): Graph? = app.getOrOpen()
+    override fun get(instance: Any): Graph? = app.getOrOpenGraph()
 
 }
 

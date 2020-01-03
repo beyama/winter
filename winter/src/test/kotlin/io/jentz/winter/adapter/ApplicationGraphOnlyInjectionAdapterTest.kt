@@ -15,17 +15,17 @@ class ApplicationGraphOnlyInjectionAdapterTest {
 
     @BeforeEach
     fun beforeEach() {
-        app.closeIfOpen()
+        app.closeGraphIfOpen()
     }
 
     @Test
     fun `#get should open root graph if not open`() {
-        adapter.get(Any()).shouldBe(app.get())
+        adapter.get(Any()).shouldBe(app.graph)
     }
 
     @Test
     fun `#get should return root graph for any argument`() {
-        val graph = app.open()
+        val graph = app.openGraph()
         repeat(2) { adapter.get(Any()).shouldBeSameInstanceAs(graph) }
     }
 

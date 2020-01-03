@@ -34,7 +34,7 @@ class InjectedPropertyTest {
     @BeforeEach
     fun beforeEach() {
         atomicInteger.set(0)
-        app.closeIfOpen()
+        app.closeGraphIfOpen()
         app.useApplicationGraphOnlyAdapter()
     }
 
@@ -101,7 +101,7 @@ class InjectedPropertyTest {
         @Test
         fun `should register itself on the delegate notifier`() {
             app.component { constant("a value") }
-            app.open()
+            app.openGraph()
             InjectedPropertiesClass().property.shouldBe("a value")
         }
 

@@ -13,7 +13,7 @@ class TestApp : MultiDexApplication() {
 
         Winter.useApplicationGraphOnlyAdapter()
         Winter.component = emptyComponent()
-        Winter.open {
+        Winter.openGraph {
             constant<Application>(this@TestApp)
         }
     }
