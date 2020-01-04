@@ -22,10 +22,26 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#prototype should return the type key`() {
+        component {
+            prototype("a") { Heater() }
+                .shouldBe(typeKey<Heater>("a"))
+        }
+    }
+
+    @Test
     fun `#singleton should register UnboundSingletonService`() {
         component {
             singleton("b") { Heater() }
         }.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("b"))
+    }
+
+    @Test
+    fun `#singleton should return the type key`() {
+        component {
+            singleton("b") { Heater() }
+                .shouldBe(typeKey<Heater>("b"))
+        }
     }
 
     @Test
@@ -35,8 +51,17 @@ class ComponentBuilderTest {
         }
         c.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("c"))
         // eager dependencies add a set of type keys of eager dependencies to the dependency
-        // registry, so one more here than registered
+        // registry
         c.size.shouldBe(2)
+        c.shouldContainService(eagerDependenciesKey)
+    }
+
+    @Test
+    fun `#eagerSingleton should return the type key`() {
+        component {
+            eagerSingleton("c") { Heater() }
+                .shouldBe(typeKey<Heater>("c"))
+        }
     }
 
     @Test
@@ -47,10 +72,26 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#weakSingleton should return the type key`() {
+        component {
+            weakSingleton("d") { Heater() }
+                .shouldBe(typeKey<Heater>("d"))
+        }
+    }
+
+    @Test
     fun `#softSingleton should register UnboundSoftSingletonService`() {
         component {
             softSingleton("e") { Heater() }
         }.shouldContainServiceOfType<UnboundSoftSingletonService<*>>(typeKey<Heater>("e"))
+    }
+
+    @Test
+    fun `#softSingleton should return the type key`() {
+        component {
+            softSingleton("e") { Heater() }
+                .shouldBe(typeKey<Heater>("e"))
+        }
     }
 
     @Test
@@ -61,11 +102,86 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#constant should return the type key`() {
+        component {
+            constant(42, "h")
+                .shouldBe(typeKey<Int>("h"))
+        }
+    }
+
+    @Test
+    fun `#alias should register alias service`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should return the target type key`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                .shouldBe(typeKey<Thermosiphon>())
+        }
+    }
+
+    @Test
+    fun `#alias should throw an exception if from key doesn't exist`() {
+        shouldThrow<EntryNotFoundException> {
+            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
+        }
+    }
+
+    @Test
+    fun `#alias should override existing entry if override is true`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            singleton<Pump> { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should throw an exception if to key already exists and override is false (default)`() {
+        shouldThrow<WinterException> {
+            component {
+                prototype { Thermosiphon(instance()) }
+                prototype<Pump> { Thermosiphon(instance()) }
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            }
+        }
+    }
+
+    @Test
+    fun `TypeKey#alias extension should register alias`() {
+        component {
+            prototype {
+                Thermosiphon(instance())
+            }.alias<Pump>()
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#generated should register generated factory for class`() {
+        component {
+            generated<Service>()
+        }.shouldContainService(typeKey<Service>())
+    }
+
+    @Test
+    fun `#generatedFactory should load generated factory for class`() {
+        component {
+            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+        }
+    }
+
+    @Test
     fun `#register should throw an exception if the same key is registered twice`() {
         shouldThrow<WinterException> {
             component {
-                register(ConstantService(typeKey<String>(), ""), false)
-                register(ConstantService(typeKey<String>(), ""), false)
+                register(ConstantService(typeKey(), ""), false)
+                register(ConstantService(typeKey(), ""), false)
             }
         }
     }
@@ -73,8 +189,8 @@ class ComponentBuilderTest {
     @Test
     fun `#register should override key if override is true`() {
         component {
-            register(ConstantService(typeKey<String>(), ""), false)
-            register(ConstantService(typeKey<String>(), ""), true)
+            register(ConstantService(typeKey(), ""), false)
+            register(ConstantService(typeKey(), ""), true)
         }.size.shouldBe(1)
     }
 
@@ -197,58 +313,6 @@ class ComponentBuilderTest {
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
         c.size.shouldBe(2)
         c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
-    }
-
-    @Test
-    fun `#alias should register alias service`() {
-        component {
-            prototype { Heater() }
-            prototype { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
-    }
-
-    @Test
-    fun `#alias should throw an exception if from key doesn't exist`() {
-        shouldThrow<EntryNotFoundException> {
-            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
-        }
-    }
-
-    @Test
-    fun `#alias should override existing entry if override is true`() {
-        component {
-            prototype { Heater() }
-            prototype { Thermosiphon(instance()) }
-            singleton<Pump> { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
-    }
-
-    @Test
-    fun `#alias should throw an exception if to key already exists and override is false (default)`() {
-        shouldThrow<WinterException> {
-            component {
-                prototype { Heater() }
-                prototype { Thermosiphon(instance()) }
-                prototype<Pump> { Thermosiphon(instance()) }
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-            }
-        }
-    }
-
-    @Test
-    fun `#generated should register generated factory for class`() {
-        component {
-            generated<Service>()
-        }.shouldContainService(typeKey<Service>())
-    }
-
-    @Test
-    fun `#generatedFactory should load generated factory for class`() {
-        component {
-            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
-        }
     }
 
 }

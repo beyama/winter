@@ -10,6 +10,25 @@ group = GROUP
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
 dependencies {
     implementation project(':winter')
 
@@ -22,6 +41,8 @@ dependencies {
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect
     testImplementation "com.google.testing.compile:compile-testing:0.15"
+
+    testRuntimeOnly deps.junit.jupiterEngine
 }
 
 task javadocJar(type: Jar) {
