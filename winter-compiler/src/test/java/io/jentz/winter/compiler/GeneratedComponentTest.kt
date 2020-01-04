@@ -43,31 +43,7 @@ class GeneratedComponentTest : BaseProcessorTest() {
         |)
         |val generatedComponent: Component = component {
         |
-        |    prototype(factory = io.jentz.winter.compilertest.OneArgumentInjectConstructor_WinterFactory())
-        |
-        |}
-        |""".trimMargin())
-    }
-
-    @Test
-    fun `should generate component for named singleton inject constructor`() {
-        compilerWithOptions(ARG_GENERATED_COMPONENT)
-            .compileSuccessful("NamedSingletonInjectConstructor.java")
-
-        generatedFile(GENERATED_COMPONENT).shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component
-        |import io.jentz.winter.component
-        |import javax.annotation.Generated
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |val generatedComponent: Component = component {
-        |
-        |    singleton(qualifier = "variant1", factory = io.jentz.winter.compilertest.NamedSingletonInjectConstructor_WinterFactory())
+        |    io.jentz.winter.compilertest.OneArgumentInjectConstructor_WinterFactory().register(this)
         |
         |}
         |""".trimMargin())
@@ -93,7 +69,7 @@ class GeneratedComponentTest : BaseProcessorTest() {
         |
         |    subcomponent(io.jentz.winter.compiler.ApplicationScope::class) {
         |
-        |        singleton(factory = io.jentz.winter.compilertest.WithCustomApplicationScope_WinterFactory())
+        |        io.jentz.winter.compilertest.WithCustomApplicationScope_WinterFactory().register(this)
         |
         |    }
         |
@@ -123,7 +99,7 @@ class GeneratedComponentTest : BaseProcessorTest() {
         |)
         |val generatedComponent: Component = component {
         |
-        |    singleton(factory = io.jentz.winter.compilertest.WithCustomApplicationScope_WinterFactory())
+        |    io.jentz.winter.compilertest.WithCustomApplicationScope_WinterFactory().register(this)
         |
         |}
 

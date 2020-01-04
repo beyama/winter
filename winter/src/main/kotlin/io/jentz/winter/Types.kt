@@ -66,10 +66,4 @@ internal object Types {
     fun hashCode(cls: Class<*>, qualifier: Any? = null): Int =
         31 * cls.hashCode() + (qualifier?.hashCode() ?: 0)
 
-    fun hashCode(class0: Class<*>, class1: Class<*>, qualifier: Any?): Int {
-        var hashCode = class0.hashCode()
-        hashCode = 31 * hashCode + class1.hashCode()
-        return 31 * hashCode + (qualifier?.hashCode() ?: 0)
-    }
-
 }

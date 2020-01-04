@@ -10,17 +10,17 @@ inline fun <T> expectValueToChange(from: T, to: T, valueProvider: () -> T, block
     if (b != to) fail("Expected change from ${formatValue(from)} to ${formatValue(to)} but was ${formatValue(b)}")
 }
 
-internal inline fun <reified S : UnboundService<*, *>> Component.shouldContainServiceOfType(key: TypeKey<*, *>) {
+internal inline fun <reified S : UnboundService<*>> Component.shouldContainServiceOfType(key: TypeKey<*>) {
     val service = this[key]
             ?: fail("Component was expected to contain service with key <$key> but doesn't")
     if (service !is S) fail("Service with key <$key> was expected to be <${S::class}> but was <${service.javaClass}>.")
 }
 
-internal fun Component.shouldContainService(key: TypeKey<*, *>) {
+internal fun Component.shouldContainService(key: TypeKey<*>) {
     if (!containsKey(key)) fail("Component was expected to contain service with key <$key> but doesn't")
 }
 
-internal fun Component.shouldNotContainService(key: TypeKey<*, *>) {
+internal fun Component.shouldNotContainService(key: TypeKey<*>) {
     if (containsKey(key)) fail("Component wasn't expected to contain service with key <$key> but does.")
 }
 

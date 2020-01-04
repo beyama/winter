@@ -34,7 +34,6 @@ dependencies {
 
     implementation deps.kotlin.stdlib
     api deps.kotlin.reflect
-    api deps.javaxInject
 
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest

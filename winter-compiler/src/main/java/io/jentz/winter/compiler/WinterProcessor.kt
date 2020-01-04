@@ -1,7 +1,9 @@
 package io.jentz.winter.compiler
 
-import io.jentz.winter.Injector
 import io.jentz.winter.WinterException
+import io.jentz.winter.delegate.inject
+import io.jentz.winter.delegate.injectProvider
+import io.jentz.winter.inject.InjectConstructor
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -11,19 +13,20 @@ import javax.lang.model.element.TypeElement
 
 class WinterProcessor : AbstractProcessor() {
 
-    private val injector = Injector()
-    private val logger: Logger by injector.instance()
-    private val configuration: ProcessorConfiguration by injector.instance()
-    private val generatorProvider: () -> Generator by injector.provider()
+    private val logger: Logger by inject()
+    private val configuration: ProcessorConfiguration by inject()
+    private val generatorProvider: () -> Generator by injectProvider()
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
 
-        injector.inject(appComponent.createGraph { constant(processingEnv) })
+        appComponent.createGraph {
+            constant(processingEnv)
+        }.inject(this)
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> =
-        setOf(Inject::class.java.canonicalName)
+        setOf(Inject::class.java.canonicalName, InjectConstructor::class.java.canonicalName)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 

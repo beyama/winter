@@ -52,60 +52,60 @@ class WinterTestSessionTest {
     }
 
     @Nested
-    inner class AutoDispose {
+    inner class AutoClose {
 
         @Test
-        fun `#autoDisposeTestGraph should dispose test graph but not parents on #after`() {
+        fun `#autoCloseTestGraph should close test graph but not parents on #stop`() {
             session {
                 testGraph("sub")
-                autoDisposeTestGraph()
+                autoCloseTestGraph()
             }.apply {
                 start()
                 val graph = createAll("sub")
                 val parent = graph.parent!!
                 stop()
-                graph.isDisposed.shouldBeTrue()
-                parent.isDisposed.shouldBeFalse()
+                graph.isClosed.shouldBeTrue()
+                parent.isClosed.shouldBeFalse()
             }
         }
 
         @Test
-        fun `#autoDisposeTestGraphAndAncestors should dispose test graph and its ancestors on #after`() {
+        fun `#autoCloseTestGraphAndAncestors should close test graph and its ancestors on #stop`() {
             session {
                 testGraph("sub")
-                autoDisposeTestGraphAndAncestors()
+                autoCloseTestGraphAndAncestors()
             }.apply {
                 start()
                 val graph = createAll("sub")
                 val parent = graph.parent!!
                 stop()
-                graph.isDisposed.shouldBeTrue()
-                parent.isDisposed.shouldBeTrue()
+                graph.isClosed.shouldBeTrue()
+                parent.isClosed.shouldBeTrue()
             }
         }
 
         @Test
-        fun `#autoDisposeAllGraphs should dispose all graphs created during test on #after`() {
+        fun `#autoCloseAllGraphs should close all graphs created during test on #stop`() {
             session {
-                autoDisposeAllGraphs()
+                autoCloseAllGraphs()
             }.apply {
                 start()
                 val graphs = (0 until 3).map { createAll() }
-                graphs.none { it.isDisposed }.shouldBeTrue()
+                graphs.none { it.isClosed }.shouldBeTrue()
                 stop()
-                graphs.all { it.isDisposed }.shouldBeTrue()
+                graphs.all { it.isClosed }.shouldBeTrue()
             }
         }
 
         @Test
-        fun `should not dispose test graph on #after if not auto dispose is configured`() {
+        fun `should not close test graph on #stop if no auto close is configured`() {
             session {
                 testGraph("sub")
             }.apply {
                 start()
                 val graph = createAll("sub")
                 stop()
-                graph.isDisposed.shouldBeFalse()
+                graph.isClosed.shouldBeFalse()
             }
         }
 
@@ -162,10 +162,10 @@ class WinterTestSessionTest {
         }
 
         @Test
-        fun `should not contain graphs that got disposed during test`() {
+        fun `should not contain graphs that got closed during test`() {
             session {}.test {
                 val graphs = (0 until 3).map { createAll() }
-                graphs.first().dispose()
+                graphs.first().close()
                 allGraphs.shouldBe(graphs.subList(1, graphs.size))
             }
         }
@@ -280,19 +280,19 @@ class WinterTestSessionTest {
     }
 
     @Nested
-    @DisplayName("#onGraphDispose")
-    inner class OnGraphDispose {
+    @DisplayName("#onGraphClose")
+    inner class OnGraphClose {
 
         @Test
         fun `with parent matcher should get invoked with graph`() {
             var called = false
             session {
-                onGraphDispose("sub", "sub") { graph ->
+                onGraphClose("sub", "sub") { graph ->
                     graph.instance<String>().shouldBe("sub sub")
                     called = true
                 }
             }.test {
-                createAll("sub", "sub").dispose()
+                createAll("sub", "sub").close()
                 called.shouldBeTrue()
             }
         }
@@ -301,12 +301,12 @@ class WinterTestSessionTest {
         fun `with qualifier should get invoked with graph`() {
             var called = false
             session {
-                onGraphDispose("sub") { graph ->
+                onGraphClose("sub") { graph ->
                     graph.instance<String>().shouldBe("sub")
                     called = true
                 }
             }.test {
-                createAll("sub").dispose()
+                createAll("sub").close()
                 called.shouldBeTrue()
             }
         }
@@ -329,6 +329,6 @@ class WinterTestSessionTest {
     }
 
     private fun createAll(vararg qualifiers: Any): Graph =
-        qualifiers.fold(app.create()) { parent, qualifier -> parent.createSubgraph(qualifier) }
+        qualifiers.fold(app.createGraph()) { parent, qualifier -> parent.createSubgraph(qualifier) }
 
 }

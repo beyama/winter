@@ -11,9 +11,9 @@ import io.jentz.winter.BoundService
  */
 internal class DirectServiceEvaluator : ServiceEvaluator {
 
-    override fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R {
+    override fun <R : Any> evaluate(service: BoundService<R>): R {
         return try {
-            service.newInstance(argument)
+            service.newInstance()
         } catch (t: Throwable) {
             handleException(service.key, t)
         }

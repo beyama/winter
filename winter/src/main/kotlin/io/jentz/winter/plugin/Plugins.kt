@@ -1,7 +1,5 @@
 package io.jentz.winter.plugin
 
-internal val EMPTY_PLUGINS = Plugins()
-
 /**
  * Container for [Winter plugins][Plugin].
  */
@@ -43,5 +41,10 @@ class Plugins private constructor(
         if (contains(plugin)) Plugins(list - plugin) else this
 
     override fun iterator(): Iterator<Plugin> = list.iterator()
+
+    companion object {
+        val EMPTY = Plugins()
+    }
+
 
 }

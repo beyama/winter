@@ -1,115 +1,61 @@
 package io.jentz.winter
 
-import io.jentz.winter.WinterApplication.State.Initialized
-import io.jentz.winter.WinterApplication.State.Uninitialized
-import io.jentz.winter.plugin.EMPTY_PLUGINS
+import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.jentz.winter.plugin.Plugins
 
 /**
- * [WinterApplication] base class that holds Winter plugins and may be configured with the
- * application [Component].
+ * Holds plugins, the application [Component], the application [Graph] and offers an abstraction to
+ * inject dependencies into classes that cannot make use of constructor injection using an
+ * [InjectionAdapter] system.
  *
- * It acts as an holder for the application object graph and offers utility methods for
- * opening, closing and accessing subgraphs by paths of identifiers.
+ * The [InjectionAdapter] backed abstraction takes the burden off of the using class to know how
+ * exactly a graph or parent graph is constructed and stored.
  *
- * Example:
+ * An application specific graph creation and retrieval strategy can be provided by setting a
+ * custom [InjectionAdapter].
+ *
  * ```
- * // register the application component
- * Winter.component {
- *   // ... the component definition
- * }
- *
- * // open the application graph
- * Winter.open()
- * // or supply a builder block to extend the resulting graph
- * Winter.open { constant<Application>(myApplication) }
- *
- * // the application graph can then be accessed by calling
- * Winter.get()
- *
- * // to open a subgraph call
- * Winter.open("subcomponent qualifier")
- *
- * // this graph can be accessed by calling
- * Winter.get("subcomponent qualifier")
- *
- * // you can provide an optional identifier for the subgraph
- * Winter.open("subcomponent qualifier", identifier = "other name")
- *
- * // then you can access the the subgraph by calling
- * Winter.get("other name")
- *
- * // to open a subgraph of this call
- * Winter.open("subcomponent qualifier", "sub-subcomponent qualifier")
- * // respectively
- * Winter.open("other name", "sub-subcomponent qualifier")
+ * Winter.adapter = MyCustomAdapter()
  * ```
  *
- * Here an Android example where we create a presentation graph that survives configuration changes
- * and an Activity graph that gets recreated every time.
+ * To use Winter in a library it is recommended to create a library specific object
+ * from [WinterApplication] for use in applications it is recommended to use the [Winter] object.
  *
- * It is recommended to hide such details in a [WinterInjection.Adapter] and use the [Injection]
- * abstraction.
- *
- * Create the application object graph on application start:
+ * Example, using the SimpleAndroidInjectionAdapter which is part of the winter-androidx module:
  *
  * ```
  * class MyApplication : Application() {
  *   override fun onCreate() {
  *     super.onCreate()
  *
- *     // Register the application component
+ *     // register component
  *     Winter.component {
- *       // A presentation subcomponent that survives orientation changes
- *       subcomponent("presentation") {
- *         // The activity subcomponent that gets recreated with every device rotation
- *         subcomponent("activity") {
- *         }
+ *       singleton<GitHubApi> { GitHubApiImpl() }
+ *
+ *       singleton { RepoListViewModel(instance()) }
+ *
+ *       subcomponent("activity") {
+ *          singleton { Glide.with(instance<Activity>()) }
  *       }
  *     }
  *
- *     // open the application graph
- *     Winter.open() {
- *       constant<Application> { this@MyApplication }
- *       constant<Context> { this@MyApplication }
- *     }
+ *     // register adapter
+ *     Winter.useSimpleAndroidAdapter()
+ *     // open application graph
+ *     Winter.inject(this)
  *   }
  * }
- * ```
  *
- * Create the presenter and activity object subgraphs by their paths (of qualifiers):
- *
- * ```
- * class MyActivity : Activity() {
+ * class MyActivity : Activity(), WinterAware {
+ *   private val viewModel: RepoListViewModel by inject()
  *
  *   override fun onCreate(savedInstanceState: Bundle?) {
- *     // Open the presentation graph if not already open.
- *     // Since we could have multiple activity instances at the same time we use the Activity class
- *     // as an identifier for the presentation graph.
- *     if (!Winter.has(javaClass)) Winter.open("presentation", identifier = javaClass)
- *
- *     // Open the activity graph.
- *     // Here the same but we use the instance as identifier for the activity graph.
- *     Winter.open(javaClass, "activity", identifier = this) {
- *       constant<Context>(this@MyActivity)
- *       constant<Activity>(this@MyActivity)
- *     }
+ *     Winter.inject(this)
  *     super.onCreate(savedInstanceState)
  *   }
  *
- *   override fun onDestroy() {
- *     // If we are leaving the scope of the activity then we close the "presentation" graph.
- *     if (isFinishing) {
- *       Winter.close(javaClass)
- *     // And if this is just recreating then we just close the "activity" graph.
- *     } else {
- *       Winter.close(javaClass, this)
- *     }
- *     super.onDestroy()
- *   }
- *
  * }
- * ```
+ *
  */
 open class WinterApplication() {
 
@@ -133,60 +79,56 @@ open class WinterApplication() {
         component(qualifier, block)
     }
 
-    private sealed class State {
-        class Uninitialized(val component: Component) : State()
+    /**
+     * Get the application graph if open otherwise null.
+     */
+    var graphOrNull: Graph? = null
+        private set
 
-        class Initialized(
-            val component: Component,
-            val root: Graph
-        ) : State() {
-
-            fun getOrNull(path: Array<out Any>, depth: Int = -1): Graph? {
-                if (path.isEmpty()) return root
-
-                var graph: Graph = root
-
-                path.forEachIndexed { index, token ->
-                    if (depth > -1 && index == depth) return graph
-                    graph = graph.instanceOrNull(token) ?: return null
-                }
-                return graph
-            }
-
-        }
-    }
-
-    private var state: State = Uninitialized(emptyComponent())
-
-    private inline fun <T> fold(
-        ifUninitialized: (Uninitialized) -> T,
-        ifInitialized: (Initialized) -> T
-    ): T = synchronized(this) {
-        when (val state = state) {
-            is Uninitialized -> ifUninitialized(state)
-            is Initialized -> ifInitialized(state)
-        }
-    }
+    /**
+     * Get the application graph.
+     *
+     * @throws WinterException If application graph is not open.
+     */
+    val graph: Graph
+        get() = graphOrNull ?: throw WinterException(
+            "Application graph is not open."
+        )
 
     /**
      * The application component.
      */
-    var component
-        get() = fold({ it.component }, { it.component })
+    var component: Component = Component.EMPTY
         set(value) {
-            fold({
-                state = Uninitialized(value)
-            }, {
-                throw WinterException(
-                    "Cannot set component because application graph is already open"
-                )
-            })
+            synchronized(this) {
+                if (graphOrNull != null) {
+                    throw WinterException(
+                        "Cannot set component because application graph is already open."
+                    )
+                }
+                field = value
+            }
+        }
+
+    /**
+     * The application injection adapter.
+     */
+    var injectionAdapter: InjectionAdapter? = null
+        set(value) {
+            synchronized(this) {
+                if (graphOrNull != null) {
+                    throw WinterException(
+                        "Cannot set injection adapter because application graph is already open."
+                    )
+                }
+                field = value
+            }
         }
 
     /**
      * The plugins registered on the application.
      */
-    var plugins: Plugins = EMPTY_PLUGINS
+    var plugins: Plugins = Plugins.EMPTY
 
     /**
      * If this is set to true, Winter will check for cyclic dependencies and throws an error if it
@@ -211,192 +153,101 @@ open class WinterApplication() {
     }
 
     /**
-     * Get a registered object graph by path.
+     * Open the application component.
      *
-     * @param path The path of the graph.
-     * @return The graph that is stored in [path].
+     * @param block Optional builder block to derive the application component.
      *
-     * @throws WinterException When no graph is open or when no graph was found in [path].
+     * @return The newly opened application graph.
      */
-    fun get(vararg path: Any): Graph = fold<Graph>({
-        throw WinterException("No object graph opened.")
-    }) {
-        it.getOrNull(path)
-            ?: throw WinterException("No object graph in path `${pathToString(path)}` found.")
-    }
-
-    /**
-     * Returns true if an entry under the given [path] exists otherwise false.
-     */
-    fun has(vararg path: Any): Boolean = fold({ false }) { it.getOrNull(path) != null }
-
-    /**
-     * Create and return an object graph by (sub-)component path without registering it.
-     *
-     * @param path The path of the (sub-)graph to initialize.
-     * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     createGraph method.
-     *
-     * @return The created [Graph].
-     *
-     * @throws WinterException when application component is not set or path can not be resolved.
-     */
-    fun create(
-        vararg path: Any,
-        block: ComponentBuilderBlock? = null
-    ): Graph = fold({
-        if (path.isNotEmpty()) {
-            throw WinterException(
-                "Cannot create `${pathToString(path)}` because application graph is not open."
-            )
-        }
-
-        it.component.createGraph(this, block)
-    }) { state ->
-        val parentGraph = state.getOrNull(path, path.lastIndex)
-            ?: throw WinterException(
-                "Cannot create `${pathToString(path)}` because " +
-                        "`${pathToString(path, path.lastIndex)}` is not open."
-            )
-        val qualifier = path.last()
-        parentGraph.openSubgraph(qualifier, block = block)
-    }
-
-    /**
-     * Create a object graph by (sub-)component path and register it.
-     * Opened object graphs will be children of each other in left to right order.
-     *
-     * @param path The path of the (sub-)graph to initialize.
-     * @param identifier An optional identifier to store the subgraph under.
-     * @param block An optional [ComponentBuilderBlock] that's passed to the (sub-)component
-     *                     createGraph method.
-     *
-     * @return The newly created and registered graph.
-     *
-     * @throws WinterException When application component is not set or path can not be resolved.
-     * @throws IllegalArgumentException When [path] is empty (root) but [identifier] is given.
-     */
-    fun open(
-        vararg path: Any,
-        identifier: Any? = null,
-        block: ComponentBuilderBlock? = null
-    ): Graph = fold({
-        openApplicationGraph(it.component, path, identifier, block)
-    }) { state ->
-        openSubgraph(state, path, identifier, block)
-    }
-
-    private fun openApplicationGraph(
-        component: Component,
-        path: Array<out Any>,
-        identifier: Any?,
-        block: ComponentBuilderBlock?
-    ): Graph {
-        if (path.isNotEmpty()) {
-            throw WinterException(
-                "Cannot open path `${pathToString(path)}` because application graph is not opened."
-            )
-        }
-        if (identifier != null) {
-            throw IllegalArgumentException(
-                "Argument `identifier` for application graph is not supported."
-            )
-        }
-
-        return Graph(
-            application = this,
-            parent = null,
-            component = component,
-            onDisposeCallback = { close() },
-            block = block
-        ).also {
-            state = Initialized(component, it)
-        }
-    }
-
-    private fun openSubgraph(
-        state: Initialized,
-        path: Array<out Any>,
-        identifier: Any?,
-        block: ComponentBuilderBlock?
-    ): Graph {
-        if (path.isEmpty()) {
+    fun openGraph(block: ComponentBuilderBlock? = null): Graph = synchronized(this) {
+        if (graphOrNull != null) {
             throw WinterException("Cannot open application graph because it is already open.")
         }
-
-        val parentGraph = state.getOrNull(path, path.lastIndex)
-            ?: throw WinterException(
-                "Can't open `${pathToString(path)}` because " +
-                        "`${pathToString(path, path.lastIndex)}` is not open."
-            )
-
-        val qualifier = path.last()
-        val name = identifier ?: qualifier
-
-        try {
-            return parentGraph.openSubgraph(qualifier, name, block)
-        } catch (e: WinterException) {
-            throw WinterException("Cannot open `${pathToString(path, path.lastIndex, name)}`.", e)
-        }
+        openInternal(block)
     }
 
     /**
-     * Remove and dispose the object graph and its subgraphs stored in [path].
+     * Get application graph if already open otherwise open and return it.
      *
-     * @param path The path of the graph to dispose.
+     * @param block Optional builder block to derive the application component.
+     *
+     * @return The application graph.
+     */
+    fun getOrOpenGraph(block: ComponentBuilderBlock? = null): Graph = synchronized(this) {
+        graphOrNull?.let { return it }
+        openInternal(block)
+    }
+
+    /**
+     * Create graph from [component] without registering it as application graph.
+     *
+     * @param block Optional builder block to derive the application component.
+     *
+     * @return The application graph.
+     */
+    fun createGraph(block: ComponentBuilderBlock? = null): Graph =
+        component.createGraph(this, block)
+
+    /**
+     * Close the application graph.
      *
      * @throws WinterException When no graph was found in path.
      */
-    fun close(vararg path: Any) {
-        fold({
-            throw WinterException("Cannot close because noting is open.")
-        }) { state ->
-            if (!close(state, path)) {
-                throw WinterException(
-                    "Cannot close `${pathToString(path)}` because it doesn't exist."
-                )
-            }
-        }
+    fun closeGraph() {
+        val graph = graphOrNull ?: throw WinterException(
+            "Cannot close because noting is open."
+        )
+        graph.close()
     }
 
     /**
-     * Remove and dispose the object graph and its subgraphs stored in [path] if it is open.
-     *
-     * @param path The path of the graph to dispose.
-     *
-     * @return true if given [path] was open otherwise false.
+     * Close the application graph if open otherwise do nothing.
      */
-    fun closeIfOpen(vararg path: Any): Boolean =
-        fold({ false }) { state -> close(state, path) }
-
-    private fun close(state: Initialized, path: Array<out Any>): Boolean {
-        val graph = state.getOrNull(path) ?: return false
-
-        graph.dispose()
-
-        if (path.isEmpty()) {
-            this.state = Uninitialized(state.component)
-        }
-        return true
+    fun closeGraphIfOpen() {
+        graphOrNull?.close()
     }
 
-    private fun pathToString(
-        path: Array<out Any>,
-        depth: Int = -1,
-        identifier: Any? = null
-    ): String {
-        val buffer = StringBuffer()
-        path.joinTo(
-            buffer = buffer,
-            separator = ".",
-            limit = depth,
-            truncated = "",
-            postfix = identifier?.toString() ?: ""
+    private fun openInternal(block: ComponentBuilderBlock?): Graph = Graph(
+        application = this,
+        parent = null,
+        component = component,
+        onCloseCallback = {
+            synchronized(this) { graphOrNull = null }
+        },
+        block = block
+    ).also { graphOrNull = it }
+
+    /**
+     * Inject dependencies into [instance] by using the dependency graph returned from
+     * [InjectionAdapter.get] called with [instance].
+     *
+     * @param instance The instance to retrieve the dependency graph for and inject dependencies
+     *                 into.
+     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
+     */
+    fun inject(instance: Any) {
+        val adapter = injectionAdapter ?: throw WinterException(
+            "No injection adapter configured."
         )
-        if (depth > 0 && identifier == null) {
-            buffer.deleteCharAt(buffer.lastIndex)
-        }
-        return buffer.toString()
+        val graph = adapter.get(instance) ?: throw WinterException(
+            "No graph found for instance `$instance`."
+        )
+        graph.inject(instance)
+    }
+
+    /**
+     * Adapter interface to provide application specific graph creation and retrieval strategy.
+     */
+    interface InjectionAdapter {
+
+        /**
+         * Get dependency graph for [instance].
+         *
+         * @param instance The instance to get the graph for.
+         * @return The graph for [instance] or null when instance type is not supported.
+         */
+        fun get(instance: Any): Graph?
+
     }
 
 }

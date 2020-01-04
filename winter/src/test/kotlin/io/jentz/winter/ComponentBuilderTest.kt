@@ -1,6 +1,6 @@
 package io.jentz.winter
 
-import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
@@ -51,20 +51,6 @@ class ComponentBuilderTest {
         component {
             softSingleton("e") { Heater() }
         }.shouldContainServiceOfType<UnboundSoftSingletonService<*>>(typeKey<Heater>("e"))
-    }
-
-    @Test
-    fun `#factory should register UnboundFactoryService`() {
-        component {
-            factory("f") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundFactoryService<*, *>>(compoundTypeKey<Color, Widget>("f"))
-    }
-
-    @Test
-    fun `#multiton should register UnboundMultitonFactoryService`() {
-        component {
-            multiton("g") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundMultitonFactoryService<*, *>>(compoundTypeKey<Color, Widget>("g"))
     }
 
     @Test
@@ -219,7 +205,7 @@ class ComponentBuilderTest {
             prototype { Heater() }
             prototype { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -236,7 +222,7 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -252,11 +238,17 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#generated should load generated factory for class`() {
+    fun `#generated should register generated factory for class`() {
         component {
-            generated<Service>().shouldBeInstanceOf<Service_WinterFactory>()
-        }
+            generated<Service>()
+        }.shouldContainService(typeKey<Service>())
     }
 
+    @Test
+    fun `#generatedFactory should load generated factory for class`() {
+        component {
+            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+        }
+    }
 
 }

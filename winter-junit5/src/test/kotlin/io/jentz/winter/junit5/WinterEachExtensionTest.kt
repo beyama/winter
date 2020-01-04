@@ -35,7 +35,7 @@ class WinterEachExtensionTest {
 
     @BeforeEach
     fun beforeEach() {
-        app.create()
+        app.createGraph()
     }
 
     @Test

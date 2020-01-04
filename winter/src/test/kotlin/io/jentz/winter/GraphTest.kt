@@ -1,7 +1,6 @@
 package io.jentz.winter
 
 import com.nhaarman.mockitokotlin2.*
-import io.jentz.winter.plugin.EMPTY_PLUGINS
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.plugin.SimplePlugin
@@ -12,7 +11,6 @@ import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.*
@@ -50,7 +48,7 @@ class GraphTest {
 
     @AfterEach
     fun afterEach() {
-        Winter.plugins = EMPTY_PLUGINS
+        Winter.plugins = Plugins.EMPTY
     }
 
     @Nested
@@ -78,7 +76,7 @@ class GraphTest {
         fun `should invoke post construct callback with instance`() {
             var called = false
             graph {
-                prototype(postConstruct = {
+                prototype(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     called = true
                 }) { instance }
@@ -90,7 +88,7 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { prototype { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Prototype, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.Prototype, instance)
         }
 
         @Test
@@ -125,8 +123,8 @@ class GraphTest {
             singleton { instance }
             singleton { Parent(instance()) }
             singleton(
-                postConstruct = { it.parent = instance() },
-                dispose = { it.parent = null }
+                onPostConstruct = { it.parent = instance() },
+                onClose = { it.parent = null }
             ) { Child() }
         }
 
@@ -152,16 +150,16 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { singleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Singleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.Singleton, instance)
         }
 
         @Test
-        fun `should invoke dispose callback with instance`() {
+        fun `should invoke close callback with instance`() {
             val graph = testComponent.createGraph()
             val parent: Parent = graph.instance()
             val child: Child = graph.instance()
             expectValueToChange(parent, null, child::parent) {
-                graph.dispose()
+                graph.close()
             }
         }
 
@@ -214,7 +212,7 @@ class GraphTest {
         fun `should invoke factory function only when reference is null`() {
             var count = 0
             val graph = graph { reference { count += 1; count } }
-            val service = graph.service<Unit, Int>(typeKey<Int>()) as BoundReferenceService
+            val service = graph.service<Int>(typeKey()) as BoundReferenceService
             service.instance.shouldBe(UNINITIALIZED_VALUE)
             repeat(5) { graph.instance<Int>() }
             service.instance.shouldBe(1)
@@ -226,10 +224,10 @@ class GraphTest {
         @Test
         fun `should invoke post construct callback with instance`() {
             val graph = graph { reference { "test" } }
-            val service = graph.service<Unit, String>(typeKey<String>()) as BoundReferenceService
+            val service = graph.service<String>(typeKey()) as BoundReferenceService
             graph.instance<String>()
             service.postConstructCalledCount.shouldBe(1)
-            service.postConstructLastArguments.shouldBe(Unit to "test")
+            service.postConstructLastArgument.shouldBe("test")
         }
 
         @Test
@@ -254,7 +252,7 @@ class GraphTest {
         fun `#softSingleton should invoke post construct callback with instance`() {
             var postConstructCalledCount = 0
             val graph = graph {
-                softSingleton(postConstruct = {
+                softSingleton(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     postConstructCalledCount += 1
                 }) { instance }
@@ -267,7 +265,7 @@ class GraphTest {
         fun `#softSingleton should run post construct plugins`() {
             val graph = graph { softSingleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.SoftSingleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.SoftSingleton, instance)
         }
 
         @Test
@@ -294,7 +292,7 @@ class GraphTest {
         fun `#weakSingleton should invoke post construct callback with instance`() {
             var postConstructCalledCount = 0
             val graph = graph {
-                weakSingleton(postConstruct = {
+                weakSingleton(onPostConstruct = {
                     it.shouldBeSameInstanceAs(instance)
                     postConstructCalledCount += 1
                 }) { instance }
@@ -307,7 +305,7 @@ class GraphTest {
         fun `#weakSingleton should run post construct plugins`() {
             val graph = graph { weakSingleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.WeakSingleton, Unit, instance)
+            verify(plugin, times(1)).postConstruct(graph, Scope.WeakSingleton, instance)
         }
 
         @Test
@@ -326,189 +324,6 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("Factory scope")
-    inner class FactoryScope {
-
-        @Test
-        fun `should return instance returned by the factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instance<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should invoke factory for every lookup`() {
-            var count = 0
-            val graph = graph {
-                factory { i: Int ->
-                    count += 1
-                    i.toString()
-                }
-            }
-            (1..5).forEach {
-                graph.instance<Int, String>(it).shouldBe(it.toString())
-            }
-
-        }
-
-        @Test
-        fun `should invoke postConstruct callback with argument and instance`() {
-            var called = false
-            graph {
-                factory(
-                    postConstruct = { a, r ->
-                        called = true
-                        a.shouldBe(42)
-                        r.shouldBe("42")
-                    }
-                ) { i: Int -> i.toString() }
-            }.instance<Int, String>(42)
-            called.shouldBeTrue()
-        }
-
-        @Test
-        fun `should run post construct plugins`() {
-            val graph = graph { factory { i: Int -> i.toString() } }
-            graph.instance<Int, String>(42)
-            verify(plugin, times(1)).postConstruct(graph, Scope.PrototypeFactory, 42, "42")
-        }
-
-        @Test
-        fun `should allow resolution of nested dependencies`() {
-            graph {
-                prototype { Heater() }
-                factory { type: String ->
-                    when (type) {
-                        "rotary" -> RotaryPump()
-                        "thermo" -> Thermosiphon(instance())
-                        else -> throw IllegalArgumentException()
-                    }
-                }
-                factory { pumpType: String ->
-                    CoffeeMaker(instance(), instance(argument = pumpType))
-                }
-            }.instance<String, CoffeeMaker>("thermo").pump.shouldBeInstanceOf<Thermosiphon>()
-        }
-
-        @Test
-        fun `should be thread safe`() {
-            val graph = graph {
-                (0..100).forEach { value ->
-                    factory<Int, String>(qualifier = value) { i -> i.toString() }
-                }
-            }
-
-            (0..100).map {
-                executor.submit {
-                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
-                }
-            }.forEach { it.get() }
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Multiton scope")
-    inner class MultitonScope {
-
-        @Test
-        fun `should return instance returned by factory`() {
-            graph {
-                multiton { c: Color -> Widget(c) }
-            }.instance<Color, Widget>(Color.BLUE).color.shouldBe(Color.BLUE)
-        }
-
-        @Test
-        fun `should invoke factory only on the first lookup with new argument`() {
-            val graph = graph {
-                multiton { c: Color -> Widget(c) }
-            }
-            val a: Widget = graph.instance(argument = Color.BLUE)
-            val b: Widget = graph.instance(argument = Color.BLUE)
-            val c: Widget = graph.instance(argument = Color.RED)
-            a.shouldBeSameInstanceAs(b)
-            c.shouldNotBeSameInstanceAs(b)
-            c.color.shouldBe(Color.RED)
-        }
-
-        @Test
-        fun `should invoke post construct callback with instance and argument`() {
-            var called = false
-            graph {
-                multiton(
-                    postConstruct = { a, r ->
-                        called = true
-                        a.shouldBe(Color.GREEN)
-                        r.shouldBeInstanceOf<Widget>()
-                    }
-                ) { c: Color -> Widget(c) }
-            }.instance<Color, Widget>(Color.GREEN)
-            called.shouldBeTrue()
-        }
-
-        @Test
-        fun `should run post construct plugins`() {
-            val graph = graph { multiton { i: Int -> i.toString() } }
-            graph.instance<Int, String>(42)
-            verify(plugin, times(1)).postConstruct(graph, Scope.MultitonFactory, 42, "42")
-        }
-
-        @Test
-        fun `should invoke dispose callback with instance and argument for each constructed instance`() {
-            var count = 0
-            val graph = graph {
-                multiton(
-                    dispose = { a, r ->
-                        count += 1
-                        a.shouldBeInstanceOf<Color>()
-                        r.shouldBeInstanceOf<Widget>()
-                    }
-                ) { c: Color -> Widget(c) }
-            }
-            graph.instance<Color, Widget>(Color.RED)
-            graph.instance<Color, Widget>(Color.GREEN)
-            graph.instance<Color, Widget>(Color.BLUE)
-            expectValueToChange(0, 3, { count }) { graph.dispose() }
-        }
-
-        @Test
-        fun `should allow resolution of nested dependencies`() {
-            graph {
-                prototype { Heater() }
-                multiton { type: String ->
-                    when (type) {
-                        "rotary" -> RotaryPump()
-                        "thermo" -> Thermosiphon(instance())
-                        else -> throw IllegalArgumentException()
-                    }
-                }
-                factory { pumpType: String ->
-                    CoffeeMaker(instance(), instance(argument = pumpType))
-                }
-            }.let {
-                it.instance<String, CoffeeMaker>("thermo").pump
-                    .shouldBeSameInstanceAs(it.instance<String, Pump>("thermo"))
-            }
-        }
-
-        @Test
-        fun `should be thread safe`() {
-            val graph = graph {
-                (0..100).forEach { value ->
-                    multiton<Int, String>(qualifier = value) { i -> i.toString() }
-                }
-            }
-
-            (0..100).map {
-                executor.submit {
-                    graph.instance<Int, String>(it, qualifier = it).shouldBe(it.toString())
-                }
-            }.forEach { it.get() }
-        }
-
-    }
-
-    @Nested
     @DisplayName("Alias service")
     inner class AliasService {
 
@@ -519,8 +334,8 @@ class GraphTest {
                 prototype { Thermosiphon(instance()) }
                 alias(typeKey<Thermosiphon>(), typeKey<Pump>())
             }
-            graph.service<Unit, Pump>(typeKey<Pump>())
-                .shouldBeSameInstanceAs(graph.service<Unit, Thermosiphon>(typeKey<Thermosiphon>()))
+            graph.service<Pump>(typeKey())
+                .shouldBeSameInstanceAs(graph.service<Thermosiphon>(typeKey()))
         }
 
         @Test
@@ -541,7 +356,7 @@ class GraphTest {
                     prototype { Thermosiphon(instance()) }
                     alias(typeKey<Thermosiphon>(), typeKey<Pump>())
                     remove(typeKey<Thermosiphon>())
-                }.service<Unit, Pump>(typeKey<Pump>())
+                }.service<Pump>(typeKey())
             }.message.shouldBe("Error resolving alias `${typeKey<Pump>()}` pointing to `${typeKey<Thermosiphon>()}`.")
         }
 
@@ -574,36 +389,14 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve instance from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instance<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.instance<Int, String>(21, "b").shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.instance<Int, Map<Int, String>>(1, generics = true).shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should throw an exception if dependency doesn't exist`() {
             shouldThrow<EntryNotFoundException> { emptyGraph.instance() }
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { instance() }
             }
         }
@@ -637,41 +430,14 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve instance from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.instanceOrNull<Int, String>(42).shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.instanceOrNull<Int, String>(21, "b").shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.instanceOrNull<Int, Map<Int, String>>(1, generics = true).shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should return null if dependency doesn't exist`() {
             emptyGraph.instanceOrNull<Any>().shouldBe(null)
         }
 
         @Test
-        fun `should return null if factory doesn't exist`() {
-            emptyGraph.instanceOrNull<Int, String>(1).shouldBe(null)
-        }
-
-        @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { instanceOrNull() }
             }
         }
@@ -705,36 +471,14 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve provider from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.provider<Int, String>(42).invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve provider from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.provider<Int, String>(21, "b").invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.provider<Int, Map<Int, String>>(1, generics = true).invoke().shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should throw an exception if dependency doesn't exist`() {
             shouldThrow<EntryNotFoundException> { emptyGraph.provider<Any>() }
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { provider<Any>() }
             }
         }
@@ -777,37 +521,14 @@ class GraphTest {
         }
 
         @Test
-        fun `should resolve provider from factory`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.providerOrNull<Int, String>(42)?.invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve provider from factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.providerOrNull<Int, String>(21, "b")?.invoke().shouldBe("42")
-        }
-
-        @Test
-        fun `should resolve instance from factory with generics`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.providerOrNull<Int, Map<Int, String>>(1, generics = true)?.invoke()
-                .shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
         fun `should return null if dependency doesn't exist`() {
             emptyGraph.providerOrNull<Any>().shouldBe(null)
         }
 
         @Test
-        fun `should throw an exception when graph is disposed`() {
+        fun `should throw an exception when graph is closed`() {
             graph { prototype { "string" } }.apply {
-                dispose()
+                close()
                 shouldThrow<WinterException> { providerOrNull<Any>() }
             }
         }
@@ -819,89 +540,6 @@ class GraphTest {
             counter.shouldBe(0)
             provider.invoke().shouldBe(1)
             provider.invoke().shouldBe(2)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#factory")
-    inner class FactoryMethod {
-
-        @Test
-        fun `should resolve factory by class`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.factory<Int, String>().invoke(5).shouldBe("5")
-        }
-
-        @Test
-        fun `should resolve factory by generic class`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.factory<Int, Map<Int, String>>(generics = true).invoke(5).shouldBe(mapOf(5 to "5"))
-        }
-
-        @Test
-        fun `should resolve factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.factory<Int, String>(qualifier = "b").invoke(5).shouldBe("10")
-        }
-
-        @Test
-        fun `should throw an exception if factory doesn't exist`() {
-            shouldThrow<EntryNotFoundException> { emptyGraph.factory<Int, String>() }
-        }
-
-        @Test
-        fun `should throw an exception when graph is disposed`() {
-            graph { factory { i: Int -> i.toString() } }.apply {
-                dispose()
-                shouldThrow<WinterException> { factory<Int, String>() }
-            }
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#factoryOrNull")
-    inner class FactoryOrNullMethod {
-
-        @Test
-        fun `should resolve factory by class`() {
-            graph {
-                factory { i: Int -> i.toString() }
-            }.factoryOrNull<Int, String>()?.invoke(5).shouldBe("5")
-        }
-
-        @Test
-        fun `should resolve factory by generic class`() {
-            graph {
-                factory(generics = true) { i: Int -> mapOf(i to i.toString()) }
-            }.factoryOrNull<Int, Map<Int, String>>(generics = true)?.invoke(5)
-                .shouldBe(mapOf(5 to "5"))
-        }
-
-        @Test
-        fun `should resolve factory with qualifier`() {
-            graph {
-                factory("a") { i: Int -> i.toString() }
-                factory("b") { i: Int -> (i * 2).toString() }
-            }.factoryOrNull<Int, String>(qualifier = "b")?.invoke(5).shouldBe("10")
-        }
-
-        @Test
-        fun `should return null if factory doesn't exist`() {
-            emptyGraph.factoryOrNull<Int, String>().shouldBe(null)
-        }
-
-        @Test
-        fun `should throw an exception when graph is disposed`() {
-            graph { factory { i: Int -> i.toString() } }.apply {
-                dispose()
-                shouldThrow<WinterException> { factoryOrNull<Int, String>() }
-            }
         }
 
     }
@@ -981,29 +619,28 @@ class GraphTest {
         }
 
         @Test
-        fun `#parent should throw an exception when graph is disposed`() {
+        fun `#parent should throw an exception when graph is closed`() {
             val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                sub.dispose()
+                sub.close()
                 sub.parent
-            }.message.shouldBe("Graph is already disposed.")
+            }.message.shouldBe("Graph is already closed.")
         }
 
         @Test
         fun `#component should return backing component`() {
-            Winter.plugins = EMPTY_PLUGINS // otherwise it will derive the component
             val parent = graph { subcomponent("sub") {} }
             val sub = parent.createSubgraph("sub")
             sub.component.shouldBeSameInstanceAs(parent.component.subcomponent("sub"))
         }
 
         @Test
-        fun `#component should throw an exception when graph is disposed`() {
+        fun `#component should throw an exception when graph is closed`() {
             val sub = graph { subcomponent("sub") {} }.createSubgraph("sub")
             shouldThrow<WinterException> {
-                sub.dispose()
+                sub.close()
                 sub.component
-            }.message.shouldBe("Graph is already disposed.")
+            }.message.shouldBe("Graph is already closed.")
         }
 
     }
@@ -1029,9 +666,9 @@ class GraphTest {
             val graph = Graph(Winter, parent, emptyComponent, null, null)
             verify(plugin, times(1)).graphInitializing(same(parent), any())
             verify(plugin, times(1)).graphInitialized(graph)
-            verify(plugin, never()).graphDispose(any())
-            graph.dispose()
-            verify(plugin, times(1)).graphDispose(graph)
+            verify(plugin, never()).graphClose(any())
+            graph.close()
+            verify(plugin, times(1)).graphClose(graph)
         }
 
         @Test
@@ -1041,13 +678,18 @@ class GraphTest {
         }
 
         @Test
-        fun `#initSubcomponent should dervie component when builder block is given`() {
+        fun `should add itself to the registry for ability to inject the graph itself`() {
+            emptyGraph.instance<Graph>().shouldBeSameInstanceAs(emptyGraph)
+        }
+
+        @Test
+        fun `#createSubgraph should derive component when builder block is given`() {
             val graph = component.createGraph().createSubgraph("test") { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
         @Test
-        fun `#initSubcomponent should pass WinterApplication to new graph`() {
+        fun `#createSubgraph should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
             component.createGraph(testApp)
                 .createSubgraph("test")
@@ -1057,46 +699,46 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("#dispose and #isDisposed")
-    inner class DisposeMethod {
+    @DisplayName("#close and #isClosed")
+    inner class CloseMethod {
 
         @Test
-        fun `#dispose should mark the graph as disposed`() {
+        fun `#close should mark the graph as closed`() {
             val graph = graph {}
-            expectValueToChange(false, true, graph::isDisposed) {
-                graph.dispose()
+            expectValueToChange(from = false, to = true, valueProvider = graph::isClosed) {
+                graph.close()
             }
         }
 
         @Test
-        fun `subsequent calls to #dispose should be ignored`() {
+        fun `subsequent calls to #close should be ignored`() {
             val graph = graph {}
-            repeat(3) { graph.dispose() }
-            verify(plugin, times(1)).graphDispose(graph)
+            repeat(3) { graph.close() }
+            verify(plugin, times(1)).graphClose(graph)
         }
 
         @Test
-        fun `#dispose should run graph dispose plugins before marking graph as disposed`() {
+        fun `#close should run graph close plugins before marking graph as closed`() {
             var called = false
             Winter.plugins += object : SimplePlugin() {
-                override fun graphDispose(graph: Graph) {
+                override fun graphClose(graph: Graph) {
                     called = true
-                    graph.isDisposed.shouldBeFalse()
+                    graph.isClosed.shouldBeFalse()
                 }
             }
             val graph = graph {}
-            graph.dispose()
+            graph.close()
             called.shouldBeTrue()
         }
 
         @Test
-        fun `#dispose should ignore a call to dispose from plugin`() {
+        fun `#close should ignore calls to close from plugin`() {
             Winter.plugins + object : SimplePlugin() {
-                override fun graphDispose(graph: Graph) {
-                    graph.dispose()
+                override fun graphClose(graph: Graph) {
+                    graph.close()
                 }
             }
-            graph {}.dispose()
+            graph {}.close()
             // no StackOverflowError here
         }
 
@@ -1142,7 +784,8 @@ class GraphTest {
 
         @Test
         fun `#openSubgraph should initialize and return subcomponent by qualifier`() {
-            root.openSubgraph("presentation").component.qualifier.shouldBe("presentation")
+            root.openSubgraph("presentation").component
+                .shouldBeSameInstanceAs(component.subcomponent("presentation"))
         }
 
         @Test
@@ -1155,16 +798,62 @@ class GraphTest {
         @Test
         fun `#openSubgraph with identifier should initialize subcomponent and register it under the given identifier`() {
             val graph = root.openSubgraph("presentation", identifier = "foo")
-            graph.component.qualifier.shouldBe("presentation")
+            graph.component.shouldBeSameInstanceAs(component.subcomponent("presentation"))
             root.instance<Graph>("foo").shouldBeSameInstanceAs(graph)
         }
 
         @Test
-        fun `#closeSubgraph should dispose and remove subgraph with identifier`() {
+        fun `#getSubgraph should return subgraph by identifier`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getSubgraph should throw an exception if subgraph is not open`() {
+            shouldThrow<WinterException> { root.getSubgraph("presentation") }
+        }
+
+        @Test
+        fun `#getSubgraphOrNull should return null if subgraph is not open`() {
+            root.getSubgraphOrNull("presentation").shouldBeNull()
+        }
+
+        @Test
+        fun `#getSubgraphOrNull should return subgraph by identifier`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraphOrNull("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should return subgraph if already open`() {
+            root.openSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getOrOpenSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should open subgraph if not present`() {
+            root.getOrOpenSubgraph("presentation")
+                .shouldBeSameInstanceAs(root.getSubgraph("presentation"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should open subgraph with identifier`() {
+            root.getOrOpenSubgraph("presentation", "foo")
+                .shouldBeSameInstanceAs(root.getSubgraph("foo"))
+        }
+
+        @Test
+        fun `#getOrOpenSubgraph should get subgraph with identifier`() {
+            root.openSubgraph("presentation", "foo")
+                .shouldBeSameInstanceAs(root.getOrOpenSubgraph("presentation", "foo"))
+        }
+
+        @Test
+        fun `#closeSubgraph should close and remove subgraph with identifier`() {
             val graph = root.openSubgraph("presentation")
             root.closeSubgraph("presentation")
 
-            graph.isDisposed.shouldBeTrue()
+            graph.isClosed.shouldBeTrue()
             root.instanceOrNull<Graph>("presentation").shouldBeNull()
         }
 
@@ -1176,27 +865,27 @@ class GraphTest {
         }
 
         @Test
-        fun `#dispose should dispose all managed subgraphs`() {
+        fun `#close should close all managed subgraphs`() {
             val presentation = root.openSubgraph("presentation")
             val view = presentation.openSubgraph("view")
 
-            presentation.dispose()
+            presentation.close()
 
-            presentation.isDisposed.shouldBeTrue()
-            view.isDisposed.shouldBeTrue()
+            presentation.isClosed.shouldBeTrue()
+            view.isClosed.shouldBeTrue()
         }
 
         @Test
-        fun `#dispose of subgraphs should not lead to concurrent modification exception`() {
+        fun `#close of subgraphs should not lead to concurrent modification exception`() {
             val presentation = root.openSubgraph("presentation")
             val view = presentation.openSubgraph("view")
 
             // we need more than one service in our registry to get the exception when unregistering
-            // of subgraphs is not prevented during dispose
+            // of subgraphs is not prevented during close
             presentation.instance<List<*>>()
             view.instance<Map<*, *>>()
 
-            root.dispose()
+            root.close()
         }
 
     }
@@ -1259,7 +948,7 @@ class GraphTest {
             shouldThrow<DependencyResolutionException> {
                 graph {
                     prototype(
-                        postConstruct = { called = true }
+                        onPostConstruct = { called = true }
                     ) { Heater() }
                     prototype<Pump> { throw Error("Boom!") }
                     prototype { CoffeeMaker(instance(), instance()) }

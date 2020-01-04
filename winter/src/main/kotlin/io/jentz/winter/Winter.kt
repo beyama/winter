@@ -6,7 +6,7 @@ package io.jentz.winter
  * It is recommended for applications to use this directly and for libraries it is recommended to
  * create a library specific object based on [WinterApplication].
  *
- * Usage example with winter-rxjava2 disposable plugin:
+ * Example:
  *
  * ```
  * // configure application component
@@ -15,8 +15,10 @@ package io.jentz.winter
  * }
  * // install RxJava 2 disposable plugin
  * Winter.installDisposablePlugin()
+ * // configure injection adapter.
+ * Winter.useAndroidPresentationScopeInjectionAdapter()
  * // create dependency graph
- * val graph = Winter.createGraph()
+ * Winter.createGraph(myApplicationInstance)
  * ```
  *
  * @see WinterApplication for more details.

@@ -1,6 +1,6 @@
 package io.jentz.winter.plugin
 
-import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.Scope
 
@@ -13,9 +13,9 @@ interface Plugin {
      * [io.jentz.winter.Component].
      *
      * @param parentGraph The parent graph of the new graph that is being initialized.
-     * @param builder The [ComponentBuilder] for the new graph.
+     * @param builder The [Component.Builder] for the new graph.
      */
-    fun graphInitializing(parentGraph: Graph?, builder: ComponentBuilder)
+    fun graphInitializing(parentGraph: Graph?, builder: Component.Builder)
 
     /**
      * This is called when a [Graph] is initialized and before eager dependencies are resolved.
@@ -25,20 +25,19 @@ interface Plugin {
     fun graphInitialized(graph: Graph)
 
     /**
-     * This is called whenever a [Graph] is going to be disposed.
+     * This is called whenever a [Graph] is going to be closed.
      *
-     * @param graph The [Graph] that is going to be disposed.
+     * @param graph The [Graph] that is going to be closed.
      */
-    fun graphDispose(graph: Graph)
+    fun graphClose(graph: Graph)
 
     /**
      * This is called whenever a new instance was created.
      *
      * @param graph The [Graph] the instance was created in.
      * @param scope The [Scope] of the instance.
-     * @param argument The argument the instance was created with ([Unit] for all non factories).
      * @param instance The instance that was created.
      */
-    fun postConstruct(graph: Graph, scope: Scope, argument: Any, instance: Any)
+    fun postConstruct(graph: Graph, scope: Scope, instance: Any)
 
 }

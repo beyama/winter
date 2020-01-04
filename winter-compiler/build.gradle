@@ -15,7 +15,6 @@ dependencies {
 
     implementation deps.kotlin.stdlib
 
-    implementation deps.javaxInject
     implementation deps.kotlinpoet
 
     testImplementation project(':winter-junit5')

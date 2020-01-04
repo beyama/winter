@@ -1,5 +1,6 @@
 package io.jentz.winter.compiler.kotlinbuilder
 
+import io.jentz.winter.compiler.COMPONENT_BUILDER_CLASS_NAME
 import io.jentz.winter.compiler.FACTORY_INTERFACE_NAME
 import io.jentz.winter.compiler.GRAPH_CLASS_NAME
 import io.jentz.winter.compiler.ProcessorConfiguration
@@ -20,15 +21,15 @@ fun buildFactory(
 
         import(GRAPH_CLASS_NAME)
         import(FACTORY_INTERFACE_NAME)
+        import(COMPONENT_BUILDER_CLASS_NAME)
         import(typeName)
 
         generatedAnnotation(configuration.generatedAnnotationAvailable)
 
-        val constructor = model.originatingElement
+        val constructor = model.constructorElement
         val className = generatedClassName.simpleName
         val interfaceName =
-            "${FACTORY_INTERFACE_NAME.simpleName}<${GRAPH_CLASS_NAME.simpleName}, " +
-                    "${typeName.simpleName}>"
+            "${FACTORY_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
 
         val injectorModel = model.injectorModel
 
@@ -38,6 +39,20 @@ fun buildFactory(
 
             val graphClassName = GRAPH_CLASS_NAME.simpleName
             val resultClassName = typeName.simpleName
+
+            block("override fun register(builder: Builder)") {
+
+                val scopeName = if (model.scope == null) {
+                    "prototype"
+                } else {
+                    "singleton"
+                }
+                val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
+                import(typeName)
+                line("builder.$scopeName(${qualifier}factory = this)")
+            }
+
+            line()
 
             block("override fun invoke(graph: $graphClassName): $resultClassName") {
 

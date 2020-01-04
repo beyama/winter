@@ -13,15 +13,20 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("NoArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.Factory
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
         |    date = "2019-02-10T14:52Z"
         |)
-        |class NoArgumentInjectConstructor_WinterFactory : Factory<Graph, NoArgumentInjectConstructor> {
+        |class NoArgumentInjectConstructor_WinterFactory : Factory<NoArgumentInjectConstructor> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.singleton(factory = this)
+        |    }
         |
         |    override fun invoke(graph: Graph): NoArgumentInjectConstructor {
         |        return NoArgumentInjectConstructor()
@@ -39,15 +44,20 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("OneArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.Factory
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
         |    date = "2019-02-10T14:52Z"
         |)
-        |class OneArgumentInjectConstructor_WinterFactory : Factory<Graph, OneArgumentInjectConstructor> {
+        |class OneArgumentInjectConstructor_WinterFactory : Factory<OneArgumentInjectConstructor> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.prototype(factory = this)
+        |    }
         |
         |    override fun invoke(graph: Graph): OneArgumentInjectConstructor {
         |        return OneArgumentInjectConstructor(graph.instanceOrNull<String>())
@@ -65,15 +75,20 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("OneNamedArgumentInjectConstructor_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.Factory
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
         |    date = "2019-02-10T14:52Z"
         |)
-        |class OneNamedArgumentInjectConstructor_WinterFactory : Factory<Graph, OneNamedArgumentInjectConstructor> {
+        |class OneNamedArgumentInjectConstructor_WinterFactory : Factory<OneNamedArgumentInjectConstructor> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.prototype(factory = this)
+        |    }
         |
         |    override fun invoke(graph: Graph): OneNamedArgumentInjectConstructor {
         |        return OneNamedArgumentInjectConstructor(graph.instanceOrNull<String>("a name"))
@@ -91,8 +106,9 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("InjectConstructorWithProviderAndLazyArguments_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.Factory
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
         |import java.util.List
         |import javax.annotation.Generated
         |import javax.inject.Provider
@@ -101,7 +117,11 @@ class FactoryTest : BaseProcessorTest() {
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
         |    date = "2019-02-10T14:52Z"
         |)
-        |class InjectConstructorWithProviderAndLazyArguments_WinterFactory : Factory<Graph, InjectConstructorWithProviderAndLazyArguments> {
+        |class InjectConstructorWithProviderAndLazyArguments_WinterFactory : Factory<InjectConstructorWithProviderAndLazyArguments> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.prototype(factory = this)
+        |    }
         |
         |    override fun invoke(graph: Graph): InjectConstructorWithProviderAndLazyArguments {
         |        return InjectConstructorWithProviderAndLazyArguments(
@@ -122,20 +142,56 @@ class FactoryTest : BaseProcessorTest() {
         generatedFile("WithInjectedField_WinterFactory").shouldBe("""
         |package io.jentz.winter.compilertest
         |
-        |import io.jentz.winter.Factory
+        |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
         |    date = "2019-02-10T14:52Z"
         |)
-        |class WithInjectedField_WinterFactory : Factory<Graph, WithInjectedField> {
+        |class WithInjectedField_WinterFactory : Factory<WithInjectedField> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.prototype(factory = this)
+        |    }
         |
         |    override fun invoke(graph: Graph): WithInjectedField {
         |        val instance = WithInjectedField()
         |        io.jentz.winter.compilertest.WithInjectedField_WinterMembersInjector().invoke(graph, instance)
         |        return instance
+        |    }
+        |
+        |}
+        |""".trimMargin())
+    }
+
+    @Test
+    fun `should generate factory for named singleton inject constructor`() {
+        compilerWithOptions(ARG_GENERATED_COMPONENT)
+            .compileSuccessful("NamedSingletonInjectConstructor.java")
+
+        generatedFile("NamedSingletonInjectConstructor_WinterFactory").shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component.Builder
+        |import io.jentz.winter.Graph
+        |import io.jentz.winter.inject.Factory
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |class NamedSingletonInjectConstructor_WinterFactory : Factory<NamedSingletonInjectConstructor> {
+        |
+        |    override fun register(builder: Builder) {
+        |        builder.singleton(qualifier = "variant1", factory = this)
+        |    }
+        |
+        |    override fun invoke(graph: Graph): NamedSingletonInjectConstructor {
+        |        return NamedSingletonInjectConstructor()
         |    }
         |
         |}
