@@ -8,9 +8,6 @@ plugins {
 version = VERSION_NAME
 group = GROUP
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.androidTools
@@ -19,7 +16,6 @@ android {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.compileSdk
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        multiDexEnabled true
     }
 
     compileOptions {
@@ -47,13 +43,6 @@ dependencies {
     testImplementation deps.junit.junit4
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect
-
-    androidTestImplementation project(":winter-junit4")
-    androidTestImplementation deps.kotlintest
-    androidTestImplementation deps.androidx.test.runner
-    androidTestImplementation deps.androidx.test.rules
-    androidTestImplementation deps.androidx.test.junit
-    androidTestImplementation deps.androidx.test.espressoCore
 }
 
 task androidJavadocJar(type: Jar) {
