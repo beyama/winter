@@ -40,6 +40,7 @@ dependencies {
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect
+    testImplementation deps.javax.annotationApi // to get the legacy Generated annotation on >= JDK9
     testImplementation "com.google.testing.compile:compile-testing:0.15"
 
     testRuntimeOnly deps.junit.jupiterEngine

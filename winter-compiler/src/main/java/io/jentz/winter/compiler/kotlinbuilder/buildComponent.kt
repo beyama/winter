@@ -17,7 +17,7 @@ fun buildComponent(
     import(COMPONENT_CLASS_NAME)
     import(COMPONENT_METHOD_NAME)
 
-    generatedAnnotation(configuration.generatedAnnotationAvailable)
+    generatedAnnotation(configuration.generatedAnnotation)
     generatedComponent {
         line()
 

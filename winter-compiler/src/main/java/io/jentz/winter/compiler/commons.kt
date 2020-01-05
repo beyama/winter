@@ -8,6 +8,12 @@ import java.util.*
 const val OPTION_GENERATED_COMPONENT_PACKAGE = "winterGeneratedComponentPackage"
 const val OPTION_ROOT_SCOPE_ANNOTATION = "winterRootScopeAnnotation"
 
+val GENERATED_ANNOTATION_LEGACY_INTERFACE_NAME =
+        ClassName("javax.annotation", "Generated")
+
+val GENERATED_ANNOTATION_JDK9_INTERFACE_NAME =
+        ClassName("javax.annotation.processing", "Generated")
+
 val TYPE_KEY_CLASS_NAME = ClassName("io.jentz.winter", "TypeKey")
 
 val GRAPH_CLASS_NAME = ClassName("io.jentz.winter", "Graph")
@@ -28,8 +34,6 @@ val COMPONENT_BUILDER_CLASS_NAME =
 val PROVIDER_INTERFACE_NAME = ClassName("javax.inject", "Provider")
 
 val LAZY_INTERFACE_NAME = ClassName("kotlin", "Lazy")
-
-val GENERATED_ANNOTATION_NAME = ClassName("javax.annotation", "Generated")
 
 const val JAVAX_SINGLETON_ANNOTATION_NAME = "javax.inject.Singleton"
 

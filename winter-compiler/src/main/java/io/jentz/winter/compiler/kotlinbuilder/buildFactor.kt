@@ -22,7 +22,7 @@ fun buildFactory(
         import(COMPONENT_BUILDER_CLASS_NAME)
         import(typeName)
 
-        generatedAnnotation(configuration.generatedAnnotationAvailable)
+        generatedAnnotation(configuration.generatedAnnotation)
 
         val constructor = model.constructorElement
         val className = generatedClassName.simpleName
