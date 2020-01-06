@@ -8,7 +8,6 @@ import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.Before
 import org.junit.Test
 
 class LifecycleAutoCloseTest : LifecycleOwner {
@@ -16,11 +15,6 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     private val registry = LifecycleRegistry(this)
 
     override fun getLifecycle(): Lifecycle = registry
-
-    @Before
-    fun beforeEach() {
-        registry.markState(Lifecycle.State.CREATED)
-    }
 
     @Test
     fun `should throw an exception if the close event is a start event or ON_ANY`() {
