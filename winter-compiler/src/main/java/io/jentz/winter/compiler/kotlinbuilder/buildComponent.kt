@@ -21,7 +21,7 @@ fun buildComponent(
     generatedComponent {
         line()
 
-        val grouped = factories.groupBy { it.scope ?: "_prototype_" }
+        val grouped = factories.groupBy { it.scopeAnnotationName ?: "_prototype_" }
 
         grouped.forEach { (scope, factories) ->
             when (scope) {

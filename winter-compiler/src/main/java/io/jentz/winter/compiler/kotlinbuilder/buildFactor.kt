@@ -39,15 +39,9 @@ fun buildFactory(
             val resultClassName = typeName.simpleName
 
             block("override fun register(builder: Builder): TypeKey<${typeName.simpleName}>") {
-
-                val scopeName = if (model.scope == null) {
-                    "prototype"
-                } else {
-                    "singleton"
-                }
                 val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
                 import(typeName)
-                line("return builder.$scopeName(${qualifier}factory = this)")
+                line("return builder.${model.scope.name}(${qualifier}factory = this)")
             }
 
             line()
