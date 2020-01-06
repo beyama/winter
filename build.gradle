@@ -25,7 +25,7 @@ buildscript {
             'androidx'  : [
                     'coreKtx'          : 'androidx.core:core-ktx:1.0.1',
                     'recyclerview'     : 'androidx.recyclerview:recyclerview:1.0.0',
-                    'compat'           : 'androidx.appcompat:appcompat:1.0.2',
+                    'compat'           : 'androidx.appcompat:appcompat:1.1.0',
                     'lifecycle_common' : 'androidx.lifecycle:lifecycle-common:2.0.0',
                     'lifecycle_runtime': 'androidx.lifecycle:lifecycle-runtime:2.0.0',
                     'test'             : [

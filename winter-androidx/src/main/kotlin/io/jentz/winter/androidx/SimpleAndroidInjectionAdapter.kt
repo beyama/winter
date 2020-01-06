@@ -9,8 +9,11 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
@@ -22,10 +25,19 @@ import io.jentz.winter.WinterException
  * The adapters opens the application component for [Application] and the "activity" component
  * for [Activity]. The [Activity] must implement [LifecycleOwner] so that the opened activity graph
  * can be automatically closed.
+ *
+ * The following is provided via the activity graph:
+ * * the activity as [Context]
+ * * the activity as [Activity]
+ * * the activity [lifecycle][Lifecycle]
+ * * the activity as [FragmentActivity] if it is an instance of [FragmentActivity]
+ * * the activity [FragmentManager] if it is an instance of [FragmentActivity]
+ * * the [WinterFragmentFactory] if [enableWinterFragmentFactory] is true and activity is an
+ *   instance of [FragmentActivity]
  */
-
 open class SimpleAndroidInjectionAdapter(
-    protected val app: WinterApplication
+    protected val app: WinterApplication,
+    private val enableWinterFragmentFactory: Boolean = false
 ) : WinterApplication.InjectionAdapter {
 
     override fun get(instance: Any): Graph? = when (instance) {
@@ -50,11 +62,8 @@ open class SimpleAndroidInjectionAdapter(
     protected open fun getActivityGraph(activity: Activity): Graph? {
         app.graph.getSubgraphOrNull(activity)?.let { return it }
 
-        setupAutoClose(activity)
-
         return app.graph.openSubgraph("activity", activity) {
-            constant(activity)
-            constant<Context>(activity)
+            setupActivityGraph(activity, this)
         }
     }
 
@@ -90,11 +99,33 @@ open class SimpleAndroidInjectionAdapter(
     protected open fun closeFragmentGraph(fragment: Fragment) {
     }
 
-    protected fun setupAutoClose(instance: Any) {
-        val owner = instance as? LifecycleOwner ?: throw WinterException(
-            "Instance `$instance` must implement ${LifecycleOwner::class.java.name}"
+    protected open fun setupActivityGraph(activity: Activity, builder: Component.Builder) {
+        activity as? LifecycleOwner ?: throw WinterException(
+            "Activity `$activity` must implement ${LifecycleOwner::class.java.name}"
         )
-        val closeEvent: Lifecycle.Event = when (owner.lifecycle.currentState) {
+
+        setupAutoClose(activity)
+
+        builder.apply {
+            constant<Context>(activity)
+            constant<Activity>(activity)
+            constant(activity.lifecycle)
+
+            if (activity is FragmentActivity) {
+                constant(activity)
+                constant(activity.supportFragmentManager)
+
+                if (enableWinterFragmentFactory) {
+                    eagerSingleton(
+                        onPostConstruct = { instance<FragmentManager>().fragmentFactory = it }
+                    ) { WinterFragmentFactory(instance()) }
+                }
+            }
+        }
+    }
+
+    protected fun setupAutoClose(lifecycleOwner: LifecycleOwner) {
+        val closeEvent: Lifecycle.Event = when (lifecycleOwner.lifecycle.currentState) {
             Lifecycle.State.INITIALIZED -> Lifecycle.Event.ON_DESTROY
             Lifecycle.State.CREATED -> Lifecycle.Event.ON_STOP
             Lifecycle.State.STARTED -> Lifecycle.Event.ON_PAUSE
@@ -102,9 +133,9 @@ open class SimpleAndroidInjectionAdapter(
                 throw WinterException("Cannot setup lifecycle auto close after onResume")
             }
         }
-        owner.lifecycle.addObserver(object : LifecycleAutoClose(closeEvent) {
+        lifecycleOwner.lifecycle.addObserver(object : LifecycleAutoClose(closeEvent) {
             override fun close() {
-                close(instance)
+                close(lifecycleOwner)
             }
         })
     }
@@ -114,6 +145,6 @@ open class SimpleAndroidInjectionAdapter(
 /**
  * Register an [SimpleAndroidInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterApplication.useSimpleAndroidAdapter() {
-    injectionAdapter = SimpleAndroidInjectionAdapter(this)
+fun WinterApplication.useSimpleAndroidAdapter(enableWinterFragmentFactory: Boolean = false) {
+    injectionAdapter = SimpleAndroidInjectionAdapter(this, enableWinterFragmentFactory)
 }

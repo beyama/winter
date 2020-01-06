@@ -6,10 +6,15 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import io.jentz.winter.Winter
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
+import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
+import io.jentz.winter.androidx.useAndroidPresentationScopeAdapter
+import io.jentz.winter.androidx.useSimpleAndroidAdapter
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +43,6 @@ class AndroidPresentationScopeInjectionAdapterTest {
                 Winter.component {
                     subcomponent("presentation") {
                         subcomponent("activity") {
-                            constant("test app")
                         }
                     }
                 }
@@ -48,6 +52,12 @@ class AndroidPresentationScopeInjectionAdapterTest {
         })
         .around(winterRule)
         .around(activityScenarioRule)
+
+    @Test
+    fun use_app_extension_should_register_adapter() {
+        val app = WinterApplication().apply { useAndroidPresentationScopeAdapter() }
+        app.injectionAdapter.shouldBeInstanceOf<AndroidPresentationScopeInjectionAdapter>()
+    }
 
     @Test
     fun should_get_activity_graph_for_activity_instance() {

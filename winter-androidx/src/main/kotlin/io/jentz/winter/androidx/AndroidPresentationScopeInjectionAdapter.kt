@@ -1,7 +1,6 @@
 package io.jentz.winter.androidx
 
 import android.app.Activity
-import android.content.Context
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 
@@ -33,11 +32,8 @@ open class AndroidPresentationScopeInjectionAdapter(
 
         presentationGraph.getSubgraphOrNull(activity)?.let { return it }
 
-        setupAutoClose(activity)
-
         return presentationGraph.openSubgraph("activity", activity) {
-            constant(activity)
-            constant<Context>(activity)
+            setupActivityGraph(activity, this)
         }
     }
 
