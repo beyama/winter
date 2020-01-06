@@ -204,4 +204,36 @@ class FactoryTest : BaseProcessorTest() {
         |""".trimMargin())
     }
 
+    @Test
+    fun `should generate factory that registers as prototype if class is annotated with @Prototype`() {
+        compilerWithOptions(ARG_GENERATED_COMPONENT)
+            .compileSuccessful("PrototypeAnnotation.java")
+
+        generatedFile("PrototypeAnnotation_WinterFactory").shouldBe("""
+        |package io.jentz.winter.compilertest
+        |
+        |import io.jentz.winter.Component.Builder
+        |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
+        |import io.jentz.winter.inject.Factory
+        |import javax.annotation.Generated
+        |
+        |@Generated(
+        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
+        |    date = "2019-02-10T14:52Z"
+        |)
+        |class PrototypeAnnotation_WinterFactory : Factory<PrototypeAnnotation> {
+        |
+        |    override fun register(builder: Builder): TypeKey<PrototypeAnnotation> {
+        |        return builder.prototype(factory = this)
+        |    }
+        |
+        |    override fun invoke(graph: Graph): PrototypeAnnotation {
+        |        return PrototypeAnnotation()
+        |    }
+        |
+        |}
+        |""".trimMargin())
+    }
+
 }

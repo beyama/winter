@@ -3,6 +3,7 @@ package io.jentz.winter.compiler.model
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import io.jentz.winter.compiler.*
+import io.jentz.winter.inject.Prototype
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import javax.inject.Inject
@@ -12,6 +13,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.ElementFilter
+import io.jentz.winter.Scope as WinterScope
 
 class FactoryModel private constructor(
     val originatingElement: Element,
@@ -52,7 +54,9 @@ class FactoryModel private constructor(
 
     val typeName = typeElement.asClassName()
 
-    val scope: String?
+    val scopeAnnotationName: String?
+
+    val scope: WinterScope
 
     val qualifier: String? = typeElement
         .getAnnotation(Named::class.java)
@@ -80,21 +84,21 @@ class FactoryModel private constructor(
             throw IllegalArgumentException("Can't inject a abstract class: $typeElement")
         }
 
-        val scopes = typeElement.annotationMirrors.map {
+        val scopeAnnotations = typeElement.annotationMirrors.map {
             it.annotationType.asElement() as TypeElement
         }.filter {
             it.getAnnotation(Scope::class.java) != null
         }
 
-        if (scopes.size > 1) {
-            val scopesString = scopes.joinToString(", ") { it.qualifiedName.toString() }
+        if (scopeAnnotations.size > 1) {
+            val scopesString = scopeAnnotations.joinToString(", ") { it.qualifiedName.toString() }
             throw IllegalArgumentException(
                 "Multiple @Scope qualified annotations found on $typeElement but only one is " +
                         "allowed. ($scopesString})"
             )
         }
 
-        scope = scopes.firstOrNull()?.let { scopeAnnotation ->
+        scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { scopeAnnotation ->
             val scopeAnnotationName = scopeAnnotation.qualifiedName.toString()
             val retention = scopeAnnotation.getAnnotation(Retention::class.java)
 
@@ -106,6 +110,13 @@ class FactoryModel private constructor(
 
             scopeAnnotationName
         }
+
+        scope = when {
+            typeElement.getAnnotation(Prototype::class.java) != null -> WinterScope.Prototype
+            scopeAnnotationName == null -> WinterScope.Prototype
+            else -> WinterScope.Singleton
+        }
+
     }
 
 }
