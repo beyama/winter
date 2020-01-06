@@ -23,7 +23,7 @@ fun buildInjector(
         import(MEMBERS_INJECTOR_INTERFACE_NAME)
         import(typeName)
 
-        generatedAnnotation(configuration.generatedAnnotationAvailable)
+        generatedAnnotation(configuration.generatedAnnotation)
 
         val className = generatedClassName.simpleName
         val interfaceName = "${MEMBERS_INJECTOR_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"

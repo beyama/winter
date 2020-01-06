@@ -29,8 +29,8 @@ class Service_WinterMembersInjector : MembersInjector<Service> {
 
 @Suppress("unused", "ClassName")
 class Service_WinterFactory : Factory<Service> {
-    override fun register(builder: Component.Builder) {
-        builder.prototype(factory = this)
+    override fun register(builder: Component.Builder): TypeKey<Service> {
+        return builder.prototype(factory = this)
     }
 
     override fun invoke(graph: Graph): Service = Service()

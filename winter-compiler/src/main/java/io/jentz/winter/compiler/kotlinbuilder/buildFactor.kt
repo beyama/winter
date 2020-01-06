@@ -1,9 +1,6 @@
 package io.jentz.winter.compiler.kotlinbuilder
 
-import io.jentz.winter.compiler.COMPONENT_BUILDER_CLASS_NAME
-import io.jentz.winter.compiler.FACTORY_INTERFACE_NAME
-import io.jentz.winter.compiler.GRAPH_CLASS_NAME
-import io.jentz.winter.compiler.ProcessorConfiguration
+import io.jentz.winter.compiler.*
 import io.jentz.winter.compiler.model.FactoryModel
 
 fun buildFactory(
@@ -20,11 +17,12 @@ fun buildFactory(
     ) {
 
         import(GRAPH_CLASS_NAME)
+        import(TYPE_KEY_CLASS_NAME)
         import(FACTORY_INTERFACE_NAME)
         import(COMPONENT_BUILDER_CLASS_NAME)
         import(typeName)
 
-        generatedAnnotation(configuration.generatedAnnotationAvailable)
+        generatedAnnotation(configuration.generatedAnnotation)
 
         val constructor = model.constructorElement
         val className = generatedClassName.simpleName
@@ -40,7 +38,7 @@ fun buildFactory(
             val graphClassName = GRAPH_CLASS_NAME.simpleName
             val resultClassName = typeName.simpleName
 
-            block("override fun register(builder: Builder)") {
+            block("override fun register(builder: Builder): TypeKey<${typeName.simpleName}>") {
 
                 val scopeName = if (model.scope == null) {
                     "prototype"
@@ -49,7 +47,7 @@ fun buildFactory(
                 }
                 val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
                 import(typeName)
-                line("builder.$scopeName(${qualifier}factory = this)")
+                line("return builder.$scopeName(${qualifier}factory = this)")
             }
 
             line()

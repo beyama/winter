@@ -214,10 +214,11 @@ class Component private constructor(
             override: Boolean = false,
             noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ) {
+        ): TypeKey<R> {
             val key = typeKey<R>(qualifier, generics)
             val service = UnboundPrototypeService(key, factory, onPostConstruct)
             register(service, override)
+            return key
         }
 
         /**
@@ -237,10 +238,11 @@ class Component private constructor(
             noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline onClose: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ) {
+        ): TypeKey<R> {
             val key = typeKey<R>(qualifier, generics)
             val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
             register(service, override)
+            return key
         }
 
         /**
@@ -263,11 +265,12 @@ class Component private constructor(
             noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline onClose: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ) {
+        ): TypeKey<R> {
             val key = typeKey<R>(qualifier, generics)
             val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
             register(service, override)
             addEagerDependency(key)
+            return key
         }
 
         /**
@@ -285,10 +288,11 @@ class Component private constructor(
             override: Boolean = false,
             noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ) {
+        ): TypeKey<R> {
             val key = typeKey<R>(qualifier, generics)
             val service = UnboundWeakSingletonService(key, factory, onPostConstruct)
             register(service, override)
+            return key
         }
 
         /**
@@ -306,36 +310,91 @@ class Component private constructor(
             override: Boolean = false,
             noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ) {
+        ): TypeKey<R> {
             val key = typeKey<R>(qualifier, generics)
             val service = UnboundSoftSingletonService(key, factory, onPostConstruct)
             register(service, override)
+            return key
         }
 
         /**
-         * Register a constant of type [T].
+         * Register a constant of type [R].
          *
          * @param value The value of this constant provider.
          * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [T].
+         * @param generics If true this will preserve generic information of [R].
          * @param override If true this will override an existing factory of this type.
          */
-        inline fun <reified T : Any> constant(
-            value: T,
+        inline fun <reified R : Any> constant(
+            value: R,
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false
-        ) {
-            val key = typeKey<T>(qualifier, generics)
+        ): TypeKey<R> {
+            val key = typeKey<R>(qualifier, generics)
             val service = ConstantService(key, value)
             register(service, override)
+            return key
         }
+
+        /**
+         * Create an alias entry.
+         *
+         * Be careful, this method will not check if a type cast is possible.
+         *
+         * Example:
+         * ```
+         * singleton { ReposViewModel(instance()) }
+         *
+         * alias(typeKey<ReposViewModel>(), typeKey<ViewModel<ReposViewState>>(generics = true))
+         * ```
+         *
+         * @param targetKey The [TypeKey] of an entry an alias should be created for.
+         * @param newKey The alias [TypeKey].
+         * @param override If true this will override an existing factory of type [newKey].
+         *
+         * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
+         * @throws WinterException If [newKey] entry already exists and [override] is false.
+         */
+        fun <R0 : Any, R1 : Any> alias(
+            targetKey: TypeKey<R0>,
+            newKey: TypeKey<R1>,
+            override: Boolean = false
+        ): TypeKey<R0> {
+            registry[targetKey]
+                ?: throw EntryNotFoundException(
+                    targetKey,
+                    "Entry with key `$targetKey` doesn't exist."
+                )
+            register(AliasService(targetKey, newKey), override)
+            return targetKey
+        }
+
+        /**
+         * Create an alias entry for a [TypeKey].
+         *
+         * Be careful, this method will not check if a type cast is possible.
+         *
+         * Example:
+         * ```
+         * singleton {
+         *   ReposViewModel(instance())
+         * }.alias<ViewModel<ReposViewState>>(generics = true)
+         * ```
+         * @param aliasQualifier The qualifier of the alias entry.
+         * @param generics If true this creates a type key that also takes generic type parameters
+         *                 into account.
+         */
+        inline fun <reified R: Any> TypeKey<*>.alias(
+            aliasQualifier: Any? = null,
+            generics: Boolean = false
+        ): TypeKey<*> = alias(this, typeKey<R>(qualifier = aliasQualifier, generics = generics))
 
         /**
          * Register a generated factory.
          */
-        inline fun <reified R : Any> generated() {
-            generatedFactory<R>().register(this)
+        inline fun <reified R : Any> generated(): TypeKey<R> {
+            return generatedFactory<R>().register(this)
         }
 
         /**
@@ -424,31 +483,6 @@ class Component private constructor(
             }
             registry.remove(key)
             removeEagerDependency(key)
-        }
-
-        /**
-         * Create an alias entry.
-         *
-         * Be careful this method will not check if a type cast is possible.
-         *
-         * @param targetKey The [TypeKey] of an entry an alias should be created for.
-         * @param newKey The alias [TypeKey].
-         * @param override If true this will override an existing factory of type [newKey].
-         *
-         * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
-         * @throws WinterException If [newKey] entry already exists and [override] is false.
-         */
-        fun <R0 : Any, R1 : Any> alias(
-            targetKey: TypeKey<R0>,
-            newKey: TypeKey<R1>,
-            override: Boolean = false
-        ) {
-            registry[targetKey]
-                ?: throw EntryNotFoundException(
-                    targetKey,
-                    "Entry with key `$targetKey` doesn't exist."
-                )
-            register(AliasService(targetKey, newKey), override)
         }
 
         @PublishedApi

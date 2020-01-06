@@ -15,6 +15,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -24,8 +25,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class NoArgumentInjectConstructor_WinterFactory : Factory<NoArgumentInjectConstructor> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.singleton(factory = this)
+        |    override fun register(builder: Builder): TypeKey<NoArgumentInjectConstructor> {
+        |        return builder.singleton(factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): NoArgumentInjectConstructor {
@@ -46,6 +47,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -55,8 +57,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class OneArgumentInjectConstructor_WinterFactory : Factory<OneArgumentInjectConstructor> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.prototype(factory = this)
+        |    override fun register(builder: Builder): TypeKey<OneArgumentInjectConstructor> {
+        |        return builder.prototype(factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): OneArgumentInjectConstructor {
@@ -77,6 +79,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -86,8 +89,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class OneNamedArgumentInjectConstructor_WinterFactory : Factory<OneNamedArgumentInjectConstructor> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.prototype(factory = this)
+        |    override fun register(builder: Builder): TypeKey<OneNamedArgumentInjectConstructor> {
+        |        return builder.prototype(factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): OneNamedArgumentInjectConstructor {
@@ -108,6 +111,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import java.util.List
         |import javax.annotation.Generated
@@ -119,8 +123,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class InjectConstructorWithProviderAndLazyArguments_WinterFactory : Factory<InjectConstructorWithProviderAndLazyArguments> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.prototype(factory = this)
+        |    override fun register(builder: Builder): TypeKey<InjectConstructorWithProviderAndLazyArguments> {
+        |        return builder.prototype(factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): InjectConstructorWithProviderAndLazyArguments {
@@ -144,6 +148,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -153,8 +158,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class WithInjectedField_WinterFactory : Factory<WithInjectedField> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.prototype(factory = this)
+        |    override fun register(builder: Builder): TypeKey<WithInjectedField> {
+        |        return builder.prototype(factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): WithInjectedField {
@@ -177,6 +182,7 @@ class FactoryTest : BaseProcessorTest() {
         |
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
+        |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -186,8 +192,8 @@ class FactoryTest : BaseProcessorTest() {
         |)
         |class NamedSingletonInjectConstructor_WinterFactory : Factory<NamedSingletonInjectConstructor> {
         |
-        |    override fun register(builder: Builder) {
-        |        builder.singleton(qualifier = "variant1", factory = this)
+        |    override fun register(builder: Builder): TypeKey<NamedSingletonInjectConstructor> {
+        |        return builder.singleton(qualifier = "variant1", factory = this)
         |    }
         |
         |    override fun invoke(graph: Graph): NamedSingletonInjectConstructor {
