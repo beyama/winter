@@ -244,6 +244,14 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#include should throw exception if a subcomponent has the same qualifier as its parent`() {
+        val c1 = component { subcomponent("sub") {} }
+        shouldThrow<WinterException> {
+            component("sub") { include(c1) }
+        }.message.shouldBe("Component and subcomponent must have different qualifiers.")
+    }
+
+    @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
             subcomponent("sub") { }
@@ -280,6 +288,13 @@ class ComponentBuilderTest {
         shouldThrow<WinterException> {
             base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
         }
+    }
+
+    @Test
+    fun `#subcomponent should throw exception when subcomponent qualifier has same qualifier`() {
+        shouldThrow<WinterException> {
+            component { subcomponent(APPLICATION_COMPONENT_QUALIFIER) {} }
+        }.message.shouldBe("Component and subcomponent must have different qualifiers.")
     }
 
     @Test

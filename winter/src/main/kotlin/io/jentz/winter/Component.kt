@@ -385,7 +385,7 @@ class Component private constructor(
          * @param generics If true this creates a type key that also takes generic type parameters
          *                 into account.
          */
-        inline fun <reified R: Any> TypeKey<*>.alias(
+        inline fun <reified R : Any> TypeKey<*>.alias(
             aliasQualifier: Any? = null,
             generics: Boolean = false
         ): TypeKey<*> = alias(this, typeKey<R>(qualifier = aliasQualifier, generics = generics))
@@ -526,6 +526,12 @@ class Component private constructor(
         private fun getOrCreateSubcomponentBuilder(key: TypeKey<Component>): Builder {
             val qualifier = requireNotNull(key.qualifier) {
                 "BUG! qualifier for sub-component key must not be null"
+            }
+
+            if (this.qualifier == qualifier) {
+                throw WinterException(
+                    "Component and subcomponent must have different qualifiers."
+                )
             }
 
             return subcomponentBuilders.getOrPut(key) {
