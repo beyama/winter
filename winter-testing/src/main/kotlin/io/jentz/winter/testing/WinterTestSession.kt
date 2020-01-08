@@ -81,11 +81,11 @@ class WinterTestSession private constructor(
 
         override fun graphInitializing(parentGraph: Graph?, builder: Component.Builder) {
             for ((matcher, block) in graphExtenders) {
-                if (matcher.matches(parentGraph, builder)) {
+                if (matcher.matches(builder)) {
                     builder.apply(block)
                 }
             }
-            if (bindAllMocksMatcher?.matches(parentGraph, builder) == true) {
+            if (bindAllMocksMatcher?.matches(builder) == true) {
                 testInstances.forEach { builder.bindAllMocks(it) }
             }
         }
@@ -174,24 +174,11 @@ class WinterTestSession private constructor(
 
     internal enum class AutoCloseMode { NoAutoClose, Graph, GraphAndAncestors, AllGraphs }
 
-    internal class ComponentMatcher(
-        private val parentQualifier: Any?,
-        private val qualifier: Any
-    ) {
+    internal class ComponentMatcher(private val qualifier: Any) {
 
-        private fun matches(parentQualifier: Any?, qualifier: Any): Boolean =
-            this.parentQualifier != null
-                    && this.parentQualifier == parentQualifier
-                    && this.qualifier == qualifier
-                    || this.parentQualifier == null
-                    && this.qualifier == qualifier
+        fun matches(graph: Graph): Boolean = qualifier == graph.component.qualifier
 
-        fun matches(graph: Graph): Boolean =
-            matches(graph.parent?.component?.qualifier, graph.component.qualifier)
-
-        fun matches(parentGraph: Graph?, builder: Component.Builder): Boolean =
-            matches(parentGraph?.component?.qualifier, builder.qualifier)
-
+        fun matches(builder: Component.Builder): Boolean = qualifier == builder.qualifier
     }
 
     class Builder {
@@ -199,8 +186,7 @@ class WinterTestSession private constructor(
 
         private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
-        private var testGraphComponentMatcher =
-            ComponentMatcher(null, APPLICATION_COMPONENT_QUALIFIER)
+        private var testGraphComponentMatcher = ComponentMatcher(APPLICATION_COMPONENT_QUALIFIER)
 
         private var bindAllMocksMatcher: ComponentMatcher? = null
 
@@ -213,22 +199,12 @@ class WinterTestSession private constructor(
             mutableListOf<Pair<ComponentMatcher, OnGraphCloseCallback>>()
 
         /**
-         * Use the graph with component [qualifier] and parent component qualifier [parentQualifier]
-         * as test graph.
-         *
-         * Default: Uses the application graph.
-         */
-        fun testGraph(parentQualifier: Any, qualifier: Any) {
-            testGraphComponentMatcher = ComponentMatcher(parentQualifier, qualifier)
-        }
-
-        /**
          * Use the graph with component [qualifier] as test graph.
          *
          * Default: Uses the application graph.
          */
         fun testGraph(qualifier: Any) {
-            testGraphComponentMatcher = ComponentMatcher(null, qualifier)
+            testGraphComponentMatcher = ComponentMatcher(qualifier)
         }
 
         /**
@@ -260,41 +236,13 @@ class WinterTestSession private constructor(
         }
 
         /**
-         * Extend the graph with the component [qualifier] and the parent graph component qualifier
-         * [parentQualifier] with the given [block].
-         *
-         * @param parentQualifier The qualifier of the parent graph component.
-         * @param qualifier The qualifier of the graph component.
-         * @param block The block to apply to the graph component builder.
-         */
-        fun extend(parentQualifier: Any, qualifier: Any, block: ComponentBuilderBlock) {
-            graphExtenders += ComponentMatcher(parentQualifier, qualifier) to block
-        }
-
-        /**
          * Extend the graph with the component qualifier [qualifier] with the given [block].
          *
          * @param qualifier The qualifier of the graph component.
          * @param block The block to apply to the graph component builder.
          */
         fun extend(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock) {
-            graphExtenders += ComponentMatcher(null, qualifier) to block
-        }
-
-        /**
-         * Add callback that gets invoked when a graph with the component [qualifier] and the
-         * parent graph component qualifier [parentQualifier] got created.
-         *
-         * @param parentQualifier The qualifier of the parent graph component.
-         * @param qualifier The qualifier of the graph component.
-         * @param callback The callback that gets invoked with the graph.
-         */
-        fun onGraphInitialized(
-            parentQualifier: Any,
-            qualifier: Any,
-            callback: OnGraphInitializedCallback
-        ) {
-            onGraphInitializedCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
+            graphExtenders += ComponentMatcher(qualifier) to block
         }
 
         /**
@@ -307,23 +255,7 @@ class WinterTestSession private constructor(
             qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
             callback: OnGraphInitializedCallback
         ) {
-            onGraphInitializedCallbacks += ComponentMatcher(null, qualifier) to callback
-        }
-
-        /**
-         * Add callback that gets invoked when a graph with the component [qualifier] and the
-         * parent graph component qualifier [parentQualifier] gets closed.
-         *
-         * @param parentQualifier The qualifier of the parent graph component.
-         * @param qualifier The qualifier of the graph component.
-         * @param callback The callback that gets invoked with the graph.
-         */
-        fun onGraphClose(
-            parentQualifier: Any,
-            qualifier: Any,
-            callback: OnGraphCloseCallback
-        ) {
-            onGraphCloseCallbacks += ComponentMatcher(parentQualifier, qualifier) to callback
+            onGraphInitializedCallbacks += ComponentMatcher(qualifier) to callback
         }
 
         /**
@@ -336,18 +268,7 @@ class WinterTestSession private constructor(
             qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
             callback: OnGraphCloseCallback
         ) {
-            onGraphCloseCallbacks += ComponentMatcher(null, qualifier) to callback
-        }
-
-        /**
-         * Automatically bind all mocks found in the test instances to the graph with given
-         * component [qualifier] and the parent graph component qualifier [parentQualifier].
-         *
-         * @param parentQualifier The qualifier of the parent graph component.
-         * @param qualifier The qualifier of the graph component.
-         */
-        fun bindAllMocks(parentQualifier: Any, qualifier: Any) {
-            bindAllMocksMatcher = ComponentMatcher(parentQualifier, qualifier)
+            onGraphCloseCallbacks += ComponentMatcher(qualifier) to callback
         }
 
         /**
@@ -357,7 +278,7 @@ class WinterTestSession private constructor(
          * @param qualifier The qualifier of the graph component.
          */
         fun bindAllMocks(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER) {
-            bindAllMocksMatcher = ComponentMatcher(null, qualifier)
+            bindAllMocksMatcher = ComponentMatcher(qualifier)
         }
 
         fun build(testInstances: List<Any>) = WinterTestSession(
