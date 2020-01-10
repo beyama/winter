@@ -67,19 +67,16 @@ class Component private constructor(
      *
      * @throws EntryNotFoundException If the component does not exist.
      */
-    fun subcomponent(vararg qualifiers: Any): Component {
-        var component: Component = this
-        qualifiers.forEach { qualifier ->
+    fun subcomponent(vararg qualifiers: Any): Component =
+        qualifiers.fold(this) { component, qualifier ->
             val key = typeKey<Component>(qualifier)
             val constant = component.registry[key] as? ConstantService<*>
             if (constant == null) {
                 val path = qualifiers.joinToString(".")
                 throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
             }
-            component = constant.value as Component
+            constant.value as Component
         }
-        return component
-    }
 
     /**
      * Create a [object graph][Graph] from this component.
