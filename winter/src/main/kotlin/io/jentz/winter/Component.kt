@@ -159,6 +159,8 @@ class Component private constructor(
             get() = _subcomponentKeys
                 ?: HashSet(base.subcomponentKeys).also { _subcomponentKeys = it }
 
+        private var componentQualifierOverride: Any? = null
+
         private val eagerDependencies: MutableSet<TypeKey<Any>>
             get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
                 val base = registry.remove(eagerDependenciesKey)
@@ -191,6 +193,8 @@ class Component private constructor(
             override: Boolean = true,
             subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
         ) {
+            checkComponentQualifier(component.qualifier)
+
             component.registry.forEach { (k, v) ->
                 when {
                     k === eagerDependenciesKey -> {
@@ -499,6 +503,33 @@ class Component private constructor(
             }
             subcomponentKeys.remove(key)
             eagerDependencies.remove(key)
+        }
+
+        /**
+         * Allow a different component qualifier than [qualifier] for [include] and
+         * [Factory.register].
+         *
+         * @param qualifier The qualifier that is allowed in the scope of [block].
+         * @param block The block to execute.
+         */
+        fun allowComponentQualifier(qualifier: Any, block: () -> Unit) {
+            val previousOverride = componentQualifierOverride
+            componentQualifierOverride = qualifier
+            block()
+            componentQualifierOverride = previousOverride
+        }
+
+        /**
+         * Checks if the given [qualifier] meets criteria for [include] and [Factory.register].
+         *
+         * This is only public because it is needed for annotation preprocessed factories.
+         * No need to use that in consumer code.
+         */
+        fun checkComponentQualifier(qualifier: Any) {
+            if (this.qualifier != qualifier && componentQualifierOverride != qualifier) {
+                throw WinterException("Component qualifier `$qualifier` does not match required " +
+                        "qualifier `${this.qualifier}`.")
+            }
         }
 
         @PublishedApi

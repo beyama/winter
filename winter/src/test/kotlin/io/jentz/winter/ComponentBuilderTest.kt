@@ -5,6 +5,7 @@ import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ComponentBuilderTest {
@@ -247,8 +248,32 @@ class ComponentBuilderTest {
     fun `#include should throw an exception if a subcomponent has the same qualifier as its parent`() {
         val c1 = component { subcomponent("sub") {} }
         shouldThrow<WinterException> {
-            component("sub") { include(c1) }
+            component("sub") {
+                allowComponentQualifier(APPLICATION_COMPONENT_QUALIFIER) {
+                    include(c1)
+                }
+            }
         }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `sub` is roots component qualifier).")
+    }
+
+    @Test
+    fun `#include should throw an exception if included component has different qualifier`() {
+        val other = component("other") {}
+        shouldThrow<WinterException> {
+            component { include(other) }
+        }.message.shouldBe("Component qualifier `other` does not match required qualifier `$APPLICATION_COMPONENT_QUALIFIER`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should throw an exception if given qualifier doesn't match the component qualifier`() {
+        shouldThrow<WinterException> {
+            component { checkComponentQualifier("foo") }
+        }.message.shouldBe("Component qualifier `foo` does not match required qualifier `application`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should not throw an exception if a different qualifier was set with allowComponentQualifier`() {
+        component { allowComponentQualifier("foo") { checkComponentQualifier("foo") } }
     }
 
     @Test
@@ -331,44 +356,59 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `should validate that component qualifiers are unique in component tree`() {
-        shouldThrow<WinterException> {
-            component {
-                subcomponent("sub") {
-                    subcomponent(APPLICATION_COMPONENT_QUALIFIER) {}
-                }
-            }
-        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `application` is roots component qualifier).")
-
-        val c = component {
-            subcomponent("sub") {
-                subcomponent("sub sub") {}
+    fun `#allowComponentQualifier should allow different component qualifier inside the block`() {
+        val other = component("other") {}
+        component {
+            allowComponentQualifier("other") {
+                include(other)
             }
         }
-
-        val c2 = component {
-            subcomponent("sub sub") {}
-        }
-
-        shouldThrow<WinterException> {
-            c.derive { include(c2) }
-        }.message.shouldBe("Subcomponent with qualifier `sub sub` already exists.")
     }
 
-    @Test
-    fun `should not fail with non-unique qualifier exception when subcomponent was removed`() {
-        val c = component {
-            subcomponent("sub") {
+    @Nested
+    inner class Validation {
+
+        @Test
+        fun `should validate that component qualifiers are unique in component tree`() {
+            shouldThrow<WinterException> {
+                component {
+                    subcomponent("sub") {
+                        subcomponent(APPLICATION_COMPONENT_QUALIFIER) {}
+                    }
+                }
+            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `application` is roots component qualifier).")
+
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
                 subcomponent("sub sub") {}
             }
+
+            shouldThrow<WinterException> {
+                c.derive { include(c2) }
+            }.message.shouldBe("Subcomponent with qualifier `sub sub` already exists.")
         }
 
-        val c2 = component {
-            subcomponent("sub sub") {}
-            remove(typeKey<Component>("sub sub"))
+        @Test
+        fun `should not fail with non-unique qualifier exception when subcomponent was removed`() {
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
+                subcomponent("sub sub") {}
+                remove(typeKey<Component>("sub sub"))
+            }
+
+            c2.derive { include(c) }
         }
 
-        c2.derive { include(c) }
     }
 
 
