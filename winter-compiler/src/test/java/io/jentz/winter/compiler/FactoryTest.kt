@@ -18,6 +18,7 @@ class FactoryTest : BaseProcessorTest() {
         |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
+        |import javax.inject.Singleton
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
@@ -26,6 +27,7 @@ class FactoryTest : BaseProcessorTest() {
         |class NoArgumentInjectConstructor_WinterFactory : Factory<NoArgumentInjectConstructor> {
         |
         |    override fun register(builder: Builder): TypeKey<NoArgumentInjectConstructor> {
+        |        builder.checkComponentQualifier(Singleton::class)
         |        return builder.singleton(factory = this)
         |    }
         |
@@ -185,6 +187,7 @@ class FactoryTest : BaseProcessorTest() {
         |import io.jentz.winter.TypeKey
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
+        |import javax.inject.Singleton
         |
         |@Generated(
         |    value = ["io.jentz.winter.compiler.WinterProcessor"],
@@ -193,6 +196,7 @@ class FactoryTest : BaseProcessorTest() {
         |class NamedSingletonInjectConstructor_WinterFactory : Factory<NamedSingletonInjectConstructor> {
         |
         |    override fun register(builder: Builder): TypeKey<NamedSingletonInjectConstructor> {
+        |        builder.checkComponentQualifier(Singleton::class)
         |        return builder.singleton(qualifier = "variant1", factory = this)
         |    }
         |
@@ -215,6 +219,7 @@ class FactoryTest : BaseProcessorTest() {
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.TypeKey
+        |import io.jentz.winter.compiler.ApplicationScope
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |
@@ -225,6 +230,7 @@ class FactoryTest : BaseProcessorTest() {
         |class PrototypeAnnotation_WinterFactory : Factory<PrototypeAnnotation> {
         |
         |    override fun register(builder: Builder): TypeKey<PrototypeAnnotation> {
+        |        builder.checkComponentQualifier(ApplicationScope::class)
         |        return builder.prototype(factory = this)
         |    }
         |

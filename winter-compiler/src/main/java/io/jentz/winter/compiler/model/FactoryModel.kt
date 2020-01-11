@@ -54,7 +54,7 @@ class FactoryModel private constructor(
 
     val typeName = typeElement.asClassName()
 
-    val scopeAnnotationName: String?
+    val scopeAnnotationName: ClassName?
 
     val scope: WinterScope
 
@@ -99,7 +99,7 @@ class FactoryModel private constructor(
         }
 
         scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { scopeAnnotation ->
-            val scopeAnnotationName = scopeAnnotation.qualifiedName.toString()
+            val scopeAnnotationName = scopeAnnotation.asClassName()
             val retention = scopeAnnotation.getAnnotation(Retention::class.java)
 
             if (retention?.value != RetentionPolicy.RUNTIME) {
