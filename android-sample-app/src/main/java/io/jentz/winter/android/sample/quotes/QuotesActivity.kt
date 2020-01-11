@@ -7,15 +7,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.jentz.winter.Winter
 import io.jentz.winter.android.sample.R
 import io.jentz.winter.android.sample.viewmodel.ViewModel
-import io.jentz.winter.delegate.inject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_quotes.*
+import javax.inject.Inject
 
 class QuotesActivity : AppCompatActivity() {
 
-    private val viewModel: ViewModel<QuotesViewState> by inject(generics = true)
-    private val adapter: QuotesAdapter by inject()
+    @Inject lateinit var viewModel: ViewModel<QuotesViewState>
+    @Inject lateinit var adapter: QuotesAdapter
 
     private var disposable: Disposable? = null
 

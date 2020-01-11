@@ -5,7 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.jentz.winter.android.sample.R
 import io.jentz.winter.android.sample.model.Quote
+import io.jentz.winter.androidx.inject.ActivityScope
+import io.jentz.winter.inject.InjectConstructor
 
+@ActivityScope
+@InjectConstructor
 class QuotesAdapter(
     private val inflater: LayoutInflater
 ) : RecyclerView.Adapter<QuotesAdapter.ViewHolder>() {

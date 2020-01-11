@@ -5,10 +5,11 @@ import android.text.SpannableStringBuilder
 import androidx.core.text.bold
 import io.jentz.winter.android.sample.model.Quote
 import io.jentz.winter.androidx.inject.ActivityScope
-import javax.inject.Inject
+import io.jentz.winter.inject.InjectConstructor
 
 @ActivityScope
-class QuoteFormatter @Inject constructor() {
+@InjectConstructor
+class QuoteFormatter {
 
     fun format(quote: Quote): Spannable = SpannableStringBuilder().let {
         it.bold { append("\"") }

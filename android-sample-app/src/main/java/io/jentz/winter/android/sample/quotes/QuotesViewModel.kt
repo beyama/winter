@@ -3,12 +3,16 @@ package io.jentz.winter.android.sample.quotes
 import io.jentz.winter.android.sample.model.Quote
 import io.jentz.winter.android.sample.model.QuoteRepository
 import io.jentz.winter.android.sample.viewmodel.ViewModel
+import io.jentz.winter.androidx.inject.PresentationScope
+import io.jentz.winter.inject.InjectConstructor
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 
+@InjectConstructor
+@PresentationScope
 class QuotesViewModel(
-        repository: QuoteRepository
+    repository: QuoteRepository
 ) : ViewModel<QuotesViewState>, Disposable {
 
     private sealed class Result {
