@@ -1,6 +1,6 @@
 package io.jentz.winter.android.sample.model
 
-import io.jentz.winter.android.sample.scope.ApplicationScope
+import io.jentz.winter.inject.ApplicationScope
 import io.reactivex.Single
 import javax.inject.Inject
 

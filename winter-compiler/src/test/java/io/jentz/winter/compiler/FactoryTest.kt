@@ -219,7 +219,7 @@ class FactoryTest : BaseProcessorTest() {
         |import io.jentz.winter.Component.Builder
         |import io.jentz.winter.Graph
         |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.compiler.ApplicationScope
+        |import io.jentz.winter.inject.ApplicationScope
         |import io.jentz.winter.inject.Factory
         |import javax.annotation.Generated
         |

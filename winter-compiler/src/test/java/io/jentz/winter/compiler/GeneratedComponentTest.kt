@@ -67,7 +67,7 @@ class GeneratedComponentTest : BaseProcessorTest() {
         |)
         |val generatedComponent: Component = component {
         |
-        |    subcomponent(io.jentz.winter.compiler.ApplicationScope::class) {
+        |    subcomponent(io.jentz.winter.inject.ApplicationScope::class) {
         |
         |        io.jentz.winter.compilertest.WithCustomApplicationScope_WinterFactory().register(this)
         |
@@ -83,7 +83,7 @@ class GeneratedComponentTest : BaseProcessorTest() {
     fun `should register class with root scope annotation in root component`() {
         compilerWithOptions(
             ARG_GENERATED_COMPONENT,
-            "$OPTION_ROOT_SCOPE_ANNOTATION=io.jentz.winter.compiler.ApplicationScope"
+            "$OPTION_ROOT_SCOPE_ANNOTATION=io.jentz.winter.inject.ApplicationScope"
         ).compileSuccessful("WithCustomApplicationScope.java")
 
         generatedFile(GENERATED_COMPONENT).shouldBe("""

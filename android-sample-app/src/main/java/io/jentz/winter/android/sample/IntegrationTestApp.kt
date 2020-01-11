@@ -8,7 +8,7 @@ import io.jentz.winter.android.sample.quotes.QuotesAdapter
 import io.jentz.winter.android.sample.quotes.QuotesViewModel
 import io.jentz.winter.android.sample.quotes.QuotesViewState
 import io.jentz.winter.android.sample.scope.ActivityScope
-import io.jentz.winter.android.sample.scope.ApplicationScope
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.android.sample.viewmodel.ViewModel
 import io.jentz.winter.androidx.useAndroidPresentationScopeAdapter
 import io.jentz.winter.rxjava2.installDisposablePlugin
