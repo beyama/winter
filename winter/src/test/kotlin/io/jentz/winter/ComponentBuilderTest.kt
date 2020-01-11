@@ -1,14 +1,24 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
+import io.jentz.winter.inject.ApplicationScope
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.lang.IllegalArgumentException
+import javax.inject.Singleton
 
 class ComponentBuilderTest {
+
+    @Test
+    fun `should not allow Singleton class as qualifier`() {
+        shouldThrow<IllegalArgumentException> {
+            component(Singleton::class) {}
+        }.message.shouldBe("Use `io.jentz.winter.inject.ApplicationScope::class` instead of `javax.inject.Singleton::class` as component qualifier")
+    }
 
     @Test
     fun `empty builder should result in empty dependency map`() {
@@ -274,6 +284,11 @@ class ComponentBuilderTest {
     @Test
     fun `#checkComponentQualifier should not throw an exception if a different qualifier was set with allowComponentQualifier`() {
         component { allowComponentQualifier("foo") { checkComponentQualifier("foo") } }
+    }
+
+    @Test
+    fun `#checkComponentQualifier should treat Singleton like ApplicationScope`() {
+        component(ApplicationScope::class) { checkComponentQualifier(Singleton::class) }
     }
 
     @Test

@@ -1,7 +1,9 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.inject.Factory
+import javax.inject.Singleton
 
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an
@@ -134,6 +136,13 @@ class Component private constructor(
              * include.
              */
             Merge
+        }
+
+        init {
+            require(qualifier != Singleton::class) {
+                "Use `${ApplicationScope::class.java.name}::class` instead of " +
+                        "`${Singleton::class.java.name}::class` as component qualifier"
+            }
         }
 
         private val root: Builder = if (parent == null) this else run {
@@ -526,6 +535,11 @@ class Component private constructor(
          * No need to use that in consumer code.
          */
         fun checkComponentQualifier(qualifier: Any) {
+            // Singleton factories can be registered on ApplicationScope by default.
+            if (qualifier == Singleton::class
+                && (this.qualifier == ApplicationScope::class
+                        || componentQualifierOverride == ApplicationScope::class)) return
+
             if (this.qualifier != qualifier && componentQualifierOverride != qualifier) {
                 throw WinterException("Component qualifier `$qualifier` does not match required " +
                         "qualifier `${this.qualifier}`.")
@@ -611,7 +625,8 @@ class Component private constructor(
                         "BUG: Key `$subcomponentKey` found in subcomponentKeys but component does not exist."
                     )
 
-                    val subcomponentKeys = builder._subcomponentKeys ?: builder.base.subcomponentKeys
+                    val subcomponentKeys = builder._subcomponentKeys
+                        ?: builder.base.subcomponentKeys
 
                     if (builder.qualifier == key.qualifier || key in subcomponentKeys) {
                         throw WinterException(
@@ -687,9 +702,10 @@ class Component private constructor(
             }
         }
 
-        private val TypeKey<*>.requireQualifier: Any get() = checkNotNull(qualifier) {
-            "BUG! qualifier for subcomponent key must not be null"
-        }
+        private val TypeKey<*>.requireQualifier: Any
+            get() = checkNotNull(qualifier) {
+                "BUG! qualifier for subcomponent key must not be null"
+            }
 
     }
 
