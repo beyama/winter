@@ -17,10 +17,11 @@ import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
+import io.jentz.winter.androidx.inject.ActivityScope
 
 /**
- * Extensible injection adapter that operates on an application component with an "activity"
- * named subcomponent.
+ * Extensible injection adapter that operates on an [io.jentz.winter.inject.ApplicationScope]
+ * component with an [ActivityScope] subcomponent.
  *
  * The adapters opens the application component for [Application] and the "activity" component
  * for [Activity]. The [Activity] must implement [LifecycleOwner] so that the opened activity graph
@@ -62,7 +63,7 @@ open class SimpleAndroidInjectionAdapter(
     protected open fun getActivityGraph(activity: Activity): Graph? {
         app.graph.getSubgraphOrNull(activity)?.let { return it }
 
-        return app.graph.openSubgraph("activity", activity) {
+        return app.graph.openSubgraph(ActivityScope::class, activity) {
             setupActivityGraph(activity, this)
         }
     }

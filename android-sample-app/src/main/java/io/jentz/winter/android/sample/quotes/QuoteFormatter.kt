@@ -4,7 +4,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import androidx.core.text.bold
 import io.jentz.winter.android.sample.model.Quote
-import io.jentz.winter.android.sample.scope.ActivityScope
+import io.jentz.winter.androidx.inject.ActivityScope
 import javax.inject.Inject
 
 @ActivityScope

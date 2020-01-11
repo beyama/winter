@@ -3,9 +3,11 @@ package io.jentz.winter.androidx
 import android.app.Activity
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
+import io.jentz.winter.androidx.inject.ActivityScope
+import io.jentz.winter.androidx.inject.PresentationScope
 
 /**
- * Extended version of [SimpleAndroidInjectionAdapter] that retains a `presentation` sub graph
+ * Extended version of [SimpleAndroidInjectionAdapter] that retains a [PresentationScope] subgraph
  * during Activity re-creation (configuration changes).
  *
  * It expects an application component like:
@@ -14,9 +16,9 @@ import io.jentz.winter.WinterApplication
  * Winter.component {
  *   // this sub-graph outlives configuration changes and is only disposed when Activity
  *   // isFinishing == true
- *   subcomponent("presentation") {
+ *   subcomponent(PresentationScope::class) {
  *     // this is recreated every time the Activity is recreated
- *     subcomponent("activity") {
+ *     subcomponent(ActivityScope::class) {
  *     }
  *   }
  * }
@@ -32,7 +34,7 @@ open class AndroidPresentationScopeInjectionAdapter(
 
         presentationGraph.getSubgraphOrNull(activity)?.let { return it }
 
-        return presentationGraph.openSubgraph("activity", activity) {
+        return presentationGraph.openSubgraph(ActivityScope::class, activity) {
             setupActivityGraph(activity, this)
         }
     }
@@ -46,7 +48,7 @@ open class AndroidPresentationScopeInjectionAdapter(
     }
 
     private fun getPresentationGraph(activity: Activity): Graph = app.graph
-        .getOrOpenSubgraph("presentation", presentationIdentifier(activity))
+        .getOrOpenSubgraph(PresentationScope::class, presentationIdentifier(activity))
 
     private fun presentationIdentifier(activity: Activity) = activity.javaClass
 

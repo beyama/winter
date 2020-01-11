@@ -21,8 +21,10 @@ import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.DependencyGraphContextWrapper
 import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
 import io.jentz.winter.androidx.WinterFragmentFactory
+import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.useSimpleAndroidAdapter
 import io.jentz.winter.emptyGraph
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -43,7 +45,7 @@ class SimpleAndroidInjectionAdapterTest {
     private val adapter = SimpleAndroidInjectionAdapter(Winter)
 
     private val winterRule = WinterRule {
-        testGraph("activity")
+        testGraph(ActivityScope::class)
     }
 
     private val activityScenarioRule = ActivityScenarioRule<TestActivity>(TestActivity::class.java)
@@ -55,7 +57,7 @@ class SimpleAndroidInjectionAdapterTest {
                 Winter.closeGraph()
 
                 Winter.component {
-                    subcomponent("activity") {
+                    subcomponent(ActivityScope::class) {
                     }
                 }
                 Winter.injectionAdapter = adapter
