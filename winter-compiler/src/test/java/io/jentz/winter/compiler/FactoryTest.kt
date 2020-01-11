@@ -176,7 +176,7 @@ class FactoryTest : BaseProcessorTest() {
 
     @Test
     fun `should generate factory for named singleton inject constructor`() {
-        compilerWithOptions(ARG_GENERATED_COMPONENT)
+        compiler()
             .compileSuccessful("NamedSingletonInjectConstructor.java")
 
         generatedFile("NamedSingletonInjectConstructor_WinterFactory").shouldBe("""
@@ -210,7 +210,7 @@ class FactoryTest : BaseProcessorTest() {
 
     @Test
     fun `should generate factory that registers as prototype if class is annotated with @Prototype`() {
-        compilerWithOptions(ARG_GENERATED_COMPONENT)
+        compiler()
             .compileSuccessful("PrototypeAnnotation.java")
 
         generatedFile("PrototypeAnnotation_WinterFactory").shouldBe("""

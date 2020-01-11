@@ -11,10 +11,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.RegisterExtension
 import javax.tools.JavaFileObject
 
-const val GENERATED_COMPONENT = "generatedComponent"
-
-const val ARG_GENERATED_COMPONENT = "$OPTION_GENERATED_COMPONENT_PACKAGE=io.jentz.winter.compilertest"
-
 abstract class BaseProcessorTest {
 
     private val writer = object : SourceWriter {
