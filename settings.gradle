@@ -1,1 +1,1 @@
-include ':winter', ':winter-compiler', ':winter-compiler-test', ':android-sample-app', ':winter-rxjava2', ':winter-junit4', ':winter-androidx', ':winter-junit5', ':winter-testing', ':winter-java', ':winter-androidx-integration-test'
+include ':winter', ':winter-compiler', ':android-sample-app', ':winter-rxjava2', ':winter-junit4', ':winter-androidx', ':winter-junit5', ':winter-testing', ':winter-java', ':winter-androidx-integration-test'

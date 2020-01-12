@@ -9,6 +9,8 @@ import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
 import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
+import io.jentz.winter.androidx.inject.ActivityScope
+import io.jentz.winter.androidx.inject.PresentationScope
 import io.jentz.winter.androidx.useAndroidPresentationScopeAdapter
 import io.jentz.winter.androidx.useSimpleAndroidAdapter
 import io.jentz.winter.junit4.WinterRule
@@ -29,7 +31,7 @@ class AndroidPresentationScopeInjectionAdapterTest {
     private val adapter = AndroidPresentationScopeInjectionAdapter(Winter)
 
     private val winterRule = WinterRule {
-        testGraph("activity")
+        testGraph(ActivityScope::class)
     }
 
     private val activityScenarioRule = ActivityScenarioRule<TestActivity>(TestActivity::class.java)
@@ -41,8 +43,8 @@ class AndroidPresentationScopeInjectionAdapterTest {
                 Winter.closeGraph()
 
                 Winter.component {
-                    subcomponent("presentation") {
-                        subcomponent("activity") {
+                    subcomponent(PresentationScope::class) {
+                        subcomponent(ActivityScope::class) {
                         }
                     }
                 }

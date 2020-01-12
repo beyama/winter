@@ -15,7 +15,6 @@ class WinterTestSessionTest {
 
     class Dependency1
     class Dependency2
-    class Service(val dependency1: Dependency1, val dependency2: Dependency2)
 
     private val app =  WinterApplication {
         constant("application")
@@ -23,9 +22,8 @@ class WinterTestSessionTest {
         subcomponent("sub") {
             constant("sub")
 
-            subcomponent("sub") {
+            subcomponent("sub sub") {
                 constant("sub sub")
-                prototype { Service(instance(), instance()) }
             }
         }
     }
@@ -136,17 +134,6 @@ class WinterTestSessionTest {
             }
         }
 
-        @Test
-        fun `should extend graph with parent matcher`() {
-            session {
-                extend("sub", "sub") { prototype(override = true) { "new string" } }
-                testGraph("sub", "sub")
-            }.test {
-                createAll("sub", "sub")
-                    .instance<String>().shouldBe("new string")
-            }
-        }
-
     }
 
     @Nested
@@ -181,18 +168,8 @@ class WinterTestSessionTest {
             session {
                 testGraph("sub")
             }.test {
-                createAll("sub", "sub")
-                requireTestGraph.instance<String>().shouldBe("sub sub")
-            }
-        }
-
-        @Test
-        fun `with parent matcher should configure the graph to use`() {
-            session {
-                testGraph("sub", "sub")
-            }.test {
-                createAll("sub", "sub")
-                requireTestGraph.instance<String>().shouldBe("sub sub")
+                createAll("sub", "sub sub")
+                requireTestGraph.instance<String>().shouldBe("sub")
             }
         }
 
@@ -229,38 +206,11 @@ class WinterTestSessionTest {
             }
         }
 
-        @Test
-        fun `with parent matcher should bind all mocks on graph that matches`() {
-            session(this@WinterTestSessionTest, this) {
-                bindAllMocks("sub", "sub")
-            }.test {
-                createAll("sub", "sub").apply {
-                    instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
-                    instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
-                    parent!!.instanceOrNull<Dependency1>().shouldBeNull()
-                }
-            }
-        }
-
     }
 
     @Nested
     @DisplayName("#onGraphInitialized")
     inner class OnGraphInitialized {
-
-        @Test
-        fun `with parent matcher should get invoked with graph`() {
-            var called = false
-            session {
-                onGraphInitialized("sub", "sub") { graph ->
-                    graph.instance<String>().shouldBe("sub sub")
-                    called = true
-                }
-            }.test {
-                createAll("sub", "sub")
-                called.shouldBeTrue()
-            }
-        }
 
         @Test
         fun `with qualifier should get invoked with graph`() {
@@ -284,20 +234,6 @@ class WinterTestSessionTest {
     inner class OnGraphClose {
 
         @Test
-        fun `with parent matcher should get invoked with graph`() {
-            var called = false
-            session {
-                onGraphClose("sub", "sub") { graph ->
-                    graph.instance<String>().shouldBe("sub sub")
-                    called = true
-                }
-            }.test {
-                createAll("sub", "sub").close()
-                called.shouldBeTrue()
-            }
-        }
-
-        @Test
         fun `with qualifier should get invoked with graph`() {
             var called = false
             session {
@@ -310,7 +246,6 @@ class WinterTestSessionTest {
                 called.shouldBeTrue()
             }
         }
-
 
     }
 

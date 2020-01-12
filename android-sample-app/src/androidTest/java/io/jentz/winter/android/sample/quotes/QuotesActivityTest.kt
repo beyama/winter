@@ -12,6 +12,8 @@ import io.jentz.winter.android.sample.isNotDisplayed
 import io.jentz.winter.android.sample.model.QuoteRepository
 import io.jentz.winter.android.sample.viewmodel.TestViewModel
 import io.jentz.winter.android.sample.viewmodel.ViewModel
+import io.jentz.winter.androidx.inject.ActivityScope
+import io.jentz.winter.androidx.inject.PresentationScope
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -25,10 +27,10 @@ import org.junit.runner.RunWith
 class QuotesActivityTest {
 
     private val winterRule = WinterRule(this) {
-        extend("presentation") {
+        extend(PresentationScope::class) {
             singleton<ViewModel<QuotesViewState>>(generics = true, override = true) { viewModel }
         }
-        testGraph("activity")
+        testGraph(ActivityScope::class)
     }
 
     private val activityScenarioRule = ActivityScenarioRule<QuotesActivity>(QuotesActivity::class.java)

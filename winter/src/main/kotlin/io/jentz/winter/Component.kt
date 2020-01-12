@@ -1,7 +1,9 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.inject.Factory
+import javax.inject.Singleton
 
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an
@@ -14,13 +16,15 @@ import io.jentz.winter.inject.Factory
  *
  * ```
  * val appComponent = component {
- *     provider<MyService>(scope = singleton) { MyServiceImpl(instance()) }
+ *     singleton<MyService> { MyServiceImpl(instance()) }
  * }
  * val derived = appComponent.derive {
- *     provider<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
+ *     prototype<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
  * }
- * val graph = derived.createGraph { constant<Application>(myAndroidApplication) }
+ * val graph = derived.createGraph { constant<Application>(myApplicationInstance) }
  * ```
+ *
+ * @see Builder
  */
 class Component private constructor(
     /**
@@ -28,7 +32,9 @@ class Component private constructor(
      */
     val qualifier: Any,
 
-    private val dependencies: Map<TypeKey<*>, UnboundService<*>>,
+    private val registry: Map<TypeKey<*>, UnboundService<*>>,
+
+    private val subcomponentKeys: Set<TypeKey<Component>>,
 
     /**
      * Set to true if any of the services requires lifecycle callbacks.
@@ -37,7 +43,7 @@ class Component private constructor(
 ) {
 
     companion object {
-        val EMPTY = Component(APPLICATION_COMPONENT_QUALIFIER, emptyMap(), false)
+        val EMPTY = Component(ApplicationScope::class, emptyMap(), emptySet(), false)
     }
 
     /**
@@ -65,19 +71,16 @@ class Component private constructor(
      *
      * @throws EntryNotFoundException If the component does not exist.
      */
-    fun subcomponent(vararg qualifiers: Any): Component {
-        var component: Component = this
-        qualifiers.forEach { qualifier ->
+    fun subcomponent(vararg qualifiers: Any): Component =
+        qualifiers.fold(this) { component, qualifier ->
             val key = typeKey<Component>(qualifier)
-            val constant = component.dependencies[key] as? ConstantService<*>
+            val constant = component.registry[key] as? ConstantService<*>
             if (constant == null) {
                 val path = qualifiers.joinToString(".")
                 throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
             }
-            component = constant.value as Component
+            constant.value as Component
         }
-        return component
-    }
 
     /**
      * Create a [object graph][Graph] from this component.
@@ -98,19 +101,20 @@ class Component private constructor(
         block = block
     )
 
-    internal fun keys(): Set<TypeKey<*>> = dependencies.keys
+    internal fun keys(): Set<TypeKey<*>> = registry.keys
 
-    internal operator fun get(key: TypeKey<*>): UnboundService<*>? = dependencies[key]
+    internal operator fun get(key: TypeKey<*>): UnboundService<*>? = registry[key]
 
-    internal val size: Int get() = dependencies.size
+    internal val size: Int get() = registry.size
 
-    internal fun isEmpty(): Boolean = dependencies.isEmpty()
+    internal fun isEmpty(): Boolean = registry.isEmpty()
 
-    internal fun containsKey(typeKey: TypeKey<*>): Boolean = dependencies.containsKey(typeKey)
+    internal fun containsKey(typeKey: TypeKey<*>): Boolean = registry.containsKey(typeKey)
 
     class Builder internal constructor(
         val qualifier: Any,
-        private var base: Component = EMPTY
+        private var base: Component = EMPTY,
+        private val parent: Builder? = null
     ) {
 
         enum class SubcomponentIncludeMode {
@@ -136,17 +140,37 @@ class Component private constructor(
             Merge
         }
 
+        init {
+            require(qualifier != Singleton::class) {
+                "Use `${ApplicationScope::class.java.name}::class` instead of " +
+                        "`${Singleton::class.java.name}::class` as component qualifier"
+            }
+        }
+
+        private val root: Builder = if (parent == null) this else run {
+            var base = parent!!
+            while (base.parent != null) {
+                base = base.parent!!
+            }
+            base
+        }
 
         private var _registry: MutableMap<TypeKey<*>, UnboundService<*>>? = null
+
+        private var _subcomponentKeys: MutableSet<TypeKey<Component>>? = null
 
         private var _eagerDependencies: MutableSet<TypeKey<Any>>? = null
 
         private var _subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>? = null
 
-        private var requiresLifecycleCallbacks: Boolean = base.requiresLifecycleCallbacks
-
         private val registry: MutableMap<TypeKey<*>, UnboundService<*>>
-            get() = _registry ?: HashMap(base.dependencies).also { _registry = it }
+            get() = _registry ?: HashMap(base.registry).also { _registry = it }
+
+        private val subcomponentKeys: MutableSet<TypeKey<Component>>
+            get() = _subcomponentKeys
+                ?: HashSet(base.subcomponentKeys).also { _subcomponentKeys = it }
+
+        private var componentQualifierOverride: Any? = null
 
         private val eagerDependencies: MutableSet<TypeKey<Any>>
             get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
@@ -163,6 +187,8 @@ class Component private constructor(
                 _subcomponentBuilders = it
             }
 
+        private var requiresLifecycleCallbacks: Boolean = base.requiresLifecycleCallbacks
+
         /**
          * Include dependency from the given component into the new component.
          *
@@ -178,7 +204,9 @@ class Component private constructor(
             override: Boolean = true,
             subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
         ) {
-            component.dependencies.forEach { (k, v) ->
+            checkComponentQualifier(component.qualifier)
+
+            component.registry.forEach { (k, v) ->
                 when {
                     k === eagerDependenciesKey -> {
                         val entry = v as ConstantService<Set<TypeKey<Any>>>
@@ -385,7 +413,7 @@ class Component private constructor(
          * @param generics If true this creates a type key that also takes generic type parameters
          *                 into account.
          */
-        inline fun <reified R: Any> TypeKey<*>.alias(
+        inline fun <reified R : Any> TypeKey<*>.alias(
             aliasQualifier: Any? = null,
             generics: Boolean = false
         ): TypeKey<*> = alias(this, typeKey<R>(qualifier = aliasQualifier, generics = generics))
@@ -478,11 +506,46 @@ class Component private constructor(
          * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false.
          */
         fun remove(key: TypeKey<*>, silent: Boolean = false) {
-            if (!silent && !registry.containsKey(key)) {
+            val wasRemoved = registry.remove(key) != null
+                    || _subcomponentBuilders?.remove(key) != null
+
+            if (!silent && !wasRemoved) {
                 throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
             }
-            registry.remove(key)
-            removeEagerDependency(key)
+            subcomponentKeys.remove(key)
+            eagerDependencies.remove(key)
+        }
+
+        /**
+         * Allow a different component qualifier than [qualifier] for [include] and
+         * [Factory.register].
+         *
+         * @param qualifier The qualifier that is allowed in the scope of [block].
+         * @param block The block to execute.
+         */
+        fun allowComponentQualifier(qualifier: Any, block: () -> Unit) {
+            val previousOverride = componentQualifierOverride
+            componentQualifierOverride = qualifier
+            block()
+            componentQualifierOverride = previousOverride
+        }
+
+        /**
+         * Checks if the given [qualifier] meets criteria for [include] and [Factory.register].
+         *
+         * This is only public because it is needed for annotation preprocessed factories.
+         * No need to use that in consumer code.
+         */
+        fun checkComponentQualifier(qualifier: Any) {
+            // Singleton factories can be registered on ApplicationScope by default.
+            if (qualifier == Singleton::class
+                && (this.qualifier == ApplicationScope::class
+                        || componentQualifierOverride == ApplicationScope::class)) return
+
+            if (this.qualifier != qualifier && componentQualifierOverride != qualifier) {
+                throw WinterException("Component qualifier `$qualifier` does not match required " +
+                        "qualifier `${this.qualifier}`.")
+            }
         }
 
         @PublishedApi
@@ -491,10 +554,6 @@ class Component private constructor(
                 throw WinterException("Key `$key` is not registered.")
             }
             eagerDependencies.add(key)
-        }
-
-        private fun removeEagerDependency(key: TypeKey<*>) {
-            eagerDependencies.remove(key)
         }
 
         private fun registerSubcomponent(
@@ -509,6 +568,7 @@ class Component private constructor(
                     if (!registry.containsKey(key)
                         && (_subcomponentBuilders == null
                                 || !subcomponentBuilders.containsKey(key))) {
+                        addSubcomponentKey(key)
                         registry[key] = entry
                     }
                 }
@@ -524,16 +584,83 @@ class Component private constructor(
         }
 
         private fun getOrCreateSubcomponentBuilder(key: TypeKey<Component>): Builder {
-            val qualifier = requireNotNull(key.qualifier) {
-                "BUG! qualifier for sub-component key must not be null"
+            return subcomponentBuilders.getOrPut(key) {
+                val constant = registry.remove(key) as? ConstantService<*>
+                val existingSubcomponent = constant?.value as? Component
+
+                if (existingSubcomponent == null) {
+                    addSubcomponentKey(key)
+                }
+
+                val base = existingSubcomponent ?: EMPTY
+
+                Builder(key.requireQualifier, base, this)
+            }
+        }
+
+        private fun addSubcomponentKey(key: TypeKey<Component>) {
+            if (root.qualifier == key.requireQualifier) {
+                throw WinterException(
+                    "Subcomponent must have unique qualifier (qualifier `${root.qualifier}` " +
+                            "is roots component qualifier)."
+                )
             }
 
-            return subcomponentBuilders.getOrPut(key) {
-                Builder(qualifier).also { builder ->
-                    val constant = registry.remove(key) as? ConstantService<*>
-                    val existingSubcomponent = constant?.value as? Component
-                    existingSubcomponent?.let { builder.include(it) }
+            root.checkDescendantsForUniquenessOfKey(key)
+
+            subcomponentKeys.add(key)
+        }
+
+        private fun checkDescendantsForUniquenessOfKey(key: TypeKey<Component>) {
+            val keys = _subcomponentKeys ?: base.subcomponentKeys
+            val registry = _registry ?: base.registry
+
+            for (subcomponentKey in keys) {
+
+                @Suppress("UNCHECKED_CAST")
+                val service = registry[subcomponentKey] as? ConstantService<Component>
+
+                if (service != null) {
+                    checkDescendantsForUniquenessOfKey(key, service.value)
+                } else {
+                    val builder = subcomponentBuilders[subcomponentKey] ?: throw WinterException(
+                        "BUG: Key `$subcomponentKey` found in subcomponentKeys but component does not exist."
+                    )
+
+                    val subcomponentKeys = builder._subcomponentKeys
+                        ?: builder.base.subcomponentKeys
+
+                    if (builder.qualifier == key.qualifier || key in subcomponentKeys) {
+                        throw WinterException(
+                            "Subcomponent with qualifier `${key.qualifier}` already exists."
+                        )
+                    }
+
+                    builder.checkDescendantsForUniquenessOfKey(key)
                 }
+
+            }
+        }
+
+        private fun checkDescendantsForUniquenessOfKey(
+            key: TypeKey<Component>,
+            component: Component
+        ) {
+            if (component.qualifier == key.qualifier || key in component.subcomponentKeys) {
+                throw WinterException(
+                    "Subcomponent with qualifier `${key.qualifier}` already exists."
+                )
+            }
+
+            for (subcomponentKey in component.subcomponentKeys) {
+                @Suppress("UNCHECKED_CAST")
+                val service = component.registry[key] as? ConstantService<Component>
+                    ?: throw WinterException(
+                        "BUG: Key `$key` found in subcomponentKeys of " +
+                                "component `${component.qualifier}` but component does not exist."
+                    )
+
+                checkDescendantsForUniquenessOfKey(key, service.value)
             }
         }
 
@@ -542,7 +669,12 @@ class Component private constructor(
                 return if (base.qualifier == qualifier) {
                     base
                 } else {
-                    Component(qualifier, base.dependencies, base.requiresLifecycleCallbacks)
+                    Component(
+                        qualifier,
+                        base.registry,
+                        base.subcomponentKeys,
+                        base.requiresLifecycleCallbacks
+                    )
                 }
             }
 
@@ -560,12 +692,23 @@ class Component private constructor(
 
             _eagerDependencies = null
 
-            return Component(qualifier, registry, requiresLifecycleCallbacks).also {
+            return Component(
+                qualifier = qualifier,
+                registry = registry,
+                subcomponentKeys = _subcomponentKeys ?: base.subcomponentKeys,
+                requiresLifecycleCallbacks = requiresLifecycleCallbacks
+            ).also {
                 _registry = null
+                _subcomponentKeys = null
                 base = it
             }
         }
-    }
 
+        private val TypeKey<*>.requireQualifier: Any
+            get() = checkNotNull(qualifier) {
+                "BUG! qualifier for subcomponent key must not be null"
+            }
+
+    }
 
 }

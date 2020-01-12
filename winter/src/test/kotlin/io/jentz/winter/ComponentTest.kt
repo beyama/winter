@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.ApplicationScope
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
@@ -17,7 +18,7 @@ class ComponentTest {
 
     @Test
     fun `#component should create component with default qualifier`() {
-        testComponent.qualifier.shouldBe(APPLICATION_COMPONENT_QUALIFIER)
+        testComponent.qualifier.shouldBe(ApplicationScope::class)
     }
 
     @Test

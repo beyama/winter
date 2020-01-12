@@ -1,11 +1,12 @@
 package io.jentz.winter.android.sample.model
 
-import io.jentz.winter.android.sample.scope.ApplicationScope
+import io.jentz.winter.inject.ApplicationScope
+import io.jentz.winter.inject.InjectConstructor
 import io.reactivex.Single
-import javax.inject.Inject
 
 @ApplicationScope
-class QuoteRepository @Inject constructor() {
+@InjectConstructor
+class QuoteRepository {
 
     companion object {
         val quotes: List<Quote> = listOf(

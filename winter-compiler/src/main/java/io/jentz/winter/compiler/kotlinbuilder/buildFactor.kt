@@ -21,14 +21,13 @@ fun buildFactory(
         import(FACTORY_INTERFACE_NAME)
         import(COMPONENT_BUILDER_CLASS_NAME)
         import(typeName)
+        model.scopeAnnotationName?.let { import(it) }
 
         generatedAnnotation(configuration.generatedAnnotation)
 
         val constructor = model.constructorElement
         val className = generatedClassName.simpleName
-        val interfaceName =
-            "${FACTORY_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
-
+        val interfaceName = "${FACTORY_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
         val injectorModel = model.injectorModel
 
         block("class $className : $interfaceName") {
@@ -39,8 +38,13 @@ fun buildFactory(
             val resultClassName = typeName.simpleName
 
             block("override fun register(builder: Builder): TypeKey<${typeName.simpleName}>") {
-                val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
                 import(typeName)
+
+                if (model.scopeAnnotationName != null) {
+                    line("builder.checkComponentQualifier(${model.scopeAnnotationName.simpleName}::class)")
+                }
+
+                val qualifier = model.qualifier?.let { "qualifier = \"$it\", " } ?: ""
                 line("return builder.${model.scope.name}(${qualifier}factory = this)")
             }
 

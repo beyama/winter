@@ -1,13 +1,24 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
+import io.jentz.winter.inject.ApplicationScope
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.lang.IllegalArgumentException
+import javax.inject.Singleton
 
 class ComponentBuilderTest {
+
+    @Test
+    fun `should not allow Singleton class as qualifier`() {
+        shouldThrow<IllegalArgumentException> {
+            component(Singleton::class) {}
+        }.message.shouldBe("Use `io.jentz.winter.inject.ApplicationScope::class` instead of `javax.inject.Singleton::class` as component qualifier")
+    }
 
     @Test
     fun `empty builder should result in empty dependency map`() {
@@ -244,6 +255,43 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#include should throw an exception if a subcomponent has the same qualifier as its parent`() {
+        val c1 = component { subcomponent("sub") {} }
+        shouldThrow<WinterException> {
+            component("sub") {
+                allowComponentQualifier(ApplicationScope::class) {
+                    include(c1)
+                }
+            }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `sub` is roots component qualifier).")
+    }
+
+    @Test
+    fun `#include should throw an exception if included component has different qualifier`() {
+        val other = component("other") {}
+        shouldThrow<WinterException> {
+            component { include(other) }
+        }.message.shouldBe("Component qualifier `other` does not match required qualifier `${ApplicationScope::class}`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should throw an exception if given qualifier doesn't match the component qualifier`() {
+        shouldThrow<WinterException> {
+            component { checkComponentQualifier("foo") }
+        }.message.shouldBe("Component qualifier `foo` does not match required qualifier `${ApplicationScope::class}`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should not throw an exception if a different qualifier was set with allowComponentQualifier`() {
+        component { allowComponentQualifier("foo") { checkComponentQualifier("foo") } }
+    }
+
+    @Test
+    fun `#checkComponentQualifier should treat Singleton like ApplicationScope`() {
+        component(ApplicationScope::class) { checkComponentQualifier(Singleton::class) }
+    }
+
+    @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
             subcomponent("sub") { }
@@ -261,25 +309,32 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#subcomponent should throw exception when deriveExisting is true but subcomponent doesn't exist`() {
+    fun `#subcomponent should throw an exception when deriveExisting is true but subcomponent doesn't exist`() {
         shouldThrow<WinterException> {
             component { subcomponent("sub", deriveExisting = true) {} }
         }
     }
 
     @Test
-    fun `#subcomponent should throw exception when override is true but subcomponent doesn't exist`() {
+    fun `#subcomponent should throw an exception when override is true but subcomponent doesn't exist`() {
         shouldThrow<WinterException> {
             component { subcomponent("sub", override = true) {} }
         }
     }
 
     @Test
-    fun `#subcomponent should throw exception when deriveExisting and override is true`() {
+    fun `#subcomponent should throw an exception when deriveExisting and override is true`() {
         val base = component { subcomponent("sub") {} }
         shouldThrow<WinterException> {
             base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
         }
+    }
+
+    @Test
+    fun `#subcomponent should throw an exception when subcomponent qualifier is not unique`() {
+        shouldThrow<WinterException> {
+            component { subcomponent(ApplicationScope::class) {} }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `class io.jentz.winter.inject.ApplicationScope` is roots component qualifier).")
     }
 
     @Test
@@ -314,5 +369,62 @@ class ComponentBuilderTest {
         c.size.shouldBe(2)
         c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
     }
+
+    @Test
+    fun `#allowComponentQualifier should allow different component qualifier inside the block`() {
+        val other = component("other") {}
+        component {
+            allowComponentQualifier("other") {
+                include(other)
+            }
+        }
+    }
+
+    @Nested
+    inner class Validation {
+
+        @Test
+        fun `should validate that component qualifiers are unique in component tree`() {
+            shouldThrow<WinterException> {
+                component {
+                    subcomponent("sub") {
+                        subcomponent(ApplicationScope::class) {}
+                    }
+                }
+            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${ApplicationScope::class}` is roots component qualifier).")
+
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
+                subcomponent("sub sub") {}
+            }
+
+            shouldThrow<WinterException> {
+                c.derive { include(c2) }
+            }.message.shouldBe("Subcomponent with qualifier `sub sub` already exists.")
+        }
+
+        @Test
+        fun `should not fail with non-unique qualifier exception when subcomponent was removed`() {
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
+                subcomponent("sub sub") {}
+                remove(typeKey<Component>("sub sub"))
+            }
+
+            c2.derive { include(c) }
+        }
+
+    }
+
 
 }

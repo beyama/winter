@@ -1,6 +1,5 @@
 package io.jentz.winter.compiler
 
-import io.jentz.winter.compiler.kotlinbuilder.buildComponent
 import io.jentz.winter.compiler.kotlinbuilder.buildFactory
 import io.jentz.winter.compiler.kotlinbuilder.buildInjector
 import io.jentz.winter.compiler.model.FactoryModel
@@ -73,15 +72,8 @@ class Generator(
     }
 
     private fun generate() {
-        if (factories.isEmpty() && injectors.isEmpty()) return
-
         generateInjectors()
-
         generateFactories()
-
-        if (configuration.generatedComponentPackage != null) {
-            generateComponent()
-        }
     }
 
     private fun generateInjectors() {
@@ -96,11 +88,6 @@ class Generator(
             val kCode = buildFactory(configuration, factory)
             writer.write(kCode)
         }
-    }
-
-    private fun generateComponent() {
-        val kCode = buildComponent(configuration, factories)
-        writer.write(kCode)
     }
 
     private fun getOrCreateInjectorModel(fieldOrSetter: Element): InjectorModel {
