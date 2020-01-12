@@ -16,13 +16,15 @@ import javax.inject.Singleton
  *
  * ```
  * val appComponent = component {
- *     provider<MyService>(scope = singleton) { MyServiceImpl(instance()) }
+ *     singleton<MyService> { MyServiceImpl(instance()) }
  * }
  * val derived = appComponent.derive {
- *     provider<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
+ *     prototype<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
  * }
- * val graph = derived.createGraph { constant<Application>(myAndroidApplication) }
+ * val graph = derived.createGraph { constant<Application>(myApplicationInstance) }
  * ```
+ *
+ * @see Builder
  */
 class Component private constructor(
     /**
