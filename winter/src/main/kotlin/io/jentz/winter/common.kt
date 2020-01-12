@@ -1,10 +1,10 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.ApplicationScope
+
 internal val UNINITIALIZED_VALUE = Any()
 
 const val TYPE_KEY_OF_TYPE_QUALIFIER = "__OF_TYPE__"
-
-const val APPLICATION_COMPONENT_QUALIFIER = "application"
 
 /**
  * Factory function signature with [Graph] as receiver.
@@ -57,7 +57,7 @@ fun emptyGraph(): Graph = Component.EMPTY.createGraph()
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun component(
-    qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+    qualifier: Any = ApplicationScope::class,
     block: ComponentBuilderBlock
 ): Component = Component.Builder(qualifier).apply(block).build()
 
@@ -68,7 +68,7 @@ fun component(
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock): Graph =
+fun graph(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
 
 /**

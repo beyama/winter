@@ -1,6 +1,7 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.*
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.SimplePlugin
 
 typealias WinterTestSessionBlock = WinterTestSession.Builder.() -> Unit
@@ -186,7 +187,7 @@ class WinterTestSession private constructor(
 
         private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
-        private var testGraphComponentMatcher = ComponentMatcher(APPLICATION_COMPONENT_QUALIFIER)
+        private var testGraphComponentMatcher = ComponentMatcher(ApplicationScope::class)
 
         private var bindAllMocksMatcher: ComponentMatcher? = null
 
@@ -241,7 +242,7 @@ class WinterTestSession private constructor(
          * @param qualifier The qualifier of the graph component.
          * @param block The block to apply to the graph component builder.
          */
-        fun extend(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock) {
+        fun extend(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock) {
             graphExtenders += ComponentMatcher(qualifier) to block
         }
 
@@ -252,7 +253,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphInitialized(
-            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+            qualifier: Any = ApplicationScope::class,
             callback: OnGraphInitializedCallback
         ) {
             onGraphInitializedCallbacks += ComponentMatcher(qualifier) to callback
@@ -265,7 +266,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphClose(
-            qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+            qualifier: Any = ApplicationScope::class,
             callback: OnGraphCloseCallback
         ) {
             onGraphCloseCallbacks += ComponentMatcher(qualifier) to callback
@@ -277,7 +278,7 @@ class WinterTestSession private constructor(
          *
          * @param qualifier The qualifier of the graph component.
          */
-        fun bindAllMocks(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER) {
+        fun bindAllMocks(qualifier: Any = ApplicationScope::class) {
             bindAllMocksMatcher = ComponentMatcher(qualifier)
         }
 

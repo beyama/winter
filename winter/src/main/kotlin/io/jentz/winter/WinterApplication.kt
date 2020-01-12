@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.WinterApplication.InjectionAdapter
+import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.Plugins
 
 /**
@@ -73,7 +74,7 @@ open class WinterApplication() {
      * @param block The component builder block.
      */
     constructor(
-        qualifier: Any = APPLICATION_COMPONENT_QUALIFIER,
+        qualifier: Any = ApplicationScope::class,
         block: ComponentBuilderBlock
     ) : this() {
         component(qualifier, block)
@@ -148,7 +149,7 @@ open class WinterApplication() {
      * @param qualifier The qualifier for the new component.
      * @param block The component builder block.
      */
-    fun component(qualifier: Any = APPLICATION_COMPONENT_QUALIFIER, block: ComponentBuilderBlock) {
+    fun component(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock) {
         this.component = io.jentz.winter.component(qualifier, block)
     }
 

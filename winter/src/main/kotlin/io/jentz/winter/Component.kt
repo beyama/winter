@@ -41,7 +41,7 @@ class Component private constructor(
 ) {
 
     companion object {
-        val EMPTY = Component(APPLICATION_COMPONENT_QUALIFIER, emptyMap(), emptySet(), false)
+        val EMPTY = Component(ApplicationScope::class, emptyMap(), emptySet(), false)
     }
 
     /**

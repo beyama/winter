@@ -259,7 +259,7 @@ class ComponentBuilderTest {
         val c1 = component { subcomponent("sub") {} }
         shouldThrow<WinterException> {
             component("sub") {
-                allowComponentQualifier(APPLICATION_COMPONENT_QUALIFIER) {
+                allowComponentQualifier(ApplicationScope::class) {
                     include(c1)
                 }
             }
@@ -271,14 +271,14 @@ class ComponentBuilderTest {
         val other = component("other") {}
         shouldThrow<WinterException> {
             component { include(other) }
-        }.message.shouldBe("Component qualifier `other` does not match required qualifier `$APPLICATION_COMPONENT_QUALIFIER`.")
+        }.message.shouldBe("Component qualifier `other` does not match required qualifier `${ApplicationScope::class}`.")
     }
 
     @Test
     fun `#checkComponentQualifier should throw an exception if given qualifier doesn't match the component qualifier`() {
         shouldThrow<WinterException> {
             component { checkComponentQualifier("foo") }
-        }.message.shouldBe("Component qualifier `foo` does not match required qualifier `application`.")
+        }.message.shouldBe("Component qualifier `foo` does not match required qualifier `${ApplicationScope::class}`.")
     }
 
     @Test
@@ -333,8 +333,8 @@ class ComponentBuilderTest {
     @Test
     fun `#subcomponent should throw an exception when subcomponent qualifier is not unique`() {
         shouldThrow<WinterException> {
-            component { subcomponent(APPLICATION_COMPONENT_QUALIFIER) {} }
-        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `application` is roots component qualifier).")
+            component { subcomponent(ApplicationScope::class) {} }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `class io.jentz.winter.inject.ApplicationScope` is roots component qualifier).")
     }
 
     @Test
@@ -388,10 +388,10 @@ class ComponentBuilderTest {
             shouldThrow<WinterException> {
                 component {
                     subcomponent("sub") {
-                        subcomponent(APPLICATION_COMPONENT_QUALIFIER) {}
+                        subcomponent(ApplicationScope::class) {}
                     }
                 }
-            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `application` is roots component qualifier).")
+            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${ApplicationScope::class}` is roots component qualifier).")
 
             val c = component {
                 subcomponent("sub") {
