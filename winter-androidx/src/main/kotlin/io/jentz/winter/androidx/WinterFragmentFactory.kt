@@ -29,17 +29,29 @@ import io.jentz.winter.Graph
  */
 class WinterFragmentFactory(
     private val graph: Graph
-): FragmentFactory() {
+) : FragmentFactory() {
 
-    inline fun <reified T : Fragment> instantiate(): T =
-        instantiate(T::class.java)
+    /**
+     *  Get instance of fragment by fragment class [T] from activity graph.
+     *
+     *  @return The fragment instance.
+     */
+    inline fun <reified T : Fragment> instance(): T =
+        instance(T::class.java)
 
-    fun <T : Fragment> instantiate(clazz: Class<T>): T =
+    /**
+     * Get instance of fragment by fragment class [clazz] from activity graph.
+     *
+     * @param clazz The fragment class.
+     * @return The fragment instance
+     */
+    fun <T : Fragment> instance(clazz: Class<T>): T =
         graph.instanceByKey(ClassTypeKey(clazz))
 
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         val clazz = loadFragmentClass(classLoader, className)
-        return instantiate(clazz)
+        return graph.instanceOrNullByKey(ClassTypeKey(clazz))
+            ?: super.instantiate(classLoader, className)
     }
 
 }

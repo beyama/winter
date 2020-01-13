@@ -65,7 +65,7 @@ class WinterFragmentFactoryTest {
     fun should_resolve_fragment_by_class() {
         val graph = winterRule.requireTestGraph
         val factory: WinterFragmentFactory = graph.instance()
-        factory.instantiate<TestFragment>().shouldBeInstanceOf<TestFragment>()
+        factory.instance<TestFragment>().shouldBeInstanceOf<TestFragment>()
     }
 
     fun should_resolve_fragment_on_recreate() {
