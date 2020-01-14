@@ -5,7 +5,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import io.jentz.winter.compiler.*
-import javax.inject.Named
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
@@ -51,15 +50,15 @@ private fun getInstanceCode(
     append("(${args.joinToString()})")
 }
 
-fun generateGetInstanceCode(target: String, e: VariableElement): KotlinCode = buildKotlinCode {
-    val namedAnnotation = e.getAnnotation(Named::class.java)
-            ?: e.enclosingElement.getAnnotation(Named::class.java)
-    val qualifier = namedAnnotation?.value
-    val isNullable = e.isNullable
-
+fun generateGetInstanceCode(
+    target: String,
+    variableElement: VariableElement,
+    isNullable: Boolean,
+    qualifier: String?
+): KotlinCode = buildKotlinCode {
     when {
-        e.isProvider -> {
-            val genericTypeMirror = (e.asType() as DeclaredType).typeArguments.first()
+        variableElement.isProvider -> {
+            val genericTypeMirror = (variableElement.asType() as DeclaredType).typeArguments.first()
             val typeName = mapTypeName(genericTypeMirror.asTypeName())
 
             import(PROVIDER_INTERFACE_NAME)
@@ -68,15 +67,15 @@ fun generateGetInstanceCode(target: String, e: VariableElement): KotlinCode = bu
             appendCode(getInstanceCode(target, typeName, isNullable, qualifier))
             append(" }")
         }
-        e.isLazy -> {
-            val genericTypeMirror = (e.asType() as DeclaredType).typeArguments.first()
+        variableElement.isLazy -> {
+            val genericTypeMirror = (variableElement.asType() as DeclaredType).typeArguments.first()
             val typeName = mapTypeName(genericTypeMirror.asTypeName())
             append("lazy { ")
             appendCode(getInstanceCode(target, typeName, isNullable, qualifier))
             append(" }")
         }
         else -> {
-            val typeName = mapTypeName(e.asType().asTypeName())
+            val typeName = mapTypeName(variableElement.asType().asTypeName())
             appendCode(getInstanceCode(target, typeName, isNullable, qualifier))
         }
     }

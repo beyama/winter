@@ -22,4 +22,8 @@ class Logger(private val messager: Messager) {
         messager.printMessage(Diagnostic.Kind.ERROR, message, element)
     }
 
+    fun error(message: String) {
+        messager.printMessage(Diagnostic.Kind.ERROR, message)
+    }
+
 }

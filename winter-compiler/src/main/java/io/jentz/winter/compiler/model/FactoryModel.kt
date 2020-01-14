@@ -71,7 +71,7 @@ class FactoryModel private constructor(
     val injectorModel = typeElement
         .selfAndSuperclasses
         .firstOrNull { it.enclosedElements.any(Element::isInjectFieldOrMethod) }
-        ?.let { InjectorModel(it, null) }
+        ?.let { InjectorModel(it, null, null) }
 
     init {
         if (typeElement.isInnerClass && !typeElement.isStatic) {

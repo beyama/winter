@@ -37,9 +37,9 @@ class WinterProcessor : AbstractProcessor() {
         try {
             generatorProvider().process(roundEnv)
         } catch (e: WinterException) {
-            logger.warn("Skipping annotation processing: ${e.cause?.message}")
+            logger.error("Skipping annotation processing: ${e.cause?.message}")
         } catch (t: Throwable) {
-            logger.warn("Skipping annotation processing: ${t.message}")
+            logger.error("Skipping annotation processing: ${t.message}")
         }
 
         return true

@@ -53,7 +53,7 @@ fun buildFactory(
             block("override fun invoke(graph: $graphClassName): $resultClassName") {
 
                 val params = constructor.parameters
-                    .map { generateGetInstanceCode("graph.", it) }
+                    .map { generateGetInstanceCode("graph.", it, it.isNullable, it.qualifier) }
                     .onEach { code -> import(code.imports) }
                     .run {
                         if (constructor.parameters.size > 1) {

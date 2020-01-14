@@ -2,6 +2,7 @@ package io.jentz.winter.compiler
 
 import com.squareup.kotlinpoet.asClassName
 import javax.inject.Inject
+import javax.inject.Named
 import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -36,6 +37,8 @@ val VariableElement.isNotNullable: Boolean
     }
 
 val VariableElement.isNullable: Boolean get() = !isNotNullable
+
+val Element.qualifier: String? get() = getAnnotation(Named::class.java)?.value
 
 val Element.isInjectFieldOrMethod: Boolean
     get() = getAnnotation(Inject::class.java) != null &&
