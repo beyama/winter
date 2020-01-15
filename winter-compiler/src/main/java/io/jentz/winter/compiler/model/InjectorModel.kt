@@ -1,7 +1,6 @@
 package io.jentz.winter.compiler.model
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.javapoet.ClassName
 import io.jentz.winter.compiler.KotlinMetadata
 import javax.lang.model.element.*
 
@@ -11,12 +10,12 @@ class InjectorModel(
     private val kotlinMetadata: KotlinMetadata?
 ) {
 
-    val typeName = originatingElement.asClassName()
+    val typeName: ClassName = ClassName.get(originatingElement)
 
-    val generatedClassName = generatedClassNameForClassName(typeName)
+    val generatedClassName: ClassName = generatedClassNameForClassName(typeName)
 
     val superclassInjectorClassName = superClassWithInjector
-        ?.let { generatedClassNameForClassName(it.asClassName()) }
+        ?.let { generatedClassNameForClassName(ClassName.get(it)) }
 
     private val _targets: MutableSet<InjectTargetModel> = mutableSetOf()
 
@@ -46,9 +45,9 @@ class InjectorModel(
         }
     }
 
-    private fun generatedClassNameForClassName(name: ClassName) = ClassName(
-        name.packageName,
-        "${name.simpleNames.joinToString("_")}_WinterMembersInjector"
+    private fun generatedClassNameForClassName(name: ClassName) = ClassName.get(
+        name.packageName(),
+        "${name.simpleNames().joinToString("_")}_WinterMembersInjector"
     )
 
 }

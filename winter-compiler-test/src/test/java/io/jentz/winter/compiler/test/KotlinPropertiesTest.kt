@@ -8,18 +8,26 @@ class KotlinPropertiesTest {
 
     @Test
     fun `should inject Kotlin properties`() {
-        val instance = KotlinProperties()
-        component {
+        val graph = component {
+            constant("foo")
             constant(21)
             constant(42, qualifier = "someInt")
             constant(listOf("a", "b", "c"), generics = true)
-        }.createGraph().inject(instance)
+            generated<KotlinProperties>()
+        }.createGraph()
+
+        val instance: KotlinProperties = graph.instance()
+
+        instance.constructorInjectedString.shouldBe("foo")
+        instance.constructorInjectedPrimitive.shouldBe(42)
 
         instance.primitiveProperty.shouldBe(21)
         instance.primitiveSetter.shouldBe(21)
 
         instance.namedPrimitiveProperty.shouldBe(42)
         instance.namedPrimitiveSetter.shouldBe(42)
+
+        instance.someList.shouldBe(listOf("a", "b", "c"))
     }
 
 }

@@ -1,7 +1,6 @@
 package io.jentz.winter.compiler.model
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.javapoet.ClassName
 import io.jentz.winter.compiler.*
 import io.jentz.winter.inject.Prototype
 import java.lang.annotation.Retention
@@ -52,7 +51,7 @@ class FactoryModel private constructor(
 
     }
 
-    val typeName = typeElement.asClassName()
+    val typeName: ClassName = ClassName.get(typeElement)
 
     val scopeAnnotationName: ClassName?
 
@@ -63,9 +62,9 @@ class FactoryModel private constructor(
         ?.value
         ?.takeIf { it.isNotBlank() }
 
-    val generatedClassName = ClassName(
-        typeName.packageName,
-        "${typeName.simpleNames.joinToString("_")}_WinterFactory"
+    val generatedClassName: ClassName = ClassName.get(
+        typeName.packageName(),
+        "${typeName.simpleNames().joinToString("_")}_WinterFactory"
     )
 
     val injectorModel = typeElement
@@ -99,7 +98,7 @@ class FactoryModel private constructor(
         }
 
         scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { scopeAnnotation ->
-            val scopeAnnotationName = scopeAnnotation.asClassName()
+            val scopeAnnotationName = ClassName.get(scopeAnnotation)
             val retention = scopeAnnotation.getAnnotation(Retention::class.java)
 
             if (retention?.value != RetentionPolicy.RUNTIME) {

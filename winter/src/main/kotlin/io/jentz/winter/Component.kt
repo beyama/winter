@@ -420,9 +420,11 @@ class Component private constructor(
 
         /**
          * Register a generated factory.
+         *
+         * @param override If true this will override an existing factory for same type.
          */
-        inline fun <reified R : Any> generated(): TypeKey<R> {
-            return generatedFactory<R>().register(this)
+        inline fun <reified R : Any> generated(override: Boolean = false): TypeKey<R> {
+            return generatedFactory<R>().register(this, override)
         }
 
         /**

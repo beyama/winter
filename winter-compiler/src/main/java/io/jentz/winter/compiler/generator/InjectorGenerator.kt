@@ -1,93 +1,83 @@
 package io.jentz.winter.compiler.generator
 
-import io.jentz.winter.compiler.GRAPH_CLASS_NAME
+import com.squareup.javapoet.*
+import io.jentz.winter.Graph
 import io.jentz.winter.compiler.Logger
-import io.jentz.winter.compiler.MEMBERS_INJECTOR_INTERFACE_NAME
 import io.jentz.winter.compiler.ProcessorConfiguration
-import io.jentz.winter.compiler.kotlinbuilder.*
-import io.jentz.winter.compiler.model.*
+import io.jentz.winter.compiler.model.FieldInjectTarget
+import io.jentz.winter.compiler.model.InjectTargetModel
+import io.jentz.winter.compiler.model.InjectorModel
+import io.jentz.winter.compiler.model.SetterInjectTarget
+import io.jentz.winter.inject.MembersInjector
+import javax.lang.model.element.Modifier
 
 class InjectorGenerator(
     private val configuration: ProcessorConfiguration,
-    private val model: InjectorModel,
-    private val logger: Logger
+    private val model: InjectorModel
 ) {
 
-    fun generate(): KotlinFile {
-        val generatedClassName = model.generatedClassName
-        val typeName = model.typeName
-        val targets = model.targets
-        val superclassInjectorClassName = model.superclassInjectorClassName
+    fun generate(): JavaFile {
+        val membersInjectorName = ClassName.get(MembersInjector::class.java)
 
-        return buildKotlinFile(
-            packageName = generatedClassName.packageName,
-            fileName = generatedClassName.simpleName,
-            originatingElement = model.originatingElement
-        ) {
+        val superInterfaceName = ParameterizedTypeName.get(membersInjectorName, model.typeName)
 
-            import(GRAPH_CLASS_NAME)
-            import(MEMBERS_INJECTOR_INTERFACE_NAME)
-            import(typeName)
+        val graphName = ClassName.get(Graph::class.java)
 
-            generatedAnnotation(configuration.generatedAnnotation)
+        val injectMethod = MethodSpec
+            .methodBuilder("inject")
+            .addModifiers(Modifier.PUBLIC)
+            .addAnnotation(Override::class.java)
+            .addParameter(graphName, "graph", Modifier.FINAL)
+            .addParameter(model.typeName, "target", Modifier.FINAL)
+            .addSuperclassInjector(model.superclassInjectorClassName)
+            .addTargets(model.targets)
+            .build()
 
-            val className = generatedClassName.simpleName
-            val interfaceName = "${MEMBERS_INJECTOR_INTERFACE_NAME.simpleName}<${typeName.simpleName}>"
+        val injectorClass = TypeSpec
+            .classBuilder(model.generatedClassName)
+            .addSuperinterface(superInterfaceName)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .generatedAnnotation(configuration.generatedAnnotation)
+            .addMethod(injectMethod)
+            .build()
 
-            block("class $className : $interfaceName") {
-
-                line()
-
-                val graphClassName = GRAPH_CLASS_NAME.simpleName
-                val targetClassName = typeName.simpleName
-
-                block("override fun invoke(graph: $graphClassName, target: $targetClassName)") {
-
-                    if (superclassInjectorClassName != null) {
-                        appendIndent()
-                        append("$superclassInjectorClassName().invoke(graph, target)")
-                        newLine()
-                    }
-
-                    targets.forEach { target ->
-                        try {
-                            generateTarget(target)
-                        } catch (t: Throwable) {
-                            logger.error(target.originatingElement, t)
-                        }
-                    }
-                }
-                line()
-            }
-
-        }
-
+        return JavaFile
+            .builder(model.generatedClassName.packageName(), injectorClass)
+            .build()
     }
 
-    private fun KotlinFileBuilder.generateTarget(target: InjectTargetModel) {
-        val getInstance = generateGetInstanceCode("graph.", target.variableElement, target.isNullable, target.qualifier)
+    private fun MethodSpec.Builder.addSuperclassInjector(
+        superclassInjectorClassName: ClassName?
+    ): MethodSpec.Builder {
+        superclassInjectorClassName?.let { className ->
+            addStatement("new \$T().inject(graph, target)", className)
+        }
+        return this
+    }
 
-        when (target) {
+    private fun MethodSpec.Builder.addTargets(targets: Iterable<InjectTargetModel>): MethodSpec.Builder {
+        targets.forEach { addTarget(it) }
+        return this
+    }
+
+    private fun MethodSpec.Builder.addTarget(targetModel: InjectTargetModel) {
+        val targetTypeName = ClassName.get(targetModel.variableElement.asType()).box()
+
+        val getInstance = targetTypeName.getInstanceCode(targetModel.isNullable, targetModel.qualifier)
+
+        when (targetModel) {
             is FieldInjectTarget -> {
-                val fieldName = target.originatingElement.simpleName
-                appendIndent()
-                append("target.$fieldName = ")
-                appendCode(getInstance)
-                newLine()
+                if (targetModel.property != null) {
+                    val setterName = "set${targetModel.property.name.capitalize()}"
+                    addCode("target.$setterName(\$L);\n", getInstance)
+                } else {
+                    val fieldName = targetModel.variableElement.simpleName
+                    addCode("target.$fieldName = \$L;\n", getInstance)
+                }
             }
             is SetterInjectTarget -> {
-                appendIndent()
-                if (target.property != null) {
-                    val propertyName = target.property.name
-                    append("target.$propertyName = ")
-                    appendCode(getInstance)
-                } else {
-                    val setterName = target.originatingElement.simpleName
-                    append("target.$setterName(")
-                    appendCode(getInstance)
-                    append(")")
-                }
-                newLine()
+                val setterName = targetModel.originatingElement.simpleName
+                addCode("target.$setterName(\$L);\n", getInstance)
             }
         }
     }

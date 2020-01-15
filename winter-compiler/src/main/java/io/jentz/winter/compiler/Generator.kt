@@ -1,10 +1,11 @@
 package io.jentz.winter.compiler
 
+import io.jentz.winter.compiler.generator.FactoryGenerator
 import io.jentz.winter.compiler.generator.InjectorGenerator
-import io.jentz.winter.compiler.kotlinbuilder.buildFactory
 import io.jentz.winter.compiler.model.FactoryModel
 import io.jentz.winter.compiler.model.InjectorModel
 import io.jentz.winter.inject.InjectConstructor
+import javax.annotation.processing.Filer
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.Element
@@ -15,7 +16,7 @@ import javax.lang.model.util.ElementFilter
 
 class Generator(
     private val configuration: ProcessorConfiguration,
-    private val writer: SourceWriter,
+    private val filer: Filer,
     private val logger: Logger
 ) {
 
@@ -74,8 +75,9 @@ class Generator(
     private fun generateInjectors() {
         injectors.forEach { (_, injector) ->
             tryWithElement(injector.originatingElement) {
-                val kCode = InjectorGenerator(configuration, injector, logger).generate()
-                writer.write(kCode)
+                InjectorGenerator(configuration, injector)
+                    .generate()
+                    .writeTo(filer)
             }
         }
     }
@@ -83,8 +85,9 @@ class Generator(
     private fun generateFactories() {
         factories.forEach { factory ->
             tryWithElement(factory.originatingElement) {
-                val kCode = buildFactory(configuration, factory)
-                writer.write(kCode)
+                FactoryGenerator(configuration, factory)
+                    .generate()
+                    .writeTo(filer)
             }
         }
     }

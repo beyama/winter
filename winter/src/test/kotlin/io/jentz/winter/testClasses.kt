@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.inject.Factory
+import io.jentz.winter.inject.MembersInjector
 
 interface Pump
 
@@ -22,14 +23,14 @@ open class Service {
 
 @Suppress("unused", "ClassName")
 class Service_WinterMembersInjector : MembersInjector<Service> {
-    override fun invoke(graph: Graph, target: Service) {
+    override fun inject(graph: Graph, target: Service) {
         target.property = 42
     }
 }
 
 @Suppress("unused", "ClassName")
 class Service_WinterFactory : Factory<Service> {
-    override fun register(builder: Component.Builder): TypeKey<Service> {
+    override fun register(builder: Component.Builder, override: Boolean): TypeKey<Service> {
         return builder.prototype(factory = this)
     }
 

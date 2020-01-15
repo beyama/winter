@@ -3,6 +3,7 @@ package io.jentz.winter
 import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.evaluator.ServiceEvaluator
 import io.jentz.winter.evaluator.createServiceEvaluator
+import io.jentz.winter.inject.MembersInjector
 import io.jentz.winter.plugin.Plugins
 
 /**
@@ -328,7 +329,7 @@ class Graph internal constructor(
             cls = cls.superclass
         }
 
-        injector?.invoke(this, instance)
+        injector?.inject(this, instance)
 
         return instance
     }

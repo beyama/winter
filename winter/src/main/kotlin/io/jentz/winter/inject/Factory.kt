@@ -12,6 +12,6 @@ interface Factory<R: Any> : (Graph) -> R {
     /**
      * Register the factory on the given [builder] instance.
      */
-    fun register(builder: Component.Builder): TypeKey<R>
+    fun register(builder: Component.Builder, override: Boolean): TypeKey<R>
 
 }
