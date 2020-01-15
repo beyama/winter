@@ -174,6 +174,16 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `TypeKey#alias extension should override existing entry if override is true`() {
+        component {
+            singleton<Pump> { Thermosiphon(instance()) }
+            prototype {
+                Thermosiphon(instance())
+            }.alias<Pump>(override = true)
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
     fun `#generated should register generated factory for class`() {
         component {
             generated<Service>()

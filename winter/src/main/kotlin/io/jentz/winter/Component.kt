@@ -412,11 +412,16 @@ class Component private constructor(
          * @param aliasQualifier The qualifier of the alias entry.
          * @param generics If true this creates a type key that also takes generic type parameters
          *                 into account.
+         * @param override If true this will override an existing factory for type [R].
          */
         inline fun <reified R : Any> TypeKey<*>.alias(
             aliasQualifier: Any? = null,
-            generics: Boolean = false
-        ): TypeKey<*> = alias(this, typeKey<R>(qualifier = aliasQualifier, generics = generics))
+            generics: Boolean = false,
+            override: Boolean = false
+        ): TypeKey<*> {
+            val newKey = typeKey<R>(aliasQualifier, generics)
+            return alias(this, newKey, override)
+        }
 
         /**
          * Register a generated factory.
