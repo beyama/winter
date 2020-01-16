@@ -1,245 +1,108 @@
 package io.jentz.winter.compiler
 
-import io.kotlintest.shouldBe
+import com.google.common.truth.Truth.assert_
+import com.google.testing.compile.JavaFileObjects.forResource
+import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
 import org.junit.jupiter.api.Test
 
 class FactoryTest : BaseProcessorTest() {
 
     @Test
     fun `should generate factory for class with no argument constructor`() {
-        compiler()
-            .compileSuccessful("NoArgumentInjectConstructor.java")
-
-        generatedFile("NoArgumentInjectConstructor_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |import javax.inject.Singleton
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class NoArgumentInjectConstructor_WinterFactory : Factory<NoArgumentInjectConstructor> {
-        |
-        |    override fun register(builder: Builder): TypeKey<NoArgumentInjectConstructor> {
-        |        builder.checkComponentQualifier(Singleton::class)
-        |        return builder.singleton(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): NoArgumentInjectConstructor {
-        |        return NoArgumentInjectConstructor()
-        |    }
-        |
-        |}
-        |""".trimMargin())
+        assert_()
+            .about(javaSource())
+            .that(forResource("NoArgumentInjectConstructor.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("NoArgumentInjectConstructor_WinterFactory.java"))
     }
 
     @Test
     fun `should generate factory for class with one argument constructor`() {
-        compiler()
-            .compileSuccessful("OneArgumentInjectConstructor.java")
-
-        generatedFile("OneArgumentInjectConstructor_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class OneArgumentInjectConstructor_WinterFactory : Factory<OneArgumentInjectConstructor> {
-        |
-        |    override fun register(builder: Builder): TypeKey<OneArgumentInjectConstructor> {
-        |        return builder.prototype(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): OneArgumentInjectConstructor {
-        |        return OneArgumentInjectConstructor(graph.instanceOrNull<String>())
-        |    }
-        |
-        |}
-        |""".trimMargin())
+        assert_()
+            .about(javaSource())
+            .that(forResource("OneArgumentInjectConstructor.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("OneArgumentInjectConstructor_WinterFactory.java"))
     }
 
     @Test
     fun `should generate factory for class with one named argument constructor`() {
-        compiler()
-            .compileSuccessful("OneNamedArgumentInjectConstructor.java")
-
-        generatedFile("OneNamedArgumentInjectConstructor_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class OneNamedArgumentInjectConstructor_WinterFactory : Factory<OneNamedArgumentInjectConstructor> {
-        |
-        |    override fun register(builder: Builder): TypeKey<OneNamedArgumentInjectConstructor> {
-        |        return builder.prototype(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): OneNamedArgumentInjectConstructor {
-        |        return OneNamedArgumentInjectConstructor(graph.instanceOrNull<String>("a name"))
-        |    }
-        |
-        |}
-        |""".trimMargin())
-    }
-
-    @Test
-    fun `should generate factory for class with lazy and provider arguments constructor`() {
-        compiler()
-            .compileSuccessful("InjectConstructorWithProviderAndLazyArguments.java")
-
-        generatedFile("InjectConstructorWithProviderAndLazyArguments_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import java.util.List
-        |import javax.annotation.Generated
-        |import javax.inject.Provider
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class InjectConstructorWithProviderAndLazyArguments_WinterFactory : Factory<InjectConstructorWithProviderAndLazyArguments> {
-        |
-        |    override fun register(builder: Builder): TypeKey<InjectConstructorWithProviderAndLazyArguments> {
-        |        return builder.prototype(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): InjectConstructorWithProviderAndLazyArguments {
-        |        return InjectConstructorWithProviderAndLazyArguments(
-        |            Provider { graph.instanceOrNull<List<String>>("stringList", generics = true) },
-        |            lazy { graph.instanceOrNull<List<String>>("stringList", generics = true) }
-        |        )
-        |    }
-        |
-        |}
-        |""".trimMargin())
+        assert_()
+            .about(javaSource())
+            .that(forResource("OneNamedArgumentInjectConstructor.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("OneNamedArgumentInjectConstructor_WinterFactory.java"))
     }
 
     @Test
     fun `should generate factory for class with members injector`() {
-        compiler()
-            .compileSuccessful("WithInjectedField.java")
-
-        generatedFile("WithInjectedField_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class WithInjectedField_WinterFactory : Factory<WithInjectedField> {
-        |
-        |    override fun register(builder: Builder): TypeKey<WithInjectedField> {
-        |        return builder.prototype(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): WithInjectedField {
-        |        val instance = WithInjectedField()
-        |        io.jentz.winter.compilertest.WithInjectedField_WinterMembersInjector().invoke(graph, instance)
-        |        return instance
-        |    }
-        |
-        |}
-        |""".trimMargin())
+        assert_()
+            .about(javaSource())
+            .that(forResource("WithInjectedField.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("WithInjectedField_WinterFactory.java"))
     }
 
     @Test
     fun `should generate factory for named singleton inject constructor`() {
-        compiler()
-            .compileSuccessful("NamedSingletonInjectConstructor.java")
-
-        generatedFile("NamedSingletonInjectConstructor_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |import javax.inject.Singleton
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class NamedSingletonInjectConstructor_WinterFactory : Factory<NamedSingletonInjectConstructor> {
-        |
-        |    override fun register(builder: Builder): TypeKey<NamedSingletonInjectConstructor> {
-        |        builder.checkComponentQualifier(Singleton::class)
-        |        return builder.singleton(qualifier = "variant1", factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): NamedSingletonInjectConstructor {
-        |        return NamedSingletonInjectConstructor()
-        |    }
-        |
-        |}
-        |""".trimMargin())
+        assert_()
+            .about(javaSource())
+            .that(forResource("NamedSingletonInjectConstructor.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("NamedSingletonInjectConstructor_WinterFactory.java"))
     }
 
     @Test
     fun `should generate factory that registers as prototype if class is annotated with @Prototype`() {
-        compiler()
-            .compileSuccessful("PrototypeAnnotation.java")
+        assert_()
+            .about(javaSource())
+            .that(forResource("PrototypeAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("PrototypeAnnotation_WinterFactory.java"))
+    }
 
-        generatedFile("PrototypeAnnotation_WinterFactory").shouldBe("""
-        |package io.jentz.winter.compilertest
-        |
-        |import io.jentz.winter.Component.Builder
-        |import io.jentz.winter.Graph
-        |import io.jentz.winter.TypeKey
-        |import io.jentz.winter.inject.ApplicationScope
-        |import io.jentz.winter.inject.Factory
-        |import javax.annotation.Generated
-        |
-        |@Generated(
-        |    value = ["io.jentz.winter.compiler.WinterProcessor"],
-        |    date = "2019-02-10T14:52Z"
-        |)
-        |class PrototypeAnnotation_WinterFactory : Factory<PrototypeAnnotation> {
-        |
-        |    override fun register(builder: Builder): TypeKey<PrototypeAnnotation> {
-        |        builder.checkComponentQualifier(ApplicationScope::class)
-        |        return builder.prototype(factory = this)
-        |    }
-        |
-        |    override fun invoke(graph: Graph): PrototypeAnnotation {
-        |        return PrototypeAnnotation()
-        |    }
-        |
-        |}
-        |""".trimMargin())
+    @Test
+    fun `should generate factory that registers as eagerSingleton if class is annotated with @EagerSingleton`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("EagerSingletonAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("EagerSingletonAnnotation_WinterFactory.java"))
+    }
+
+    @Test
+    fun `should fail if class is annotated with @Prototype and @EagerSingleton`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("PrototypeAndEagerSingletonAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .failsToCompile()
+            .withErrorContaining("Class can either be annotated with EagerSingleton or Prototype but not both.")
+    }
+
+    @Test
+    fun `should generate factory for class with lazy and provider arguments constructor`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("InjectConstructorWithProviderAndLazyArguments.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("InjectConstructorWithProviderAndLazyArguments_WinterFactory.java"))
     }
 
 }

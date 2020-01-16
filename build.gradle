@@ -57,7 +57,7 @@ buildscript {
                     'kotlin': "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}"
             ],
 
-            'kotlinpoet': 'com.squareup:kotlinpoet:1.2.0',
+            'javapoet'  : 'com.squareup:javapoet:1.12.0',
 
             'rx'        : [
                     'rxjava'   : 'io.reactivex.rxjava2:rxjava:2.2.10',

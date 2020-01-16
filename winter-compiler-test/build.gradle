@@ -1,0 +1,42 @@
+plugins {
+    id 'kotlin'
+    id 'kotlin-kapt'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+test {
+    useJUnitPlatform()
+
+    dependsOn 'cleanTest'
+
+    testLogging {
+        events "skipped", "failed"
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} succeeded, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
+dependencies {
+    implementation deps.kotlin.stdlib
+
+    implementation project(':winter')
+    implementation deps.kotlin.reflect
+
+    kapt project(':winter-compiler')
+
+    testImplementation project(':winter-junit5')
+    testImplementation deps.junit.jupiterApi
+    testImplementation deps.kotlintest
+    testImplementation deps.kotlin.reflect
+
+    testRuntimeOnly deps.junit.jupiterEngine
+}

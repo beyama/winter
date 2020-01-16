@@ -27,11 +27,6 @@ typealias ComponentBuilderBlock = Component.Builder.() -> Unit
  */
 typealias Provider<R> = () -> R
 
-/**
- * Members injector signature used in conjunction with JSR330.
- */
-typealias MembersInjector<R> = (Graph, R) -> Unit
-
 internal typealias OnCloseCallback = (Graph) -> Unit
 
 /**

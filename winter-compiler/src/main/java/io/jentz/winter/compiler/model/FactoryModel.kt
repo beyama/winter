@@ -1,11 +1,9 @@
 package io.jentz.winter.compiler.model
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.javapoet.ClassName
 import io.jentz.winter.compiler.*
+import io.jentz.winter.inject.EagerSingleton
 import io.jentz.winter.inject.Prototype
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Scope
@@ -52,36 +50,38 @@ class FactoryModel private constructor(
 
     }
 
-    val typeName = typeElement.asClassName()
+    val typeName: ClassName = ClassName.get(typeElement)
 
     val scopeAnnotationName: ClassName?
 
     val scope: WinterScope
+
+    val isEagerSingleton: Boolean
 
     val qualifier: String? = typeElement
         .getAnnotation(Named::class.java)
         ?.value
         ?.takeIf { it.isNotBlank() }
 
-    val generatedClassName = ClassName(
-        typeName.packageName,
-        "${typeName.simpleNames.joinToString("_")}_WinterFactory"
+    val generatedClassName: ClassName = ClassName.get(
+        typeName.packageName(),
+        "${typeName.simpleNames().joinToString("_")}_WinterFactory"
     )
 
     val injectorModel = typeElement
         .selfAndSuperclasses
         .firstOrNull { it.enclosedElements.any(Element::isInjectFieldOrMethod) }
-        ?.let { InjectorModel(it, null) }
+        ?.let { InjectorModel(it, null, null) }
 
     init {
-        if (typeElement.isInnerClass && !typeElement.isStatic) {
-            throw IllegalArgumentException("Can't inject a non-static inner class: $typeElement")
+        require(!(typeElement.isInnerClass && !typeElement.isStatic)) {
+            "Cannot inject a non-static inner class."
         }
-        if (typeElement.isPrivate) {
-            throw IllegalArgumentException("Can't inject a private class: $typeElement")
+        require(!typeElement.isPrivate) {
+            "Cannot inject a private class."
         }
-        if (typeElement.isAbstract) {
-            throw IllegalArgumentException("Can't inject a abstract class: $typeElement")
+        require(!typeElement.isAbstract) {
+            "Cannot inject a abstract class."
         }
 
         val scopeAnnotations = typeElement.annotationMirrors.map {
@@ -90,29 +90,23 @@ class FactoryModel private constructor(
             it.getAnnotation(Scope::class.java) != null
         }
 
-        if (scopeAnnotations.size > 1) {
+        require(scopeAnnotations.size <= 1) {
             val scopesString = scopeAnnotations.joinToString(", ") { it.qualifiedName.toString() }
-            throw IllegalArgumentException(
-                "Multiple @Scope qualified annotations found on $typeElement but only one is " +
-                        "allowed. ($scopesString})"
-            )
+            "Multiple scope annotations found but only one is allowed. ($scopesString})"
         }
 
-        scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { scopeAnnotation ->
-            val scopeAnnotationName = scopeAnnotation.asClassName()
-            val retention = scopeAnnotation.getAnnotation(Retention::class.java)
+        scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { ClassName.get(it) }
 
-            if (retention?.value != RetentionPolicy.RUNTIME) {
-                throw IllegalArgumentException(
-                    "Scope annotation `$scopeAnnotationName` doesn't have RUNTIME retention."
-                )
-            }
+        isEagerSingleton = typeElement.getAnnotation(EagerSingleton::class.java) != null
 
-            scopeAnnotationName
+        val hasPrototypeAnnotation = typeElement.getAnnotation(Prototype::class.java) != null
+
+        require(!(hasPrototypeAnnotation && isEagerSingleton)) {
+            "Class can either be annotated with EagerSingleton or Prototype but not both."
         }
 
         scope = when {
-            typeElement.getAnnotation(Prototype::class.java) != null -> WinterScope.Prototype
+            hasPrototypeAnnotation -> WinterScope.Prototype
             scopeAnnotationName == null -> WinterScope.Prototype
             else -> WinterScope.Singleton
         }

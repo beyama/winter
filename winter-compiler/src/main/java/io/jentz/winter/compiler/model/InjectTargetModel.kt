@@ -1,45 +1,81 @@
 package io.jentz.winter.compiler.model
 
+import io.jentz.winter.compiler.KotlinMetadata
+import io.jentz.winter.compiler.isNullable
 import io.jentz.winter.compiler.isPrivate
+import io.jentz.winter.compiler.qualifier
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.util.ElementFilter
 
-sealed class InjectTargetModel {
-    abstract val element: Element
+sealed class InjectTargetModel(
+    val property: KotlinMetadata.Property?
+) {
 
-    private val type get() = element.enclosingElement as TypeElement
+    abstract val originatingElement: Element
 
-    val fqdn get() = "${type.qualifiedName}.${element.simpleName}"
+    abstract val variableElement: VariableElement
 
-    class FieldInjectTarget(override val element: VariableElement) : InjectTargetModel() {
+    abstract val qualifier: String?
 
-        init {
-            if (element.isPrivate) {
-                throw IllegalArgumentException("Can't inject into private fields ($fqdn).")
-            }
+    private val type get() = originatingElement.enclosingElement as TypeElement
+
+    val fqdn get() = "${type.qualifiedName}.${originatingElement.simpleName}"
+
+    val isNullable: Boolean get() = property?.isNullable ?: variableElement.isNullable
+
+    val propertyQualifier: String? get() = property?.run {
+        val methodName = "$name\$annotations"
+        val method = ElementFilter
+            .methodsIn(type.enclosedElements)
+            .find { it.simpleName.contentEquals(methodName) }
+        method?.qualifier
+    }
+}
+
+class FieldInjectTarget(
+    override val originatingElement: VariableElement,
+    property: KotlinMetadata.Property?
+) : InjectTargetModel(property) {
+
+    override val variableElement: VariableElement = originatingElement
+
+    override val qualifier: String? get() = variableElement.qualifier ?: propertyQualifier
+
+    init {
+        if (originatingElement.isPrivate && property?.hasAccessibleSetter != true) {
+            throw IllegalArgumentException("Can't inject into private fields ($fqdn).")
         }
-
     }
 
-    class SetterInjectTarget(override val element: ExecutableElement) : InjectTargetModel() {
+}
 
-        val parameter: VariableElement
+class SetterInjectTarget(
+    override val originatingElement: ExecutableElement,
+    property: KotlinMetadata.Property?
+) : InjectTargetModel(property) {
 
-        init {
-            if (element.parameters.size != 1) {
-                throw IllegalArgumentException(
-                        "Setter for setter injection must have exactly one parameter not " +
-                                "${element.parameters.size} ($fqdn)."
-                )
-            }
-            if (element.isPrivate) {
-                throw IllegalArgumentException("Can't inject into private setter ($fqdn).")
-            }
+    override val variableElement: VariableElement
 
-            parameter = element.parameters.first()
+    override val qualifier: String?
+        get() = variableElement.qualifier
+            ?: variableElement.enclosingElement.qualifier
+            ?: propertyQualifier
+
+    init {
+        if (originatingElement.parameters.size != 1) {
+            throw IllegalArgumentException(
+                "Setter for setter injection must have exactly one parameter not " +
+                        "${originatingElement.parameters.size} ($fqdn)."
+            )
+        }
+        if (originatingElement.isPrivate) {
+            throw IllegalArgumentException("Can't inject into private setter ($fqdn).")
         }
 
+        variableElement = originatingElement.parameters.first()
     }
+
 }

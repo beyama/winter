@@ -5,17 +5,11 @@ import javax.annotation.processing.ProcessingEnvironment
 
 val appComponent = component {
 
-    singleton {
-        val environment: ProcessingEnvironment = instance()
-        Logger(environment.messager)
-    }
+    singleton { Logger(instance<ProcessingEnvironment>().messager) }
+
+    prototype { instance<ProcessingEnvironment>().filer }
 
     prototype { ProcessorConfiguration.from(instance()) }
-
-    prototype<SourceWriter> {
-        val environment: ProcessingEnvironment = instance()
-        SourceFileWriter(environment.filer)
-    }
 
     prototype { Generator(instance(), instance(), instance()) }
 

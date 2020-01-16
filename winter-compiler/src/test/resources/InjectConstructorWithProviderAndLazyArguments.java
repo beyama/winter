@@ -1,4 +1,6 @@
-package io.jentz.winter.compilertest;
+package test;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ import kotlin.Lazy;
 public class InjectConstructorWithProviderAndLazyArguments {
     @Inject
     public InjectConstructorWithProviderAndLazyArguments(
-            @Named("stringList") Provider<List<String>> arg0,
+            @NotNull  @Named("string") Provider<String> arg0,
             @Named("stringList") Lazy<List<String>> arg1
     ) {
     }

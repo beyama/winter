@@ -61,12 +61,12 @@ open class SimpleAndroidInjectionAdapter(
         }
 
     protected open fun getActivityGraph(activity: Activity): Graph? {
-        app.graph.getSubgraphOrNull(activity)?.let { return it }
-
-        return app.graph.openSubgraph(ActivityScope::class, activity) {
+        return getActivityParentGraph(activity).getOrOpenSubgraph(ActivityScope::class, activity) {
             setupActivityGraph(activity, this)
         }
     }
+
+    protected open fun getActivityParentGraph(activity: Activity): Graph = app.graph
 
     protected open fun getFragmentGraph(fragment: Fragment): Graph? =
         get(fragment.requireActivity())
@@ -94,7 +94,7 @@ open class SimpleAndroidInjectionAdapter(
     }
 
     protected open fun closeActivityGraph(activity: Activity) {
-        app.graph.closeSubgraph(activity)
+        getActivityParentGraph(activity).closeSubgraph(activity)
     }
 
     protected open fun closeFragmentGraph(fragment: Fragment) {
@@ -125,7 +125,7 @@ open class SimpleAndroidInjectionAdapter(
         }
     }
 
-    protected fun setupAutoClose(lifecycleOwner: LifecycleOwner) {
+    private fun setupAutoClose(lifecycleOwner: LifecycleOwner) {
         val closeEvent: Lifecycle.Event = when (lifecycleOwner.lifecycle.currentState) {
             Lifecycle.State.INITIALIZED -> Lifecycle.Event.ON_DESTROY
             Lifecycle.State.CREATED -> Lifecycle.Event.ON_STOP

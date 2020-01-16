@@ -1,7 +1,8 @@
+import org.gradle.internal.jvm.Jvm
+
 plugins {
     id 'kotlin'
     id 'org.jetbrains.dokka'
-    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
 }
 
 version = VERSION_NAME
@@ -33,15 +34,15 @@ dependencies {
     implementation project(':winter')
 
     implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
 
-    implementation deps.kotlinpoet
+    implementation deps.javapoet
 
     testImplementation project(':winter-junit5')
     testImplementation deps.junit.jupiterApi
-    testImplementation deps.kotlintest
-    testImplementation deps.kotlin.reflect
     testImplementation deps.javax.annotationApi // to get the legacy Generated annotation on >= JDK9
     testImplementation "com.google.testing.compile:compile-testing:0.15"
+    testImplementation files(Jvm.current().getToolsJar())
 
     testRuntimeOnly deps.junit.jupiterEngine
 }
@@ -67,13 +68,9 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/beyama/winter/blob/master/winter/src/main/kotlin"
+        url = "https://github.com/beyama/winter-compiler/blob/master/winter/src/main/kotlin"
         suffix = "#L"
     }
-}
-
-detekt {
-    config = files(rootProject.file('detekt-config.yml'))
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

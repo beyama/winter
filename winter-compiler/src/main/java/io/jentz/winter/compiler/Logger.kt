@@ -10,6 +10,10 @@ class Logger(private val messager: Messager) {
         messager.printMessage(Diagnostic.Kind.NOTE, message)
     }
 
+    fun info(element: Element, message: String) {
+        messager.printMessage(Diagnostic.Kind.NOTE, message, element)
+    }
+
     fun warn(message: String) {
         messager.printMessage(Diagnostic.Kind.WARNING, message)
     }
@@ -20,6 +24,10 @@ class Logger(private val messager: Messager) {
 
     fun error(element: Element, message: String) {
         messager.printMessage(Diagnostic.Kind.ERROR, message, element)
+    }
+
+    fun error(message: String) {
+        messager.printMessage(Diagnostic.Kind.ERROR, message)
     }
 
 }

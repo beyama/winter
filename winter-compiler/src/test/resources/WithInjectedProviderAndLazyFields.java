@@ -1,4 +1,4 @@
-package io.jentz.winter.compilertest;
+package test;
 
 import java.util.List;
 
