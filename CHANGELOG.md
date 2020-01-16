@@ -4,22 +4,34 @@ Changelog
 Version 0.7.0
 -------------
 
-* Merge WinterTree and WinterApplication
-* Remove WinterTree and GraphRegistry
-* Remove WinterApplication#createGraph in favour of WinterApplication#create that accepts paths
-* Remove WinterApplication #registerPlugin, #unregisterPlugin & unregisterAppPlugins
-* WinterApplication#component will throw an exception if the application graph is already open
-* Component qualifier is now mandatory
 * New WinterTestSession class for less boilerplate code in tests
 * New JUnit4 WinterRule that utilizes WinterTestSession
 * New JUnit5 WinterEachExtension that utilizes WinterTestSession
 * New JUnit5 WinterAllExtension that utilizes WinterTestSession
+* New ApplicationScope, ActivityScope & PresentationScope annotations
+* New InjectConstructor, Prototype & EagerSingleton annotations
+* Winter compiler supports incremental annotation processing (isolating)
+* Winter compiler generates Java instead of Kotlin code  
+* ComponentBuilder is now Component.Builder
+* Simplify injection adapter and add WinterApplication#inject method
+* Remove support for generated components from Winter compiler
+* Remove WinterTree and GraphRegistry
+* Remove WinterInjection and Injection
+* Remove support for generated components
+* Remove WinterApplication #registerPlugin & #unregisterPlugin
 * Remove GraphLifecycleTestRule in favour of WinterRule
 * Remove ExtendGraphTestRule in favour of WinterRule
 * Remove ExtendGraphExtension in favour of WinterEachExtension
 * Remove GraphLifecycleExtension in favour of WinterEachExtension
 * Remove WinterJUnit4 and WinterJUnit5 classes
 * Remove injectSuperClasses argument from all JSR330 inject methods because it is obsolete
+* Make ApplicationScope::class the default component qualifier
+* Use new scope annotations in AndroidX adapters
+* Validate that a component qualifier is unique in the component tree
+* Validate that an included component has the same qualifier
+* Validate that a factory scope annotation is the same as the component qualifier when registering generated factories
+* WinterApplication#component will throw an exception if the application graph is already open
+* Component qualifier is now mandatory
 * Add call to superclass members injector to members injector
 * Retrieve members injector with Class.forName instead of registering them on the generated component
 
