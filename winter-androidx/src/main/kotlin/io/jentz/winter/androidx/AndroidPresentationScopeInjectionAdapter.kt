@@ -3,7 +3,6 @@ package io.jentz.winter.androidx
 import android.app.Activity
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
 
 /**
@@ -29,28 +28,16 @@ open class AndroidPresentationScopeInjectionAdapter(
     winterApplication: WinterApplication
 ) : SimpleAndroidInjectionAdapter(winterApplication) {
 
-    override fun getActivityGraph(activity: Activity): Graph? {
-        val presentationGraph = getPresentationGraph(activity)
-
-        presentationGraph.getSubgraphOrNull(activity)?.let { return it }
-
-        return presentationGraph.openSubgraph(ActivityScope::class, activity) {
-            setupActivityGraph(activity, this)
-        }
-    }
-
     override fun closeActivityGraph(activity: Activity) {
         if (activity.isFinishing) {
-            getPresentationGraph(activity).close()
+            getActivityParentGraph(activity).close()
         } else {
-            getPresentationGraph(activity).closeSubgraph(activity)
+            getActivityParentGraph(activity).closeSubgraph(activity)
         }
     }
 
-    private fun getPresentationGraph(activity: Activity): Graph = app.graph
-        .getOrOpenSubgraph(PresentationScope::class, presentationIdentifier(activity))
-
-    private fun presentationIdentifier(activity: Activity) = activity.javaClass
+    override fun getActivityParentGraph(activity: Activity): Graph =
+        app.graph.getOrOpenSubgraph(PresentationScope::class, activity.javaClass)
 
 }
 
