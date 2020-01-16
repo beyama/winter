@@ -17,8 +17,8 @@ package io.jentz.winter
  * Winter.installDisposablePlugin()
  * // configure injection adapter.
  * Winter.useAndroidPresentationScopeInjectionAdapter()
- * // create dependency graph
- * Winter.createGraph(myApplicationInstance)
+ * // open the application dependency graph
+ * Winter.openGraph(myApplicationInstance)
  * ```
  *
  * @see WinterApplication for more details.

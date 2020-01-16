@@ -131,13 +131,24 @@ class WinterApplicationTest {
     }
 
     @Test
-    fun `#inject with injection target should call graph#inject`() {
+    fun `#inject should call graph#inject with given instance`() {
         val instance = Any()
         val graph = mock<Graph>()
         whenever(adapter.get(instance)).thenReturn(graph)
 
         app.inject(instance)
         verify(graph, times(1)).inject(instance)
+    }
+
+    @Test
+    fun `#inject with injection target should call graph#inject with target`() {
+        val instance = Any()
+        val target = Any()
+        val graph = mock<Graph>()
+        whenever(adapter.get(instance)).thenReturn(graph)
+
+        app.inject(instance, target)
+        verify(graph, times(1)).inject(target)
     }
 
 }
