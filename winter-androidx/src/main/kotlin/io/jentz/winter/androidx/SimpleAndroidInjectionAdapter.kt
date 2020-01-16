@@ -94,7 +94,7 @@ open class SimpleAndroidInjectionAdapter(
     }
 
     protected open fun closeActivityGraph(activity: Activity) {
-        app.graph.closeSubgraph(activity)
+        getActivityParentGraph(activity).closeSubgraph(activity)
     }
 
     protected open fun closeFragmentGraph(fragment: Fragment) {
