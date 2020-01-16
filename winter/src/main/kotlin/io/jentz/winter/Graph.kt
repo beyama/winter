@@ -403,7 +403,7 @@ class Graph internal constructor(
     }
 
     /**
-     * Close a subgraph by disposing it and removing it from the registry.
+     * Close a subgraph and remove it from the registry.
      *
      * @param identifier The identifier it was opened with.
      */
@@ -415,6 +415,15 @@ class Graph internal constructor(
             )
             service.onClose()
         }
+    }
+
+    /**
+     * Close a subgraph and remove it from the registry if it is open.
+     *
+     * @param identifier The identifier it was opened with.
+     */
+    fun closeSubgraphIfOpen(identifier: Any) {
+        synchronizedMap { it.registry.remove(typeKey<Graph>(identifier))?.onClose() }
     }
 
     /**

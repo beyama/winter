@@ -865,6 +865,20 @@ class GraphTest {
         }
 
         @Test
+        fun `#closeSubgraphIfOpen should close and remove subgraph with identifier`() {
+            val graph = root.openSubgraph("presentation")
+            root.closeSubgraphIfOpen("presentation")
+
+            graph.isClosed.shouldBeTrue()
+            root.instanceOrNull<Graph>("presentation").shouldBeNull()
+        }
+
+        @Test
+        fun `#closeSubgraphIfOpen should do noting if graph doesn't exist`() {
+            root.closeSubgraphIfOpen("foo")
+        }
+
+        @Test
         fun `#close should close all managed subgraphs`() {
             val presentation = root.openSubgraph("presentation")
             val view = presentation.openSubgraph("view")
