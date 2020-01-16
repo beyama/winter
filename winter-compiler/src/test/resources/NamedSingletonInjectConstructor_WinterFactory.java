@@ -25,7 +25,7 @@ public final class NamedSingletonInjectConstructor_WinterFactory implements Fact
     public TypeKey<NamedSingletonInjectConstructor> register(final Component.Builder builder,
                                                              final boolean override) {
         builder.checkComponentQualifier(JvmClassMappingKt.getKotlinClass(Singleton.class));
-        TypeKey<test.NamedSingletonInjectConstructor> key = new ClassTypeKey<NamedSingletonInjectConstructor>(NamedSingletonInjectConstructor.class, "variant1");
+        TypeKey<test.NamedSingletonInjectConstructor> key = new ClassTypeKey<>(NamedSingletonInjectConstructor.class, "variant1");
         InterOp.singleton(builder, key, override, this);
         return key;
     }

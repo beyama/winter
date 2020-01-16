@@ -14,6 +14,6 @@ import javax.annotation.Generated;
 public final class WithInjectedField_WinterMembersInjector implements MembersInjector<WithInjectedField> {
     @Override
     public void inject(final Graph graph, final WithInjectedField target) {
-        target.field0 = graph.instanceOrNullByKey(new ClassTypeKey<String>(String.class, null));
+        target.field0 = graph.instanceOrNullByKey(new ClassTypeKey<>(String.class, null));
     }
 }

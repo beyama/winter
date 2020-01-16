@@ -15,6 +15,6 @@ public final class WithInjectedFieldExtended_WinterMembersInjector implements Me
     @Override
     public void inject(final Graph graph, final WithInjectedFieldExtended target) {
         new WithInjectedField_WinterMembersInjector().inject(graph, target);
-        target.field1 = graph.instanceOrNullByKey(new ClassTypeKey<String>(String.class, null));
+        target.field1 = graph.instanceOrNullByKey(new ClassTypeKey<>(String.class, null));
     }
 }

@@ -25,7 +25,7 @@ public final class NoArgumentInjectConstructor_WinterFactory implements Factory<
     public TypeKey<NoArgumentInjectConstructor> register(final Component.Builder builder,
                                                          final boolean override) {
         builder.checkComponentQualifier(JvmClassMappingKt.getKotlinClass(Singleton.class));
-        TypeKey<test.NoArgumentInjectConstructor> key = new ClassTypeKey<NoArgumentInjectConstructor>(NoArgumentInjectConstructor.class, null);
+        TypeKey<test.NoArgumentInjectConstructor> key = new ClassTypeKey<>(NoArgumentInjectConstructor.class, null);
         InterOp.singleton(builder, key, override, this);
         return key;
     }

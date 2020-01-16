@@ -17,13 +17,13 @@ import javax.annotation.Generated;
 public final class OneNamedArgumentInjectConstructor_WinterFactory implements Factory<OneNamedArgumentInjectConstructor> {
     @Override
     public OneNamedArgumentInjectConstructor invoke(final Graph graph) {
-        return new OneNamedArgumentInjectConstructor(graph.instanceOrNullByKey(new ClassTypeKey<String>(String.class, null)));
+        return new OneNamedArgumentInjectConstructor(graph.instanceOrNullByKey(new ClassTypeKey<>(String.class, null)));
     }
 
     @Override
     public TypeKey<OneNamedArgumentInjectConstructor> register(final Component.Builder builder,
                                                                final boolean override) {
-        TypeKey<test.OneNamedArgumentInjectConstructor> key = new ClassTypeKey<OneNamedArgumentInjectConstructor>(OneNamedArgumentInjectConstructor.class, null);
+        TypeKey<test.OneNamedArgumentInjectConstructor> key = new ClassTypeKey<>(OneNamedArgumentInjectConstructor.class, null);
         InterOp.prototype(builder, key, override, this);
         return key;
     }

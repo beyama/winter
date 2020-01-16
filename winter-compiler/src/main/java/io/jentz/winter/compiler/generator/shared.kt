@@ -3,12 +3,10 @@ package io.jentz.winter.compiler.generator
 import com.squareup.javapoet.*
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.GenericClassTypeKey
-import io.jentz.winter.compiler.*
+import io.jentz.winter.compiler.ISO8601_FORMAT
+import io.jentz.winter.compiler.WinterProcessor
+import io.jentz.winter.compiler.now
 import javax.inject.Provider
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeKind
 
 private val PROVIDER_INTERFACE_NAME: ClassName = ClassName.get(Provider::class.java)
 
@@ -28,9 +26,7 @@ fun TypeName.newTypeKeyCode(qualifier: String?): CodeBlock {
         CodeBlock.of("new \$T(\$S) {}", parameterizedTypeKeyName, qualifier)
     } else {
         val typeKeyName = ClassName.get(ClassTypeKey::class.java)
-        val parameterizedTypeKeyName = ParameterizedTypeName.get(typeKeyName, this)
-
-        CodeBlock.of("new \$T(\$T.class, \$S)", parameterizedTypeKeyName, this, qualifier)
+        CodeBlock.of("new \$T<>(\$T.class, \$S)", typeKeyName, this, qualifier)
     }
 }
 

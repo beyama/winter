@@ -27,4 +27,15 @@ object InterOp {
         builder.register(UnboundSingletonService(key, factory, null, null), override)
     }
 
+    @JvmStatic
+    fun <R : Any> eagerSingleton(
+        builder: Component.Builder,
+        key: TypeKey<R>,
+        override: Boolean,
+        factory: GFactory<R>
+    ) {
+        singleton(builder, key, override, factory)
+        builder.addEagerDependency(key)
+    }
+
 }

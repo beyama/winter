@@ -24,7 +24,7 @@ public final class WithInjectedField_WinterFactory implements Factory<WithInject
     @Override
     public TypeKey<WithInjectedField> register(final Component.Builder builder,
                                                final boolean override) {
-        TypeKey<test.WithInjectedField> key = new ClassTypeKey<WithInjectedField>(WithInjectedField.class, null);
+        TypeKey<test.WithInjectedField> key = new ClassTypeKey<>(WithInjectedField.class, null);
         InterOp.prototype(builder, key, override, this);
         return key;
     }

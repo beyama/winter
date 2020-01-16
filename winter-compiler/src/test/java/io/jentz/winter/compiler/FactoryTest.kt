@@ -74,6 +74,27 @@ class FactoryTest : BaseProcessorTest() {
     }
 
     @Test
+    fun `should generate factory that registers as eagerSingleton if class is annotated with @EagerSingleton`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("EagerSingletonAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("EagerSingletonAnnotation_WinterFactory.java"))
+    }
+
+    @Test
+    fun `should fail if class is annotated with @Prototype and @EagerSingleton`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("PrototypeAndEagerSingletonAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .failsToCompile()
+            .withErrorContaining("Class can either be annotated with EagerSingleton or Prototype but not both.")
+    }
+
+    @Test
     fun `should generate factory for class with lazy and provider arguments constructor`() {
         assert_()
             .about(javaSource())

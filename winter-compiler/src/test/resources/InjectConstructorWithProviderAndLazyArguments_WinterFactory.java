@@ -21,7 +21,7 @@ public final class InjectConstructorWithProviderAndLazyArguments_WinterFactory i
     @Override
     public InjectConstructorWithProviderAndLazyArguments invoke(final Graph graph) {
         return new InjectConstructorWithProviderAndLazyArguments(
-                () -> graph.instanceByKey(new ClassTypeKey<String>(String.class, "string")),
+                () -> graph.instanceByKey(new ClassTypeKey<>(String.class, "string")),
                 LazyKt.lazy(() -> graph.instanceOrNullByKey(new GenericClassTypeKey<List<String>>("stringList") {}))
         );
     }
@@ -29,7 +29,7 @@ public final class InjectConstructorWithProviderAndLazyArguments_WinterFactory i
     @Override
     public TypeKey<InjectConstructorWithProviderAndLazyArguments> register(
             final Component.Builder builder, final boolean override) {
-        TypeKey<test.InjectConstructorWithProviderAndLazyArguments> key = new ClassTypeKey<InjectConstructorWithProviderAndLazyArguments>(InjectConstructorWithProviderAndLazyArguments.class, null);
+        TypeKey<test.InjectConstructorWithProviderAndLazyArguments> key = new ClassTypeKey<>(InjectConstructorWithProviderAndLazyArguments.class, null);
         InterOp.prototype(builder, key, override, this);
         return key;
     }

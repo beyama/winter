@@ -25,7 +25,7 @@ public final class PrototypeAnnotation_WinterFactory implements Factory<Prototyp
     public TypeKey<PrototypeAnnotation> register(final Component.Builder builder,
                                                  final boolean override) {
         builder.checkComponentQualifier(JvmClassMappingKt.getKotlinClass(ApplicationScope.class));
-        TypeKey<test.PrototypeAnnotation> key = new ClassTypeKey<PrototypeAnnotation>(PrototypeAnnotation.class, null);
+        TypeKey<test.PrototypeAnnotation> key = new ClassTypeKey<>(PrototypeAnnotation.class, null);
         InterOp.prototype(builder, key, override, this);
         return key;
     }
