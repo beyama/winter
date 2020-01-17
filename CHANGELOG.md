@@ -14,6 +14,7 @@ Version 0.7.0
 * Winter compiler generates Java instead of Kotlin code  
 * ComponentBuilder is now Component.Builder
 * Simplify injection adapter and add WinterApplication#inject method
+* Remove support for factories in Components/Graphs (factory/multiton)
 * Remove support for generated components from Winter compiler
 * Remove WinterTree and GraphRegistry
 * Remove WinterInjection and Injection
