@@ -1,5 +1,8 @@
 package io.jentz.winter.compiler
 
+import kotlinx.metadata.KmClass
+import kotlinx.metadata.jvm.KotlinClassHeader
+import kotlinx.metadata.jvm.KotlinClassMetadata
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
@@ -14,16 +17,15 @@ class TypeUtils(
     private val types: Types
 ) {
 
-    private fun getAnnotationMirror(element: Element, annotation: KClass<out Annotation>): AnnotationMirror? {
-        val annotationName = annotation.java.name
-        return element.annotationMirrors.find { it.annotationType.toString() == annotationName }
-    }
+    fun getKotlinClassMetadata(typeElement: TypeElement): KmClass? {
+        val header = typeElement.getAnnotation(Metadata::class.java)?.run {
+            KotlinClassHeader(kind, metadataVersion, bytecodeVersion, data1, data2, extraString, packageName, extraInt)
+        } ?: return null
 
-    private fun getAnnotationValue(mirror: AnnotationMirror, name: String): AnnotationValue? = elements
-        .getElementValuesWithDefaults(mirror)
-        .entries
-        .find { entry -> entry.key.simpleName.toString() == name }
-        ?.value
+        val metadata = KotlinClassMetadata.read(header)
+
+        return (metadata as? KotlinClassMetadata.Class)?.toKmClass()
+    }
 
     fun getFactoryTypeFromAnnotation(
         typeElement: TypeElement,
@@ -34,6 +36,17 @@ class TypeUtils(
         ?.let { types.asElement(it) as TypeElement }
         ?.takeUnless { it.qualifiedName.contentEquals(Nothing::class.java.name) }
         ?.also { validateFactoryType(typeElement, it) }
+
+    private fun getAnnotationMirror(element: Element, annotation: KClass<out Annotation>): AnnotationMirror? {
+        val annotationName = annotation.java.name
+        return element.annotationMirrors.find { it.annotationType.toString() == annotationName }
+    }
+
+    private fun getAnnotationValue(mirror: AnnotationMirror, name: String): AnnotationValue? = elements
+        .getElementValuesWithDefaults(mirror)
+        .entries
+        .find { entry -> entry.key.simpleName.toString() == name }
+        ?.value
 
     private fun validateFactoryType(typeElement: TypeElement, factoryTypeElement: TypeElement) {
         require(factoryTypeElement.typeParameters.isEmpty()) {

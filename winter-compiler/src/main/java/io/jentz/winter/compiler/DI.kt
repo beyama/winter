@@ -20,7 +20,7 @@ object DI : WinterApplication() {
 
             prototype { TypeUtils(instance(), instance()) }
 
-            prototype { Generator(instance(), instance(), instance()) }
+            prototype { Generator(instance(), instance(), instance(), instance()) }
         }
 
         injectionAdapter = object : InjectionAdapter {
