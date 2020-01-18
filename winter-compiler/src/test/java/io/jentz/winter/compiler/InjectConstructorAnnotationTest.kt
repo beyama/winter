@@ -45,4 +45,15 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
             .generatesSources(forResource("InjectConstructorAnnotation_WinterFactory.java"))
     }
 
+    @Test
+    fun `should register factory with type from annotation`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("InjectConstructorAnnotationWithType.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("InjectConstructorAnnotationWithType_WinterFactory.java"))
+    }
+
 }

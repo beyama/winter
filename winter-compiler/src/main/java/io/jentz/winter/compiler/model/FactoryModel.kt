@@ -1,11 +1,14 @@
 package io.jentz.winter.compiler.model
 
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import io.jentz.winter.compiler.*
+import io.jentz.winter.delegate.inject
 import io.jentz.winter.inject.EagerSingleton
+import io.jentz.winter.inject.FactoryType
+import io.jentz.winter.inject.InjectConstructor
 import io.jentz.winter.inject.Prototype
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Scope
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
@@ -50,7 +53,11 @@ class FactoryModel private constructor(
 
     }
 
+    private val typeUtils: TypeUtils by inject()
+
     val typeName: ClassName = ClassName.get(typeElement)
+
+    val factoryTypeName: TypeName
 
     val scopeAnnotationName: ClassName?
 
@@ -58,10 +65,7 @@ class FactoryModel private constructor(
 
     val isEagerSingleton: Boolean
 
-    val qualifier: String? = typeElement
-        .getAnnotation(Named::class.java)
-        ?.value
-        ?.takeIf { it.isNotBlank() }
+    val qualifier: String? = typeElement.qualifier
 
     val generatedClassName: ClassName = ClassName.get(
         typeName.packageName(),
@@ -74,6 +78,8 @@ class FactoryModel private constructor(
         ?.let { InjectorModel(it, null, null) }
 
     init {
+        DI.inject(this)
+
         require(!(typeElement.isInnerClass && !typeElement.isStatic)) {
             "Cannot inject a non-static inner class."
         }
@@ -93,6 +99,22 @@ class FactoryModel private constructor(
         require(scopeAnnotations.size <= 1) {
             val scopesString = scopeAnnotations.joinToString(", ") { it.qualifiedName.toString() }
             "Multiple scope annotations found but only one is allowed. ($scopesString})"
+        }
+
+        val injectAnnotationFactoryType = typeUtils
+            .getFactoryTypeFromAnnotation(typeElement, InjectConstructor::class)
+
+        val factoryTypeAnnotationFactoryType = typeUtils
+            .getFactoryTypeFromAnnotation(typeElement, FactoryType::class)
+
+        require(!(injectAnnotationFactoryType != null && factoryTypeAnnotationFactoryType != null)) {
+            "Factory type can be declared via InjectConstructor or FactoryType annotation but not both."
+        }
+
+        factoryTypeName = when {
+            injectAnnotationFactoryType != null -> ClassName.get(injectAnnotationFactoryType)
+            factoryTypeAnnotationFactoryType != null -> ClassName.get(factoryTypeAnnotationFactoryType)
+            else -> typeName
         }
 
         scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { ClassName.get(it) }

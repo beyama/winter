@@ -22,7 +22,7 @@ val VariableElement.isNotNullable: Boolean
 
 val VariableElement.isNullable: Boolean get() = !isNotNullable
 
-val Element.qualifier: String? get() = getAnnotation(Named::class.java)?.value
+val Element.qualifier: String? get() = getAnnotation(Named::class.java)?.value?.takeIf { it.isNotBlank() }
 
 val Element.isInjectFieldOrMethod: Boolean
     get() = getAnnotation(Inject::class.java) != null &&

@@ -105,4 +105,25 @@ class FactoryTest : BaseProcessorTest() {
             .generatesSources(forResource("InjectConstructorWithProviderAndLazyArguments_WinterFactory.java"))
     }
 
+    @Test
+    fun `should generate factory with different type when annotated with FactoryType`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("FactoryTypeAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .compilesWithoutError()
+            .and()
+            .generatesSources(forResource("FactoryTypeAnnotation_WinterFactory.java"))
+    }
+
+    @Test
+    fun `should fail if factory type is declared in FactoryType and InjectConstructor annotation`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("FactoryTypeAnnotationAndTypeInInjectConstructorAnnotation.java"))
+            .processedWith(WinterProcessor())
+            .failsToCompile()
+            .withErrorContaining("Factory type can be declared via InjectConstructor or FactoryType annotation but not both.")
+    }
+
 }
