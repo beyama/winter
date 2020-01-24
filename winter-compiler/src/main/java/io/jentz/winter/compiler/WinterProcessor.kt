@@ -18,10 +18,7 @@ class WinterProcessor : AbstractProcessor() {
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
-
-        appComponent.createGraph {
-            constant(processingEnv)
-        }.inject(this)
+        DI.inject(processingEnv, this)
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> =

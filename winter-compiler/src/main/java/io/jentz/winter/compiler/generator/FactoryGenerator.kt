@@ -19,12 +19,13 @@ class FactoryGenerator(
 
     fun generate(): JavaFile {
         val typeName = model.typeName
+        val factoryTypeName = model.factoryTypeName
         val parameters = model.constructorElement.parameters
         val graphName = ClassName.get(Graph::class.java)
         val factoryName = ClassName.get(Factory::class.java)
         val typeKeyName = ClassName.get(TypeKey::class.java)
         val componentBuilderName = ClassName.get(Component.Builder::class.java)
-        val superInterfaceName = ParameterizedTypeName.get(factoryName, typeName)
+        val superInterfaceName = ParameterizedTypeName.get(factoryName, factoryTypeName)
         val interOpName = ClassName.get(InterOp::class.java)
 
         val interOpMethodName = if (model.isEagerSingleton) "eagerSingleton" else model.scope.name
@@ -39,19 +40,25 @@ class FactoryGenerator(
             else -> parameters.joinToString(",\n    ", "\n    ", "\n") { "\$L" }
         }
 
+        val newInstanceCode = CodeBlock
+            .of("new \$T($constructorSignature)", typeName, *constructorParameters)
+
+        val newMembersInjectorCode = model.injectorModel
+            ?.let { CodeBlock.of("new \$T()", it.generatedClassName) }
+
         val invokeMethod = MethodSpec
             .methodBuilder("invoke")
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Override::class.java)
-            .returns(typeName)
+            .returns(factoryTypeName)
             .addParameter(graphName, "graph", Modifier.FINAL)
             .apply {
-                if (model.injectorModel != null) {
-                    addStatement("\$T instance = new \$T($constructorSignature)", typeName, typeName, *constructorParameters)
-                    addStatement("new \$T().inject(graph, instance)", model.injectorModel.generatedClassName)
+                if (newMembersInjectorCode != null) {
+                    addStatement("\$T instance = \$L", typeName, newInstanceCode)
+                    addStatement("\$L.inject(graph, instance)", newMembersInjectorCode)
                     addStatement("return instance")
                 } else {
-                    addStatement("return new \$T($constructorSignature)", typeName, *constructorParameters)
+                    addStatement("return \$L", newInstanceCode)
                 }
             }
             .build()
@@ -60,7 +67,7 @@ class FactoryGenerator(
             .methodBuilder("register")
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Override::class.java)
-            .returns(ParameterizedTypeName.get(typeKeyName, typeName))
+            .returns(ParameterizedTypeName.get(typeKeyName, factoryTypeName))
             .addParameter(componentBuilderName, "builder", Modifier.FINAL)
             .addParameter(ClassName.BOOLEAN, "override", Modifier.FINAL)
             .apply {
@@ -70,7 +77,7 @@ class FactoryGenerator(
                     addStatement("builder.checkComponentQualifier(\$L)", getKClassCode)
                 }
             }
-            .addStatement("TypeKey<\$L> key = \$L", typeName, typeName.newTypeKeyCode(model.qualifier))
+            .addStatement("TypeKey<\$L> key = \$L", factoryTypeName, factoryTypeName.newTypeKeyCode(model.qualifier))
             .addStatement("\$T.$interOpMethodName(builder, key, override, this)", interOpName)
             .addStatement("return key")
             .build()

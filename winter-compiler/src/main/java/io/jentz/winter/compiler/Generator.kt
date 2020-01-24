@@ -17,7 +17,8 @@ import javax.lang.model.util.ElementFilter
 class Generator(
     private val configuration: ProcessorConfiguration,
     private val filer: Filer,
-    private val logger: Logger
+    private val logger: Logger,
+    private val typeUtils: TypeUtils
 ) {
 
     private val factories = mutableListOf<FactoryModel>()
@@ -104,9 +105,9 @@ class Generator(
                 .drop(1)
                 .firstOrNull { type -> type.enclosedElements.any(Element::isInjectFieldOrMethod) }
 
-            val kotlinMetadata = KotlinMetadata.fromTypeElement(typeElement)
+            val kmClass = typeUtils.getKotlinClassMetadata(typeElement)
 
-            InjectorModel(typeElement, superClassWithInjector, kotlinMetadata)
+            InjectorModel(typeElement, superClassWithInjector, kmClass)
         }
     }
 

@@ -34,7 +34,7 @@ dependencies {
     implementation project(':winter')
 
     implementation deps.kotlin.stdlib
-    implementation deps.kotlin.reflect
+    implementation deps.kotlin.metadata
 
     implementation deps.javapoet
 

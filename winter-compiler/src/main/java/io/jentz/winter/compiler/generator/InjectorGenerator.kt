@@ -2,13 +2,13 @@ package io.jentz.winter.compiler.generator
 
 import com.squareup.javapoet.*
 import io.jentz.winter.Graph
-import io.jentz.winter.compiler.Logger
 import io.jentz.winter.compiler.ProcessorConfiguration
 import io.jentz.winter.compiler.model.FieldInjectTarget
 import io.jentz.winter.compiler.model.InjectTargetModel
 import io.jentz.winter.compiler.model.InjectorModel
 import io.jentz.winter.compiler.model.SetterInjectTarget
 import io.jentz.winter.inject.MembersInjector
+import kotlinx.metadata.jvm.setterSignature
 import javax.lang.model.element.Modifier
 
 class InjectorGenerator(
@@ -67,9 +67,9 @@ class InjectorGenerator(
 
         when (targetModel) {
             is FieldInjectTarget -> {
-                if (targetModel.property != null) {
-                    val setterName = "set${targetModel.property.name.capitalize()}"
-                    addCode("target.$setterName(\$L);\n", getInstance)
+                val setterSignature = targetModel.kmProperty?.setterSignature?.name
+                if (setterSignature != null) {
+                    addCode("target.$setterSignature(\$L);\n", getInstance)
                 } else {
                     val fieldName = targetModel.variableElement.simpleName
                     addCode("target.$fieldName = \$L;\n", getInstance)

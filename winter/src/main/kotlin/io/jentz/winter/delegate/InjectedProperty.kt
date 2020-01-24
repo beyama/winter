@@ -112,11 +112,17 @@ inline fun <reified R : Any> injectLazyInstancesOfType(
     generics: Boolean = false
 ): InjectedProperty<Set<R>> = LazyInstancesOfTypeProperty(typeKeyOfType(generics))
 
+/**
+ * Base class of all injected properties.
+ */
 abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
 
     abstract val value: T
     abstract fun inject(graph: Graph)
 
+    /**
+     * Apply a function to the retrieved instance.
+     */
     fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
         PropertyMapper(this, mapper)
 

@@ -1,13 +1,16 @@
 package io.jentz.winter.compiler.model
 
 import com.squareup.javapoet.ClassName
-import io.jentz.winter.compiler.KotlinMetadata
+import io.jentz.winter.compiler.hasAccessibleSetter
+import kotlinx.metadata.KmClass
+import kotlinx.metadata.jvm.fieldSignature
+import kotlinx.metadata.jvm.setterSignature
 import javax.lang.model.element.*
 
 class InjectorModel(
     val originatingElement: TypeElement,
     superClassWithInjector: TypeElement?,
-    private val kotlinMetadata: KotlinMetadata?
+    private val kmClass: KmClass?
 ) {
 
     val typeName: ClassName = ClassName.get(originatingElement)
@@ -25,19 +28,21 @@ class InjectorModel(
         when (fieldOrSetter.kind) {
             ElementKind.FIELD -> {
                 val field = fieldOrSetter as VariableElement
-                val kotlinProperty = kotlinMetadata
-                    ?.getKotlinPropertyForField(field)
+                val kmProperty = kmClass
+                    ?.properties
+                    ?.find { it.fieldSignature?.name == field.simpleName.toString() }
                     ?.takeIf { it.hasAccessibleSetter }
 
-                _targets += FieldInjectTarget(field, kotlinProperty)
+                _targets += FieldInjectTarget(field, kmProperty)
             }
             ElementKind.METHOD -> {
                 val setter = fieldOrSetter as ExecutableElement
-                val kotlinProperty = kotlinMetadata
-                    ?.getKotlinPropertyForSetter(setter)
+                val kmProperty = kmClass
+                    ?.properties
+                    ?.find { it.setterSignature?.name == setter.simpleName.toString() }
                     ?.takeIf { it.hasAccessibleSetter }
 
-                _targets += SetterInjectTarget(setter, kotlinProperty)
+                _targets += SetterInjectTarget(setter, kmProperty)
             }
             else -> {
                 throw IllegalArgumentException("fieldOrSetter must be VariableElement or ExecutableElement")
