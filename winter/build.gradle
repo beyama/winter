@@ -31,6 +31,7 @@ test {
 
 dependencies {
     implementation deps.kotlin.stdlib
+    api deps.javax.inject
 
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest

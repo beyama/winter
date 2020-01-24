@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.ApplicationScope
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
@@ -9,33 +10,40 @@ import org.junit.jupiter.api.Test
 
 class ComponentTest {
 
-    private val testComponent = component("root") {
+    private val testComponent = component {
         prototype { Heater() }
         singleton<Pump> { Thermosiphon(instance()) }
         singleton { CoffeeMaker(instance(), instance()) }
-        factory { c: Color -> Widget(c) }
     }
 
     @Test
-    fun `#derive with empty block should create a copy of the component`() {
-        val component = component { prototype { Heater() } }
-        val derived = component.derive { }
-        component.shouldNotBeSameInstanceAs(derived)
-        component.forEach { (k, s) -> derived[k].shouldBeSameInstanceAs(s) }
-        derived.forEach { (k, s) -> component[k].shouldBeSameInstanceAs(s) }
+    fun `#component should create component with default qualifier`() {
+        testComponent.qualifier.shouldBe(ApplicationScope::class)
+    }
+
+    @Test
+    fun `#component should create component with given qualifier`() {
+        component("foo") {  }.qualifier.shouldBe("foo")
+    }
+
+    @Test
+    fun `#derive with empty block and same qualifier should return same component`() {
+        testComponent.shouldBeSameInstanceAs(testComponent.derive { })
     }
 
     @Test
     fun `#derive with block should copy all dependencies to new component`() {
         val new = testComponent.derive { prototype("qualifier") { Heater() } }
         new.size.shouldBe(testComponent.size + 1)
-        testComponent.forEach { (k, s) -> new[k].shouldBeSameInstanceAs(s) }
         new.containsKey(typeKey<Heater>("qualifier")).shouldBeTrue()
+        testComponent.keys().forEach { key -> new[key].shouldBeSameInstanceAs(testComponent[key]) }
     }
 
     @Test
     fun `#derive should copy the qualifier of the component it is derived from when no qualifier is given`() {
-        testComponent.derive { }.qualifier.shouldBe("root")
+        component("some qualifier") {}.derive {
+            constant(42)
+        }.qualifier.shouldBe("some qualifier")
     }
 
     @Test
@@ -70,15 +78,21 @@ class ComponentTest {
     }
 
     @Test
-    fun `#init without builder block should return graph with component`() {
+    fun `#createGraph without builder block should return graph with same component`() {
         val c = component("root") { }
         c.createGraph().component.shouldBeSameInstanceAs(c)
     }
 
     @Test
-    fun `#init with builder block should return graph with derived component`() {
+    fun `#createGraph with empty builder block should return graph with same component`() {
         val c = component("root") { }
-        val graph = c.createGraph { }
+        c.createGraph {}.component.shouldBeSameInstanceAs(c)
+    }
+
+    @Test
+    fun `#createGraph with builder block should return graph with derived component`() {
+        val c = component("root") { }
+        val graph = c.createGraph { constant(42) }
         graph.component.qualifier.shouldBe("root")
         graph.component.shouldNotBeSameInstanceAs(c)
     }

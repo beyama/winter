@@ -1,13 +1,10 @@
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-kapt'
-
-kapt {
-    arguments {
-        arg("winterGeneratedComponentPackage", "io.jentz.winter.compilertest")
-    }
+plugins {
+    id 'kotlin'
+    id 'kotlin-kapt'
 }
 
-sourceSets.main.kotlin.srcDir "${buildDir.absolutePath}/generated/source/kaptKotlin/main"
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 test {
     useJUnitPlatform()
@@ -29,18 +26,17 @@ test {
 }
 
 dependencies {
-    implementation project(":winter")
+    implementation deps.kotlin.stdlib
+
+    implementation project(':winter')
+    implementation deps.kotlin.reflect
 
     kapt project(':winter-compiler')
 
-    implementation deps.kotlin.stdlib
-    implementation 'javax.inject:javax.inject:1'
-
-    testImplementation deps.junit.junit4
+    testImplementation project(':winter-junit5')
     testImplementation deps.junit.jupiterApi
     testImplementation deps.kotlintest
     testImplementation deps.kotlin.reflect
 
     testRuntimeOnly deps.junit.jupiterEngine
-    testRuntimeOnly deps.junit.vintageEngine
 }

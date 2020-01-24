@@ -1,0 +1,60 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion versions.compileSdk
+
+    defaultConfig {
+        applicationId "io.jentz.winter.android.test"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.compileSdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'build/classes/kotlin/main'
+    }
+
+}
+
+dependencies {
+    implementation project(':winter-androidx')
+    implementation project(':winter-rxjava2')
+
+    kapt project(':winter-compiler')
+
+    implementation deps.kotlin.stdlib
+
+    implementation deps.androidx.compat
+    implementation deps.androidx.coreKtx
+    implementation deps.androidx.recyclerview
+
+    implementation deps.rx.rxjava
+    implementation deps.rx.rxandroid
+
+    androidTestImplementation project(':winter-junit4')
+
+    androidTestImplementation deps.kotlintest
+    androidTestImplementation deps.kotlin.reflect
+    androidTestImplementation deps.androidx.test.runner
+    androidTestImplementation deps.androidx.test.rules
+    androidTestImplementation deps.androidx.test.junit
+    androidTestImplementation deps.androidx.test.espressoCore
+}

@@ -1,12 +1,13 @@
 package io.jentz.winter
 
+import io.jentz.winter.inject.Factory
+import io.jentz.winter.inject.MembersInjector
+
 interface Pump
 
 class Heater
 
 class Thermosiphon(val heater: Heater) : Pump
-
-class RotaryPump : Pump
 
 class CoffeeMaker(val heater: Heater, val pump: Pump)
 
@@ -16,11 +17,25 @@ class Child {
     var parent: Parent? = null
 }
 
-enum class Color { RED, GREEN, BLUE }
+open class Service {
+    var property = 0
+}
 
-class Widget(val color: Color)
+@Suppress("unused", "ClassName")
+class Service_WinterMembersInjector : MembersInjector<Service> {
+    override fun inject(graph: Graph, target: Service) {
+        target.property = 42
+    }
+}
 
-open class Service
+@Suppress("unused", "ClassName")
+class Service_WinterFactory : Factory<Service> {
+    override fun register(builder: Component.Builder, override: Boolean): TypeKey<Service> {
+        return builder.prototype(factory = this)
+    }
+
+    override fun invoke(graph: Graph): Service = Service()
+}
 
 class ExtendedService : Service()
 
@@ -30,13 +45,13 @@ class ExtendedService : Service()
  */
 
 internal class UnboundReferenceService<T : Any>(
-    override val key: TypeKey<Unit, T>,
+    override val key: TypeKey<T>,
     val block: Graph.() -> T
-) : UnboundService<Unit, T> {
+) : UnboundService<T> {
 
     override val requiresLifecycleCallbacks: Boolean get() = false
 
-    override fun bind(graph: Graph): BoundService<Unit, T> {
+    override fun bind(graph: Graph): BoundService<T> {
         return BoundReferenceService(graph, this)
     }
 }
@@ -47,28 +62,28 @@ internal class BoundReferenceService<R : Any>(
 ) : AbstractBoundSingletonService<R>(graph) {
 
     var postConstructCalledCount = 0
-    var postConstructLastArguments: Pair<Any, Any>? = null
-    var disposeCalled = 0
+    var postConstructLastArgument: Any? = null
+    var closeCalled = 0
 
     override val scope: Scope get() = Scope("referenceTest")
 
-    override fun postConstruct(argument: Unit, instance: R) {
+    override fun onPostConstruct(instance: R) {
         postConstructCalledCount += 1
-        postConstructLastArguments = argument to instance
+        postConstructLastArgument = instance
     }
 
-    override fun dispose() {
-        disposeCalled += 1
+    override fun onClose() {
+        closeCalled += 1
     }
 
     public override var instance: Any = UNINITIALIZED_VALUE
 
-    override fun newInstance(argument: Unit): R {
+    override fun newInstance(): R {
         return unboundService.block(graph).also { instance = it }
     }
 
 }
 
-internal inline fun <reified R : Any> ComponentBuilder.reference(noinline block: GFactory0<R>) {
-    register(UnboundReferenceService(typeKey<R>(), block), false)
+internal inline fun <reified R : Any> Component.Builder.reference(noinline block: GFactory<R>) {
+    register(UnboundReferenceService(typeKey(), block), false)
 }

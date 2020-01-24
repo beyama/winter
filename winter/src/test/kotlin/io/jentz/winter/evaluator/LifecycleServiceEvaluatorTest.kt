@@ -25,15 +25,15 @@ class LifecycleServiceEvaluatorTest : AbstractCyclicServiceEvaluatorTest() {
 
     @Test
     fun `should call service and plugin post-construct callbacks`() {
-        val service = BoundTestService(evaluator) { it.toUpperCase() }
+        val service = BoundTestService(evaluator) { "FOO" }
         evaluator
-            .evaluate(service, "foo")
+            .evaluate(service)
             .shouldBe("FOO")
 
         service.postConstructCalled.shouldHaveSize(1)
-        service.postConstructCalled.first().shouldBe("foo" to "FOO")
+        service.postConstructCalled.first().shouldBe("FOO")
 
-        verify(plugin).postConstruct(graph, Scope.Prototype, "foo", "FOO")
+        verify(plugin).postConstruct(graph, Scope.Prototype, "FOO")
     }
 
 }

@@ -5,11 +5,9 @@ import io.jentz.winter.Graph
 import io.jentz.winter.TypeKey
 import io.jentz.winter.plugin.Plugins
 
-private const val STACK_CAPACITY = 3 * 32
+private const val STACK_CAPACITY = 2 * 32
 
-private const val SERVICE_INDEX = 0
-private const val ARGUMENT_INDEX = SERVICE_INDEX + 1
-private const val INSTANCE_INDEX = SERVICE_INDEX + 2
+private const val INSTANCE_INDEX = 1
 
 /**
  * A [ServiceEvaluator] implementation that can optionally check for cyclic dependencies and
@@ -29,7 +27,7 @@ internal class LifecycleServiceEvaluator(
 
     private var pendingDependenciesCount = 0
 
-    override fun <A, R : Any> evaluate(service: BoundService<A, R>, argument: A): R {
+    override fun <R : Any> evaluate(service: BoundService<R>): R {
         val key = service.key
 
         if (checkForCyclicDependencies) {
@@ -37,7 +35,6 @@ internal class LifecycleServiceEvaluator(
         }
 
         val serviceIndex = stackSize
-        val argumentIndex = serviceIndex + ARGUMENT_INDEX
         val instanceIndex = serviceIndex + INSTANCE_INDEX
 
         if (stack.lastIndex < instanceIndex) {
@@ -49,17 +46,15 @@ internal class LifecycleServiceEvaluator(
         try {
             // push service
             stack[serviceIndex] = service
-            // push argument
-            stack[argumentIndex] = argument
             // nullify slot for instance
             stack[instanceIndex] = null
 
             pendingDependenciesCount += 1
 
-            stackSize += 3
+            stackSize += 2
 
             // create instance and add it to stack
-            val instance = service.newInstance(argument)
+            val instance = service.newInstance()
             stack[instanceIndex] = instance
             return instance
         } catch (t: Throwable) {
@@ -75,23 +70,20 @@ internal class LifecycleServiceEvaluator(
 
     private fun drainStack() {
         try {
-            for (i in stackSize - 1 downTo 0 step 3) {
-                val serviceIndex = i - 2
-                val argumentIndex = serviceIndex + ARGUMENT_INDEX
+            for (i in stackSize - 1 downTo 0 step 2) {
+                val serviceIndex = i - 1
                 val instanceIndex = serviceIndex + INSTANCE_INDEX
 
                 @Suppress("UNCHECKED_CAST")
-                val service = stack[serviceIndex] as BoundService<Any, Any>
-                val argument = stack[argumentIndex]
+                val service = stack[serviceIndex] as BoundService<Any>
                 val instance = stack[instanceIndex]
 
                 stack[serviceIndex] = null
-                stack[argumentIndex] = null
                 stack[instanceIndex] = null
 
-                if (instance != null && argument != null) {
-                    service.postConstruct(argument, instance)
-                    plugins.runPostConstruct(graph, service.scope, argument, instance)
+                if (instance != null) {
+                    service.onPostConstruct(instance)
+                    plugins.forEach { it.postConstruct(graph, service.scope, instance) }
                 }
             }
         } finally {
@@ -100,17 +92,17 @@ internal class LifecycleServiceEvaluator(
         }
     }
 
-    private fun isKeyPending(key: TypeKey<*, *>): Boolean {
-        for (i in 0 until stackSize step 3) {
-            if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*, *>).key == key) {
+    private fun isKeyPending(key: TypeKey<*>): Boolean {
+        for (i in 0 until stackSize step 2) {
+            if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*>).key == key) {
                 return true
             }
         }
         return false
     }
 
-    private fun pendingKeys(): List<TypeKey<*, *>> = (0 until stackSize step 3).mapNotNull { i ->
-        if (stack[i + INSTANCE_INDEX] == null) (stack[i] as BoundService<*, *>).key else null
+    private fun pendingKeys(): List<TypeKey<*>> = (0 until stackSize step 2).mapNotNull { i ->
+        if (stack[i + INSTANCE_INDEX] == null) (stack[i] as BoundService<*>).key else null
     }
 
 }

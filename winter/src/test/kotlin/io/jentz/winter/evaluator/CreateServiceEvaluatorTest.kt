@@ -36,14 +36,14 @@ class CreateServiceEvaluatorTest {
 
     @Test
     fun `should return LifecycleServiceEvaluator if a component requires lifecycle methods`() {
-        val graph = graph { singleton(postConstruct = {}) { Any() } }
+        val graph = graph { singleton(onPostConstruct = {}) { Any() } }
         createServiceEvaluator(graph, graph.component, plugins, false)
             .shouldBeInstanceOf<LifecycleServiceEvaluator>()
     }
 
     @Test
     fun `should return LifecycleServiceEvaluator if a component requires lifecycle methods and plugins are registered`() {
-        val graph = graph { singleton(postConstruct = {}) { Any() } }
+        val graph = graph { singleton(onPostConstruct = {}) { Any() } }
         createServiceEvaluator(graph, graph.component, plugins + plugin, false)
             .shouldBeInstanceOf<LifecycleServiceEvaluator>()
     }

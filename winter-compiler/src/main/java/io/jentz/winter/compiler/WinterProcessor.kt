@@ -1,7 +1,9 @@
 package io.jentz.winter.compiler
 
-import io.jentz.winter.Injector
 import io.jentz.winter.WinterException
+import io.jentz.winter.delegate.inject
+import io.jentz.winter.delegate.injectProvider
+import io.jentz.winter.inject.InjectConstructor
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
@@ -11,25 +13,18 @@ import javax.lang.model.element.TypeElement
 
 class WinterProcessor : AbstractProcessor() {
 
-    private val injector = Injector()
-    private val logger: Logger by injector.instance()
-    private val generatorProvider: () -> Generator by injector.provider()
+    private val logger: Logger by inject()
+    private val generatorProvider: () -> Generator by injectProvider()
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
-
-        injector.inject(appComponent.createGraph { constant(processingEnv) })
+        DI.inject(processingEnv, this)
     }
 
     override fun getSupportedAnnotationTypes(): Set<String> =
-        setOf(Inject::class.java.canonicalName)
+        setOf(Inject::class.java.canonicalName, InjectConstructor::class.java.canonicalName)
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
-
-    override fun getSupportedOptions(): Set<String> = setOf(
-        OPTION_GENERATED_COMPONENT_PACKAGE,
-        OPTION_ROOT_SCOPE_ANNOTATION
-    )
 
     override fun process(
         annotations: MutableSet<out TypeElement>,
@@ -39,9 +34,9 @@ class WinterProcessor : AbstractProcessor() {
         try {
             generatorProvider().process(roundEnv)
         } catch (e: WinterException) {
-            logger.warn("Skipping annotation processing: ${e.cause?.message}")
+            logger.error("Skipping annotation processing: ${e.cause?.message}")
         } catch (t: Throwable) {
-            logger.warn("Skipping annotation processing: ${t.message}")
+            logger.error("Skipping annotation processing: ${t.message}")
         }
 
         return true

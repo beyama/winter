@@ -1,6 +1,8 @@
 package io.jentz.winter.compiler
 
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.javapoet.ClassName
+import javax.inject.Inject
+import javax.inject.Named
 import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -11,22 +13,6 @@ val Element.isAbstract get() = modifiers.contains(Modifier.ABSTRACT)
 
 val TypeElement.isInnerClass get() = enclosingElement is TypeElement
 
-val VariableElement.isProvider: Boolean
-    get() {
-        val type = asType()
-        if (type.kind != TypeKind.DECLARED) return false
-        val declared = type as DeclaredType
-        return (declared.asElement() as TypeElement).asClassName() == PROVIDER_INTERFACE_NAME
-    }
-
-val VariableElement.isLazy: Boolean
-    get() {
-        val type = asType()
-        if (type.kind != TypeKind.DECLARED) return false
-        val declared = type as DeclaredType
-        return (declared.asElement() as TypeElement).asClassName() == LAZY_INTERFACE_NAME
-    }
-
 val VariableElement.isNotNullable: Boolean
     get() = annotationMirrors.any {
         val element = it.annotationType.asElement() as TypeElement
@@ -35,3 +21,18 @@ val VariableElement.isNotNullable: Boolean
     }
 
 val VariableElement.isNullable: Boolean get() = !isNotNullable
+
+val Element.qualifier: String? get() = getAnnotation(Named::class.java)?.value?.takeIf { it.isNotBlank() }
+
+val Element.isInjectFieldOrMethod: Boolean
+    get() = getAnnotation(Inject::class.java) != null &&
+            (kind == ElementKind.FIELD || kind == ElementKind.METHOD)
+
+val TypeElement.selfAndSuperclasses: Sequence<TypeElement>
+    get() = generateSequence(this) {
+        if (it.superclass.kind == TypeKind.DECLARED) {
+            (it.superclass as DeclaredType).asElement() as TypeElement
+        } else {
+            null
+        }
+    }

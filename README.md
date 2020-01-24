@@ -20,30 +20,19 @@ with annotation processor.
 ```groovy
 dependencies {
   // Core
-  implementation 'io.jentz.winter:winter:0.5.0'
-  // Android support
-  implementation 'io.jentz.winter:winter-android:0.5.0'
-  // Android X lifecycle extensions
-  implementation 'io.jentz.winter:winter-androidx-lifecycle:0.5.0'
+  implementation 'io.jentz.winter:winter:0.7.0'
+  // AndroidX support
+  implementation 'io.jentz.winter:winter-androidx:0.7.0'
   // RxJava 2 disposable plugin
-  implementation 'io.jentz.winter:winter-rxjava2:0.5.0'
+  implementation 'io.jentz.winter:winter-rxjava2:0.7.0'
+  // Java support
+  implementation 'io.jentz.winter:winter-java:0.7.0'
   // JUnit 4 test support
-  testImplementation 'io.jentz.winter:winter-junit4:0.5.0'  
+  testImplementation 'io.jentz.winter:winter-junit4:0.7.0'  
   // JUnit 5 test support
-  testImplementation 'io.jentz.winter:winter-junit5:0.5.0'  
+  testImplementation 'io.jentz.winter:winter-junit5:0.7.0'  
   // Optional JSR-330 support
-  implementation 'javax.inject:javax.inject:1'
-  kapt 'io.jentz.winter:winter-compiler:0.5.0'
-}
-
-// The optional JSR-330 support requires also a kapt configuration block like
-kapt {
-  arguments {
-    // Tell the Winter compiler under which package name it should generate the component
-    arg("winterGeneratedComponentPackage", "my.project.root.package.name")
-    // Optional: The custom scope annotation that is used as root scope instead of javax.inject.Singleton
-    arg("winterRootScopeAnnotation", "my.project.root.package.name.ApplicationScope")
-  }
+  kapt 'io.jentz.winter:winter-compiler:0.7.0'
 }
 ```
 
@@ -57,41 +46,35 @@ survives orientation changes and an activity subcomponent.
 class MyApplication : Application() {
   override fun onCreate() {
     // define application component
-    Winter.component {
+    Winter.component(ApplicationScope::class) {
       singleton<HttpClient> { HttpClientImpl() }
       singleton<GitHubApi> { GitHubApiImpl(instance()) }
       
         // define presentation subcomponent
-        subcomponent("presentation") {
+        subcomponent(PresentationScope::class) {
           singleton<ReposListViewModel> { RepolistViewModel(instance<GitHubApi>()) }
           
           // define activity subcomponent
-          subcomponent("activity") {
+          subcomponent(ActivityScope::class) {
             singleton { Glide.with(instance()) }
           }
         }
     }
 
-    /// Configure Injection to use the Android presentation scope adapter   
-    Injection.useAndroidPresentationScopeAdapter()
-    // Create application graph by providing the application instance
-    Injection.createGraph(this)
+    // Configure the injection adapter to use   
+    Winter.useAndroidPresentationScopeAdapter()
+    // Create application dependency graph
+    Winter.inject(this)
   }
 }
 
 class MyActivity : Activity() {
-  private val injector = Injector()
-  private val viewModel: RepoListViewModel by injector.instance()
-  private val glide: RequestManager by injector.instance()
+  private val viewModel: RepoListViewModel by inject()
+  private val glide: RequestManager by inject()
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    Injection.createGraphAndInject(this, injector)
+    Winter.inject(this)
     super.onCreate(savedInstanceState)
-  }
-
-  override fun onDestroy() {
-    Injection.disposeGraph(this)
-    super.onDestroy()
   }
 
 }

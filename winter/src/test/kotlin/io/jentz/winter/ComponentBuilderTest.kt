@@ -1,12 +1,24 @@
 package io.jentz.winter
 
-import io.jentz.winter.ComponentBuilder.SubcomponentIncludeMode.*
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
+import io.jentz.winter.inject.ApplicationScope
 import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.lang.IllegalArgumentException
+import javax.inject.Singleton
 
 class ComponentBuilderTest {
+
+    @Test
+    fun `should not allow Singleton class as qualifier`() {
+        shouldThrow<IllegalArgumentException> {
+            component(Singleton::class) {}
+        }.message.shouldBe("Use `io.jentz.winter.inject.ApplicationScope::class` instead of `javax.inject.Singleton::class` as component qualifier")
+    }
 
     @Test
     fun `empty builder should result in empty dependency map`() {
@@ -21,10 +33,26 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#prototype should return the type key`() {
+        component {
+            prototype("a") { Heater() }
+                .shouldBe(typeKey<Heater>("a"))
+        }
+    }
+
+    @Test
     fun `#singleton should register UnboundSingletonService`() {
         component {
             singleton("b") { Heater() }
         }.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("b"))
+    }
+
+    @Test
+    fun `#singleton should return the type key`() {
+        component {
+            singleton("b") { Heater() }
+                .shouldBe(typeKey<Heater>("b"))
+        }
     }
 
     @Test
@@ -34,8 +62,17 @@ class ComponentBuilderTest {
         }
         c.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("c"))
         // eager dependencies add a set of type keys of eager dependencies to the dependency
-        // registry, so one more here than registered
+        // registry
         c.size.shouldBe(2)
+        c.shouldContainService(eagerDependenciesKey)
+    }
+
+    @Test
+    fun `#eagerSingleton should return the type key`() {
+        component {
+            eagerSingleton("c") { Heater() }
+                .shouldBe(typeKey<Heater>("c"))
+        }
     }
 
     @Test
@@ -46,6 +83,14 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#weakSingleton should return the type key`() {
+        component {
+            weakSingleton("d") { Heater() }
+                .shouldBe(typeKey<Heater>("d"))
+        }
+    }
+
+    @Test
     fun `#softSingleton should register UnboundSoftSingletonService`() {
         component {
             softSingleton("e") { Heater() }
@@ -53,17 +98,11 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#factory should register UnboundFactoryService`() {
+    fun `#softSingleton should return the type key`() {
         component {
-            factory("f") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundFactoryService<*, *>>(compoundTypeKey<Color, Widget>("f"))
-    }
-
-    @Test
-    fun `#multiton should register UnboundMultitonFactoryService`() {
-        component {
-            multiton("g") { c: Color -> Widget(c) }
-        }.shouldContainServiceOfType<UnboundMultitonFactoryService<*, *>>(compoundTypeKey<Color, Widget>("g"))
+            softSingleton("e") { Heater() }
+                .shouldBe(typeKey<Heater>("e"))
+        }
     }
 
     @Test
@@ -74,11 +113,96 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#constant should return the type key`() {
+        component {
+            constant(42, "h")
+                .shouldBe(typeKey<Int>("h"))
+        }
+    }
+
+    @Test
+    fun `#alias should register alias service`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should return the target type key`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                .shouldBe(typeKey<Thermosiphon>())
+        }
+    }
+
+    @Test
+    fun `#alias should throw an exception if from key doesn't exist`() {
+        shouldThrow<EntryNotFoundException> {
+            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
+        }
+    }
+
+    @Test
+    fun `#alias should override existing entry if override is true`() {
+        component {
+            prototype { Thermosiphon(instance()) }
+            singleton<Pump> { Thermosiphon(instance()) }
+            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#alias should throw an exception if to key already exists and override is false (default)`() {
+        shouldThrow<WinterException> {
+            component {
+                prototype { Thermosiphon(instance()) }
+                prototype<Pump> { Thermosiphon(instance()) }
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            }
+        }
+    }
+
+    @Test
+    fun `TypeKey#alias extension should register alias`() {
+        component {
+            prototype {
+                Thermosiphon(instance())
+            }.alias<Pump>()
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `TypeKey#alias extension should override existing entry if override is true`() {
+        component {
+            singleton<Pump> { Thermosiphon(instance()) }
+            prototype {
+                Thermosiphon(instance())
+            }.alias<Pump>(override = true)
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `#generated should register generated factory for class`() {
+        component {
+            generated<Service>()
+        }.shouldContainService(typeKey<Service>())
+    }
+
+    @Test
+    fun `#generatedFactory should load generated factory for class`() {
+        component {
+            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+        }
+    }
+
+    @Test
     fun `#register should throw an exception if the same key is registered twice`() {
         shouldThrow<WinterException> {
             component {
-                register(ConstantService(typeKey<String>(), ""), false)
-                register(ConstantService(typeKey<String>(), ""), false)
+                register(ConstantService(typeKey(), ""), false)
+                register(ConstantService(typeKey(), ""), false)
             }
         }
     }
@@ -86,8 +210,8 @@ class ComponentBuilderTest {
     @Test
     fun `#register should override key if override is true`() {
         component {
-            register(ConstantService(typeKey<String>(), ""), false)
-            register(ConstantService(typeKey<String>(), ""), true)
+            register(ConstantService(typeKey(), ""), false)
+            register(ConstantService(typeKey(), ""), true)
         }.size.shouldBe(1)
     }
 
@@ -141,6 +265,43 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#include should throw an exception if a subcomponent has the same qualifier as its parent`() {
+        val c1 = component { subcomponent("sub") {} }
+        shouldThrow<WinterException> {
+            component("sub") {
+                allowComponentQualifier(ApplicationScope::class) {
+                    include(c1)
+                }
+            }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `sub` is roots component qualifier).")
+    }
+
+    @Test
+    fun `#include should throw an exception if included component has different qualifier`() {
+        val other = component("other") {}
+        shouldThrow<WinterException> {
+            component { include(other) }
+        }.message.shouldBe("Component qualifier `other` does not match required qualifier `${ApplicationScope::class}`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should throw an exception if given qualifier doesn't match the component qualifier`() {
+        shouldThrow<WinterException> {
+            component { checkComponentQualifier("foo") }
+        }.message.shouldBe("Component qualifier `foo` does not match required qualifier `${ApplicationScope::class}`.")
+    }
+
+    @Test
+    fun `#checkComponentQualifier should not throw an exception if a different qualifier was set with allowComponentQualifier`() {
+        component { allowComponentQualifier("foo") { checkComponentQualifier("foo") } }
+    }
+
+    @Test
+    fun `#checkComponentQualifier should treat Singleton like ApplicationScope`() {
+        component(ApplicationScope::class) { checkComponentQualifier(Singleton::class) }
+    }
+
+    @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
             subcomponent("sub") { }
@@ -158,25 +319,32 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#subcomponent should throw exception when deriveExisting is true but subcomponent doesn't exist`() {
+    fun `#subcomponent should throw an exception when deriveExisting is true but subcomponent doesn't exist`() {
         shouldThrow<WinterException> {
             component { subcomponent("sub", deriveExisting = true) {} }
         }
     }
 
     @Test
-    fun `#subcomponent should throw exception when override is true but subcomponent doesn't exist`() {
+    fun `#subcomponent should throw an exception when override is true but subcomponent doesn't exist`() {
         shouldThrow<WinterException> {
             component { subcomponent("sub", override = true) {} }
         }
     }
 
     @Test
-    fun `#subcomponent should throw exception when deriveExisting and override is true`() {
+    fun `#subcomponent should throw an exception when deriveExisting and override is true`() {
         val base = component { subcomponent("sub") {} }
         shouldThrow<WinterException> {
             base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
         }
+    }
+
+    @Test
+    fun `#subcomponent should throw an exception when subcomponent qualifier is not unique`() {
+        shouldThrow<WinterException> {
+            component { subcomponent(ApplicationScope::class) {} }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `class io.jentz.winter.inject.ApplicationScope` is roots component qualifier).")
     }
 
     @Test
@@ -213,41 +381,60 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#alias should register alias service`() {
+    fun `#allowComponentQualifier should allow different component qualifier inside the block`() {
+        val other = component("other") {}
         component {
-            prototype { Heater() }
-            prototype { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
-    }
-
-    @Test
-    fun `#alias should throw an exception if from key doesn't exist`() {
-        shouldThrow<EntryNotFoundException> {
-            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
-        }
-    }
-
-    @Test
-    fun `#alias should override existing entry if override is true`() {
-        component {
-            prototype { Heater() }
-            prototype { Thermosiphon(instance()) }
-            singleton<Pump> { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService<*, *>>(typeKey<Pump>())
-    }
-
-    @Test
-    fun `#alias should throw an exception if to key already exists and override is false (default)`() {
-        shouldThrow<WinterException> {
-            component {
-                prototype { Heater() }
-                prototype { Thermosiphon(instance()) }
-                prototype<Pump> { Thermosiphon(instance()) }
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            allowComponentQualifier("other") {
+                include(other)
             }
         }
     }
+
+    @Nested
+    inner class Validation {
+
+        @Test
+        fun `should validate that component qualifiers are unique in component tree`() {
+            shouldThrow<WinterException> {
+                component {
+                    subcomponent("sub") {
+                        subcomponent(ApplicationScope::class) {}
+                    }
+                }
+            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${ApplicationScope::class}` is roots component qualifier).")
+
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
+                subcomponent("sub sub") {}
+            }
+
+            shouldThrow<WinterException> {
+                c.derive { include(c2) }
+            }.message.shouldBe("Subcomponent with qualifier `sub sub` already exists.")
+        }
+
+        @Test
+        fun `should not fail with non-unique qualifier exception when subcomponent was removed`() {
+            val c = component {
+                subcomponent("sub") {
+                    subcomponent("sub sub") {}
+                }
+            }
+
+            val c2 = component {
+                subcomponent("sub sub") {}
+                remove(typeKey<Component>("sub sub"))
+            }
+
+            c2.derive { include(c) }
+        }
+
+    }
+
 
 }

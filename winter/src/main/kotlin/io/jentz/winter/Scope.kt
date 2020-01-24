@@ -6,7 +6,5 @@ data class Scope(val name: String) {
         val Singleton = Scope("singleton")
         val SoftSingleton = Scope("softSingleton")
         val WeakSingleton = Scope("weakSingleton")
-        val PrototypeFactory = Scope("prototypeFactory")
-        val MultitonFactory = Scope("multitonFactory")
     }
 }

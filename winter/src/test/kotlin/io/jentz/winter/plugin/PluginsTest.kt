@@ -1,20 +1,12 @@
 package io.jentz.winter.plugin
 
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.only
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import io.jentz.winter.ComponentBuilder
-import io.jentz.winter.Scope
-import io.jentz.winter.graph
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 
@@ -97,52 +89,6 @@ class PluginsTest {
         val plugins = Plugins(plugin)
         plugins.contains(plugin).shouldBeTrue()
         plugins.contains(plugin2).shouldBeFalse()
-    }
-
-    @Nested
-    @DisplayName("run methods")
-    inner class RunMethods {
-
-        private lateinit var plugins: Plugins
-
-        private val graph = graph { }
-        private val argument = Any()
-        private val instance = Any()
-
-        @BeforeEach
-        fun beforeEach() {
-            plugins = Plugins(plugin, plugin2)
-        }
-
-        @Test
-        fun `#runGraphInitializing should call #graphInitializing on all plugins`() {
-            val builder = ComponentBuilder(null)
-            plugins.runGraphInitializing(graph, builder)
-            verify(plugin, only()).graphInitializing(graph, builder)
-            verify(plugin2, only()).graphInitializing(graph, builder)
-        }
-
-        @Test
-        fun `#runGraphInitialized should call #graphInitialized on all plugins`() {
-            plugins.runGraphInitialized(graph)
-            verify(plugin, only()).graphInitialized(graph)
-            verify(plugin2, only()).graphInitialized(graph)
-        }
-
-        @Test
-        fun `#runGraphDispose should call #graphDispose on all plugins`() {
-            plugins.runGraphDispose(graph)
-            verify(plugin, times(1)).graphDispose(graph)
-            verify(plugin2, times(1)).graphDispose(graph)
-        }
-
-        @Test
-        fun `#runPostConstruct should call #postConstruct on all plugins`() {
-            plugins.runPostConstruct(graph, Scope.Singleton, argument, instance)
-            verify(plugin, only()).postConstruct(graph, Scope.Singleton, argument, instance)
-            verify(plugin2, only()).postConstruct(graph, Scope.Singleton, argument, instance)
-        }
-
     }
 
 }

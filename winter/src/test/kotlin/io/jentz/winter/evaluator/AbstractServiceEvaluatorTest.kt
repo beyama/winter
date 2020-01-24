@@ -2,7 +2,6 @@ package io.jentz.winter.evaluator
 
 import io.jentz.winter.DependencyResolutionException
 import io.jentz.winter.EntryNotFoundException
-import io.jentz.winter.compoundTypeKey
 import io.jentz.winter.typeKey
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -16,22 +15,22 @@ abstract class AbstractServiceEvaluatorTest {
     @Test
     fun `should call new instance and return result`() {
         evaluator
-            .evaluate(BoundTestService(evaluator) { it.toUpperCase() }, "foo")
+            .evaluate(BoundTestService(evaluator) { "FOO" })
             .shouldBe("FOO")
     }
 
     @Test
     fun `should throw DependencyResolutionException if service throws an EntryNotFoundException`() {
         val exception = EntryNotFoundException(typeKey<List<*>>(), "")
-        val b = BoundTestService(evaluator, compoundTypeKey("b"), throwOnNewInstance = { exception })
-        val a = BoundTestService(evaluator, compoundTypeKey("a"), b)
+        val b = BoundTestService(evaluator, typeKey("b"), throwOnNewInstance = { exception })
+        val a = BoundTestService(evaluator, typeKey("a"), b)
 
         shouldThrow<DependencyResolutionException> {
-            evaluator.evaluate(a, "")
+            evaluator.evaluate(a)
         }.run {
-            key.shouldBe(compoundTypeKey<String, String>("b"))
+            key.shouldBe(typeKey<String>("b"))
             message.shouldBe("Error while resolving dependency with key: " +
-                    "CompoundClassTypeKey(class java.lang.String class java.lang.String qualifier = b) " +
+                    "ClassTypeKey(class java.lang.String qualifier = b) " +
                     "reason: could not find dependency with key " +
                     "ClassTypeKey(interface java.util.List qualifier = null)")
             cause.shouldBeSameInstanceAs(exception)
@@ -41,17 +40,17 @@ abstract class AbstractServiceEvaluatorTest {
     @Test
     fun `should throw DependencyResolutionException if service throws an exception`() {
         val exception = Exception()
-        val b = BoundTestService(evaluator, compoundTypeKey("b"),
+        val b = BoundTestService(evaluator, typeKey("b"),
             throwOnNewInstance = { exception })
-        val a = BoundTestService(evaluator, compoundTypeKey("a"), b)
+        val a = BoundTestService(evaluator, typeKey("a"), b)
 
         shouldThrow<DependencyResolutionException> {
-            evaluator.evaluate(a, "")
+            evaluator.evaluate(a)
         }.run {
-            key.shouldBe(compoundTypeKey<String, String>("b"))
+            key.shouldBe(typeKey<String>("b"))
             message.shouldBe(
                 "Factory of dependency with key " +
-                        "CompoundClassTypeKey(class java.lang.String class java.lang.String qualifier = b) " +
+                        "ClassTypeKey(class java.lang.String qualifier = b) " +
                         "threw an exception on invocation.")
             cause.shouldBeSameInstanceAs(exception)
         }

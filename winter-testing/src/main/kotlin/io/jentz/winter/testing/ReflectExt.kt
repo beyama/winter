@@ -11,7 +11,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaField
 
-internal val KProperty1<*, *>.typeKey: TypeKey<Unit, Any>
+internal val KProperty1<*, *>.typeKey: TypeKey<Any>
     get() {
         val clazz = (returnType.classifier as? KClass<*>)?.javaObjectType
             ?: throw IllegalArgumentException("Can't get return type for property `$name`")
@@ -36,7 +36,7 @@ internal fun KClass<*>.getDeclaredMemberProperty(name: String): KProperty1<Any, 
 }
 
 internal fun KProperty1<*, *>.hasMockAnnotation(): Boolean {
-    if (annotations.any { containsMockOrSpy(it.javaClass.name) }) {
+    if (annotations.any { containsMockOrSpy(it.annotationClass.java.simpleName) }) {
         return true
     }
     val field = javaField ?: return false

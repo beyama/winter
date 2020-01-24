@@ -1,6 +1,6 @@
 package io.jentz.winter.testing
 
-import io.jentz.winter.ComponentBuilder
+import io.jentz.winter.Component
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 
@@ -11,7 +11,7 @@ import kotlin.reflect.full.declaredMemberProperties
  * @param property The [KProperty1] instance.
  * @param override If true this will override an existing service of this type.
  */
-internal fun ComponentBuilder.property(
+internal fun Component.Builder.property(
     source: Any,
     property: KProperty1<Any, *>,
     override: Boolean = false
@@ -24,7 +24,7 @@ internal fun ComponentBuilder.property(
  *
  * @param source The source object to search for Mock and Spy properties.
  */
-fun ComponentBuilder.bindAllMocks(source: Any) {
+fun Component.Builder.bindAllMocks(source: Any) {
     source::class
         .declaredMemberProperties
         .filter { it.hasMockAnnotation() }
