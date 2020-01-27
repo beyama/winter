@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.7.1
+-------------
+* Add consumer ProGuard file to winter-androidx module
+* Add originating element to type spec in winter-compiler 
+
 Version 0.7.0
 -------------
 
