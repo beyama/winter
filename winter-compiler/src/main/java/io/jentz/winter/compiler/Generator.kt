@@ -25,6 +25,9 @@ class Generator(
     private val injectors = mutableMapOf<TypeElement, InjectorModel>()
 
     fun process(roundEnv: RoundEnvironment) {
+        factories.clear()
+        injectors.clear()
+
         processInjectConstructorAnnotatedElements(roundEnv)
         processInjectAnnotatedElements(roundEnv)
 

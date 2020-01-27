@@ -87,6 +87,7 @@ class FactoryGenerator(
             .addSuperinterface(superInterfaceName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .generatedAnnotation(configuration.generatedAnnotation)
+            .addOriginatingElement(model.originatingElement)
             .addMethod(invokeMethod)
             .addMethod(registerMethod)
             .build()

@@ -38,6 +38,7 @@ class InjectorGenerator(
             .addSuperinterface(superInterfaceName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .generatedAnnotation(configuration.generatedAnnotation)
+            .addOriginatingElement(model.originatingElement)
             .addMethod(injectMethod)
             .build()
 
