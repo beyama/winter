@@ -117,7 +117,9 @@ class FactoryModel private constructor(
             else -> typeName
         }
 
-        scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { ClassName.get(it) }
+        scopeAnnotationName = scopeAnnotations.firstOrNull()
+            ?.toClassName()
+            ?.let { if (it == SINGLETON_ANNOTAION_CLASS_NAME) APPLICATION_SCOPE_CLASS_NAME else it }
 
         isEagerSingleton = typeElement.getAnnotation(EagerSingleton::class.java) != null
 

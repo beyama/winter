@@ -1,16 +1,15 @@
-package io.jentz.winter.compiler.generator
+package io.jentz.winter.compiler
 
 import com.squareup.javapoet.*
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.GenericClassTypeKey
-import io.jentz.winter.compiler.ISO8601_FORMAT
-import io.jentz.winter.compiler.WinterProcessor
-import io.jentz.winter.compiler.now
 import javax.inject.Provider
 
 private val PROVIDER_INTERFACE_NAME: ClassName = ClassName.get(Provider::class.java)
 
 private val LAZY_INTERFACE_NAME: ClassName = ClassName.get(Lazy::class.java)
+
+private val JVM_CLASS_MAPPING_NAME = ClassName.get("kotlin.jvm", "JvmClassMappingKt")
 
 val TypeName.isProvider: Boolean
     get() = (this as? ParameterizedTypeName)?.rawType == PROVIDER_INTERFACE_NAME
@@ -65,3 +64,8 @@ fun TypeSpec.Builder.generatedAnnotation(generatedAnnotationName: ClassName?): T
     }
     return this
 }
+
+fun ClassName.toGetKotlinKClassCodeBlock(): CodeBlock =
+    CodeBlock.of("\$T.getKotlinClass(\$T.class)", JVM_CLASS_MAPPING_NAME, this)
+
+fun Class<*>.toClassName(): ClassName = ClassName.get(this)
