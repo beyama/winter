@@ -3,10 +3,13 @@ package io.jentz.winter.compiler.generator
 import com.squareup.javapoet.*
 import io.jentz.winter.Graph
 import io.jentz.winter.compiler.ProcessorConfiguration
+import io.jentz.winter.compiler.generatedAnnotation
+import io.jentz.winter.compiler.getInstanceCode
 import io.jentz.winter.compiler.model.FieldInjectTarget
 import io.jentz.winter.compiler.model.InjectTargetModel
 import io.jentz.winter.compiler.model.InjectorModel
 import io.jentz.winter.compiler.model.SetterInjectTarget
+import io.jentz.winter.compiler.toClassName
 import io.jentz.winter.inject.MembersInjector
 import kotlinx.metadata.jvm.setterSignature
 import javax.lang.model.element.Modifier
@@ -62,7 +65,7 @@ class InjectorGenerator(
     }
 
     private fun MethodSpec.Builder.addTarget(targetModel: InjectTargetModel) {
-        val targetTypeName = ClassName.get(targetModel.variableElement.asType()).box()
+        val targetTypeName = targetModel.variableElement.asType().toClassName().box()
 
         val getInstance = targetTypeName.getInstanceCode(targetModel.isNullable, targetModel.qualifier)
 

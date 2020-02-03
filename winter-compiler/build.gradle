@@ -2,6 +2,7 @@ import org.gradle.internal.jvm.Jvm
 
 plugins {
     id 'kotlin'
+    id 'kotlin-kapt'
     id 'org.jetbrains.dokka'
 }
 
@@ -37,6 +38,9 @@ dependencies {
     implementation deps.kotlin.metadata
 
     implementation deps.javapoet
+
+    implementation deps.incap.incap
+    kapt deps.incap.processor
 
     testImplementation project(':winter-junit5')
     testImplementation deps.junit.jupiterApi

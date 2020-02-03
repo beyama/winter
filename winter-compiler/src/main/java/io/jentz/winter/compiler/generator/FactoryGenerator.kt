@@ -4,12 +4,9 @@ import com.squareup.javapoet.*
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.TypeKey
-import io.jentz.winter.compiler.ProcessorConfiguration
-import io.jentz.winter.compiler.isNullable
+import io.jentz.winter.compiler.*
 import io.jentz.winter.compiler.model.FactoryModel
-import io.jentz.winter.compiler.qualifier
 import io.jentz.winter.inject.Factory
-import io.jentz.winter.inject.InterOp
 import javax.lang.model.element.Modifier
 
 class FactoryGenerator(
@@ -21,17 +18,16 @@ class FactoryGenerator(
         val typeName = model.typeName
         val factoryTypeName = model.factoryTypeName
         val parameters = model.constructorElement.parameters
-        val graphName = ClassName.get(Graph::class.java)
-        val factoryName = ClassName.get(Factory::class.java)
-        val typeKeyName = ClassName.get(TypeKey::class.java)
-        val componentBuilderName = ClassName.get(Component.Builder::class.java)
+        val graphName = Graph::class.java.toClassName()
+        val factoryName = Factory::class.java.toClassName()
+        val typeKeyName = TypeKey::class.java.toClassName()
+        val componentBuilderName = Component.Builder::class.java.toClassName()
         val superInterfaceName = ParameterizedTypeName.get(factoryName, factoryTypeName)
-        val interOpName = ClassName.get(InterOp::class.java)
 
         val interOpMethodName = if (model.isEagerSingleton) "eagerSingleton" else model.scope.name
 
         val constructorParameters = parameters.map {
-            ClassName.get(it.asType()).box().getInstanceCode(it.isNullable, it.qualifier)
+            it.asType().toClassName().box().getInstanceCode(it.isNullable, it.qualifier)
         }.toTypedArray()
 
         val constructorSignature = when (parameters.size) {
@@ -72,13 +68,11 @@ class FactoryGenerator(
             .addParameter(ClassName.BOOLEAN, "override", Modifier.FINAL)
             .apply {
                 model.scopeAnnotationName?.let { annotation ->
-                    val jvmClassMappingName = ClassName.get("kotlin.jvm", "JvmClassMappingKt")
-                    val getKClassCode = CodeBlock.of("\$T.getKotlinClass(\$T.class)", jvmClassMappingName, annotation)
-                    addStatement("builder.checkComponentQualifier(\$L)", getKClassCode)
+                    addStatement("builder.checkComponentQualifier(\$L)", annotation.toGetKotlinKClassCodeBlock())
                 }
             }
             .addStatement("TypeKey<\$L> key = \$L", factoryTypeName, factoryTypeName.newTypeKeyCode(model.qualifier))
-            .addStatement("\$T.$interOpMethodName(builder, key, override, this)", interOpName)
+            .addStatement("\$T.$interOpMethodName(builder, key, override, this)", INTER_OP_CLASS_NAME)
             .addStatement("return key")
             .build()
 

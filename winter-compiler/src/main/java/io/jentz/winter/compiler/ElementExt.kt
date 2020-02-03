@@ -1,11 +1,13 @@
 package io.jentz.winter.compiler
 
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import javax.inject.Inject
 import javax.inject.Named
 import javax.lang.model.element.*
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 
 val Element.isStatic get() = modifiers.contains(Modifier.STATIC)
 val Element.isPrivate get() = modifiers.contains(Modifier.PRIVATE)
@@ -36,3 +38,7 @@ val TypeElement.selfAndSuperclasses: Sequence<TypeElement>
             null
         }
     }
+
+fun TypeMirror.toClassName(): TypeName = ClassName.get(this)
+
+fun TypeElement.toClassName(): ClassName = ClassName.get(this)
