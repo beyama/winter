@@ -7,6 +7,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 
 import kotlin.Lazy;
+import kotlin.jvm.functions.Function0;
 
 public class WithInjectedProviderAndLazyFields {
     @Inject
@@ -18,5 +19,9 @@ public class WithInjectedProviderAndLazyFields {
 
     @Inject
     @Named("stringList")
-    Lazy<List<String>> field2;
+    Function0<List<String>> field2;
+
+    @Inject
+    @Named("stringList")
+    Lazy<List<String>> field3;
 }

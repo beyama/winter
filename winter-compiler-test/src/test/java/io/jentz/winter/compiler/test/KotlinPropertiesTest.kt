@@ -28,6 +28,8 @@ class KotlinPropertiesTest {
         instance.namedPrimitiveSetter.shouldBe(42)
 
         instance.someList.shouldBe(listOf("a", "b", "c"))
+
+        instance.stringProvider().shouldBe("foo")
     }
 
 }

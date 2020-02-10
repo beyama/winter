@@ -20,6 +20,7 @@ public final class WithInjectedProviderAndLazyFields_WinterMembersInjector imple
     public void inject(final Graph graph, final WithInjectedProviderAndLazyFields target) {
         target.field0 = graph.instanceOrNullByKey(new ClassTypeKey<>(Object.class, null));
         target.field1 = () -> graph.instanceOrNullByKey(new GenericClassTypeKey<List<String>>("stringList") {});
-        target.field2 = LazyKt.lazy(() -> graph.instanceOrNullByKey(new GenericClassTypeKey<List<String>>("stringList") {}));
+        target.field2 = graph.providerOrNullByKey(new GenericClassTypeKey<List<String>>("stringList") {});
+        target.field3 = LazyKt.lazy(() -> graph.instanceOrNullByKey(new GenericClassTypeKey<List<String>>("stringList") {}));
     }
 }
