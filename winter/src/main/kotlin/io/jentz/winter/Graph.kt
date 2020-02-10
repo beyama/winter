@@ -231,60 +231,12 @@ class Graph internal constructor(
         }
 
     /**
-     * Retrieve all instances of type `R`.
+     * Returns a set of all [keys][TypeKey] registered on the backing [Component] and all the
+     * ancestor components.
      *
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return A [Set] of instances of type `R`.
+     * This is used internally and may be useful for debugging and testing.
      */
-    inline fun <reified R : Any> instancesOfType(generics: Boolean = false): Set<R> =
-        instancesOfTypeByKey(typeKeyOfType(generics))
-
-    /**
-     * Retrieve all providers of type `T`.
-     *
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @return A [Set] of [providers][Provider] of type `T`.
-     */
-    inline fun <reified T : Any> providersOfType(generics: Boolean = false): Set<Provider<T>> =
-        providersOfTypeByKey(typeKeyOfType(generics))
-
-    /**
-     * Retrieve all instances of type `R` by [key].
-     *
-     * @param key The type key.
-     * @return A [Set] of instances of type `R`.
-     */
-    fun <R : Any> instancesOfTypeByKey(key: TypeKey<R>): Set<R> {
-        require(key.qualifier == TYPE_KEY_OF_TYPE_QUALIFIER) {
-            "Type key qualifier must be `$TYPE_KEY_OF_TYPE_QUALIFIER`."
-        }
-        return keysOfType(key).mapTo(mutableSetOf()) { instanceByKey(it) }
-    }
-
-    /**
-     * Retrieve all providers for type `T` by [key].
-     *
-     * @param key The type key.
-     * @return A [Set] of [providers][Provider] of type `T`.
-     */
-    fun <R : Any> providersOfTypeByKey(key: TypeKey<R>): Set<Provider<R>> {
-        require(key.qualifier == TYPE_KEY_OF_TYPE_QUALIFIER) {
-            "Type key qualifier must be `$TYPE_KEY_OF_TYPE_QUALIFIER`."
-        }
-        return keysOfType(key).mapTo(mutableSetOf()) { providerByKey(it) }
-    }
-
-    private fun <R : Any> keysOfType(key: TypeKey<R>): Set<TypeKey<R>> =
-        synchronizedMap { state ->
-            @Suppress("UNCHECKED_CAST")
-            val service = state.registry.getOrPut(key) {
-                val keys = keys().filter { it.typeEquals(key) }.toSet()
-                ConstantService(key, keys)
-            } as ConstantService<Set<TypeKey<R>>>
-            service.value
-        }
-
-    private fun keys(): Set<TypeKey<*>> {
+    fun keys(): Set<TypeKey<*>> {
         val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
     }

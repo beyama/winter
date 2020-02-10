@@ -81,38 +81,6 @@ inline fun <reified R : Any> injectLazyOrNull(
 ): InjectedProperty<R?> = LazyInstanceOrNullProperty(typeKey(qualifier, generics))
 
 /**
- * Creates a property delegate for a [Set] of [providers][Provider] of type `R`.
- *
- * @param generics Preserve generic type parameters.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectProvidersOfType(
-    generics: Boolean = false
-): InjectedProperty<Set<Provider<R>>> = ProvidersOfTypeProperty(typeKeyOfType(generics))
-
-/**
- * Creates a property delegate for a [Set] of instances of type `R`.
- *
- * @param generics Preserve generic type parameters.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectInstancesOfType(
-    generics: Boolean = false
-): InjectedProperty<Set<R>> = InstancesOfTypeProperty(typeKeyOfType(generics))
-
-/**
- * Creates a lazy property delegate for a [Set] of instances of type `R`.
- *
- * The instances get retrieved/created on first property access.
- *
- * @param generics Preserve generic type parameters.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectLazyInstancesOfType(
-    generics: Boolean = false
-): InjectedProperty<Set<R>> = LazyInstancesOfTypeProperty(typeKeyOfType(generics))
-
-/**
  * Base class of all injected properties.
  */
 abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
@@ -288,35 +256,5 @@ internal class ProviderOrNullProperty<R : Any>(
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R>? =
         graph.providerOrNullByKey(key)
-
-}
-
-@PublishedApi
-internal class ProvidersOfTypeProperty<R : Any>(
-    key: TypeKey<R>
-) : AbstractEagerProperty<R, Set<Provider<R>>>(key) {
-
-    override fun getValue(graph: Graph, key: TypeKey<R>): Set<Provider<R>> =
-        graph.providersOfTypeByKey(key)
-
-}
-
-@PublishedApi
-internal class InstancesOfTypeProperty<R : Any>(
-    key: TypeKey<R>
-) : AbstractEagerProperty<R, Set<R>>(key) {
-
-    override fun getValue(graph: Graph, key: TypeKey<R>): Set<R> =
-        graph.instancesOfTypeByKey(key)
-
-}
-
-@PublishedApi
-internal class LazyInstancesOfTypeProperty<R : Any>(
-    key: TypeKey<R>
-) : AbstractLazyProperty<R, Set<R>>(key) {
-
-    override fun getValue(graph: Graph, key: TypeKey<R>): Set<R> =
-        graph.instancesOfTypeByKey(key)
 
 }

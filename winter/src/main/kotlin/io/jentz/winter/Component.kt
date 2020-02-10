@@ -366,6 +366,91 @@ class Component private constructor(
         }
 
         /**
+         * Register a service that resolves a set of instance of type [R].
+         *
+         * This may return an empty set if no service of type [R] is registered.
+         *
+         * @param qualifier An optional qualifier.
+         * @param generics If true this will preserve generic information of [R].
+         * @param override If true this will override an existing factory of this type.
+         */
+        inline fun <reified R : Any> setOfType(
+            qualifier: Any? = null,
+            generics: Boolean = false,
+            override: Boolean = false
+        ): TypeKey<Set<R>> {
+            val key = typeKey<Set<R>>(qualifier, generics = true)
+            val typeOfKey = typeKey<R>(generics = generics)
+            register(SetOfTypeService(key, typeOfKey), override)
+            return key
+        }
+
+        /**
+         * Register a service that resolves a set of [providers][Provider] for type [R].
+         *
+         * This may return an empty set if no service of type [R] is registered.
+         *
+         * @param qualifier An optional qualifier.
+         * @param generics If true this will preserve generic information of [R].
+         * @param override If true this will override an existing factory of this type.
+         */
+        inline fun <reified R : Any> setOfProvidersForType(
+            qualifier: Any? = null,
+            generics: Boolean = false,
+            override: Boolean = false
+        ): TypeKey<Set<Provider<R>>> {
+            val key = typeKey<Set<Provider<R>>>(qualifier, generics = true)
+            val typeOfKey = typeKey<R>(generics = generics)
+            register(SetOfProvidersForTypeService(key, typeOfKey), override)
+            return key
+        }
+
+        /**
+         * Register a service that resolves a map of qualifiers to type [R].
+         *
+         * This may return an empty map if no service of type [R] is registered.
+         *
+         * @param qualifier An optional qualifier.
+         * @param generics If true this will preserve generic information of [R].
+         * @param override If true this will override an existing factory of this type.
+         * @param defaultKey The key that is used for a service that was registered without qualifier.
+         */
+        inline fun <reified R : Any> mapOfType(
+            qualifier: Any? = null,
+            generics: Boolean = false,
+            override: Boolean = false,
+            defaultKey: Any = "default"
+        ): TypeKey<Map<Any, R>> {
+            val key = typeKey<Map<Any, R>>(qualifier, generics = true)
+            val typeOfKey = typeKey<R>(generics = generics)
+            register(MapOfTypeService(key, typeOfKey, defaultKey), override)
+            return key
+        }
+
+        /**
+         * Register a service that resolves a map of qualifiers to [providers][Provider] for
+         * type [R].
+         *
+         * This may return an empty map if no service of type [R] is registered.
+         *
+         * @param qualifier An optional qualifier.
+         * @param generics If true this will preserve generic information of [R].
+         * @param override If true this will override an existing factory of this type.
+         * @param defaultKey The key that is used for a service that was registered without qualifier.
+         */
+        inline fun <reified R : Any> mapOfProvidersForType(
+            qualifier: Any? = null,
+            generics: Boolean = false,
+            override: Boolean = false,
+            defaultKey: Any = "default"
+        ): TypeKey<Map<Any, Provider<R>>> {
+            val key = typeKey<Map<Any, Provider<R>>>(qualifier, generics = true)
+            val typeOfKey = typeKey<R>(generics = generics)
+            register(MapOfProvidersForTypeService(key, typeOfKey, defaultKey), override)
+            return key
+        }
+
+        /**
          * Create an alias entry.
          *
          * Be careful, this method will not check if a type cast is possible.

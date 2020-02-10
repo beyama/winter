@@ -4,7 +4,6 @@ import io.jentz.winter.Winter
 import io.jentz.winter.graph
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.reactivex.disposables.CompositeDisposable
@@ -55,8 +54,11 @@ class WinterDisposablePluginTest {
             prototype<Disposable>("d2") { d2 }
         }.apply {
             val disposables: CompositeDisposable = instance()
-            instancesOfType<Disposable>().shouldHaveSize(2)
+            instance<Disposable>("d1")
+            instance<Disposable>("d2")
+
             disposables.size().shouldBe(1)
+
             disposables.remove(d1).shouldBeTrue()
             disposables.remove(d2).shouldBeFalse()
         }

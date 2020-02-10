@@ -121,6 +121,66 @@ class ComponentBuilderTest {
     }
 
     @Test
+    fun `#setOfType should register SetOfTypeService`() {
+        component {
+            setOfType<String>("a")
+        }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>("a",true))
+    }
+
+    @Test
+    fun `#setOfType should return the type key`() {
+        component {
+            setOfType<String>()
+                .shouldBe(typeKey<Set<String>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#setOfProvidersForType should register SetOfProvidersForTypeService`() {
+        component {
+            setOfProvidersForType<String>("a")
+        }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(typeKey<Set<Provider<String>>>("a",true))
+    }
+
+    @Test
+    fun `#setOfProvidersForType should return the type key`() {
+        component {
+            setOfProvidersForType<String>()
+                .shouldBe(typeKey<Set<Provider<String>>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#mapOfType should register MapOfTypeService`() {
+        component {
+            mapOfType<String>("a")
+        }.shouldContainServiceOfType<MapOfTypeService<*>>(typeKey<Map<Any, String>>("a",true))
+    }
+
+    @Test
+    fun `#mapOfType should return the type key`() {
+        component {
+            mapOfType<String>()
+                .shouldBe(typeKey<Map<Any, String>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#mapOfProvidersForType should register MapOfProvidersForTypeService`() {
+        component {
+            mapOfProvidersForType<String>("a")
+        }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(typeKey<Map<Any, Provider<String>>>("a",true))
+    }
+
+    @Test
+    fun `#mapOfProvidersForType should return the type key`() {
+        component {
+            mapOfProvidersForType<String>()
+                .shouldBe(typeKey<Map<Any, Provider<String>>>(generics = true))
+        }
+    }
+
+    @Test
     fun `#alias should register alias service`() {
         component {
             prototype { Thermosiphon(instance()) }
