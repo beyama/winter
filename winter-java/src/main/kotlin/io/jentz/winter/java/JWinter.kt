@@ -1,6 +1,9 @@
 package io.jentz.winter.java
 
-import io.jentz.winter.*
+import io.jentz.winter.ClassTypeKey
+import io.jentz.winter.Graph
+import io.jentz.winter.Provider
+import io.jentz.winter.TypeKey
 
 object JWinter {
 
@@ -52,19 +55,5 @@ object JWinter {
         type: Class<R>,
         qualifier: Any? = null
     ): Provider<R>? = graph.providerOrNullByKey(key(type, qualifier))
-
-    /**
-     * @see Graph.instancesOfType
-     */
-    @JvmStatic
-    fun <R: Any> instancesOfType(graph: Graph, type: Class<R>): Set<R> =
-        graph.instancesOfTypeByKey(key(type, TYPE_KEY_OF_TYPE_QUALIFIER))
-
-    /**
-     * @see Graph.providersOfType
-     */
-    @JvmStatic
-    fun <R: Any> providersOfType(graph: Graph, type: Class<R>): Set<Provider<R>> =
-        graph.providersOfTypeByKey(key(type, TYPE_KEY_OF_TYPE_QUALIFIER))
 
 }

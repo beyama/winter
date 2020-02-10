@@ -7,7 +7,6 @@ import io.jentz.winter.plugin.SimplePlugin
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -548,7 +547,7 @@ class GraphTest {
     @DisplayName("#*OfType")
     inner class OfTypeMethods {
 
-        private val testComponent = component {
+        private val testGraph = graph {
             prototype("something else") { Any() }
             prototype("a") { "a" }
             prototype("b") { "b" }
@@ -563,19 +562,19 @@ class GraphTest {
 
         @Test
         fun `should provide a set of instances of type`() {
-            val set: Set<String> = testComponent.createGraph().instance("a", true)
+            val set: Set<String> = testGraph.instance("a", true)
             set.shouldBe(setOf("a", "b", "c", "bar"))
         }
 
         @Test
         fun `should provide a set of providers of type`() {
-            val set: Set<Provider<String>> = testComponent.createGraph().instance("b", true)
+            val set: Set<Provider<String>> = testGraph.instance("b", true)
             set.map { it() }.shouldContainAll("a", "b", "c", "bar")
         }
 
         @Test
         fun `should provide a map of instances of type`() {
-            val map: Map<Any, String> = testComponent.createGraph().instance("c", true)
+            val map: Map<Any, String> = testGraph.instance("c", true)
             map.shouldBe(mapOf(
                 "a" to "a",
                 "b" to "b",
@@ -586,7 +585,7 @@ class GraphTest {
 
         @Test
         fun `should provide a map of providers of type`() {
-            val map: Map<Any, Provider<String>> = testComponent.createGraph().instance("d", true)
+            val map: Map<Any, Provider<String>> = testGraph.instance("d", true)
             map.map { (k, v) -> k to v() }.toMap()
                 .shouldBe(mapOf(
                     "a" to "a",
@@ -594,34 +593,6 @@ class GraphTest {
                     "c" to "c",
                     "foo" to "bar"
                 ))
-        }
-
-        @Test
-        fun `#providersOfTypeByKey should fail if type key is not correct`() {
-            shouldThrow<IllegalArgumentException> {
-                testComponent.createGraph().providersOfTypeByKey(typeKey<String>())
-            }
-        }
-
-        @Test
-        fun `#instancesOfTypeByKey should fail if type key is not correct`() {
-            shouldThrow<IllegalArgumentException> {
-                testComponent.createGraph().instancesOfTypeByKey(typeKey<String>())
-            }
-        }
-
-        @Test
-        fun `#providersOfType should return a set of providers of a given type`() {
-            val providers = testComponent.createGraph().providersOfType<String>()
-            providers.shouldHaveSize(4)
-            providers.map { it() }.shouldContainAll("a", "b", "c", "bar")
-        }
-
-        @Test
-        fun `#instancesOfType should return a set of instances of given type`() {
-            val instances = testComponent.createGraph().instancesOfType<String>()
-            instances.shouldHaveSize(4)
-            instances.shouldContainAll("a", "b", "c", "bar")
         }
 
     }
