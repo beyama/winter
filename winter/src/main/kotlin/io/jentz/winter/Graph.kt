@@ -284,7 +284,13 @@ class Graph internal constructor(
             service.value
         }
 
-    private fun keys(): Set<TypeKey<*>> {
+    /**
+     * Returns a set of all [keys][TypeKey] registered on the backing [Component] and all the
+     * ancestor components.
+     *
+     * This is used internally and may be useful for debugging and testing.
+     */
+    fun keys(): Set<TypeKey<*>> {
         val keys = component.keys()
         return parent?.keys()?.let { keys + it } ?: keys
     }

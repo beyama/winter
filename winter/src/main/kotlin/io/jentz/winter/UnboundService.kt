@@ -131,3 +131,59 @@ internal class AliasService<R: Any>(
     }
 
 }
+
+internal abstract class OfTypeService<T: Any, R: Any>(
+    override val key: TypeKey<R>,
+    val typeOfKey: TypeKey<T>
+) : UnboundService<R> {
+
+    override val requiresLifecycleCallbacks: Boolean
+        get() = false
+
+}
+
+@PublishedApi
+internal class SetOfTypeService<T: Any>(
+    key: TypeKey<Set<T>>,
+    typeOfKey: TypeKey<T>
+) : OfTypeService<T, Set<T>>(key, typeOfKey) {
+
+    override fun bind(graph: Graph): BoundService<Set<T>> =
+        BoundSetOfTypeService(graph, this)
+
+}
+
+@PublishedApi
+internal class SetOfProvidersForTypeService<T: Any>(
+    key: TypeKey<Set<Provider<T>>>,
+    typeOfKey: TypeKey<T>
+) : OfTypeService<T, Set<Provider<T>>>(key, typeOfKey) {
+
+    override fun bind(graph: Graph): BoundService<Set<Provider<T>>> =
+        BoundSetOfProvidersForTypeService(graph, this)
+
+}
+
+@PublishedApi
+internal class MapOfTypeService<T: Any>(
+    key: TypeKey<Map<Any, T>>,
+    typeOfKey: TypeKey<T>,
+    val defaultKey: Any
+) : OfTypeService<T, Map<Any, T>>(key, typeOfKey) {
+
+    override fun bind(graph: Graph): BoundService<Map<Any, T>> =
+        BoundMapOfTypeService(graph, this)
+
+}
+
+@PublishedApi
+internal class MapOfProvidersForTypeService<T: Any>(
+    key: TypeKey<Map<Any, Provider<T>>>,
+    typeOfKey: TypeKey<T>,
+    val defaultKey: Any
+) : OfTypeService<T, Map<Any, Provider<T>>>(key, typeOfKey) {
+
+    override fun bind(graph: Graph): BoundService<Map<Any, Provider<T>>> =
+        BoundMapOfProvidersForTypeService(graph, this)
+
+}

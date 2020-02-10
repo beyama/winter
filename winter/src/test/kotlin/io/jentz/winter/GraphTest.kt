@@ -545,7 +545,7 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("#*OfType methods")
+    @DisplayName("#*OfType")
     inner class OfTypeMethods {
 
         private val testComponent = component {
@@ -553,6 +553,47 @@ class GraphTest {
             prototype("a") { "a" }
             prototype("b") { "b" }
             prototype("c") { "c" }
+            prototype { "bar" }
+
+            setOfType<String>("a")
+            setOfProvidersForType<String>("b")
+            mapOfType<String>("c", defaultKey = "foo")
+            mapOfProvidersForType<String>("d", defaultKey = "foo")
+        }
+
+        @Test
+        fun `should provide a set of instances of type`() {
+            val set: Set<String> = testComponent.createGraph().instance("a", true)
+            set.shouldBe(setOf("a", "b", "c", "bar"))
+        }
+
+        @Test
+        fun `should provide a set of providers of type`() {
+            val set: Set<Provider<String>> = testComponent.createGraph().instance("b", true)
+            set.map { it() }.shouldContainAll("a", "b", "c", "bar")
+        }
+
+        @Test
+        fun `should provide a map of instances of type`() {
+            val map: Map<Any, String> = testComponent.createGraph().instance("c", true)
+            map.shouldBe(mapOf(
+                "a" to "a",
+                "b" to "b",
+                "c" to "c",
+                "foo" to "bar"
+            ))
+        }
+
+        @Test
+        fun `should provide a map of providers of type`() {
+            val map: Map<Any, Provider<String>> = testComponent.createGraph().instance("d", true)
+            map.map { (k, v) -> k to v() }.toMap()
+                .shouldBe(mapOf(
+                    "a" to "a",
+                    "b" to "b",
+                    "c" to "c",
+                    "foo" to "bar"
+                ))
         }
 
         @Test
@@ -572,15 +613,15 @@ class GraphTest {
         @Test
         fun `#providersOfType should return a set of providers of a given type`() {
             val providers = testComponent.createGraph().providersOfType<String>()
-            providers.shouldHaveSize(3)
-            providers.map { it() }.shouldContainAll("a", "b", "c")
+            providers.shouldHaveSize(4)
+            providers.map { it() }.shouldContainAll("a", "b", "c", "bar")
         }
 
         @Test
         fun `#instancesOfType should return a set of instances of given type`() {
             val instances = testComponent.createGraph().instancesOfType<String>()
-            instances.shouldHaveSize(3)
-            instances.shouldContainAll("a", "b", "c")
+            instances.shouldHaveSize(4)
+            instances.shouldContainAll("a", "b", "c", "bar")
         }
 
     }
@@ -653,7 +694,7 @@ class GraphTest {
 
         @Test
         fun `should initialize graph with given component`() {
-            Graph(WinterApplication(),null, emptyComponent, null, null)
+            Graph(WinterApplication(), null, emptyComponent, null, null)
                 .component.shouldBe(emptyComponent)
         }
 
@@ -673,7 +714,7 @@ class GraphTest {
 
         @Test
         fun `should derive component when builder block is given`() {
-            val graph = Graph(Winter,null, emptyComponent, null) { constant(42) }
+            val graph = Graph(Winter, null, emptyComponent, null) { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
