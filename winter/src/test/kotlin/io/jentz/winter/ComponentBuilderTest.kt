@@ -8,7 +8,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.lang.IllegalArgumentException
 import javax.inject.Singleton
 
 class ComponentBuilderTest {
@@ -379,17 +378,13 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#subcomponent should throw an exception when deriveExisting is true but subcomponent doesn't exist`() {
-        shouldThrow<WinterException> {
-            component { subcomponent("sub", deriveExisting = true) {} }
-        }
-    }
+    fun `#subcomponent should replace existing subcomponent when override is true`() {
+        val base = component { subcomponent("sub") { constant("a", "a") } }
+        val derived = base.derive { subcomponent("sub", override = true) { constant("b", "b") } }
+        val sub = derived.subcomponent("sub")
 
-    @Test
-    fun `#subcomponent should throw an exception when override is true but subcomponent doesn't exist`() {
-        shouldThrow<WinterException> {
-            component { subcomponent("sub", override = true) {} }
-        }
+        sub.shouldNotContainService(typeKey<String>("a"))
+        sub.shouldContainService(typeKey<String>("b"))
     }
 
     @Test

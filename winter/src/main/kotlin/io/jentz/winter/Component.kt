@@ -557,17 +557,8 @@ class Component private constructor(
                 throw WinterException("Subcomponent with qualifier `$qualifier` already exists.")
             }
 
-            if (!doesAlreadyExist && override) {
-                throw WinterException(
-                    "Subcomponent with qualifier `$qualifier` doesn't exist but override is true."
-                )
-            }
-
-            if (!doesAlreadyExist && deriveExisting) {
-                throw WinterException(
-                    "Subcomponent with qualifier `$qualifier` does not exist but deriveExisting " +
-                            "is true."
-                )
+            if (doesAlreadyExist && override) {
+                remove(key)
             }
 
             getOrCreateSubcomponentBuilder(key).apply(block)
