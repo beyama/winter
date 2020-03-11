@@ -17,7 +17,7 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
             .failsToCompile()
             .withErrorContaining(
                 "Class `test.InjectConstructorAnnotationWithTwoConstructors` " +
-                        "is annotated with InjectConstructor and therefore must not have more than one constructor."
+                        "is annotated with InjectConstructor and therefore must have exactly one non-private constructor."
             )
     }
 
