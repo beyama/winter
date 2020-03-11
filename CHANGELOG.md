@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.8.0
+-------------
+* Add support for generated components
+* Add compiler support for Function0 types
+* Add services for set and maps of type
+* Remove fragment factory support
+* Remove *ofType methods from Graph and property delegates
+
 Version 0.7.1
 -------------
 * Add consumer ProGuard file to winter-androidx module

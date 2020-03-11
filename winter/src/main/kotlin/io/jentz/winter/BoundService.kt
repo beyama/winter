@@ -201,3 +201,76 @@ internal class BoundGraphService(
         graph.close()
     }
 }
+
+internal abstract class BoundOfTypeService<T : Any, R : Any>(
+    protected val graph: Graph
+) : BoundService<R> {
+
+    protected abstract val unboundService: OfTypeService<T, R>
+
+    override val key: TypeKey<R> get() = unboundService.key
+
+    override val scope: Scope
+        get() = Scope.Prototype
+
+    protected val keys: Set<TypeKey<T>> by lazy {
+        val typeOfKey = unboundService.typeOfKey
+        @Suppress("UNCHECKED_CAST")
+        graph.keys().filterTo(mutableSetOf()) { it.typeEquals(typeOfKey) } as Set<TypeKey<T>>
+    }
+
+    override fun instance(): R = graph.evaluate(this)
+
+    override fun onPostConstruct(instance: R) {
+    }
+
+    override fun onClose() {
+    }
+
+}
+
+internal class BoundSetOfTypeService<T : Any>(
+    graph: Graph,
+    override val unboundService: SetOfTypeService<T>
+) : BoundOfTypeService<T, Set<T>>(graph) {
+
+    override fun newInstance(): Set<T> = keys.mapTo(LinkedHashSet(keys.size)) { graph.instanceByKey(it) }
+
+}
+
+internal class BoundSetOfProvidersForTypeService<T : Any>(
+    graph: Graph,
+    override val unboundService: SetOfProvidersForTypeService<T>
+) : BoundOfTypeService<T, Set<Provider<T>>>(graph) {
+
+    override fun newInstance(): Set<Provider<T>> = keys.mapTo(LinkedHashSet(keys.size)) { graph.providerByKey(it) }
+
+}
+
+internal class BoundMapOfTypeService<T : Any>(
+    graph: Graph,
+    override val unboundService: MapOfTypeService<T>
+) : BoundOfTypeService<T, Map<Any, T>>(graph) {
+
+    override fun newInstance(): Map<Any, T> =
+        keys.associateByTo(HashMap(keys.size), {
+            it.qualifier ?: unboundService.defaultKey
+        }, {
+            graph.instanceByKey(it)
+        })
+
+}
+
+internal class BoundMapOfProvidersForTypeService<T : Any>(
+    graph: Graph,
+    override val unboundService: MapOfProvidersForTypeService<T>
+) : BoundOfTypeService<T, Map<Any, Provider<T>>>(graph) {
+
+    override fun newInstance(): Map<Any, Provider<T>> =
+        keys.associateByTo(HashMap(keys.size), {
+            it.qualifier ?: unboundService.defaultKey
+        }, {
+            graph.providerByKey(it)
+        })
+
+}

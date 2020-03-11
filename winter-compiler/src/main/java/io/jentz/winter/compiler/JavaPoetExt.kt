@@ -1,16 +1,20 @@
-package io.jentz.winter.compiler.generator
+package io.jentz.winter.compiler
 
 import com.squareup.javapoet.*
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.GenericClassTypeKey
-import io.jentz.winter.compiler.ISO8601_FORMAT
-import io.jentz.winter.compiler.WinterProcessor
-import io.jentz.winter.compiler.now
 import javax.inject.Provider
 
-private val PROVIDER_INTERFACE_NAME: ClassName = ClassName.get(Provider::class.java)
+private val JAVAX_PROVIDER_INTERFACE_NAME: ClassName = ClassName.get(Provider::class.java)
+
+private val PROVIDER_INTERFACE_NAME: ClassName = ClassName.get(Function0::class.java)
 
 private val LAZY_INTERFACE_NAME: ClassName = ClassName.get(Lazy::class.java)
+
+private val JVM_CLASS_MAPPING_NAME = ClassName.get("kotlin.jvm", "JvmClassMappingKt")
+
+val TypeName.isJavaxProvider: Boolean
+    get() = (this as? ParameterizedTypeName)?.rawType == JAVAX_PROVIDER_INTERFACE_NAME
 
 val TypeName.isProvider: Boolean
     get() = (this as? ParameterizedTypeName)?.rawType == PROVIDER_INTERFACE_NAME
@@ -31,21 +35,26 @@ fun TypeName.newTypeKeyCode(qualifier: String?): CodeBlock {
 }
 
 fun TypeName.getInstanceCode(isNullable: Boolean, qualifier: String?): CodeBlock {
-    val graphMethod = if (isNullable) "instanceOrNullByKey" else "instanceByKey"
+    val instanceByKeyMethod = if (isNullable) "instanceOrNullByKey" else "instanceByKey"
 
     return when {
-        isProvider -> {
+        isJavaxProvider -> {
             val typeName = (this as ParameterizedTypeName).typeArguments.first()
-            CodeBlock.of("() -> graph.$graphMethod(\$L)", typeName.newTypeKeyCode(qualifier))
+            CodeBlock.of("() -> graph.$instanceByKeyMethod(\$L)", typeName.newTypeKeyCode(qualifier))
+        }
+        isProvider -> {
+            val providerByKeyMethod = if (isNullable) "providerOrNullByKey" else "providerByKey"
+            val typeName = (this as ParameterizedTypeName).typeArguments.first()
+            CodeBlock.of("graph.$providerByKeyMethod(\$L)", typeName.newTypeKeyCode(qualifier))
         }
         isLazy -> {
             val lazyName = ClassName.get(Lazy::class.java.`package`.name, "LazyKt")
             val typeName = (this as ParameterizedTypeName).typeArguments.first()
-            CodeBlock.of("\$T.lazy(() -> graph.$graphMethod(\$L))", lazyName, typeName.newTypeKeyCode(qualifier))
+            CodeBlock.of("\$T.lazy(() -> graph.$instanceByKeyMethod(\$L))", lazyName, typeName.newTypeKeyCode(qualifier))
         }
         else -> {
             val typeKeyCode = newTypeKeyCode(qualifier)
-            CodeBlock.of("graph.$graphMethod(\$L)", typeKeyCode)
+            CodeBlock.of("graph.$instanceByKeyMethod(\$L)", typeKeyCode)
         }
     }
 }
@@ -65,3 +74,8 @@ fun TypeSpec.Builder.generatedAnnotation(generatedAnnotationName: ClassName?): T
     }
     return this
 }
+
+fun ClassName.toGetKotlinKClassCodeBlock(): CodeBlock =
+    CodeBlock.of("\$T.getKotlinClass(\$T.class)", JVM_CLASS_MAPPING_NAME, this)
+
+fun Class<*>.toClassName(): ClassName = ClassName.get(this)

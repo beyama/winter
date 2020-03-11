@@ -4,8 +4,6 @@ import io.jentz.winter.inject.ApplicationScope
 
 internal val UNINITIALIZED_VALUE = Any()
 
-const val TYPE_KEY_OF_TYPE_QUALIFIER = "__OF_TYPE__"
-
 /**
  * Factory function signature with [Graph] as receiver.
  */
@@ -81,11 +79,3 @@ inline fun <reified R : Any> typeKey(
 } else {
     ClassTypeKey(R::class.java, qualifier)
 }
-
-/**
- * This is used internally to created dependency keys to search for all entries of the given type.
- * The qualifier is used to allow the usage of this key for caching to prevent clashes with normal
- * dependency keys.
- */
-inline fun <reified R : Any> typeKeyOfType(generics: Boolean = false) =
-    typeKey<R>(qualifier = TYPE_KEY_OF_TYPE_QUALIFIER, generics = generics)

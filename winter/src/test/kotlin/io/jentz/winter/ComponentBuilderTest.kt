@@ -8,7 +8,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.lang.IllegalArgumentException
 import javax.inject.Singleton
 
 class ComponentBuilderTest {
@@ -117,6 +116,66 @@ class ComponentBuilderTest {
         component {
             constant(42, "h")
                 .shouldBe(typeKey<Int>("h"))
+        }
+    }
+
+    @Test
+    fun `#setOfType should register SetOfTypeService`() {
+        component {
+            setOfType<String>("a")
+        }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>("a",true))
+    }
+
+    @Test
+    fun `#setOfType should return the type key`() {
+        component {
+            setOfType<String>()
+                .shouldBe(typeKey<Set<String>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#setOfProvidersForType should register SetOfProvidersForTypeService`() {
+        component {
+            setOfProvidersForType<String>("a")
+        }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(typeKey<Set<Provider<String>>>("a",true))
+    }
+
+    @Test
+    fun `#setOfProvidersForType should return the type key`() {
+        component {
+            setOfProvidersForType<String>()
+                .shouldBe(typeKey<Set<Provider<String>>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#mapOfType should register MapOfTypeService`() {
+        component {
+            mapOfType<String>("a")
+        }.shouldContainServiceOfType<MapOfTypeService<*>>(typeKey<Map<Any, String>>("a",true))
+    }
+
+    @Test
+    fun `#mapOfType should return the type key`() {
+        component {
+            mapOfType<String>()
+                .shouldBe(typeKey<Map<Any, String>>(generics = true))
+        }
+    }
+
+    @Test
+    fun `#mapOfProvidersForType should register MapOfProvidersForTypeService`() {
+        component {
+            mapOfProvidersForType<String>("a")
+        }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(typeKey<Map<Any, Provider<String>>>("a",true))
+    }
+
+    @Test
+    fun `#mapOfProvidersForType should return the type key`() {
+        component {
+            mapOfProvidersForType<String>()
+                .shouldBe(typeKey<Map<Any, Provider<String>>>(generics = true))
         }
     }
 
@@ -319,17 +378,13 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#subcomponent should throw an exception when deriveExisting is true but subcomponent doesn't exist`() {
-        shouldThrow<WinterException> {
-            component { subcomponent("sub", deriveExisting = true) {} }
-        }
-    }
+    fun `#subcomponent should replace existing subcomponent when override is true`() {
+        val base = component { subcomponent("sub") { constant("a", "a") } }
+        val derived = base.derive { subcomponent("sub", override = true) { constant("b", "b") } }
+        val sub = derived.subcomponent("sub")
 
-    @Test
-    fun `#subcomponent should throw an exception when override is true but subcomponent doesn't exist`() {
-        shouldThrow<WinterException> {
-            component { subcomponent("sub", override = true) {} }
-        }
+        sub.shouldNotContainService(typeKey<String>("a"))
+        sub.shouldContainService(typeKey<String>("b"))
     }
 
     @Test

@@ -4,11 +4,11 @@ import io.jentz.winter.ClassTypeKey;
 import io.jentz.winter.Component;
 import io.jentz.winter.Graph;
 import io.jentz.winter.TypeKey;
+import io.jentz.winter.inject.ApplicationScope;
 import io.jentz.winter.inject.Factory;
 import io.jentz.winter.inject.InterOp;
 import java.lang.Override;
 import javax.annotation.Generated;
-import javax.inject.Singleton;
 import kotlin.jvm.JvmClassMappingKt;
 
 @Generated(
@@ -24,7 +24,7 @@ public final class NoArgumentInjectConstructor_WinterFactory implements Factory<
     @Override
     public TypeKey<NoArgumentInjectConstructor> register(final Component.Builder builder,
                                                          final boolean override) {
-        builder.checkComponentQualifier(JvmClassMappingKt.getKotlinClass(Singleton.class));
+        builder.checkComponentQualifier(JvmClassMappingKt.getKotlinClass(ApplicationScope.class));
         TypeKey<test.NoArgumentInjectConstructor> key = new ClassTypeKey<>(NoArgumentInjectConstructor.class, null);
         InterOp.singleton(builder, key, override, this);
         return key;

@@ -8,11 +8,9 @@ import androidx.test.filters.LargeTest
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
-import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
 import io.jentz.winter.androidx.useAndroidPresentationScopeAdapter
-import io.jentz.winter.androidx.useSimpleAndroidAdapter
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue

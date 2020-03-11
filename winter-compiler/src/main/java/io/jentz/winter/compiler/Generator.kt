@@ -1,10 +1,13 @@
 package io.jentz.winter.compiler
 
+import io.jentz.winter.compiler.generator.ComponentGenerator
 import io.jentz.winter.compiler.generator.FactoryGenerator
 import io.jentz.winter.compiler.generator.InjectorGenerator
 import io.jentz.winter.compiler.model.FactoryModel
 import io.jentz.winter.compiler.model.InjectorModel
 import io.jentz.winter.inject.InjectConstructor
+import java.io.PrintWriter
+import java.io.StringWriter
 import javax.annotation.processing.Filer
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
@@ -72,8 +75,28 @@ class Generator(
     }
 
     private fun generate() {
+        if (factories.isEmpty() && injectors.isEmpty()) {
+            return
+        }
+
+        if (configuration.generatedComponentPackage != null && factories.isNotEmpty()) {
+            generateComponent()
+        }
+
         generateInjectors()
         generateFactories()
+    }
+
+    private fun generateComponent() {
+        try {
+            ComponentGenerator(configuration, factories)
+                .generate()
+                .writeTo(filer)
+        } catch (t: Throwable) {
+            val stringWriter = StringWriter()
+            t.printStackTrace(PrintWriter(stringWriter))
+            logger.error(stringWriter.toString())
+        }
     }
 
     private fun generateInjectors() {

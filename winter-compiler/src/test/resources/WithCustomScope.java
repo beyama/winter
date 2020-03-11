@@ -2,11 +2,12 @@ package io.jentz.winter.compilertest;
 
 import javax.inject.Inject;
 
+import io.jentz.winter.compiler.CustomScope;
 import io.jentz.winter.inject.ApplicationScope;
 
-@ApplicationScope
-public class WithCustomApplicationScope {
+@CustomScope
+public class WithCustomScope {
     @Inject
-    public WithCustomApplicationScope() {
+    public WithCustomScope() {
     }
 }

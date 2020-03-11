@@ -20,16 +20,13 @@ import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.DependencyGraphContextWrapper
 import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
-import io.jentz.winter.androidx.WinterFragmentFactory
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.useSimpleAndroidAdapter
 import io.jentz.winter.emptyGraph
-import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import org.junit.Before
 import org.junit.Rule
@@ -184,11 +181,6 @@ class SimpleAndroidInjectionAdapterTest {
             adapter.get(DependencyGraphContextWrapper(activity, graph))
                 .shouldBeSameInstanceAs(graph)
         }
-    }
-
-    @Test
-    fun should_not_setup_fragment_factory_by_default() {
-        winterRule.requireTestGraph.instanceOrNull<WinterFragmentFactory>().shouldBeNull()
     }
 
 }

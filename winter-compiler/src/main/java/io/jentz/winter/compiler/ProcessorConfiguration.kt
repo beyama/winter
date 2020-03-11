@@ -3,7 +3,10 @@ package io.jentz.winter.compiler
 import com.squareup.javapoet.ClassName
 import javax.annotation.processing.ProcessingEnvironment
 
-data class ProcessorConfiguration(val generatedAnnotation: ClassName?) {
+data class ProcessorConfiguration(
+    val generatedComponentPackage: String?,
+    val generatedAnnotation: ClassName?
+) {
 
     companion object {
 
@@ -13,13 +16,18 @@ data class ProcessorConfiguration(val generatedAnnotation: ClassName?) {
         )
 
         fun from(processingEnv: ProcessingEnvironment): ProcessorConfiguration {
+            val options = processingEnv.options
+
+            val generatedComponentPackage = options[OPTION_GENERATED_COMPONENT_PACKAGE]
+                .takeUnless { it.isNullOrBlank() }
+
             // Android's API jar doesn't include a Generated annotation so we check the
             // availability here
             val generatedAnnotation = generatedAnnotations.find {
                 processingEnv.elementUtils.getTypeElement(it.canonicalName()) != null
             }
 
-            return ProcessorConfiguration(generatedAnnotation)
+            return ProcessorConfiguration(generatedComponentPackage, generatedAnnotation)
 
         }
 

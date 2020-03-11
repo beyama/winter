@@ -2,8 +2,6 @@ package io.jentz.winter.delegate
 
 import io.jentz.winter.*
 import io.jentz.winter.adapter.useApplicationGraphOnlyAdapter
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
@@ -25,10 +23,6 @@ class InjectedPropertyTest {
 
     private val testComponent = component {
         prototype { atomicInteger.incrementAndGet() }
-    }
-
-    private val ofTypeTestComponent = component {
-        (0..4).forEach { prototype(qualifier = it) { atomicInteger.incrementAndGet() } }
     }
 
     @BeforeEach
@@ -73,24 +67,6 @@ class InjectedPropertyTest {
         fun `should return LazyInstanceOrNullProperty for #injectLazyOrNull`() {
             injectLazyOrNull<String>()
                 .shouldBeInstanceOf<io.jentz.winter.delegate.LazyInstanceOrNullProperty<*>>()
-        }
-
-        @Test
-        fun `should return ProvidersOfTypeProperty for #injectProvidersOfType`() {
-            injectProvidersOfType<String>()
-                .shouldBeInstanceOf<io.jentz.winter.delegate.ProvidersOfTypeProperty<*>>()
-        }
-
-        @Test
-        fun `should return InstancesOfTypeProperty for #injectInstancesOfType`() {
-            injectInstancesOfType<String>()
-                .shouldBeInstanceOf<io.jentz.winter.delegate.InstancesOfTypeProperty<*>>()
-        }
-
-        @Test
-        fun `should return LazyInstancesOfTypeProperty for #injectLazyInstancesOfType`() {
-            injectLazyInstancesOfType<String>()
-                .shouldBeInstanceOf<io.jentz.winter.delegate.LazyInstancesOfTypeProperty<*>>()
         }
 
     }
@@ -270,97 +246,6 @@ class InjectedPropertyTest {
                 expectValueToChange(0, 1, atomicInteger::get) {
                     value.shouldBe(1)
                 }
-            }
-        }
-
-    }
-
-    @Nested
-    inner class ProvidersOfTypeProperty {
-
-        @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                ProvidersOfTypeProperty<String>(typeKeyOfType()).value
-            }
-        }
-
-        @Test
-        fun `should return an empty set if no dependency was found`() {
-            ProvidersOfTypeProperty<String>(typeKeyOfType()).apply {
-                inject(emptyGraph)
-                value.shouldBeEmpty()
-            }
-        }
-
-        @Test
-        fun `returns a set of provider blocks`() {
-            ProvidersOfTypeProperty<Int>(typeKeyOfType()).apply {
-                inject(ofTypeTestComponent.createGraph())
-                value.shouldHaveSize(5)
-                expectValueToChange(0, 5, atomicInteger::get) {
-                    value.map { it.invoke() }.toSet().shouldBe((1..5).toSet())
-                }
-            }
-        }
-
-    }
-
-    @Nested
-    inner class InstancesOfTypeProperty {
-
-        @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                InstancesOfTypeProperty<String>(typeKeyOfType()).value
-            }
-        }
-
-        @Test
-        fun `should return an empty set if no dependency was found`() {
-            InstancesOfTypeProperty<String>(typeKeyOfType()).apply {
-                inject(emptyGraph)
-                value.shouldBeEmpty()
-            }
-        }
-
-        @Test
-        fun `should eagerly resolve dependencies`() {
-            expectValueToChange(0, 5, atomicInteger::get) {
-                InstancesOfTypeProperty<Int>(typeKeyOfType()).apply {
-                    inject(ofTypeTestComponent.createGraph())
-                    value.shouldHaveSize(5)
-                }
-            }
-        }
-
-    }
-
-    @Nested
-    inner class LazyInstancesOfTypeProperty {
-
-        @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                LazyInstancesOfTypeProperty<String>(typeKeyOfType()).value
-            }
-        }
-
-        @Test
-        fun `should return an empty set if no dependency was found`() {
-            LazyInstancesOfTypeProperty<String>(typeKeyOfType()).apply {
-                inject(emptyGraph)
-                value.shouldBeEmpty()
-            }
-        }
-
-        @Test
-        fun `should lazy resolve dependencies`() {
-            LazyInstancesOfTypeProperty<Int>(typeKeyOfType()).apply {
-                inject(ofTypeTestComponent.createGraph())
-                atomicInteger.get().shouldBe(0)
-                value.shouldHaveSize(5)
-                atomicInteger.get().shouldBe(5)
             }
         }
 

@@ -31,13 +31,16 @@ class FactoryModel private constructor(
         )
 
         fun forInjectConstructorAnnotatedClass(typeElement: TypeElement): FactoryModel {
-            val constructorElements = ElementFilter.constructorsIn(typeElement.enclosedElements)
-            val constructorElement = constructorElements.first()
+            val constructorElements = ElementFilter
+                .constructorsIn(typeElement.enclosedElements)
+                .filterNot { it.isPrivate }
 
             require(constructorElements.size == 1) {
                 "Class `${typeElement.qualifiedName}` is annotated with InjectConstructor " +
-                        "and therefore must not have more than one constructor."
+                        "and therefore must have exactly one non-private constructor."
             }
+
+            val constructorElement = constructorElements.first()
 
             require(constructorElement.getAnnotation(Inject::class.java) == null) {
                 "Class `${typeElement.qualifiedName}` is annotated with InjectConstructor " +
@@ -90,6 +93,10 @@ class FactoryModel private constructor(
             "Cannot inject a abstract class."
         }
 
+        require(!constructorElement.isPrivate) {
+            "Cannot inject a private constructor."
+        }
+
         val scopeAnnotations = typeElement.annotationMirrors.map {
             it.annotationType.asElement() as TypeElement
         }.filter {
@@ -117,7 +124,9 @@ class FactoryModel private constructor(
             else -> typeName
         }
 
-        scopeAnnotationName = scopeAnnotations.firstOrNull()?.let { ClassName.get(it) }
+        scopeAnnotationName = scopeAnnotations.firstOrNull()
+            ?.toClassName()
+            ?.let { if (it == SINGLETON_ANNOTAION_CLASS_NAME) APPLICATION_SCOPE_CLASS_NAME else it }
 
         isEagerSingleton = typeElement.getAnnotation(EagerSingleton::class.java) != null
 
