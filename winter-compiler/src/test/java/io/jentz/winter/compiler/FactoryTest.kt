@@ -95,6 +95,18 @@ class FactoryTest : BaseProcessorTest() {
     }
 
     @Test
+    fun `should fail if annotated constructor is private`() {
+        assert_()
+            .about(javaSource())
+            .that(forResource("PrivateNoArgumentInjectConstructor.java"))
+            .processedWith(WinterProcessor())
+            .failsToCompile()
+            .withErrorContaining(
+                "Cannot inject a private constructor."
+            )
+    }
+
+    @Test
     fun `should generate factory for class with lazy and provider arguments constructor`() {
         assert_()
             .about(javaSource())

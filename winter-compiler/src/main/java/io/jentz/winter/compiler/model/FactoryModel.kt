@@ -31,13 +31,16 @@ class FactoryModel private constructor(
         )
 
         fun forInjectConstructorAnnotatedClass(typeElement: TypeElement): FactoryModel {
-            val constructorElements = ElementFilter.constructorsIn(typeElement.enclosedElements)
-            val constructorElement = constructorElements.first()
+            val constructorElements = ElementFilter
+                .constructorsIn(typeElement.enclosedElements)
+                .filterNot { it.isPrivate }
 
             require(constructorElements.size == 1) {
                 "Class `${typeElement.qualifiedName}` is annotated with InjectConstructor " +
-                        "and therefore must not have more than one constructor."
+                        "and therefore must have exactly one non-private constructor."
             }
+
+            val constructorElement = constructorElements.first()
 
             require(constructorElement.getAnnotation(Inject::class.java) == null) {
                 "Class `${typeElement.qualifiedName}` is annotated with InjectConstructor " +
@@ -88,6 +91,10 @@ class FactoryModel private constructor(
         }
         require(!typeElement.isAbstract) {
             "Cannot inject a abstract class."
+        }
+
+        require(!constructorElement.isPrivate) {
+            "Cannot inject a private constructor."
         }
 
         val scopeAnnotations = typeElement.annotationMirrors.map {
