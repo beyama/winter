@@ -35,12 +35,12 @@ dependencies {
     implementation deps.kotlin.stdlib
     api deps.kotlin.reflect
 
-    testImplementation deps.junit.jupiterApi
-    testImplementation deps.kotlintest
+    testImplementation deps.test.jupiterApi
+    testImplementation deps.test.kotlintest
     testImplementation deps.mockito.core
     testImplementation deps.mockito.kotlin
 
-    testRuntimeOnly deps.junit.jupiterEngine
+    testRuntimeOnly deps.test.jupiterEngine
 }
 
 task javadocJar(type: Jar) {

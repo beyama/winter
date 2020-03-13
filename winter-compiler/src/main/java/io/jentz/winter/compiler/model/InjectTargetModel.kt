@@ -1,84 +1,116 @@
 package io.jentz.winter.compiler.model
 
-import io.jentz.winter.compiler.hasAccessibleSetter
-import io.jentz.winter.compiler.isNullable
-import io.jentz.winter.compiler.isPrivate
-import io.jentz.winter.compiler.qualifier
-import kotlinx.metadata.KmProperty
-import kotlinx.metadata.jvm.syntheticMethodForAnnotations
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.metadata.ImmutableKmClass
+import com.squareup.kotlinpoet.metadata.ImmutableKmProperty
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import com.squareup.kotlinpoet.metadata.isNullable
+import io.jentz.winter.compiler.*
+import javax.lang.model.element.*
 import javax.lang.model.util.ElementFilter
 
-sealed class InjectTargetModel(
-    val kmProperty: KmProperty?
+data class InjectTargetModel(
+    val originatingElement: Element,
+    val targetName: String,
+    val targetTypeName: TypeName,
+    val isNullable: Boolean,
+    val qualifier: String?,
+    val targetType: TargetType,
+    val fqdn: String
 ) {
+    enum class TargetType { Field, Method, Property }
 
-    abstract val originatingElement: Element
+    companion object {
 
-    abstract val variableElement: VariableElement
+        @KotlinPoetMetadataPreview
+        fun forElement(originatingElement: Element, kmClass: ImmutableKmClass?): InjectTargetModel {
 
-    abstract val qualifier: String?
+            val typeElement: TypeElement = originatingElement.enclosingElement as TypeElement
+            val fqdn = "${typeElement.qualifiedName}.${originatingElement.simpleName}"
 
-    private val type get() = originatingElement.enclosingElement as TypeElement
+            val variableElement: VariableElement
+            val targetName: String
+            val targetType: TargetType
+            val kmProperty: ImmutableKmProperty?
+            val qualifier: String?
 
-    val fqdn get() = "${type.qualifiedName}.${originatingElement.simpleName}"
+            when (originatingElement.kind) {
+                ElementKind.FIELD -> {
+                    variableElement = originatingElement as VariableElement
 
-    val isNullable: Boolean get() = kmProperty?.isNullable ?: variableElement.isNullable
+                    kmProperty = kmClass
+                        ?.properties
+                        ?.find { it.fieldSignature?.name == variableElement.simpleName.toString() }
+                        ?.takeIf { it.hasAccessibleSetter }
 
-    val propertyQualifier: String? get() = kmProperty
-        ?.syntheticMethodForAnnotations
-        ?.let { signature ->
-            ElementFilter
-                .methodsIn(type.enclosedElements)
-                .find { it.simpleName.contentEquals(signature.name) }
-        }?.qualifier
+                    targetName = kmProperty?.name ?: variableElement.simpleName.toString()
 
-}
+                    val propertyQualifier = kmProperty?.let { getPropertyQualifier(it, typeElement) }
 
-class FieldInjectTarget(
-    override val originatingElement: VariableElement,
-    kmProperty: KmProperty?
-) : InjectTargetModel(kmProperty) {
+                    qualifier = propertyQualifier ?: variableElement.qualifier
 
-    override val variableElement: VariableElement = originatingElement
+                    targetType = if (kmProperty == null) TargetType.Field else TargetType.Property
+                }
+                ElementKind.METHOD -> {
+                    val setter = originatingElement as ExecutableElement
 
-    override val qualifier: String? get() = variableElement.qualifier ?: propertyQualifier
+                    require(setter.parameters.size == 1) {
+                        "Setter for setter injection must have exactly one parameter not " +
+                                "${originatingElement.parameters.size} ($fqdn)."
+                    }
 
-    init {
-        if (originatingElement.isPrivate && kmProperty?.hasAccessibleSetter != true) {
-            throw IllegalArgumentException("Cannot inject into private fields ($fqdn).")
-        }
-    }
+                    variableElement = setter.parameters.first()
 
-}
+                    kmProperty = kmClass
+                        ?.properties
+                        ?.find { it.setterSignature?.name == setter.simpleName.toString() }
+                        ?.takeIf { it.hasAccessibleSetter }
 
-class SetterInjectTarget(
-    override val originatingElement: ExecutableElement,
-    kmProperty: KmProperty?
-) : InjectTargetModel(kmProperty) {
+                    targetName = kmProperty?.name ?: setter.simpleName.toString()
 
-    override val variableElement: VariableElement
+                    val argumentQualifier = setter.parameters.first().qualifier
+                    val propertyQualifier = kmProperty?.let { getPropertyQualifier(it, typeElement) }
 
-    override val qualifier: String?
-        get() = variableElement.qualifier
-            ?: variableElement.enclosingElement.qualifier
-            ?: propertyQualifier
+                    qualifier = propertyQualifier ?: argumentQualifier ?: setter.qualifier
 
-    init {
-        if (originatingElement.parameters.size != 1) {
-            throw IllegalArgumentException(
-                "Setter for setter injection must have exactly one parameter not " +
-                        "${originatingElement.parameters.size} ($fqdn)."
+                    targetType = if (kmProperty == null) TargetType.Method else TargetType.Property
+                }
+                else -> error("BUG: Unexpected element kind `${originatingElement.kind}`.")
+            }
+
+            require(!originatingElement.isPrivate || kmProperty?.hasAccessibleSetter == true) {
+                "Cannot inject into private fields or properties ($fqdn)."
+            }
+
+            val targetTypeName = kmProperty?.returnType?.asTypeName()
+                ?: variableElement.asType().asTypeName().kotlinTypeName
+
+            return InjectTargetModel(
+                originatingElement = originatingElement,
+                targetName = targetName,
+                targetTypeName = targetTypeName,
+                isNullable = kmProperty?.returnType?.isNullable ?: variableElement.isNullable,
+                qualifier = qualifier,
+                targetType = targetType,
+                fqdn = fqdn
             )
-        }
-        if (originatingElement.isPrivate) {
-            throw IllegalArgumentException("Cannot inject into private setter ($fqdn).")
+
         }
 
-        variableElement = originatingElement.parameters.first()
+        @KotlinPoetMetadataPreview
+        private fun getPropertyQualifier(
+            kmProperty: ImmutableKmProperty,
+            typeElement: TypeElement
+        ): String? {
+            return kmProperty
+                .syntheticMethodForAnnotations
+                ?.let { signature ->
+                    ElementFilter
+                        .methodsIn(typeElement.enclosedElements)
+                        .find { it.simpleName.contentEquals(signature.name) }
+                }?.qualifier
+        }
     }
 
 }

@@ -1,16 +1,19 @@
 package io.jentz.winter.compiler
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.asTypeName
 import javax.inject.Inject
 import javax.inject.Named
 import javax.lang.model.element.*
+import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 val Element.isStatic get() = modifiers.contains(Modifier.STATIC)
 val Element.isPrivate get() = modifiers.contains(Modifier.PRIVATE)
+val Element.isProtected get() = modifiers.contains(Modifier.PROTECTED)
 val Element.isAbstract get() = modifiers.contains(Modifier.ABSTRACT)
 
 val TypeElement.isInnerClass get() = enclosingElement is TypeElement
@@ -39,6 +42,35 @@ val TypeElement.selfAndSuperclasses: Sequence<TypeElement>
         }
     }
 
-fun TypeMirror.toClassName(): TypeName = ClassName.get(this)
+fun ExecutableElement.jvmSignature(): String = buildString {
+    append("(")
+    parameters.forEach { append(it.asType().jvmSignature()) }
+    append(")")
+    append(returnType.jvmSignature())
+}
 
-fun TypeElement.toClassName(): ClassName = ClassName.get(this)
+private fun TypeMirror.jvmSignature(): String = when (kind) {
+    TypeKind.BOOLEAN -> "Z"
+    TypeKind.BYTE -> "B"
+    TypeKind.SHORT -> "S"
+    TypeKind.INT -> "I"
+    TypeKind.LONG -> "J"
+    TypeKind.CHAR -> "C"
+    TypeKind.FLOAT -> "F"
+    TypeKind.DOUBLE -> "D"
+    TypeKind.VOID -> "V"
+    TypeKind.DECLARED -> {
+        val className = when (val typeName = asTypeName()) {
+            is ParameterizedTypeName -> typeName.rawType
+            is ClassName -> typeName
+            else -> error("BUG: Unexpected TypeName subtype `${typeName.javaClass.name}` in JVM Signature builder.")
+        }
+        val jvmName = className.reflectionName().replace(".", "/")
+        "L$jvmName;"
+    }
+    TypeKind.ARRAY -> {
+        val arrayType = this as ArrayType
+        "[${arrayType.componentType.jvmSignature()}"
+    }
+    else -> error("BUG: Unexpected TypeKind `$kind` in JVM Signature builder.")
+}

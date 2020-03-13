@@ -1,8 +1,5 @@
 package io.jentz.winter.compiler
 
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.KotlinClassHeader
-import kotlinx.metadata.jvm.KotlinClassMetadata
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.Element
@@ -16,16 +13,6 @@ class TypeUtils(
     private val elements: Elements,
     private val types: Types
 ) {
-
-    fun getKotlinClassMetadata(typeElement: TypeElement): KmClass? {
-        val header = typeElement.getAnnotation(Metadata::class.java)?.run {
-            KotlinClassHeader(kind, metadataVersion, bytecodeVersion, data1, data2, extraString, packageName, extraInt)
-        } ?: return null
-
-        val metadata = KotlinClassMetadata.read(header)
-
-        return (metadata as? KotlinClassMetadata.Class)?.toKmClass()
-    }
 
     fun getFactoryTypeFromAnnotation(
         typeElement: TypeElement,

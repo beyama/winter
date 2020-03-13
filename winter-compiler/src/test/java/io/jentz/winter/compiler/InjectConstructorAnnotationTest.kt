@@ -3,9 +3,11 @@ package io.jentz.winter.compiler
 import com.google.common.truth.Truth.assert_
 import com.google.testing.compile.JavaFileObjects.forResource
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import org.junit.jupiter.api.Test
 
 
+@KotlinPoetMetadataPreview
 class InjectConstructorAnnotationTest : BaseProcessorTest() {
 
     @Test
@@ -41,8 +43,8 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
             .that(forResource("InjectConstructorAnnotation.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("InjectConstructorAnnotation_WinterFactory.java"))
+
+        generatesSource("InjectConstructorAnnotation_WinterFactory")
     }
 
     @Test
@@ -52,8 +54,8 @@ class InjectConstructorAnnotationTest : BaseProcessorTest() {
             .that(forResource("InjectConstructorAnnotationWithType.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("InjectConstructorAnnotationWithType_WinterFactory.java"))
+
+        generatesSource("InjectConstructorAnnotationWithType_WinterFactory")
     }
 
 }
