@@ -96,7 +96,7 @@ class WinterTestSession private constructor(
 
             if (testGraphComponentMatcher.matches(graph)) {
                 this@WinterTestSession.testGraph = graph
-                testInstances.forEach { graph.injectWithReflection(it) }
+                testInstances.forEach { graph.inject(it) }
             }
 
             for ((matcher, callback) in onGraphInitializedCallbacks) {
