@@ -1,5 +1,5 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location:io.jentz.winter.testing$bindAllMocks(io.jentz.winter.ComponentBuilder, kotlin.Any)io.jentz.winter.testing/io.jentz.winter.-component-builder/bind-all-mocks.html
+$dokka.location:io.jentz.winter.testing$bindAllMocks(io.jentz.winter.Component.Builder, kotlin.Any)io.jentz.winter.testing/io.jentz.winter.-component.-builder/bind-all-mocks.html
 $dokka.location:io.jentz.winter.testing$injectWithReflection(io.jentz.winter.Graph, kotlin.Any)io.jentz.winter.testing/io.jentz.winter.-graph/inject-with-reflection.html
 io.jentz.winter.testing

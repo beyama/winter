@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>Component.Builder.alias - winter</title>
+<link rel="stylesheet" href="../../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../../index.html">winter</a>&nbsp;/&nbsp;<a href="../../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="../index.html">Component</a>&nbsp;/&nbsp;<a href="index.html">Builder</a>&nbsp;/&nbsp;<a href="./alias.html">alias</a><br/>
+<br/>
+<h1>alias</h1>
+<a name="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)"></a>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">R0</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier">R1</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">alias</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/targetKey">targetKey</span><span class="symbol">:</span>&nbsp;<a href="../../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="alias.html#R0"><span class="identifier">R0</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/newKey">newKey</span><span class="symbol">:</span>&nbsp;<a href="../../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="alias.html#R1"><span class="identifier">R1</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="../../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="alias.html#R0"><span class="identifier">R0</span></a><span class="symbol">&gt;</span></code>
+<p>Create an alias entry.</p>
+<p>Be careful, this method will not check if a type cast is possible.</p>
+<p>Example:</p>
+<pre><code>singleton { ReposViewModel(instance()) }
+
+alias(typeKey&lt;ReposViewModel&gt;(), typeKey&lt;ViewModel&lt;ReposViewState&gt;&gt;(generics = true))
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="targetKey"></a>
+<code>targetKey</code> - The <a href="../../-type-key/index.html">TypeKey</a> of an entry an alias should be created for.</p>
+<p><a name="newKey"></a>
+<code>newKey</code> - The alias <a href="../../-type-key/index.html">TypeKey</a>.</p>
+<p><a name="override"></a>
+<code>override</code> - If true this will override an existing factory of type <a href="alias.html#io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/newKey">newKey</a>.</p>
+<h3>Exceptions</h3>
+<p><a name="EntryNotFoundException"></a>
+<code>EntryNotFoundException</code> - If <a href="alias.html#io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/targetKey">targetKey</a> entry doesn't exist.</p>
+<p><a name="WinterException"></a>
+<code>WinterException</code> - If <a href="alias.html#io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/newKey">newKey</a> entry already exists and <a href="alias.html#io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R0)), io.jentz.winter.TypeKey((io.jentz.winter.Component.Builder.alias.R1)), kotlin.Boolean)/override">override</a> is false.</p>
+<a name="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((kotlin.Any)), kotlin.Any, kotlin.Boolean, kotlin.Boolean)"></a>
+<code><span class="keyword">inline</span> <span class="keyword">fun </span><span class="symbol">&lt;</span><span class="keyword">reified</span>&nbsp;<span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <a href="../../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">.</span><span class="identifier">alias</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((kotlin.Any)), kotlin.Any, kotlin.Boolean, kotlin.Boolean)/aliasQualifier">aliasQualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((kotlin.Any)), kotlin.Any, kotlin.Boolean, kotlin.Boolean)/generics">generics</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Component.Builder$alias(io.jentz.winter.TypeKey((kotlin.Any)), kotlin.Any, kotlin.Boolean, kotlin.Boolean)/override">override</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="../../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span></code>
+<p>Create an alias entry for a <a href="../../-type-key/index.html">TypeKey</a>.</p>
+<p>Be careful, this method will not check if a type cast is possible.</p>
+<p>Example:</p>
+<pre><code>singleton {
+  ReposViewModel(instance())
+}.alias&lt;ViewModel&lt;ReposViewState&gt;&gt;(generics = true)
+</code></pre>
+<h3>Parameters</h3>
+<p><a name="aliasQualifier"></a>
+<code>aliasQualifier</code> - The qualifier of the alias entry.</p>
+<p><a name="generics"></a>
+<code>generics</code> - If true this creates a type key that also takes generic type parameters
+    into account.</p>
+<p><a name="override"></a>
+<code>override</code> - If true this will override an existing factory for type <a href="alias.html#R">R</a>.</p>
+</BODY>
+</HTML>

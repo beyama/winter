@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>io.jentz.winter.androidx - winter-androidx</title>
+<link rel="stylesheet" href="../../style.css">
+</HEAD>
+<BODY>
+<a href="../index.html">winter-androidx</a>&nbsp;/&nbsp;<a href="./index.html">io.jentz.winter.androidx</a><br/>
+<br/>
+<h2>Package io.jentz.winter.androidx</h2>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-android-presentation-scope-injection-adapter/index.html">AndroidPresentationScopeInjectionAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">AndroidPresentationScopeInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-simple-android-injection-adapter/index.html"><span class="identifier">SimpleAndroidInjectionAdapter</span></a></code>
+<p>Extended version of <a href="-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a> that retains a <a href="../io.jentz.winter.androidx.inject/-presentation-scope/index.html">PresentationScope</a> subgraph
+during Activity re-creation (configuration changes).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-dependency-graph-context-wrapper/index.html">DependencyGraphContextWrapper</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">DependencyGraphContextWrapper</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">ContextWrapper</span></code>
+<p>A <a href="#">ContextWrapper</a> that holds a reference to a <a href="#">Graph</a> and creates a clone of <a href="#">LayoutInflater</a>
+that is bound to this.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">SimpleAndroidInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">InjectionAdapter</span></code>
+<p>Extensible injection adapter that operates on an <a href="#">io.jentz.winter.inject.ApplicationScope</a>
+component with an <a href="../io.jentz.winter.androidx.inject/-activity-scope/index.html">ActivityScope</a> subcomponent.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-fragment-factory/index.html">WinterFragmentFactory</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">WinterFragmentFactory</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">FragmentFactory</span></code>
+<p>A <a href="#">FragmentFactory</a> that resolves the fragment instances from the given <a href="#">graph</a>.
+This allows us to use constructor injection for our <a href="#">fragments</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Extensions for External Classes</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="io.jentz.winter.-winter-application/index.html">io.jentz.winter.WinterApplication</a></p>
+</td>
+<td>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

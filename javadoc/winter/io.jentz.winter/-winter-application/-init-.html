@@ -8,8 +8,8 @@
 <a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">WinterApplication</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
 <br/>
 <h1>&lt;init&gt;</h1>
-<a name="io.jentz.winter.WinterApplication$&lt;init&gt;(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))"></a>
-<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span></code>
+<a name="io.jentz.winter.WinterApplication$&lt;init&gt;(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))"></a>
+<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a>&nbsp;<span class="symbol">=</span>&nbsp;ApplicationScope::class<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span></code>
 <p>Convenient constructor to configure the application <a href="../-component/index.html">Component</a> during initialization.</p>
 <p>Example:</p>
 <pre><code>object MyLibApp : WinterApplication {
@@ -18,15 +18,53 @@
 </code></pre>
 <h3>Parameters</h3>
 <p><a name="qualifier"></a>
-<code>qualifier</code> - An optional qualifier for the component.</p>
+<code>qualifier</code> - A qualifier for the component.</p>
 <p><a name="block"></a>
 <code>block</code> - The component builder block.</p>
 <a name="io.jentz.winter.WinterApplication$&lt;init&gt;()"></a>
 <code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="symbol">)</span></code>
-<p><a href="index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
-application <a href="../-component/index.html">Component</a>.</p>
-<p><strong>See Also</strong><br/>
-<p><a href="../-winter.html">Winter</a></p>
-</p>
+<p>Holds plugins, the application <a href="../-component/index.html">Component</a>, the application <a href="../-graph/index.html">Graph</a> and offers an abstraction to
+inject dependencies into classes that cannot make use of constructor injection using an
+<a href="-injection-adapter/index.html">InjectionAdapter</a> system.</p>
+<p>The <a href="-injection-adapter/index.html">InjectionAdapter</a> backed abstraction takes the burden off of the using class to know how
+exactly a graph or parent graph is constructed and stored.</p>
+<p>An application specific graph creation and retrieval strategy can be provided by setting a
+custom <a href="-injection-adapter/index.html">InjectionAdapter</a>.</p>
+<pre><code>Winter.adapter = MyCustomAdapter()
+</code></pre>
+<p>To use Winter in a library it is recommended to create a library specific object
+from <a href="index.html">WinterApplication</a> for use in applications it is recommended to use the <a href="../-winter.html">Winter</a> object.</p>
+<p>Example, using the SimpleAndroidInjectionAdapter which is part of the winter-androidx module:</p>
+<pre><code>class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+
+    // register component
+    Winter.component {
+      singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
+
+      singleton { RepoListViewModel(instance()) }
+
+      subcomponent("activity") {
+         singleton { Glide.with(instance&lt;Activity&gt;()) }
+      }
+    }
+
+    // register adapter
+    Winter.useSimpleAndroidAdapter()
+    // open application graph
+    Winter.inject(this)
+  }
+}
+
+class MyActivity : Activity(), WinterAware {
+  private val viewModel: RepoListViewModel by inject()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Winter.inject(this)
+    super.onCreate(savedInstanceState)
+  }
+
+}</code></pre>
 </BODY>
 </HTML>

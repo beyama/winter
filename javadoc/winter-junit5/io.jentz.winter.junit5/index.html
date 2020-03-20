@@ -13,29 +13,45 @@
 <tbody>
 <tr>
 <td>
-<p><a href="-extend-graph-extension/index.html">ExtendGraphExtension</a></p>
+<p><a href="-abstract-winter-extension/index.html">AbstractWinterExtension</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ExtendGraphExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-graph-lifecycle-extension/index.html"><span class="identifier">GraphLifecycleExtension</span></a></code>
-<p>JUnit5 extension that takes a component qualifier and a <a href="#">ComponentBuilderBlock</a> and extends
-the <a href="#">Graph</a> with <a href="#">componentQualifier</a> by applying the <a href="#">ComponentBuilderBlock</a>.</p>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractWinterExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">ParameterResolver</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="-winter-all-extension/index.html">WinterAllExtension</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterAllExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-winter-extension/index.html"><span class="identifier">AbstractWinterExtension</span></a><span class="symbol">, </span><span class="identifier">BeforeAllCallback</span><span class="symbol">, </span><span class="identifier">AfterAllCallback</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before all tests
+and stops the session after all tests.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="-graph-lifecycle-extension/index.html">GraphLifecycleExtension</a></p>
+<p><a href="-winter-each-extension/index.html">WinterEachExtension</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">GraphLifecycleExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">SimplePlugin</span><span class="symbol">, </span><span class="identifier">BeforeEachCallback</span><span class="symbol">, </span><span class="identifier">AfterEachCallback</span></code>
-<p>JUnit5 extension that allows to hook into the <a href="#">io.jentz.winter.Graph</a> lifecycle.</p>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterEachExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-abstract-winter-extension/index.html"><span class="identifier">AbstractWinterExtension</span></a><span class="symbol">, </span><span class="identifier">BeforeEachCallback</span><span class="symbol">, </span><span class="identifier">AfterEachCallback</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before each test
+and stops the session after each test.</p>
 </td>
 </tr>
+</tbody>
+</table>
+<h3>Annotations</h3>
+<table>
+<tbody>
 <tr>
 <td>
-<p><a href="-winter-j-unit5/index.html">WinterJUnit5</a></p>
+<p><a href="-w-inject/index.html">WInject</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">WinterJUnit5</span></code></td>
+<code><span class="keyword">annotation</span> <span class="keyword">class </span><span class="identifier">WInject</span></code>
+<p>This annotation can be used to inject values into JUnit5 methods and constructors by using
+the test graph to resolve them.</p>
+</td>
 </tr>
 </tbody>
 </table>

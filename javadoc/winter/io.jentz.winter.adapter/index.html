@@ -13,10 +13,10 @@
 <tbody>
 <tr>
 <td>
-<p><a href="-application-graph-only-adapter/index.html">ApplicationGraphOnlyAdapter</a></p>
+<p><a href="-application-graph-only-injection-adapter/index.html">ApplicationGraphOnlyInjectionAdapter</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ApplicationGraphOnlyAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-winter-injection/-adapter/index.html"><span class="identifier">WinterInjection.Adapter</span></a></code>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">ApplicationGraphOnlyInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-winter-application/-injection-adapter/index.html"><span class="identifier">WinterApplication.InjectionAdapter</span></a></code>
 <p>Simple adapter for application with only one dependency graph.</p>
 </td>
 </tr>
@@ -30,9 +30,8 @@
 <p><a href="use-application-graph-only-adapter.html">useApplicationGraphOnlyAdapter</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><a href="../io.jentz.winter/-winter-injection/index.html"><span class="identifier">WinterInjection</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.adapter$useApplicationGraphOnlyAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterTree)/tree">tree</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-winter-tree/index.html"><span class="identifier">WinterTree</span></a>&nbsp;<span class="symbol">=</span>&nbsp;GraphRegistry<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code><br/>
-<code><span class="keyword">fun </span><a href="../io.jentz.winter/-winter-injection/index.html"><span class="identifier">WinterInjection</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.adapter$useApplicationGraphOnlyAdapter(io.jentz.winter.WinterInjection, io.jentz.winter.WinterApplication)/application">application</span><span class="symbol">:</span>&nbsp;<a href="../io.jentz.winter/-winter-application/index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Register an <a href="-application-graph-only-adapter/index.html">ApplicationGraphOnlyAdapter</a> on this <a href="../io.jentz.winter/-winter-injection/index.html">WinterInjection</a> instance.</p>
+<code><span class="keyword">fun </span><a href="../io.jentz.winter/-winter-application/index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register an <a href="-application-graph-only-injection-adapter/index.html">ApplicationGraphOnlyInjectionAdapter</a> on this <a href="../io.jentz.winter/-winter-application/index.html">WinterApplication</a> instance.</p>
 </td>
 </tr>
 </tbody>

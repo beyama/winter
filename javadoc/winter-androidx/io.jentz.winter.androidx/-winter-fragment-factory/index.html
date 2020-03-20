@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterFragmentFactory - winter-androidx</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-androidx</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.androidx</a>&nbsp;/&nbsp;<a href="./index.html">WinterFragmentFactory</a><br/>
+<br/>
+<h1>WinterFragmentFactory</h1>
+<code><span class="keyword">class </span><span class="identifier">WinterFragmentFactory</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">FragmentFactory</span></code>
+<p>A <a href="#">FragmentFactory</a> that resolves the fragment instances from the given <a href="#">graph</a>.
+This allows us to use constructor injection for our <a href="#">fragments</a>.</p>
+<p>This is usually used together with an Android
+<a href="#">io.jentz.winter.WinterApplication.InjectionAdapter</a>.</p>
+<p>Example:</p>
+<pre><code>// somewhere in the Android application class
+Winter.useSimpleAndroidAdapter(enableWinterFragmentFactory = true)
+
+// in a FragmentActivity inject the factory; it is already setup by the adapter
+@Inject lateinit var fragmentFactory: WinterFragmentFactory
+
+// add a fragment registered in the activity graph
+supportFragmentManager
+  .beginTransaction()
+  .add(fragmentFactory.instance&lt;MyFragment&gt;(), "tag")
+  .commit()
+</code></pre>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterFragmentFactory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.WinterFragmentFactory$<init>(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span></code>
+<p>A <a href="#">FragmentFactory</a> that resolves the fragment instances from the given <a href="#">graph</a>.
+This allows us to use constructor injection for our <a href="#">fragments</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="instance.html">instance</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Fragment</span><span class="symbol">&gt;</span> <span class="identifier">instance</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="instance.html#T"><span class="identifier">T</span></a></code>
+<p>Get instance of fragment by fragment class <a href="instance.html#T">T</a> from activity graph.</p>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">Fragment</span><span class="symbol">&gt;</span> <span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.WinterFragmentFactory$instance(java.lang.Class((io.jentz.winter.androidx.WinterFragmentFactory.instance.T)))/clazz">clazz</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><a href="instance.html#T"><span class="identifier">T</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="instance.html#T"><span class="identifier">T</span></a></code>
+<p>Get instance of fragment by fragment class <a href="instance.html#io.jentz.winter.androidx.WinterFragmentFactory$instance(java.lang.Class((io.jentz.winter.androidx.WinterFragmentFactory.instance.T)))/clazz">clazz</a> from activity graph.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="instantiate.html">instantiate</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">instantiate</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.WinterFragmentFactory$instantiate(java.lang.ClassLoader, kotlin.String)/classLoader">classLoader</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/ClassLoader.html"><span class="identifier">ClassLoader</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.androidx.WinterFragmentFactory$instantiate(java.lang.ClassLoader, kotlin.String)/className">className</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Fragment</span></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

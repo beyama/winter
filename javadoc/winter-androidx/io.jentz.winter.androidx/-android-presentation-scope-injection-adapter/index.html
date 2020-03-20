@@ -1,0 +1,162 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AndroidPresentationScopeInjectionAdapter - winter-androidx</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-androidx</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.androidx</a>&nbsp;/&nbsp;<a href="./index.html">AndroidPresentationScopeInjectionAdapter</a><br/>
+<br/>
+<h1>AndroidPresentationScopeInjectionAdapter</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">AndroidPresentationScopeInjectionAdapter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-simple-android-injection-adapter/index.html"><span class="identifier">SimpleAndroidInjectionAdapter</span></a></code>
+<p>Extended version of <a href="../-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a> that retains a <a href="../../io.jentz.winter.androidx.inject/-presentation-scope/index.html">PresentationScope</a> subgraph
+during Activity re-creation (configuration changes).</p>
+<p>It expects an application component like:</p>
+<pre><code>Winter.component {
+  // this sub-graph outlives configuration changes and is only disposed when Activity
+  // isFinishing == true
+  subcomponent(PresentationScope::class) {
+    // this is recreated every time the Activity is recreated
+    subcomponent(ActivityScope::class) {
+    }
+  }
+}
+Winter.useAndroidPresentationScopeAdapter()
+</code></pre>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">AndroidPresentationScopeInjectionAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter$<init>(io.jentz.winter.WinterApplication)/winterApplication">winterApplication</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span><span class="symbol">)</span></code>
+<p>Extended version of <a href="../-simple-android-injection-adapter/index.html">SimpleAndroidInjectionAdapter</a> that retains a <a href="../../io.jentz.winter.androidx.inject/-presentation-scope/index.html">PresentationScope</a> subgraph
+during Activity re-creation (configuration changes).</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/app.html">app</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">app</span><span class="symbol">: </span><span class="identifier">WinterApplication</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="close-activity-graph.html">closeActivityGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">closeActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter$closeActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<span class="identifier">Activity</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="get-activity-parent-graph.html">getActivityParentGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getActivityParentGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter$getActivityParentGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<span class="identifier">Activity</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/close.html">close</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">close</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$close(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/close-fragment-graph.html">closeFragmentGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">closeFragmentGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$closeFragmentGraph(androidx.fragment.app.Fragment)/fragment">fragment</span><span class="symbol">:</span>&nbsp;<span class="identifier">Fragment</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get.html">get</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">get</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$get(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-activity-graph.html">getActivityGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getActivityGraph(android.app.Activity)/activity">activity</span><span class="symbol">:</span>&nbsp;<span class="identifier">Activity</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-application-graph.html">getApplicationGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getApplicationGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getApplicationGraph(android.app.Application)/application">application</span><span class="symbol">:</span>&nbsp;<span class="identifier">Application</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-broadcast-receiver-graph.html">getBroadcastReceiverGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getBroadcastReceiverGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getBroadcastReceiverGraph(android.content.BroadcastReceiver)/receiver">receiver</span><span class="symbol">:</span>&nbsp;<span class="identifier">BroadcastReceiver</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-content-provider-graph.html">getContentProviderGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getContentProviderGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getContentProviderGraph(android.content.ContentProvider)/contentProvider">contentProvider</span><span class="symbol">:</span>&nbsp;<span class="identifier">ContentProvider</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-context-wrapper-graph.html">getContextWrapperGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getContextWrapperGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getContextWrapperGraph(android.content.ContextWrapper)/contextWrapper">contextWrapper</span><span class="symbol">:</span>&nbsp;<span class="identifier">ContextWrapper</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-fragment-graph.html">getFragmentGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getFragmentGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getFragmentGraph(androidx.fragment.app.Fragment)/fragment">fragment</span><span class="symbol">:</span>&nbsp;<span class="identifier">Fragment</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-service-graph.html">getServiceGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getServiceGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getServiceGraph(android.app.Service)/service">service</span><span class="symbol">:</span>&nbsp;<span class="identifier">Service</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/get-view-graph.html">getViewGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">getViewGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$getViewGraph(android.view.View)/view">view</span><span class="symbol">:</span>&nbsp;<span class="identifier">View</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-simple-android-injection-adapter/setup-activity-graph.html">setupActivityGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">setupActivityGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$setupActivityGraph(android.app.Activity, io.jentz.winter.Component.Builder)/activity">activity</span><span class="symbol">:</span>&nbsp;<span class="identifier">Activity</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$setupActivityGraph(android.app.Activity, io.jentz.winter.Component.Builder)/builder">builder</span><span class="symbol">:</span>&nbsp;<span class="identifier">Builder</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

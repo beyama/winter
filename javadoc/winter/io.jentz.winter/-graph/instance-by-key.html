@@ -8,9 +8,9 @@
 <a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">Graph</a>&nbsp;/&nbsp;<a href="./instance-by-key.html">instanceByKey</a><br/>
 <br/>
 <h1>instanceByKey</h1>
-<a name="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((kotlin.Unit, io.jentz.winter.Graph.instanceByKey.R)))"></a>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instanceByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((kotlin.Unit, io.jentz.winter.Graph.instanceByKey.R)))/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">,</span>&nbsp;<a href="instance-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="instance-by-key.html#R"><span class="identifier">R</span></a></code>
-<p>Retrieve a non-optional instance of <code>R</code> by <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((kotlin.Unit, io.jentz.winter.Graph.instanceByKey.R)))/key">key</a>.</p>
+<a name="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.R)))"></a>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instanceByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.R)))/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="instance-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="instance-by-key.html#R"><span class="identifier">R</span></a></code>
+<p>Retrieve a non-optional instance of <code>R</code> by <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.R)))/key">key</a>.</p>
 <h3>Parameters</h3>
 <p><a name="key"></a>
 <code>key</code> - The type key of the instance.</p>
@@ -19,18 +19,5 @@
 <code>EntryNotFoundException</code> - </p>
 <p><strong>Return</strong><br/>
 An instance of <code>R</code></p>
-<a name="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)"></a>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span> <span class="identifier">instanceByKey</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)/key">key</span><span class="symbol">:</span>&nbsp;<a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="instance-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="instance-by-key.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="instance-by-key.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="instance-by-key.html#R"><span class="identifier">R</span></a></code>
-<p>Retrieve a factory of type <code>(A) -&gt; R</code> by <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)/key">key</a> and apply <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)/argument">argument</a> to it.</p>
-<h3>Parameters</h3>
-<p><a name="key"></a>
-<code>key</code> - The type key of the factory.</p>
-<p><a name="argument"></a>
-<code>argument</code> - The argument for the factory to retrieve.</p>
-<h3>Exceptions</h3>
-<p><a name="EntryNotFoundException"></a>
-<code>EntryNotFoundException</code> - </p>
-<p><strong>Return</strong><br/>
-The result of applying <a href="instance-by-key.html#io.jentz.winter.Graph$instanceByKey(io.jentz.winter.TypeKey((io.jentz.winter.Graph.instanceByKey.A, io.jentz.winter.Graph.instanceByKey.R)), io.jentz.winter.Graph.instanceByKey.A)/argument">argument</a> to the retrieved factory.</p>
 </BODY>
 </HTML>

@@ -3,5 +3,6 @@ $dokka.linkExtension:html
 
 io.jentz.winter
 io.jentz.winter.adapter
-io.jentz.winter.aware
+io.jentz.winter.delegate
+io.jentz.winter.inject
 io.jentz.winter.plugin

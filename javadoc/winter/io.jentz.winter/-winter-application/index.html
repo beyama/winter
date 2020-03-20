@@ -9,11 +9,63 @@
 <br/>
 <h1>WinterApplication</h1>
 <code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterApplication</span></code>
-<p><a href="./index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
-application <a href="../-component/index.html">Component</a>.</p>
-<p><strong>See Also</strong><br/>
-<p><a href="../-winter.html">Winter</a></p>
-</p>
+<p>Holds plugins, the application <a href="../-component/index.html">Component</a>, the application <a href="../-graph/index.html">Graph</a> and offers an abstraction to
+inject dependencies into classes that cannot make use of constructor injection using an
+<a href="-injection-adapter/index.html">InjectionAdapter</a> system.</p>
+<p>The <a href="-injection-adapter/index.html">InjectionAdapter</a> backed abstraction takes the burden off of the using class to know how
+exactly a graph or parent graph is constructed and stored.</p>
+<p>An application specific graph creation and retrieval strategy can be provided by setting a
+custom <a href="-injection-adapter/index.html">InjectionAdapter</a>.</p>
+<pre><code>Winter.adapter = MyCustomAdapter()
+</code></pre>
+<p>To use Winter in a library it is recommended to create a library specific object
+from <a href="./index.html">WinterApplication</a> for use in applications it is recommended to use the <a href="../-winter.html">Winter</a> object.</p>
+<p>Example, using the SimpleAndroidInjectionAdapter which is part of the winter-androidx module:</p>
+<pre><code>class MyApplication : Application() {
+  override fun onCreate() {
+    super.onCreate()
+
+    // register component
+    Winter.component {
+      singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
+
+      singleton { RepoListViewModel(instance()) }
+
+      subcomponent("activity") {
+         singleton { Glide.with(instance&lt;Activity&gt;()) }
+      }
+    }
+
+    // register adapter
+    Winter.useSimpleAndroidAdapter()
+    // open application graph
+    Winter.inject(this)
+  }
+}
+
+class MyActivity : Activity(), WinterAware {
+  private val viewModel: RepoListViewModel by inject()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    Winter.inject(this)
+    super.onCreate(savedInstanceState)
+  }
+
+}</code></pre>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-injection-adapter/index.html">InjectionAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">interface </span><span class="identifier">InjectionAdapter</span></code>
+<p>Adapter interface to provide application specific graph creation and retrieval strategy.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3>Constructors</h3>
 <table>
 <tbody>
@@ -22,11 +74,12 @@ application <a href="../-component/index.html">Component</a>.</p>
 <p><a href="-init-.html">&lt;init&gt;</a></p>
 </td>
 <td>
-<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span></code>
+<code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a>&nbsp;<span class="symbol">=</span>&nbsp;ApplicationScope::class<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span></code>
 <p>Convenient constructor to configure the application <a href="../-component/index.html">Component</a> during initialization.</p>
 <code><span class="identifier">WinterApplication</span><span class="symbol">(</span><span class="symbol">)</span></code>
-<p><a href="./index.html">WinterApplication</a> base class that holds Winter plugins and may be configured with the
-application <a href="../-component/index.html">Component</a>.</p>
+<p>Holds plugins, the application <a href="../-component/index.html">Component</a>, the application <a href="../-graph/index.html">Graph</a> and offers an abstraction to
+inject dependencies into classes that cannot make use of constructor injection using an
+<a href="-injection-adapter/index.html">InjectionAdapter</a> system.</p>
 </td>
 </tr>
 </tbody>
@@ -56,11 +109,38 @@ declared a cyclic dependency which may be hard to track down.</p>
 </tr>
 <tr>
 <td>
+<p><a href="graph.html">graph</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">graph</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get the application graph.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="graph-or-null.html">graphOrNull</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">graphOrNull</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">?</span></code>
+<p>Get the application graph if open otherwise null.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="injection-adapter.html">injectionAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">injectionAdapter</span><span class="symbol">: </span><a href="-injection-adapter/index.html"><span class="identifier">WinterApplication.InjectionAdapter</span></a><span class="symbol">?</span></code>
+<p>The application injection adapter.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="plugins.html">plugins</a></p>
 </td>
 <td>
 <code><span class="keyword">var </span><span class="identifier">plugins</span><span class="symbol">: </span><a href="../../io.jentz.winter.plugin/-plugins/index.html"><span class="identifier">Plugins</span></a></code>
-<p>The plugins of registered on the application.</p>
+<p>The plugins registered on the application.</p>
 </td>
 </tr>
 </tbody>
@@ -70,10 +150,28 @@ declared a cyclic dependency which may be hard to track down.</p>
 <tbody>
 <tr>
 <td>
+<p><a href="close-graph.html">closeGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">closeGraph</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Close the application graph.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="close-graph-if-open.html">closeGraphIfOpen</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">closeGraphIfOpen</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Close the application graph if open otherwise do nothing.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="component.html">component</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<code><span class="keyword">fun </span><span class="identifier">component</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a>&nbsp;<span class="symbol">=</span>&nbsp;ApplicationScope::class<span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$component(kotlin.Any, kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Sets the application component by supplying an optional qualifier and a component builder
 block.</p>
 </td>
@@ -83,35 +181,53 @@ block.</p>
 <p><a href="create-graph.html">createGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$createGraph(kotlin.Function1((io.jentz.winter.ComponentBuilder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
-<p>Initialize and return the object graph from the application <a href="component.html">component</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">createGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$createGraph(kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Create graph from <a href="component.html">component</a> without registering it as application graph.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="register-plugin.html">registerPlugin</a></p>
+<p><a href="get-or-open-graph.html">getOrOpenGraph</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">registerPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$registerPlugin(io.jentz.winter.plugin.Plugin)/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../../io.jentz.winter.plugin/-plugin/index.html"><span class="identifier">Plugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
-<p>Register a plugin.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="unregister-all-plugins.html">unregisterAllPlugins</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="identifier">unregisterAllPlugins</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>Unregister all plugins.</p>
+<code><span class="keyword">fun </span><span class="identifier">getOrOpenGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$getOrOpenGraph(kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Get application graph if already open otherwise open and return it.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="unregister-plugin.html">unregisterPlugin</a></p>
+<p><a href="inject.html">inject</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">unregisterPlugin</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$unregisterPlugin(io.jentz.winter.plugin.Plugin)/plugin">plugin</span><span class="symbol">:</span>&nbsp;<a href="../../io.jentz.winter.plugin/-plugin/index.html"><span class="identifier">Plugin</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
-<p>Unregister a plugin.</p>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Inject dependencies into <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</a> by using the dependency graph returned from
+<a href="-injection-adapter/get.html">InjectionAdapter.get</a> called with <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</a>.</p>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/target">target</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Inject dependencies with dependency graph from <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</a> into <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/target">target</a>.
+This uses the dependency graph returned from <a href="-injection-adapter/get.html">InjectionAdapter.get</a> called with <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="open-graph.html">openGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">openGraph</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$openGraph(kotlin.Function1((io.jentz.winter.Component.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-component-builder-block.html"><span class="identifier">ComponentBuilderBlock</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="../-graph/index.html"><span class="identifier">Graph</span></a></code>
+<p>Open the application component.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Extension Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../../io.jentz.winter.adapter/use-application-graph-only-adapter.html">useApplicationGraphOnlyAdapter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">WinterApplication</span></a><span class="symbol">.</span><span class="identifier">useApplicationGraphOnlyAdapter</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Register an <a href="../../io.jentz.winter.adapter/-application-graph-only-injection-adapter/index.html">ApplicationGraphOnlyInjectionAdapter</a> on this <a href="./index.html">WinterApplication</a> instance.</p>
 </td>
 </tr>
 </tbody>
@@ -125,8 +241,7 @@ block.</p>
 </td>
 <td>
 <code><span class="keyword">object </span><span class="identifier">Winter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">WinterApplication</span></a></code>
-<p>The default <a href="./index.html">WinterApplication</a> object that is used as default by <a href="../-graph-registry.html">GraphRegistry</a> and
-<a href="../-component/create-graph.html">Component.createGraph</a>.</p>
+<p>The default <a href="./index.html">WinterApplication</a> object.</p>
 </td>
 </tr>
 </tbody>

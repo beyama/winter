@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterFragmentFactory.<init> - winter-androidx</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-androidx</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.androidx</a>&nbsp;/&nbsp;<a href="index.html">WinterFragmentFactory</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.androidx.WinterFragmentFactory$&lt;init&gt;(io.jentz.winter.Graph)"></a>
+<code><span class="identifier">WinterFragmentFactory</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.WinterFragmentFactory$<init>(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<span class="identifier">Graph</span><span class="symbol">)</span></code>
+<p>A <a href="#">FragmentFactory</a> that resolves the fragment instances from the given <a href="#">graph</a>.
+This allows us to use constructor injection for our <a href="#">fragments</a>.</p>
+<p>This is usually used together with an Android
+<a href="#">io.jentz.winter.WinterApplication.InjectionAdapter</a>.</p>
+<p>Example:</p>
+<pre><code>// somewhere in the Android application class
+Winter.useSimpleAndroidAdapter(enableWinterFragmentFactory = true)
+
+// in a FragmentActivity inject the factory; it is already setup by the adapter
+@Inject lateinit var fragmentFactory: WinterFragmentFactory
+
+// add a fragment registered in the activity graph
+supportFragmentManager
+  .beginTransaction()
+  .add(fragmentFactory.instance&lt;MyFragment&gt;(), "tag")
+  .commit()
+</code></pre>
+</BODY>
+</HTML>

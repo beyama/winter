@@ -1,0 +1,85 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterAllExtension - winter-junit5</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit5</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit5</a>&nbsp;/&nbsp;<a href="./index.html">WinterAllExtension</a><br/>
+<br/>
+<h1>WinterAllExtension</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterAllExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="../-abstract-winter-extension/index.html"><span class="identifier">AbstractWinterExtension</span></a><span class="symbol">, </span><span class="identifier">BeforeAllCallback</span><span class="symbol">, </span><span class="identifier">AfterAllCallback</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before all tests
+and stops the session after all tests.</p>
+<p>For more details see <a href="#">io.jentz.winter.testing.WinterTestSession</a>.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterAllExtension</span><span class="symbol">(</span><span class="symbol">)</span></code>
+<p>Default constructor to use this with <a href="#">org.junit.jupiter.api.extension.RegisterExtension</a>.</p>
+<code><span class="identifier">WinterAllExtension</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.WinterAllExtension$<init>(kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="identifier">Builder</span><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a><span class="symbol">)</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before all tests
+and stops the session after all tests.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="after-all.html">afterAll</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">afterAll</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.WinterAllExtension$afterAll(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="before-all.html">beforeAll</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">beforeAll</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.WinterAllExtension$beforeAll(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inherited Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-abstract-winter-extension/after.html">after</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">after</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$after(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-abstract-winter-extension/before.html">before</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">before</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$before(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-abstract-winter-extension/resolve-parameter.html">resolveParameter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resolveParameter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$resolveParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/parameterContext">parameterContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ParameterContext</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$resolveParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/extensionContext">extensionContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../-abstract-winter-extension/supports-parameter.html">supportsParameter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">supportsParameter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$supportsParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/parameterContext">parameterContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ParameterContext</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$supportsParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/extensionContext">extensionContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

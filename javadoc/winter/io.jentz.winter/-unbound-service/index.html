@@ -8,9 +8,9 @@
 <a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">UnboundService</a><br/>
 <br/>
 <h1>UnboundService</h1>
-<code><span class="keyword">interface </span><span class="identifier">UnboundService</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
+<code><span class="keyword">interface </span><span class="identifier">UnboundService</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
 <p>Interface for service entries registered in a <a href="../-component/index.html">Component</a>.</p>
-<p>Custom implementations can be added to a <a href="../-component/index.html">Component</a> by using <a href="../-component-builder/register.html">ComponentBuilder.register</a>.</p>
+<p>Custom implementations can be added to a <a href="../-component/index.html">Component</a> by using <a href="#">ComponentBuilder.register</a>.</p>
 <h3>Properties</h3>
 <table>
 <tbody>
@@ -19,7 +19,7 @@
 <p><a href="key.html">key</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">key</span><span class="symbol">: </span><a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">key</span><span class="symbol">: </span><a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
 <p>The <a href="../-type-key/index.html">TypeKey</a> of the type this service is providing.</p>
 </td>
 </tr>
@@ -29,8 +29,8 @@
 </td>
 <td>
 <code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">requiresLifecycleCallbacks</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code>
-<p>Return true if the bound service requires lifecycle calls to <a href="../-bound-service/post-construct.html">BoundService.postConstruct</a>
-or <a href="../-bound-service/dispose.html">BoundService.dispose</a> otherwise false.</p>
+<p>Return true if the bound service requires lifecycle calls to <a href="../-bound-service/on-post-construct.html">BoundService.onPostConstruct</a>
+or <a href="../-bound-service/on-close.html">BoundService.onClose</a> otherwise false.</p>
 </td>
 </tr>
 </tbody>
@@ -43,7 +43,7 @@ or <a href="../-bound-service/dispose.html">BoundService.dispose</a> otherwise f
 <p><a href="bind.html">bind</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">bind</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.UnboundService$bind(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-bound-service/index.html"><span class="identifier">BoundService</span></a><span class="symbol">&lt;</span><a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">bind</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.UnboundService$bind(io.jentz.winter.Graph)/graph">graph</span><span class="symbol">:</span>&nbsp;<a href="../-graph/index.html"><span class="identifier">Graph</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-bound-service/index.html"><span class="identifier">BoundService</span></a><span class="symbol">&lt;</span><a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
 <p>Binds this unbound service a given <a href="bind.html#io.jentz.winter.UnboundService$bind(io.jentz.winter.Graph)/graph">graph</a> and returns a <a href="../-bound-service/index.html">BoundService</a>.</p>
 </td>
 </tr>

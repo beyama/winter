@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterApplication.inject - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">WinterApplication</a>&nbsp;/&nbsp;<a href="./inject.html">inject</a><br/>
+<br/>
+<h1>inject</h1>
+<a name="io.jentz.winter.WinterApplication$inject(kotlin.Any)"></a>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Inject dependencies into <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</a> by using the dependency graph returned from
+<a href="-injection-adapter/get.html">InjectionAdapter.get</a> called with <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</a>.</p>
+<h3>Parameters</h3>
+<p><a name="instance"></a>
+<code>instance</code> - The instance to retrieve the dependency graph for and inject dependencies
+    into.</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.WinterException"></a>
+<code>io.jentz.winter.WinterException</code> - If given <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any)/instance">instance</a> type is not supported.</p>
+<a name="io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)"></a>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/target">target</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Inject dependencies with dependency graph from <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</a> into <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/target">target</a>.
+This uses the dependency graph returned from <a href="-injection-adapter/get.html">InjectionAdapter.get</a> called with <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</a>.</p>
+<p>Usually we do not want knowledge of who owns a <a href="../-graph/index.html">Graph</a> in our application classes so
+the <a href="-injection-adapter/index.html">InjectionAdapter</a> was created to hide that. But sometimes we find cases, especially
+on Android, where, for example, a class member function gets a Context passed into to
+do its work and we need that Context to retrieve the required dependency graph to inject
+the class dependencies into the class.</p>
+<h3>Parameters</h3>
+<p><a name="instance"></a>
+<code>instance</code> - The instance to retrieve the dependency graph for.</p>
+<p><a name="target"></a>
+<code>target</code> - The target to inject dependencies into.</p>
+<h3>Exceptions</h3>
+<p><a name="io.jentz.winter.WinterException"></a>
+<code>io.jentz.winter.WinterException</code> - If given <a href="inject.html#io.jentz.winter.WinterApplication$inject(kotlin.Any, kotlin.Any)/instance">instance</a> type is not supported.</p>
+</BODY>
+</HTML>

@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterRule - winter-junit4</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit4</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit4</a>&nbsp;/&nbsp;<a href="./index.html">WinterRule</a><br/>
+<br/>
+<h1>WinterRule</h1>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterRule</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">ExternalResource</span></code>
+<p>JUnit4 rule that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before each test
+and stops the session after each test.</p>
+<p>For more details see <a href="#">io.jentz.winter.testing.WinterTestSession</a>.</p>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">WinterRule</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterRule$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/test">test</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit4.WinterRule$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterTestSessionBlock</span><span class="symbol">)</span></code>
+<p>Create an instance with <a href="-init-.html#io.jentz.winter.junit4.WinterRule$<init>(kotlin.Any, kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/test">test</a> instance.</p>
+<code><span class="identifier">WinterRule</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterRule$<init>(kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterTestSessionBlock</span><span class="symbol">)</span></code>
+<p>Creates an instance without test instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="require-test-graph.html">requireTestGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">requireTestGraph</span><span class="symbol">: </span><span class="identifier">Graph</span></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="test-graph.html">testGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">testGraph</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="after.html">after</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">after</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="before.html">before</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">before</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="inject.html">inject</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">inject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit4.WinterRule$inject(kotlin.Any)/target">target</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

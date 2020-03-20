@@ -1,0 +1,7 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location:io.jentz.winter.androidx$useAndroidPresentationScopeAdapter(io.jentz.winter.WinterApplication)io.jentz.winter.androidx/io.jentz.winter.-winter-application/use-android-presentation-scope-adapter.html
+$dokka.location:io.jentz.winter.androidx$useSimpleAndroidAdapter(io.jentz.winter.WinterApplication)io.jentz.winter.androidx/io.jentz.winter.-winter-application/use-simple-android-adapter.html
+io.jentz.winter.androidx
+io.jentz.winter.androidx.inject
+io.jentz.winter.androidx.lifecycle

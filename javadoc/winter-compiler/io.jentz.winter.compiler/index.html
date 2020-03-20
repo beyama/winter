@@ -13,10 +13,10 @@
 <tbody>
 <tr>
 <td>
-<p><a href="-component-model/index.html">ComponentModel</a></p>
+<p><a href="-d-i.html">DI</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ComponentModel</span></code></td>
+<code><span class="keyword">object </span><span class="identifier">DI</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span></code></td>
 </tr>
 <tr>
 <td>
@@ -24,20 +24,6 @@
 </td>
 <td>
 <code><span class="keyword">class </span><span class="identifier">Generator</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-injector-model/index.html">InjectorModel</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">InjectorModel</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-inject-target-model/index.html">InjectTargetModel</a></p>
-</td>
-<td>
-<code><span class="keyword">sealed</span> <span class="keyword">class </span><span class="identifier">InjectTargetModel</span></code></td>
 </tr>
 <tr>
 <td>
@@ -55,24 +41,10 @@
 </tr>
 <tr>
 <td>
-<p><a href="-service-model/index.html">ServiceModel</a></p>
+<p><a href="-type-utils/index.html">TypeUtils</a></p>
 </td>
 <td>
-<code><span class="keyword">class </span><span class="identifier">ServiceModel</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-source-file-writer/index.html">SourceFileWriter</a></p>
-</td>
-<td>
-<code><span class="keyword">class </span><span class="identifier">SourceFileWriter</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="-source-writer/index.html"><span class="identifier">SourceWriter</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-source-writer/index.html">SourceWriter</a></p>
-</td>
-<td>
-<code><span class="keyword">interface </span><span class="identifier">SourceWriter</span></code></td>
+<code><span class="keyword">class </span><span class="identifier">TypeUtils</span></code></td>
 </tr>
 <tr>
 <td>
@@ -86,6 +58,34 @@
 <h3>Extensions for External Classes</h3>
 <table>
 <tbody>
+<tr>
+<td>
+<p><a href="com.squareup.javapoet.-class-name/index.html">com.squareup.javapoet.ClassName</a></p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="com.squareup.javapoet.-type-name/index.html">com.squareup.javapoet.TypeName</a></p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="com.squareup.javapoet.-type-spec.-builder/index.html">com.squareup.javapoet.TypeSpec.Builder</a></p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="java.lang.-class/index.html">java.lang.Class</a></p>
+</td>
+<td>
+</td>
+</tr>
 <tr>
 <td>
 <p><a href="javax.lang.model.element.-element/index.html">javax.lang.model.element.Element</a></p>
@@ -107,6 +107,20 @@
 <td>
 </td>
 </tr>
+<tr>
+<td>
+<p><a href="javax.lang.model.type.-type-mirror/index.html">javax.lang.model.type.TypeMirror</a></p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="kotlinx.metadata.-km-property/index.html">kotlinx.metadata.KmProperty</a></p>
+</td>
+<td>
+</td>
+</tr>
 </tbody>
 </table>
 <h3>Properties</h3>
@@ -114,38 +128,31 @@
 <tbody>
 <tr>
 <td>
-<p><a href="app-component.html">appComponent</a></p>
+<p><a href="-a-p-p-l-i-c-a-t-i-o-n_-s-c-o-p-e_-c-l-a-s-s_-n-a-m-e.html">APPLICATION_SCOPE_CLASS_NAME</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">appComponent</span><span class="symbol">: </span><span class="identifier">Component</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">APPLICATION_SCOPE_CLASS_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 <tr>
 <td>
-<p><a href="-c-o-m-p-o-n-e-n-t_-c-l-a-s-s_-n-a-m-e.html">COMPONENT_CLASS_NAME</a></p>
+<p><a href="-g-e-n-e-r-a-t-e-d_-a-n-n-o-t-a-t-i-o-n_-j-d-k9_-i-n-t-e-r-f-a-c-e_-n-a-m-e.html">GENERATED_ANNOTATION_JDK9_INTERFACE_NAME</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">COMPONENT_CLASS_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">GENERATED_ANNOTATION_JDK9_INTERFACE_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 <tr>
 <td>
-<p><a href="-c-o-m-p-o-n-e-n-t_-m-e-t-h-o-d_-n-a-m-e.html">COMPONENT_METHOD_NAME</a></p>
+<p><a href="-g-e-n-e-r-a-t-e-d_-a-n-n-o-t-a-t-i-o-n_-l-e-g-a-c-y_-i-n-t-e-r-f-a-c-e_-n-a-m-e.html">GENERATED_ANNOTATION_LEGACY_INTERFACE_NAME</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">COMPONENT_METHOD_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">GENERATED_ANNOTATION_LEGACY_INTERFACE_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 <tr>
 <td>
-<p><a href="-g-e-n-e-r-a-t-e-d_-a-n-n-o-t-a-t-i-o-n_-n-a-m-e.html">GENERATED_ANNOTATION_NAME</a></p>
+<p><a href="-i-n-t-e-r_-o-p_-c-l-a-s-s_-n-a-m-e.html">INTER_OP_CLASS_NAME</a></p>
 </td>
 <td>
-<code><span class="keyword">val </span><span class="identifier">GENERATED_ANNOTATION_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-g-r-a-p-h_-c-l-a-s-s_-n-a-m-e.html">GRAPH_CLASS_NAME</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">GRAPH_CLASS_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">INTER_OP_CLASS_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 <tr>
 <td>
@@ -153,34 +160,6 @@
 </td>
 <td>
 <code><span class="keyword">val </span><span class="identifier">ISO8601_FORMAT</span><span class="symbol">: </span><a href="https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html"><span class="identifier">SimpleDateFormat</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-j-a-v-a-x_-s-i-n-g-l-e-t-o-n_-a-n-n-o-t-a-t-i-o-n_-n-a-m-e.html">JAVAX_SINGLETON_ANNOTATION_NAME</a></p>
-</td>
-<td>
-<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">JAVAX_SINGLETON_ANNOTATION_NAME</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-l-a-z-y_-i-n-t-e-r-f-a-c-e_-n-a-m-e.html">LAZY_INTERFACE_NAME</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">LAZY_INTERFACE_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="mapped-types.html">mappedTypes</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">mappedTypes</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><span class="identifier">TypeName</span><span class="symbol">,</span>&nbsp;<span class="identifier">TypeName</span><span class="symbol">&gt;</span></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-m-e-m-b-e-r-s_-i-n-j-e-c-t-o-r_-i-n-t-e-r-f-a-c-e_-n-a-m-e.html">MEMBERS_INJECTOR_INTERFACE_NAME</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">MEMBERS_INJECTOR_INTERFACE_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 <tr>
 <td>
@@ -198,37 +177,16 @@
 </tr>
 <tr>
 <td>
-<p><a href="-o-p-t-i-o-n_-k-a-p-t_-k-o-t-l-i-n_-g-e-n-e-r-a-t-e-d.html">OPTION_KAPT_KOTLIN_GENERATED</a></p>
+<p><a href="-s-i-n-g-l-e-t-o-n_-a-n-n-o-t-a-i-o-n_-c-l-a-s-s_-n-a-m-e.html">SINGLETON_ANNOTAION_CLASS_NAME</a></p>
 </td>
 <td>
-<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">OPTION_KAPT_KOTLIN_GENERATED</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-o-p-t-i-o-n_-r-o-o-t_-s-c-o-p-e_-a-n-n-o-t-a-t-i-o-n.html">OPTION_ROOT_SCOPE_ANNOTATION</a></p>
-</td>
-<td>
-<code><span class="keyword">const</span> <span class="keyword">val </span><span class="identifier">OPTION_ROOT_SCOPE_ANNOTATION</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
-</tr>
-<tr>
-<td>
-<p><a href="-p-r-o-v-i-d-e-r_-i-n-t-e-r-f-a-c-e_-n-a-m-e.html">PROVIDER_INTERFACE_NAME</a></p>
-</td>
-<td>
-<code><span class="keyword">val </span><span class="identifier">PROVIDER_INTERFACE_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
+<code><span class="keyword">val </span><span class="identifier">SINGLETON_ANNOTAION_CLASS_NAME</span><span class="symbol">: </span><span class="identifier">ClassName</span></code></td>
 </tr>
 </tbody>
 </table>
 <h3>Functions</h3>
 <table>
 <tbody>
-<tr>
-<td>
-<p><a href="map-type-name.html">mapTypeName</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="identifier">mapTypeName</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.compiler$mapTypeName(com.squareup.kotlinpoet.TypeName)/typeName">typeName</span><span class="symbol">:</span>&nbsp;<span class="identifier">TypeName</span><span class="symbol">)</span><span class="symbol">: </span><span class="identifier">TypeName</span></code></td>
-</tr>
 <tr>
 <td>
 <p><a href="now.html">now</a></p>

@@ -1,0 +1,25 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>BoundService.onPostConstruct - winter</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="index.html">BoundService</a>&nbsp;/&nbsp;<a href="./on-post-construct.html">onPostConstruct</a><br/>
+<br/>
+<h1>onPostConstruct</h1>
+<a name="io.jentz.winter.BoundService$onPostConstruct(io.jentz.winter.BoundService.R)"></a>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">onPostConstruct</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$onPostConstruct(io.jentz.winter.BoundService.R)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>This is called after a new instance was created but not until the complete dependency request
+is finished.</p>
+<p>For example:</p>
+<pre><code>graph {
+  singleton { Parent(child = instance()) }
+  singleton { Child() }
+}
+</code></pre>
+<p>When Parent is requested, Child has to be created but the <a href="./on-post-construct.html">onPostConstruct</a> method of the
+Child service is called after Parent is initialized. This way we can resolve cyclic
+dependencies in post-construct callbacks.</p>
+</BODY>
+</HTML>

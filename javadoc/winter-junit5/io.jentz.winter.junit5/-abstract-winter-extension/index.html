@@ -1,0 +1,83 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>AbstractWinterExtension - winter-junit5</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit5</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit5</a>&nbsp;/&nbsp;<a href="./index.html">AbstractWinterExtension</a><br/>
+<br/>
+<h1>AbstractWinterExtension</h1>
+<code><span class="keyword">abstract</span> <span class="keyword">class </span><span class="identifier">AbstractWinterExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<span class="identifier">ParameterResolver</span></code>
+<h3>Constructors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-init-.html">&lt;init&gt;</a></p>
+</td>
+<td>
+<code><span class="identifier">AbstractWinterExtension</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$<init>(org.junit.jupiter.api.extension.ExtensionContext.Namespace, io.jentz.winter.testing.WinterTestSession.Builder)/namespace">namespace</span><span class="symbol">:</span>&nbsp;<span class="identifier">Namespace</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$<init>(org.junit.jupiter.api.extension.ExtensionContext.Namespace, io.jentz.winter.testing.WinterTestSession.Builder)/sessionBuilder">sessionBuilder</span><span class="symbol">:</span>&nbsp;<span class="identifier">Builder</span><span class="symbol">)</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="after.html">after</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">after</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$after(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="before.html">before</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">before</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$before(org.junit.jupiter.api.extension.ExtensionContext)/context">context</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="resolve-parameter.html">resolveParameter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resolveParameter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$resolveParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/parameterContext">parameterContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ParameterContext</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$resolveParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/extensionContext">extensionContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="supports-parameter.html">supportsParameter</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">supportsParameter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$supportsParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/parameterContext">parameterContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ParameterContext</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.junit5.AbstractWinterExtension$supportsParameter(org.junit.jupiter.api.extension.ParameterContext, org.junit.jupiter.api.extension.ExtensionContext)/extensionContext">extensionContext</span><span class="symbol">:</span>&nbsp;<span class="identifier">ExtensionContext</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Inheritors</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="../-winter-all-extension/index.html">WinterAllExtension</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterAllExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">AbstractWinterExtension</span></a><span class="symbol">, </span><span class="identifier">BeforeAllCallback</span><span class="symbol">, </span><span class="identifier">AfterAllCallback</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before all tests
+and stops the session after all tests.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="../-winter-each-extension/index.html">WinterEachExtension</a></p>
+</td>
+<td>
+<code><span class="keyword">open</span> <span class="keyword">class </span><span class="identifier">WinterEachExtension</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">AbstractWinterExtension</span></a><span class="symbol">, </span><span class="identifier">BeforeEachCallback</span><span class="symbol">, </span><span class="identifier">AfterEachCallback</span></code>
+<p>JUnit5 extension that starts a <a href="#">io.jentz.winter.testing.WinterTestSession</a> before each test
+and stops the session after each test.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

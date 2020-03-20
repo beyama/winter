@@ -1,0 +1,130 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WinterTestSession - winter-testing</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-testing</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.testing</a>&nbsp;/&nbsp;<a href="./index.html">WinterTestSession</a><br/>
+<br/>
+<h1>WinterTestSession</h1>
+<code><span class="keyword">class </span><span class="identifier">WinterTestSession</span></code>
+<p><a href="./index.html">WinterTestSession</a> helps to write cleaner tests that require <code>Winter</code> by eliminating
+boilerplate code.</p>
+<p>This is used by the Winter JUnit4 and JUnit5 modules but can also be used directly with other
+test frameworks.</p>
+<p>Example:</p>
+<pre><code>class ExampleTest {
+
+  private lateinit val session: WinterTestSession
+
+  @Mock service: Service = mock()
+
+  @Before fun setup() {
+    session = WinterTestSession.session(this) {
+      application = MyWinterApp
+      bindAllMocks()
+      testGraph("activity")
+    }
+    session.start()
+  }
+
+  @After fun teardown() {
+    session.stop()
+  }
+
+}
+</code></pre>
+<p><strong>See Also</strong><br/>
+<p><a href="-builder/index.html">WinterTestSession.Builder</a></p>
+</p>
+<h3>Types</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="-builder/index.html">Builder</a></p>
+</td>
+<td>
+<code><span class="keyword">class </span><span class="identifier">Builder</span></code></td>
+</tr>
+</tbody>
+</table>
+<h3>Properties</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="all-graphs.html">allGraphs</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">allGraphs</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><span class="identifier">Graph</span><span class="symbol">&gt;</span></code>
+<p>A list of all graphs that where opened after calling <a href="start.html">start</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="require-test-graph.html">requireTestGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">val </span><span class="identifier">requireTestGraph</span><span class="symbol">: </span><span class="identifier">Graph</span></code>
+<p>The test graph.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="test-graph.html">testGraph</a></p>
+</td>
+<td>
+<code><span class="keyword">var </span><span class="identifier">testGraph</span><span class="symbol">: </span><span class="identifier">Graph</span><span class="symbol">?</span></code>
+<p>The test graph if open otherwise null.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="resolve.html">resolve</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">resolve</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.testing.WinterTestSession$resolve(java.lang.Class((kotlin.Any)), kotlin.Any)/type">type</span><span class="symbol">:</span>&nbsp;<a href="https://docs.oracle.com/javase/6/docs/api/java/lang/Class.html"><span class="identifier">Class</span></a><span class="symbol">&lt;</span><span class="identifier">*</span><span class="symbol">&gt;</span><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.testing.WinterTestSession$resolve(java.lang.Class((kotlin.Any)), kotlin.Any)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a></code>
+<p>Resolve an instance of <a href="resolve.html#io.jentz.winter.testing.WinterTestSession$resolve(java.lang.Class((kotlin.Any)), kotlin.Any)/type">type</a> with optional <a href="resolve.html#io.jentz.winter.testing.WinterTestSession$resolve(java.lang.Class((kotlin.Any)), kotlin.Any)/qualifier">qualifier</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="start.html">start</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">start</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Call this to start the session.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="stop.html">stop</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">stop</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>Call this to stop the session.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+<tbody>
+<tr>
+<td>
+<p><a href="session.html">session</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="identifier">session</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="io.jentz.winter.testing.WinterTestSession.Companion$session(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/testInstances">testInstances</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.testing.WinterTestSession.Companion$session(kotlin.Array((kotlin.Any)), kotlin.Function1((io.jentz.winter.testing.WinterTestSession.Builder, kotlin.Unit)))/block">block</span><span class="symbol">:</span>&nbsp;<a href="../-winter-test-session-block.html"><span class="identifier">WinterTestSessionBlock</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">WinterTestSession</span></a></code></td>
+</tr>
+</tbody>
+</table>
+</BODY>
+</HTML>

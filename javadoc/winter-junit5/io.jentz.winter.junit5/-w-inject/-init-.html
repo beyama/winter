@@ -1,0 +1,23 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>WInject.<init> - winter-junit5</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-junit5</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.junit5</a>&nbsp;/&nbsp;<a href="index.html">WInject</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.junit5.WInject$&lt;init&gt;(kotlin.String)"></a>
+<code><span class="identifier">WInject</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.junit5.WInject$<init>(kotlin.String)/qualifier">qualifier</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;""<span class="symbol">)</span></code>
+<p>This annotation can be used to inject values into JUnit5 methods and constructors by using
+the test graph to resolve them.</p>
+<p>The problem with Javax Inject is, that it does not allow value parameter targets.</p>
+<p>Example in a test using one of the Winter JUnit5 extensions:</p>
+<pre><code>@Test fun myTest(@WInject service: Service) {
+  // do something with service
+}
+
+</code></pre>
+</BODY>
+</HTML>

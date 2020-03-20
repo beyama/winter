@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>SimpleAndroidInjectionAdapter.<init> - winter-androidx</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">winter-androidx</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter.androidx</a>&nbsp;/&nbsp;<a href="index.html">SimpleAndroidInjectionAdapter</a>&nbsp;/&nbsp;<a href="./-init-.html">&lt;init&gt;</a><br/>
+<br/>
+<h1>&lt;init&gt;</h1>
+<a name="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$&lt;init&gt;(io.jentz.winter.WinterApplication)"></a>
+<code><span class="identifier">SimpleAndroidInjectionAdapter</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.androidx.SimpleAndroidInjectionAdapter$<init>(io.jentz.winter.WinterApplication)/app">app</span><span class="symbol">:</span>&nbsp;<span class="identifier">WinterApplication</span><span class="symbol">)</span></code>
+<p>Extensible injection adapter that operates on an <a href="#">io.jentz.winter.inject.ApplicationScope</a>
+component with an <a href="../../io.jentz.winter.androidx.inject/-activity-scope/index.html">ActivityScope</a> subcomponent.</p>
+<p>The adapters opens the application component for <a href="#">Application</a> and the "activity" component
+for <a href="#">Activity</a>. The <a href="#">Activity</a> must implement <a href="#">LifecycleOwner</a> so that the opened activity graph
+can be automatically closed.</p>
+<p>The following is provided via the activity graph:</p>
+<ul><li>the activity as <a href="#">Context</a></li>
+<li>the activity as <a href="#">Activity</a></li>
+<li>the activity <a href="#">lifecycle</a></li>
+<li>the activity as <a href="#">FragmentActivity</a> if it is an instance of <a href="#">FragmentActivity</a></li>
+<li>the activity <a href="#">FragmentManager</a> if it is an instance of <a href="#">FragmentActivity</a>
+instance of <a href="#">FragmentActivity</a></li>
+</ul>
+</BODY>
+</HTML>

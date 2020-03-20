@@ -8,7 +8,7 @@
 <a href="../../index.html">winter</a>&nbsp;/&nbsp;<a href="../index.html">io.jentz.winter</a>&nbsp;/&nbsp;<a href="./index.html">BoundService</a><br/>
 <br/>
 <h1>BoundService</h1>
-<code><span class="keyword">interface </span><span class="identifier">BoundService</span><span class="symbol">&lt;</span><span class="identifier">A</span><span class="symbol">, </span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
+<code><span class="keyword">interface </span><span class="identifier">BoundService</span><span class="symbol">&lt;</span><span class="identifier">R</span>&nbsp;<span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">&gt;</span></code>
 <p>Interface for bound service entries in a <a href="../-graph/index.html">Graph</a>.</p>
 <h3>Properties</h3>
 <table>
@@ -18,7 +18,7 @@
 <p><a href="key.html">key</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">key</span><span class="symbol">: </span><a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">,</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
+<code><span class="keyword">abstract</span> <span class="keyword">val </span><span class="identifier">key</span><span class="symbol">: </span><a href="../-type-key/index.html"><span class="identifier">TypeKey</span></a><span class="symbol">&lt;</span><a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">&gt;</span></code>
 <p>The <a href="../-type-key/index.html">TypeKey</a> of the type this service is providing.</p>
 </td>
 </tr>
@@ -38,19 +38,10 @@
 <tbody>
 <tr>
 <td>
-<p><a href="dispose.html">dispose</a></p>
-</td>
-<td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">dispose</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-<p>This is called for each <a href="./index.html">BoundService</a> in a <a href="../-graph/index.html">Graph</a> when <a href="../-graph/dispose.html">Graph.dispose</a> is called.</p>
-</td>
-</tr>
-<tr>
-<td>
 <p><a href="instance.html">instance</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">instance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$instance(io.jentz.winter.BoundService.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html#R"><span class="identifier">R</span></a></code>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">instance</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="index.html#R"><span class="identifier">R</span></a></code>
 <p>This is called every time an instance is requested from the <a href="../-graph/index.html">Graph</a>.</p>
 </td>
 </tr>
@@ -59,18 +50,27 @@
 <p><a href="new-instance.html">newInstance</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">newInstance</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$newInstance(io.jentz.winter.BoundService.A)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html#R"><span class="identifier">R</span></a></code>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">newInstance</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="index.html#R"><span class="identifier">R</span></a></code>
 <p>This is called when this instance is passed to <a href="../-graph/evaluate.html">Graph.evaluate</a> to create a new instance.</p>
 </td>
 </tr>
 <tr>
 <td>
-<p><a href="post-construct.html">postConstruct</a></p>
+<p><a href="on-close.html">onClose</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">postConstruct</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$postConstruct(io.jentz.winter.BoundService.A, io.jentz.winter.BoundService.R)/argument">argument</span><span class="symbol">:</span>&nbsp;<a href="index.html#A"><span class="identifier">A</span></a><span class="symbol">, </span><span class="identifier" id="io.jentz.winter.BoundService$postConstruct(io.jentz.winter.BoundService.A, io.jentz.winter.BoundService.R)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">onClose</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<p>This is called for each <a href="./index.html">BoundService</a> in a <a href="../-graph/index.html">Graph</a> when <a href="../-graph/close.html">Graph.close</a> is called.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="on-post-construct.html">onPostConstruct</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">onPostConstruct</span><span class="symbol">(</span><span class="identifier" id="io.jentz.winter.BoundService$onPostConstruct(io.jentz.winter.BoundService.R)/instance">instance</span><span class="symbol">:</span>&nbsp;<a href="index.html#R"><span class="identifier">R</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>This is called after a new instance was created but not until the complete dependency request
-is completed.</p>
+is finished.</p>
 </td>
 </tr>
 </tbody>
