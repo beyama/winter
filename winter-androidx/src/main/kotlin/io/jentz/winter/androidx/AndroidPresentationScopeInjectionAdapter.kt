@@ -1,8 +1,11 @@
 package io.jentz.winter.androidx
 
 import android.app.Activity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
+import io.jentz.winter.WinterException
 import io.jentz.winter.androidx.inject.PresentationScope
 
 /**
@@ -28,16 +31,19 @@ open class AndroidPresentationScopeInjectionAdapter(
     winterApplication: WinterApplication
 ) : SimpleAndroidInjectionAdapter(winterApplication) {
 
-    override fun closeActivityGraph(activity: Activity) {
-        if (activity.isFinishing) {
-            getActivityParentGraph(activity).close()
-        } else {
-            getActivityParentGraph(activity).closeSubgraph(activity)
+    override fun getActivityParentGraph(activity: Activity): Graph {
+        activity as? ViewModelStoreOwner ?: throw WinterException(
+            "Activity `${activity.javaClass.name}` must implement ViewModelStoreOwner"
+        )
+
+        val model = ViewModelProvider(activity).get(WinterViewModel::class.java)
+
+        model.graph?.let { return it }
+
+        return app.graph.createSubgraph(PresentationScope::class).also {
+            model.graph = it
         }
     }
-
-    override fun getActivityParentGraph(activity: Activity): Graph =
-        app.graph.getOrOpenSubgraph(PresentationScope::class, activity.javaClass)
 
 }
 
