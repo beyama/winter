@@ -35,12 +35,11 @@ open class AndroidPresentationScopeInjectionAdapter(
         activity as? ViewModelStoreOwner ?: throw WinterException(
             "Activity `${activity.javaClass.name}` must implement ViewModelStoreOwner"
         )
-
         val model = ViewModelProvider(activity).get(WinterViewModel::class.java)
 
         model.graph?.let { return it }
 
-        return app.graph.createSubgraph(PresentationScope::class).also {
+        return app.graph.getOrOpenSubgraph(PresentationScope::class, model).also {
             model.graph = it
         }
     }
