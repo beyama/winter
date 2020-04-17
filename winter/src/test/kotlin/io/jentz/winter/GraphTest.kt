@@ -917,6 +917,25 @@ class GraphTest {
     }
 
     @Nested
+    inner class CyclicDependencies {
+
+        private val testComponent = component {
+            singleton { Parent(instance()) }
+            singleton(
+                onPostConstruct = { it.parent = instance() },
+                onClose = { it.parent = null }
+            ) { Child() }
+        }
+
+        @Test
+        fun `should allow to resolve a cyclic dependency in onPostConstruct`() {
+            val child = testComponent.createGraph().instance<Child>()
+            child.parent?.child.shouldBeSameInstanceAs(child)
+        }
+
+    }
+
+    @Nested
     @DisplayName("Exception while resolving")
     inner class Exceptions {
 

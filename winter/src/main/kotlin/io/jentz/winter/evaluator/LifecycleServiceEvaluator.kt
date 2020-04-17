@@ -25,13 +25,15 @@ internal class LifecycleServiceEvaluator(
 
     private var stackSize = 0
 
-    private var pendingDependenciesCount = 0
+    private var isRequestPending = false
+
+    private var currentRequestStartIndex = 0
 
     override fun <R : Any> evaluate(service: BoundService<R>): R {
         val key = service.key
 
-        if (checkForCyclicDependencies) {
-            checkForCyclicDependencies(key, { isKeyPending(key) }, { pendingKeys() })
+        if (checkForCyclicDependencies && isRequestPending) {
+            checkForCyclicDependencies(key, { isKeyPending(currentRequestStartIndex, key) }, { pendingKeys() })
         }
 
         val serviceIndex = stackSize
@@ -43,57 +45,57 @@ internal class LifecycleServiceEvaluator(
             oldStack.copyInto(stack, endIndex = oldStack.size)
         }
 
+        // push service
+        stack[serviceIndex] = service
+        // nullify slot for instance
+        stack[instanceIndex] = null
+
+        stackSize += 2
+
+        if (isRequestPending) {
+            try {
+                val instance = service.newInstance()
+                stack[instanceIndex] = instance
+                return instance
+            } catch (t: Throwable) {
+                handleException(key, t)
+            }
+        }
+
         try {
-            // push service
-            stack[serviceIndex] = service
-            // nullify slot for instance
-            stack[instanceIndex] = null
-
-            pendingDependenciesCount += 1
-
-            stackSize += 2
-
-            // create instance and add it to stack
+            isRequestPending = true
+            currentRequestStartIndex = serviceIndex
             val instance = service.newInstance()
             stack[instanceIndex] = instance
             return instance
         } catch (t: Throwable) {
             handleException(key, t)
         } finally {
-            pendingDependenciesCount -= 1
+            isRequestPending = false
+            drainSegment(serviceIndex, stackSize - 1)
+        }
+    }
 
-            if (pendingDependenciesCount == 0) {
-                drainStack()
+    private fun drainSegment(start: Int, end: Int) {
+        for (instanceIndex in end downTo start step 2) {
+            val serviceIndex = instanceIndex - INSTANCE_INDEX
+
+            @Suppress("UNCHECKED_CAST")
+            val service = stack[serviceIndex] as BoundService<Any>
+            val instance = stack[instanceIndex]
+
+            stack[serviceIndex] = null
+            stack[instanceIndex] = null
+
+            if (instance != null) {
+                service.onPostConstruct(instance)
+                plugins.forEach { it.postConstruct(graph, service.scope, instance) }
             }
         }
     }
 
-    private fun drainStack() {
-        try {
-            for (i in stackSize - 1 downTo 0 step 2) {
-                val serviceIndex = i - 1
-                val instanceIndex = serviceIndex + INSTANCE_INDEX
-
-                @Suppress("UNCHECKED_CAST")
-                val service = stack[serviceIndex] as BoundService<Any>
-                val instance = stack[instanceIndex]
-
-                stack[serviceIndex] = null
-                stack[instanceIndex] = null
-
-                if (instance != null) {
-                    service.onPostConstruct(instance)
-                    plugins.forEach { it.postConstruct(graph, service.scope, instance) }
-                }
-            }
-        } finally {
-            pendingDependenciesCount = 0
-            stackSize = 0
-        }
-    }
-
-    private fun isKeyPending(key: TypeKey<*>): Boolean {
-        for (i in 0 until stackSize step 2) {
+    private fun isKeyPending(startIndex: Int, key: TypeKey<*>): Boolean {
+        for (i in startIndex until stackSize step 2) {
             if (stack[i + INSTANCE_INDEX] == null && (stack[i] as BoundService<*>).key == key) {
                 return true
             }
