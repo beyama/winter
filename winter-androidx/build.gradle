@@ -44,6 +44,7 @@ dependencies {
     implementation deps.kotlin.stdlib
 
     implementation deps.androidx.lifecycle_common
+    implementation deps.androidx.viewmodel
     implementation deps.androidx.compat
 
     testImplementation deps.test.junit4
