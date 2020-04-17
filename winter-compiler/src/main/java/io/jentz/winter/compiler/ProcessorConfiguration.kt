@@ -1,6 +1,6 @@
 package io.jentz.winter.compiler
 
-import com.squareup.javapoet.ClassName
+import com.squareup.kotlinpoet.ClassName
 import javax.annotation.processing.ProcessingEnvironment
 
 data class ProcessorConfiguration(
@@ -24,7 +24,7 @@ data class ProcessorConfiguration(
             // Android's API jar doesn't include a Generated annotation so we check the
             // availability here
             val generatedAnnotation = generatedAnnotations.find {
-                processingEnv.elementUtils.getTypeElement(it.canonicalName()) != null
+                processingEnv.elementUtils.getTypeElement(it.canonicalName) != null
             }
 
             return ProcessorConfiguration(generatedComponentPackage, generatedAnnotation)

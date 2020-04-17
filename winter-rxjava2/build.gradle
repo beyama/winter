@@ -34,11 +34,11 @@ dependencies {
     implementation deps.kotlin.stdlib
     implementation deps.rx.rxjava
 
-    testImplementation deps.junit.jupiterApi
+    testImplementation deps.test.jupiterApi
+    testImplementation deps.test.kotlintest
     testImplementation deps.kotlin.reflect
-    testImplementation deps.kotlintest
 
-    testRuntimeOnly deps.junit.jupiterEngine
+    testRuntimeOnly deps.test.jupiterEngine
 }
 
 task javadocJar(type: Jar) {

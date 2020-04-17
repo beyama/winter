@@ -15,9 +15,9 @@ dependencies {
 
     api project(':winter')
     api project(':winter-testing')
-    api deps.junit.junit4
+    api deps.test.junit4
 
-    testImplementation deps.kotlintest
+    testImplementation deps.test.kotlintest
 }
 
 task javadocJar(type: Jar) {
