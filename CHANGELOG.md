@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.9.0
+-------------
+
+* Winter compiler generates Kotlin instead of Java
+* Remove reflection based injection for tests
+* Use Android X view model to manage presentation scope
+* Fix error when resolving dependencies from onPostConstruct callbacks
+
 Version 0.8.0
 -------------
 * Add support for generated components
