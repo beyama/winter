@@ -3,7 +3,6 @@ package io.jentz.winter.junit4
 import io.jentz.winter.Graph
 import io.jentz.winter.testing.WinterTestSession
 import io.jentz.winter.testing.WinterTestSessionBlock
-import io.jentz.winter.testing.injectWithReflection
 import org.junit.rules.ExternalResource
 
 /**
@@ -51,10 +50,6 @@ open class WinterRule private constructor(
 
     override fun after() {
         testSession?.stop()
-    }
-
-    fun inject(target: Any) {
-        requireSession.requireTestGraph.injectWithReflection(target)
     }
 
 }
