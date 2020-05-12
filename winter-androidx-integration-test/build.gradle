@@ -39,11 +39,11 @@ dependencies {
     implementation deps.androidx.compat
 
     androidTestImplementation project(":winter-junit4")
-    androidTestImplementation deps.kotlintest
-    androidTestImplementation deps.kotlin.reflect
+    androidTestImplementation deps.test.kotlintest
     androidTestImplementation deps.androidx.test.runner
     androidTestImplementation deps.androidx.test.rules
     androidTestImplementation deps.androidx.test.junit
     androidTestImplementation deps.androidx.test.espressoCore
+    androidTestImplementation deps.kotlin.reflect
 
 }

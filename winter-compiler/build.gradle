@@ -35,20 +35,21 @@ dependencies {
     implementation project(':winter')
 
     implementation deps.kotlin.stdlib
-    implementation deps.kotlin.metadata
 
-    implementation deps.javapoet
+    implementation deps.kotlinpoet.kotlinpoet
+    implementation deps.kotlinpoet.metadata
 
     implementation deps.incap.incap
     kapt deps.incap.processor
 
     testImplementation project(':winter-junit5')
-    testImplementation deps.junit.jupiterApi
+    testImplementation deps.test.jupiterApi
+    testImplementation deps.test.kotlintest
+    testImplementation deps.test.compileTesting
     testImplementation deps.javax.annotationApi // to get the legacy Generated annotation on >= JDK9
-    testImplementation "com.google.testing.compile:compile-testing:0.15"
     testImplementation files(Jvm.current().getToolsJar())
 
-    testRuntimeOnly deps.junit.jupiterEngine
+    testRuntimeOnly deps.test.jupiterEngine
 }
 
 task javadocJar(type: Jar) {

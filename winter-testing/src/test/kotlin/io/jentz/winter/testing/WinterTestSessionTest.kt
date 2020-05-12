@@ -2,6 +2,7 @@ package io.jentz.winter.testing
 
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
+import io.jentz.winter.delegate.inject
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull
@@ -163,13 +164,25 @@ class WinterTestSessionTest {
     @DisplayName("#testGraph")
     inner class TestGraph {
 
+        private val injectedProperty: String by inject()
+
         @Test
         fun `should configure the graph to use`() {
             session {
                 testGraph("sub")
             }.test {
                 createAll("sub", "sub sub")
-                requireTestGraph.instance<String>().shouldBe("sub")
+                requireTestGraph.component.qualifier.shouldBe("sub")
+            }
+        }
+
+        @Test
+        fun `should call #inject with test instances on test graph`() {
+            session(this) {
+                testGraph("sub")
+            }.test {
+                createAll("sub")
+                injectedProperty.shouldBe("sub")
             }
         }
 

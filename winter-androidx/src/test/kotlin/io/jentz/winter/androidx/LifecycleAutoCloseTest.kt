@@ -30,7 +30,7 @@ class LifecycleAutoCloseTest : LifecycleOwner {
         listOf(ON_PAUSE, ON_STOP, ON_DESTROY).forEach { event ->
             val observer = LifecycleAutoCloseImpl(event)
             observer.closeCalled.shouldBeFalse()
-            observer.onEvent(this, event)
+            observer.onStateChanged(this, event)
             observer.closeCalled.shouldBeTrue()
         }
     }
@@ -39,7 +39,7 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     fun `should unregister itself if the close event was emitted`() {
         val observer = LifecycleAutoCloseImpl(ON_STOP)
         registry.addObserver(observer)
-        observer.onEvent(this, ON_STOP)
+        observer.onStateChanged(this, ON_STOP)
         registry.observerCount.shouldBe(0)
     }
 

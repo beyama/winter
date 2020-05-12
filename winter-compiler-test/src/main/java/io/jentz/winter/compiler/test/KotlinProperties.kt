@@ -1,6 +1,5 @@
 package io.jentz.winter.compiler.test
 
-import io.jentz.winter.Provider
 import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.inject.InjectConstructor
 import javax.inject.Inject
@@ -12,6 +11,7 @@ class KotlinProperties(
     val constructorInjectedString: String,
     @Named("someInt") val constructorInjectedPrimitive: Int
 ) {
+
     @Inject var primitiveProperty: Int = 0
 
     @set:Inject var primitiveSetter: Int = 0
@@ -20,7 +20,7 @@ class KotlinProperties(
 
     @set:[Inject Named("someInt")] var namedPrimitiveSetter: Int = 0
 
-    @Inject lateinit var someList: List<@JvmWildcard String>
+    @Inject lateinit var someList: List<String>
 
     @Inject lateinit var stringProvider: () -> String
 }

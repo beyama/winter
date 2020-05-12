@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.view.LayoutInflater
 import io.jentz.winter.Winter
-import io.jentz.winter.android.sample.GeneratedComponent.generatedComponent
 import io.jentz.winter.android.sample.quotes.QuotesViewModel
 import io.jentz.winter.android.sample.quotes.QuotesViewState
 import io.jentz.winter.android.sample.viewmodel.ViewModel

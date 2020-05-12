@@ -3,8 +3,10 @@ package io.jentz.winter.compiler
 import com.google.common.truth.Truth.assert_
 import com.google.testing.compile.JavaFileObjects.forResource
 import com.google.testing.compile.JavaSourceSubjectFactory.javaSource
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import org.junit.jupiter.api.Test
 
+@KotlinPoetMetadataPreview
 class FactoryTest : BaseProcessorTest() {
 
     @Test
@@ -14,8 +16,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("NoArgumentInjectConstructor.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("NoArgumentInjectConstructor_WinterFactory.java"))
+
+        generatesSource("NoArgumentInjectConstructor_WinterFactory")
     }
 
     @Test
@@ -25,8 +27,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("OneArgumentInjectConstructor.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("OneArgumentInjectConstructor_WinterFactory.java"))
+
+        generatesSource("OneArgumentInjectConstructor_WinterFactory")
     }
 
     @Test
@@ -36,8 +38,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("OneNamedArgumentInjectConstructor.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("OneNamedArgumentInjectConstructor_WinterFactory.java"))
+
+        generatesSource("OneNamedArgumentInjectConstructor_WinterFactory")
     }
 
     @Test
@@ -47,8 +49,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("WithInjectedField.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("WithInjectedField_WinterFactory.java"))
+
+        generatesSource("WithInjectedField_WinterFactory")
     }
 
     @Test
@@ -58,8 +60,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("NamedSingletonInjectConstructor.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("NamedSingletonInjectConstructor_WinterFactory.java"))
+
+        generatesSource("NamedSingletonInjectConstructor_WinterFactory")
     }
 
     @Test
@@ -69,8 +71,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("PrototypeAnnotation.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("PrototypeAnnotation_WinterFactory.java"))
+
+        generatesSource("PrototypeAnnotation_WinterFactory")
     }
 
     @Test
@@ -80,8 +82,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("EagerSingletonAnnotation.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("EagerSingletonAnnotation_WinterFactory.java"))
+
+        generatesSource("EagerSingletonAnnotation_WinterFactory")
     }
 
     @Test
@@ -113,8 +115,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("InjectConstructorWithProviderAndLazyArguments.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("InjectConstructorWithProviderAndLazyArguments_WinterFactory.java"))
+
+        generatesSource("InjectConstructorWithProviderAndLazyArguments_WinterFactory")
     }
 
     @Test
@@ -124,8 +126,8 @@ class FactoryTest : BaseProcessorTest() {
             .that(forResource("FactoryTypeAnnotation.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("FactoryTypeAnnotation_WinterFactory.java"))
+
+        generatesSource("FactoryTypeAnnotation_WinterFactory")
     }
 
     @Test

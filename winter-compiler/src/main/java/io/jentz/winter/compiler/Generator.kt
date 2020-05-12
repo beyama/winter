@@ -1,5 +1,7 @@
 package io.jentz.winter.compiler
 
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import com.squareup.kotlinpoet.metadata.toImmutableKmClass
 import io.jentz.winter.compiler.generator.ComponentGenerator
 import io.jentz.winter.compiler.generator.FactoryGenerator
 import io.jentz.winter.compiler.generator.InjectorGenerator
@@ -8,7 +10,6 @@ import io.jentz.winter.compiler.model.InjectorModel
 import io.jentz.winter.inject.InjectConstructor
 import java.io.PrintWriter
 import java.io.StringWriter
-import javax.annotation.processing.Filer
 import javax.annotation.processing.RoundEnvironment
 import javax.inject.Inject
 import javax.lang.model.element.Element
@@ -17,11 +18,11 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.ElementFilter
 
+@KotlinPoetMetadataPreview
 class Generator(
     private val configuration: ProcessorConfiguration,
-    private val filer: Filer,
-    private val logger: Logger,
-    private val typeUtils: TypeUtils
+    private val writer: SourceWriter,
+    private val logger: Logger
 ) {
 
     private val factories = mutableListOf<FactoryModel>()
@@ -91,7 +92,7 @@ class Generator(
         try {
             ComponentGenerator(configuration, factories)
                 .generate()
-                .writeTo(filer)
+                .also { writer.write(it) }
         } catch (t: Throwable) {
             val stringWriter = StringWriter()
             t.printStackTrace(PrintWriter(stringWriter))
@@ -104,7 +105,7 @@ class Generator(
             tryWithElement(injector.originatingElement) {
                 InjectorGenerator(configuration, injector)
                     .generate()
-                    .writeTo(filer)
+                    .also { writer.write(it) }
             }
         }
     }
@@ -114,7 +115,7 @@ class Generator(
             tryWithElement(factory.originatingElement) {
                 FactoryGenerator(configuration, factory)
                     .generate()
-                    .writeTo(filer)
+                    .also { writer.write(it) }
             }
         }
     }
@@ -131,7 +132,8 @@ class Generator(
                 .drop(1)
                 .firstOrNull { type -> type.enclosedElements.any(Element::isInjectFieldOrMethod) }
 
-            val kmClass = typeUtils.getKotlinClassMetadata(typeElement)
+
+            val kmClass = runCatching { typeElement.toImmutableKmClass() }.getOrNull()
 
             InjectorModel(typeElement, superClassWithInjector, kmClass)
         }

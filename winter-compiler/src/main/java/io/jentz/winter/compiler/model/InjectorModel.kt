@@ -1,58 +1,37 @@
 package io.jentz.winter.compiler.model
 
-import com.squareup.javapoet.ClassName
-import io.jentz.winter.compiler.hasAccessibleSetter
-import kotlinx.metadata.KmClass
-import kotlinx.metadata.jvm.fieldSignature
-import kotlinx.metadata.jvm.setterSignature
-import javax.lang.model.element.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.metadata.ImmutableKmClass
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
+@KotlinPoetMetadataPreview
 class InjectorModel(
     val originatingElement: TypeElement,
     superClassWithInjector: TypeElement?,
-    private val kmClass: KmClass?
+    private val kmClass: ImmutableKmClass?
 ) {
 
-    val typeName: ClassName = ClassName.get(originatingElement)
+    val typeName = originatingElement.asClassName()
 
-    val generatedClassName: ClassName = generatedClassNameForClassName(typeName)
+    val generatedClassName = generatedClassNameForClassName(typeName)
 
     val superclassInjectorClassName = superClassWithInjector
-        ?.let { generatedClassNameForClassName(ClassName.get(it)) }
+        ?.let { generatedClassNameForClassName(it.asClassName()) }
 
-    private val _targets: MutableSet<InjectTargetModel> = mutableSetOf()
+    private val _targets: MutableList<InjectTargetModel> = mutableListOf()
 
-    val targets: Set<InjectTargetModel> get() = _targets
+    val targets: List<InjectTargetModel> get() = _targets
 
     fun addTarget(fieldOrSetter: Element) {
-        when (fieldOrSetter.kind) {
-            ElementKind.FIELD -> {
-                val field = fieldOrSetter as VariableElement
-                val kmProperty = kmClass
-                    ?.properties
-                    ?.find { it.fieldSignature?.name == field.simpleName.toString() }
-                    ?.takeIf { it.hasAccessibleSetter }
-
-                _targets += FieldInjectTarget(field, kmProperty)
-            }
-            ElementKind.METHOD -> {
-                val setter = fieldOrSetter as ExecutableElement
-                val kmProperty = kmClass
-                    ?.properties
-                    ?.find { it.setterSignature?.name == setter.simpleName.toString() }
-                    ?.takeIf { it.hasAccessibleSetter }
-
-                _targets += SetterInjectTarget(setter, kmProperty)
-            }
-            else -> {
-                throw IllegalArgumentException("fieldOrSetter must be VariableElement or ExecutableElement")
-            }
-        }
+        _targets += InjectTargetModel.forElement(fieldOrSetter, kmClass)
     }
 
-    private fun generatedClassNameForClassName(name: ClassName) = ClassName.get(
-        name.packageName(),
-        "${name.simpleNames().joinToString("_")}_WinterMembersInjector"
+    private fun generatedClassNameForClassName(name: ClassName) = ClassName(
+        name.packageName,
+        "${name.simpleNames.joinToString("_")}_WinterMembersInjector"
     )
 
 }

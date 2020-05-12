@@ -1,13 +1,14 @@
 package io.jentz.winter.compiler
 
 import com.google.common.truth.Truth.assert_
-import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler
 import com.google.testing.compile.JavaFileObjects.forResource
 import com.google.testing.compile.JavaSourceSubjectFactory
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import org.junit.jupiter.api.Test
 
 
+@KotlinPoetMetadataPreview
 class MembersInjectorTest : BaseProcessorTest() {
 
     @Test
@@ -17,24 +18,20 @@ class MembersInjectorTest : BaseProcessorTest() {
             .that(forResource("WithInjectedField.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("WithInjectedField_WinterMembersInjector.java"))
+
+        generatesSource("WithInjectedField_WinterMembersInjector")
     }
 
     @Test
     fun `should invoke superclass injector`() {
-        val compilation = Compiler.javac()
+        Compiler.javac()
             .withProcessors(WinterProcessor())
             .compile(
                 forResource("WithInjectedField.java"),
                 forResource("WithInjectedFieldExtended.java")
             )
 
-        assertThat(compilation)
-            .generatedSourceFile("test.WithInjectedFieldExtended_WinterMembersInjector")
-            .hasSourceEquivalentTo(
-                forResource("WithInjectedFieldExtended_WinterMembersInjector.java")
-            )
+        generatesSource("WithInjectedFieldExtended_WinterMembersInjector")
     }
 
     @Test
@@ -44,8 +41,8 @@ class MembersInjectorTest : BaseProcessorTest() {
             .that(forResource("WithInjectedGenericFields.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("WithInjectedGenericFields_WinterMembersInjector.java"))
+
+        generatesSource("WithInjectedGenericFields_WinterMembersInjector")
     }
 
     @Test
@@ -55,8 +52,8 @@ class MembersInjectorTest : BaseProcessorTest() {
             .that(forResource("WithInjectedProviderAndLazyFields.java"))
             .processedWith(WinterProcessor())
             .compilesWithoutError()
-            .and()
-            .generatesSources(forResource("WithInjectedProviderAndLazyFields_WinterMembersInjector.java"))
+
+        generatesSource("WithInjectedProviderAndLazyFields_WinterMembersInjector")
     }
 
 }

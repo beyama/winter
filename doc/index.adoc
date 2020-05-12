@@ -7,6 +7,79 @@ Alexander Jentz <github@jentz.io>
 
 Winter is a lightweight dependency injection library for Android and the JVM written in Kotlin.
 
+== Quickstart - An Android sample
+
+In this example we use the `AndroidPresentationScopeInjectionAdapter` from the AndroidX module to
+create a presentation scope that outlives Activity configuration changes (like rotations).
+A presentation scope is perfect to store presenters or view models in.
+
+1. We add Winter to our `build.gradle` file.
+
+[source,groovy]
+----
+dependencies {
+    implementation 'io.jentz.winter:winter:x.x.x'
+    implementation 'io.jentz.winter:winter-androidx:x.x.x'
+}
+----
+
+2. We declare our dependencies in our application class.
+
+[source,kotlin]
+----
+class MyApplication : Application() {
+
+    override fun onCreate() {
+        // The application component with all dependencies that are available system wide.
+        Winter.component(ApplicationScope::class) {
+            singleton<GitHubApi> { GitHubApiImpl() }
+
+            // The presentation subcomponent with dependencies which are available to
+            // activities/fragments/views but outlives configuration changes.
+            subcomponent(PresentationScope::class) {
+                singleton { RepoListPresenter(gitHubApi = instance()) }
+
+                // The activity subcomponent with dependencies which get destroyed with every
+                // configuration change.
+                subcomponent(ActivityScope::class) {
+                    singleton { Glide.with(instance<Activity>()) }
+                }
+            }
+        }
+
+        // Configure the AndroidPresentationScopeAdapter as the injection adapter to use.
+        Winter.useAndroidPresentationScopeAdapter()
+        // Open the application graph.
+        Winter.inject(this)
+    }
+
+}
+----
+
+3. Start injecting dependencies into your activity.
+
+[source,kotlin]
+----
+class MyActivity : AppCompatActivity() {
+    private val viewModel: RepoListViewModel by inject()
+    private val glide: RequestManager by inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // This line will request the graph for an Activity from the configured injection adapter
+        // and then uses the graph to inject the dependencies into the properties we declared
+        // above.
+        // The AndroidPresentationScopeAdapter we configured in our application class will create
+        // the presentation graph the first time this activity is created and will then create
+        // the activity subgraph every time this is called.
+        // It uses LifecycleObserver and ViewModel from Androids architectural components to
+        // close the activity graph when Activity#destroy is called and to close the presentation
+        // subgraph when the activity finishes for good.
+        Winter.inject(this)
+        super.onCreate(savedInstanceState)
+    }
+}
+----
+
 == Installation
 
 [source,groovy]
@@ -121,6 +194,24 @@ multiple times and all scope functions take an boolean to enable <<generics,gene
 
 For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-component/-builder/index.html[API docs of Component Builder].
 
+==== Lifecycle Hooks
+
+Each dependency provider (except constant) has an optional callback that is called after creating
+a dependency and all its dependencies, the so called `postConstruct` callback which can be useful
+in cases where we have <<circular,circular dependencies>>.
+
+Singletons also have the `onClose` callback which is called when the dependency graph gets closed.
+This is particularly useful to free resources like closing an open connection or cancel jobs.
+
+[source,kotlin]
+----
+val dbComponent = component {
+    singleton(onClose = { it.close() }) {
+        DbConnection()
+    }
+}
+----
+
 ==== Available Scopes
 
 [cols="3,10",options="header"]
@@ -153,7 +244,7 @@ For a list of all builder methods see link:javadoc/winter/io.jentz.winter/-compo
 
 Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
 of the application from each other e.g. the business layer from the view layer of an application.
-Subgraphs inherit and extend the parent graph which means that an service bound in a
+Subgraphs inherit and extend the parent graph which means that a service bound in a
 subgraph can access all services of the parent graph but not vice versa.
 Subgraphs can have a shorter lifetime than their parents and there can be multiple subgraphs with
 the same parent and from the same subcomponent.
@@ -276,7 +367,7 @@ class MyApplication : Application() {
             }
         }
 
-        /// Configure the injection adapter to use
+        // Configure the injection adapter to use
         Winter.useSimpleAndroidAdapter()
         // Open the application graph
         Winter.inject(this)
@@ -392,25 +483,8 @@ For more details see link:javadoc/winter/io.jentz.winter.delegate/index.html[Del
 
 === Winter AndroidX Module
 
-The `winter-androidx` module comes with two extendable injection Adapter, a WinterFragmentFactory to
-enable constructor injection in Fragments and a DependencyGraphContextWrapper to attach a different
-graph to an Android Context.
-
-For example:
-[source,kotlin]
-----
-class MyActivity : AppCompatActivity() {
-
-  private val myService by inject()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    Winter.inject(this)
-    super.onCreate(savedInstanceState)
-  }
-
-}
-
-----
+The `winter-androidx` module comes with two extendable injection Adapters and a
+DependencyGraphContextWrapper to attach a different graph to an Android Context.
 
 For more details see
 link:javadoc/winter-androidx/io.jentz.winter.androidx/index.html[API docs].
@@ -432,7 +506,7 @@ For a list of all available methods see link:javadoc/winter-java/io.jentz.winter
 == RxJava2 Support
 
 The `winter-rxjava2` module contains a Winter Plugin that automatically disposes all singletons
-in a graph which implement `Disposable`.
+in a graph which implement `Disposable` on `Graph#close()`.
 
 To activate the plugin call `Winter.installDisposablePlugin()` before you instantiate any graph.
 
@@ -459,10 +533,10 @@ to extend the test graph to override dependencies of you class under test.
 Example:
 [source,kotlin]
 ----
-// Extend subgraph with subcomponent qualifier "presentation"
+// Extend the subgraph with subcomponent qualifier PresentationScope::class
 @get:Rule
 val winterRule = WinterRule {
-    extend(ApplicationScope::class) { // the component qualifier of the component we want to extend
+    extend(PresentationScope::class) { // the component qualifier of the component we want to extend
         singleton<Dependency>(override = true) { TestDependency() }
     }
 
@@ -470,11 +544,6 @@ val winterRule = WinterRule {
 }
 
 @Inject lateinit var classUnderTest: MyClassUnderTest
-
-@Before
-fun beforeEach() {
-    Winter.openGraph()
-}
 ----
 
 === JUnit5
@@ -561,7 +630,6 @@ dependencies {
 }
 ----
 
-
 === Custom Scopes
 
 A custom scope is created via an extended `Scope` annotation like:
@@ -615,6 +683,7 @@ val coffeeMaker: CoffeeMakter = Winter.openGraph().instance()
 
 TODO
 
+[#circular]
 === Circular Dependencies
 
 Circular dependencies are dependencies that depend on each other.
@@ -623,9 +692,9 @@ property or method. You can then use a `postConstruct` callback to retrieve the 
 
 [source,kotlin]
 ----
-class Parent(child: Child)
+class Parent(val child: Child)
 class Child {
-    var parent: Parent? = null
+    lateinit var parent: Parent
 }
 
 val applicationComponent = component {

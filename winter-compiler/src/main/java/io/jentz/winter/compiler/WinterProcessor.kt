@@ -1,5 +1,6 @@
 package io.jentz.winter.compiler
 
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import io.jentz.winter.WinterException
 import io.jentz.winter.delegate.inject
 import io.jentz.winter.delegate.injectProvider
@@ -13,6 +14,7 @@ import javax.inject.Inject
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
+@KotlinPoetMetadataPreview
 @IncrementalAnnotationProcessor(DYNAMIC)
 class WinterProcessor : AbstractProcessor() {
 

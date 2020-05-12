@@ -34,11 +34,11 @@ dependencies {
 
     api project(':winter')
     api project(':winter-testing')
-    api deps.junit.jupiterApi
+    api deps.test.jupiterApi
 
-    testImplementation deps.kotlintest
+    testImplementation deps.test.kotlintest
 
-    testRuntimeOnly deps.junit.jupiterEngine
+    testRuntimeOnly deps.test.jupiterEngine
 }
 
 task javadocJar(type: Jar) {

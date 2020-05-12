@@ -13,9 +13,8 @@ buildscript {
 
     ext.deps = [
             'kotlin'    : [
-                    'stdlib'  : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
-                    'reflect' : "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}",
-                    'metadata': "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.1.0"
+                    'stdlib' : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
+                    'reflect': "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}"
             ],
 
             'javax'     : [
@@ -27,8 +26,9 @@ buildscript {
                     'coreKtx'          : 'androidx.core:core-ktx:1.0.1',
                     'recyclerview'     : 'androidx.recyclerview:recyclerview:1.0.0',
                     'compat'           : 'androidx.appcompat:appcompat:1.1.0',
-                    'lifecycle_common' : 'androidx.lifecycle:lifecycle-common:2.0.0',
-                    'lifecycle_runtime': 'androidx.lifecycle:lifecycle-runtime:2.0.0',
+                    'viewmodel'        : 'androidx.lifecycle:lifecycle-viewmodel:2.2.0',
+                    'lifecycle_common' : 'androidx.lifecycle:lifecycle-common:2.2.0',
+                    'lifecycle_runtime': 'androidx.lifecycle:lifecycle-runtime:2.2.0',
                     'test'             : [
                             'runner'      : 'androidx.test:runner:1.2.0',
                             'rules'       : 'androidx.test:rules:1.2.0',
@@ -45,20 +45,25 @@ buildscript {
 
             ],
 
-            'junit'     : [
-                    'junit4'       : "junit:junit:4.12",
-                    'jupiterApi'   : "org.junit.jupiter:junit-jupiter-api:${versions.junit5}",
-                    'jupiterEngine': "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}",
-                    'vintageEngine': "org.junit.vintage:junit-vintage-engine:${versions.junit5}"
+            'test'      : [
+                    'junit4'        : "junit:junit:4.12",
+                    'jupiterApi'    : "org.junit.jupiter:junit-jupiter-api:${versions.junit5}",
+                    'jupiterEngine' : "org.junit.jupiter:junit-jupiter-engine:${versions.junit5}",
+                    'vintageEngine' : "org.junit.vintage:junit-vintage-engine:${versions.junit5}",
+                    'kotlintest'    : "io.kotlintest:kotlintest-assertions:3.4.0",
+                    'compileTesting': "com.google.testing.compile:compile-testing:0.15"
+
             ],
-            'kotlintest': "io.kotlintest:kotlintest-assertions:3.4.0",
 
             'mockito'   : [
                     'core'  : "org.mockito:mockito-core:${versions.mockito}",
                     'kotlin': "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}"
             ],
 
-            'javapoet'  : 'com.squareup:javapoet:1.12.0',
+            'kotlinpoet': [
+                    'kotlinpoet': 'com.squareup:kotlinpoet:1.5.0',
+                    'metadata'  : 'com.squareup:kotlinpoet-metadata:1.5.0'
+            ],
 
             'rx'        : [
                     'rxjava'   : 'io.reactivex.rxjava2:rxjava:2.2.10',

@@ -1,9 +1,11 @@
 package io.jentz.winter.compiler
 
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import javax.annotation.processing.ProcessingEnvironment
 
+@KotlinPoetMetadataPreview
 object DI : WinterApplication() {
 
     init {
@@ -20,7 +22,9 @@ object DI : WinterApplication() {
 
             prototype { TypeUtils(instance(), instance()) }
 
-            prototype { Generator(instance(), instance(), instance(), instance()) }
+            prototype { Generator(instance(), instance(), instance()) }
+
+            singleton<SourceWriter> { FilerSourceWriter(instance()) }
         }
 
         injectionAdapter = object : InjectionAdapter {

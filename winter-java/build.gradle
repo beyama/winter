@@ -34,8 +34,8 @@ dependencies {
 
     api project(':winter')
 
-    testImplementation deps.junit.jupiterApi
-    testRuntimeOnly deps.junit.jupiterEngine
+    testImplementation deps.test.jupiterApi
+    testRuntimeOnly deps.test.jupiterEngine
 }
 
 task javadocJar(type: Jar) {

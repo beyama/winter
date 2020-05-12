@@ -18,7 +18,7 @@ package io.jentz.winter
  * // configure injection adapter.
  * Winter.useAndroidPresentationScopeInjectionAdapter()
  * // open the application dependency graph
- * Winter.openGraph(myApplicationInstance)
+ * Winter.openGraph()
  * ```
  *
  * @see WinterApplication for more details.

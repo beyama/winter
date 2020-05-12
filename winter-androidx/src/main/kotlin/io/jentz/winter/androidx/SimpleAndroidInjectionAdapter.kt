@@ -59,12 +59,12 @@ open class SimpleAndroidInjectionAdapter(
         }
 
     protected open fun getActivityGraph(activity: Activity): Graph? {
-        return getActivityParentGraph(activity).getOrOpenSubgraph(ActivityScope::class, activity) {
+        return getActivityParentGraph(activity)?.getOrOpenSubgraph(ActivityScope::class, activity) {
             setupActivityGraph(activity, this)
         }
     }
 
-    protected open fun getActivityParentGraph(activity: Activity): Graph = app.graph
+    protected open fun getActivityParentGraph(activity: Activity): Graph? = app.graph
 
     protected open fun getFragmentGraph(fragment: Fragment): Graph? =
         get(fragment.requireActivity())
@@ -92,7 +92,7 @@ open class SimpleAndroidInjectionAdapter(
     }
 
     protected open fun closeActivityGraph(activity: Activity) {
-        getActivityParentGraph(activity).closeSubgraph(activity)
+        getActivityParentGraph(activity)?.closeSubgraph(activity)
     }
 
     protected open fun closeFragmentGraph(fragment: Fragment) {

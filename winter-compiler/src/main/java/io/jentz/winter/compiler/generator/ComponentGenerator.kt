@@ -1,14 +1,13 @@
 package io.jentz.winter.compiler.generator
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeSpec
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import io.jentz.winter.Component
-import io.jentz.winter.compiler.*
+import io.jentz.winter.compiler.APPLICATION_SCOPE_CLASS_NAME
+import io.jentz.winter.compiler.ProcessorConfiguration
 import io.jentz.winter.compiler.model.FactoryModel
-import javax.lang.model.element.Modifier.*
 
+@KotlinPoetMetadataPreview
 class ComponentGenerator(
     private val configuration: ProcessorConfiguration,
     private val factories: List<FactoryModel>
@@ -18,51 +17,36 @@ class ComponentGenerator(
         "BUG: ComponentGenerator instantiated but package is null."
     }
 
-    private val generatedClassName = ClassName.get(packageName, "GeneratedComponent")
+    private val generatedClassName = ClassName(packageName, "GeneratedComponent")
 
-    fun generate(): JavaFile {
-        val componentClassName = Component::class.java.toClassName()
-        val commonKt = componentClassName.peerClass("CommonKt")
+    fun generate(): FileSpec {
+        val groupedFactories = factories.groupBy {
+            it.scopeAnnotationName ?: APPLICATION_SCOPE_CLASS_NAME
+        }
 
         val generatedComponent = CodeBlock.builder()
-            .add("generatedComponent = \$T.component (\$S, builder -> {\n", commonKt, "generated")
-            .indent()
+            .beginControlFlow("component(%S)", "generated")
             .apply {
-                val groupedFactories = factories.groupBy {
-                    it.scopeAnnotationName ?: APPLICATION_SCOPE_CLASS_NAME
-                }
-
                 groupedFactories.forEach { (scopeName, factories) ->
-                    add("builder.subcomponent(\$L, false, false, subBuilder -> {\n", scopeName.toGetKotlinKClassCodeBlock())
-
-                    indent()
-
+                    beginControlFlow("subcomponent(%T::class)", scopeName)
                     factories.forEach { factory ->
-                        addStatement("new \$T().register(subBuilder, false)", factory.generatedClassName)
+                        addStatement("%T().register(this, false)", factory.generatedClassName)
                     }
-
-                    addStatement("return \$T.INSTANCE", Unit.javaClass.toClassName())
-                    unindent()
-                    add("});\n")
+                    endControlFlow()
                 }
             }
-            .addStatement("return \$T.INSTANCE", Unit.javaClass.toClassName())
-            .unindent()
-            .add("});\n")
+            .endControlFlow()
             .build()
 
-        val componentClass = TypeSpec
-            .classBuilder(generatedClassName)
-            .addModifiers(PUBLIC, FINAL)
-            .generatedAnnotation(configuration.generatedAnnotation)
-            .addField(componentClassName, "generatedComponent", PUBLIC, FINAL, STATIC)
-            .addStaticBlock(generatedComponent)
+        return FileSpec.builder(generatedClassName.packageName, "generatedComponent")
+            .addImport("io.jentz.winter", "component")
+            .addProperty(
+                PropertySpec.builder("generatedComponent", Component::class.asClassName())
+                    .generatedAnnotation(configuration.generatedAnnotation)
+                    .initializer(generatedComponent)
+                    .build()
+            )
             .build()
-
-        return JavaFile
-            .builder(generatedClassName.packageName(), componentClass)
-            .build()
-
     }
 
 }
