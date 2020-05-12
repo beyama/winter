@@ -448,6 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#_quickstart_an_android_sample">Quickstart - An Android sample</a></li>
 <li><a href="#_installation">Installation</a>
 <ul class="sectlevel2">
 <li><a href="#_available_modules">Available Modules</a></li>
@@ -458,6 +459,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_declaring_dependencies">Declaring Dependencies</a>
 <ul class="sectlevel3">
+<li><a href="#_lifecycle_hooks">Lifecycle Hooks</a></li>
 <li><a href="#_available_scopes">Available Scopes</a></li>
 </ul>
 </li>
@@ -497,7 +499,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_advanced_usage">Advanced Usage</a>
 <ul class="sectlevel2">
 <li><a href="#_include_components">Include Components</a></li>
-<li><a href="#_circular_dependencies">Circular Dependencies</a></li>
+<li><a href="#circular">Circular Dependencies</a></li>
 <li><a href="#_plugins">Plugins</a></li>
 <li><a href="#_usage_in_libraries">Usage In Libraries</a></li>
 </ul>
@@ -510,6 +512,98 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>Winter is a lightweight dependency injection library for Android and the JVM written in Kotlin.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quickstart_an_android_sample">Quickstart - An Android sample</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this example we use the <code>AndroidPresentationScopeInjectionAdapter</code> from the AndroidX module to
+create a presentation scope that outlives Activity configuration changes (like rotations).
+A presentation scope is perfect to store presenters or view models in.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>We add Winter to our <code>build.gradle</code> file.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="groovy">dependencies {
+    implementation 'io.jentz.winter:winter:x.x.x'
+    implementation 'io.jentz.winter:winter-androidx:x.x.x'
+}</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>We declare our dependencies in our application class.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class MyApplication : Application() {
+
+    override fun onCreate() {
+        // The application component with all dependencies that are available system wide.
+        Winter.component(ApplicationScope::class) {
+            singleton&lt;GitHubApi&gt; { GitHubApiImpl() }
+
+            // The presentation subcomponent with dependencies which are available to
+            // activities/fragments/views but outlives configuration changes.
+            subcomponent(PresentationScope::class) {
+                singleton { RepoListPresenter(gitHubApi = instance()) }
+
+                // The activity subcomponent with dependencies which get destroyed with every
+                // configuration change.
+                subcomponent(ActivityScope::class) {
+                    singleton { Glide.with(instance&lt;Activity&gt;()) }
+                }
+            }
+        }
+
+        // Configure the AndroidPresentationScopeAdapter as the injection adapter to use.
+        Winter.useAndroidPresentationScopeAdapter()
+        // Open the application graph.
+        Winter.inject(this)
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Start injecting dependencies into your activity.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">class MyActivity : AppCompatActivity() {
+    private val viewModel: RepoListViewModel by inject()
+    private val glide: RequestManager by inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // This line will request the graph for an Activity from the configured injection adapter
+        // and then uses the graph to inject the dependencies into the properties we declared
+        // above.
+        // The AndroidPresentationScopeAdapter we configured in our application class will create
+        // the presentation graph the first time this activity is created and will then create
+        // the activity subgraph every time this is called.
+        // It uses LifecycleObserver and ViewModel from Androids architectural components to
+        // close the activity graph when Activity#destroy is called and to close the presentation
+        // subgraph when the activity finishes for good.
+        Winter.inject(this)
+        super.onCreate(savedInstanceState)
+    }
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -538,7 +632,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="paragraph">
 <p>Replace <code>x.x.x</code> with the version you would like to use.
-The latest version is 0.8.0.</p>
+The latest version is 0.9.0.</p>
 </div>
 <div class="sect2">
 <h3 id="_available_modules">Available Modules</h3>
@@ -557,37 +651,37 @@ The latest version is 0.8.0.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Winter core module</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter/index.html">Winter</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit4:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit4 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit4/index.html">Winter JUnit4</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit5:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-junit5:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JUnit5 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-junit5/index.html">Winter JUnit5</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-testing:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-testing:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Testing support shared between the JUnit4 and JUnit5 modules</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-testing/index.html">Winter Testing</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-rxjava2:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RxJava2 support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-rxjava2/index.html">Winter RxJava2</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-androidx:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Android X support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-androidx/index.html">Winter AndroidX</a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-java:0.8.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">io.jentz.winter:winter-java:0.9.0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Java support</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="javadoc/winter-java/index.html">Winter Java</a></p></td>
 </tr>
@@ -667,6 +761,27 @@ multiple times and all scope functions take an boolean to enable <a href="#gener
 <p>For a list of all builder methods see <a href="javadoc/winter/io.jentz.winter/-component/-builder/index.html">API docs of Component Builder</a>.</p>
 </div>
 <div class="sect3">
+<h4 id="_lifecycle_hooks">Lifecycle Hooks</h4>
+<div class="paragraph">
+<p>Each dependency provider (except constant) has an optional callback that is called after creating
+a dependency and all its dependencies, the so called <code>postConstruct</code> callback which can be useful
+in cases where we have <a href="#circular">circular dependencies</a>.</p>
+</div>
+<div class="paragraph">
+<p>Singletons also have the <code>onClose</code> callback which is called when the dependency graph gets closed.
+This is particularly useful to free resources like closing an open connection or cancel jobs.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="kotlin">val dbComponent = component {
+    singleton(onClose = { it.close() }) {
+        DbConnection()
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_available_scopes">Available Scopes</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -712,7 +827,7 @@ multiple times and all scope functions take an boolean to enable <a href="#gener
 <div class="paragraph">
 <p>Subcomponents are used to partition the object graph into subgraphs to encapsulate different parts
 of the application from each other e.g. the business layer from the view layer of an application.
-Subgraphs inherit and extend the parent graph which means that an service bound in a
+Subgraphs inherit and extend the parent graph which means that a service bound in a
 subgraph can access all services of the parent graph but not vice versa.
 Subgraphs can have a shorter lifetime than their parents and there can be multiple subgraphs with
 the same parent and from the same subcomponent.</p>
@@ -855,7 +970,7 @@ that requires an "activity" subcomponent:</p>
             }
         }
 
-        /// Configure the injection adapter to use
+        // Configure the injection adapter to use
         Winter.useSimpleAndroidAdapter()
         // Open the application graph
         Winter.inject(this)
@@ -1000,26 +1115,8 @@ is computationally expensive but may not be required in some cases.</p>
 <div class="sect2">
 <h3 id="_winter_androidx_module">Winter AndroidX Module</h3>
 <div class="paragraph">
-<p>The <code>winter-androidx</code> module comes with two extendable injection Adapter, a WinterFragmentFactory to
-enable constructor injection in Fragments and a DependencyGraphContextWrapper to attach a different
-graph to an Android Context.</p>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="prettyprint highlight"><code data-lang="kotlin">class MyActivity : AppCompatActivity() {
-
-  private val myService by inject()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    Winter.inject(this)
-    super.onCreate(savedInstanceState)
-  }
-
-}</code></pre>
-</div>
+<p>The <code>winter-androidx</code> module comes with two extendable injection Adapters and a
+DependencyGraphContextWrapper to attach a different graph to an Android Context.</p>
 </div>
 <div class="paragraph">
 <p>For more details see
@@ -1054,7 +1151,7 @@ JWinter.instance(graph, String.class, "a");</code></pre>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The <code>winter-rxjava2</code> module contains a Winter Plugin that automatically disposes all singletons
-in a graph which implement <code>Disposable</code>.</p>
+in a graph which implement <code>Disposable</code> on <code>Graph#close()</code>.</p>
 </div>
 <div class="paragraph">
 <p>To activate the plugin call <code>Winter.installDisposablePlugin()</code> before you instantiate any graph.</p>
@@ -1092,22 +1189,17 @@ to extend the test graph to override dependencies of you class under test.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="kotlin">// Extend subgraph with subcomponent qualifier "presentation"
+<pre class="prettyprint highlight"><code data-lang="kotlin">// Extend the subgraph with subcomponent qualifier PresentationScope::class
 @get:Rule
 val winterRule = WinterRule {
-    extend(ApplicationScope::class) { // the component qualifier of the component we want to extend
+    extend(PresentationScope::class) { // the component qualifier of the component we want to extend
         singleton&lt;Dependency&gt;(override = true) { TestDependency() }
     }
 
     testGraph(ApplicationScope::class) // the component qualifier of the graph we want to use
 }
 
-@Inject lateinit var classUnderTest: MyClassUnderTest
-
-@Before
-fun beforeEach() {
-    Winter.openGraph()
-}</code></pre>
+@Inject lateinit var classUnderTest: MyClassUnderTest</code></pre>
 </div>
 </div>
 </div>
@@ -1275,7 +1367,7 @@ val coffeeMaker: CoffeeMakter = Winter.openGraph().instance()</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_circular_dependencies">Circular Dependencies</h3>
+<h3 id="circular">Circular Dependencies</h3>
 <div class="paragraph">
 <p>Circular dependencies are dependencies that depend on each other.
 To define circular dependencies in Winter one of the dependencies must be injected through a
@@ -1283,9 +1375,9 @@ property or method. You can then use a <code>postConstruct</code> callback to re
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code data-lang="kotlin">class Parent(child: Child)
+<pre class="prettyprint highlight"><code data-lang="kotlin">class Parent(val child: Child)
 class Child {
-    var parent: Parent? = null
+    lateinit var parent: Parent
 }
 
 val applicationComponent = component {
@@ -1312,7 +1404,7 @@ val applicationComponent = component {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-20 12:36:53 +0100
+Last updated 2020-05-12 10:29:32 +0200
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">

@@ -1,26 +1,26 @@
 $dokka.format:html
 $dokka.linkExtension:html
-$dokka.location:io.jentz.winter.compiler$generatedAnnotation(com.squareup.javapoet.TypeSpec.Builder, com.squareup.javapoet.ClassName)io.jentz.winter.compiler/com.squareup.javapoet.-type-spec.-builder/generated-annotation.html
-$dokka.location:io.jentz.winter.compiler$getInstanceCode(com.squareup.javapoet.TypeName, kotlin.Boolean, kotlin.String)io.jentz.winter.compiler/com.squareup.javapoet.-type-name/get-instance-code.html
-$dokka.location:io.jentz.winter.compiler$hasAccessibleSetter#kotlinx.metadata.KmPropertyio.jentz.winter.compiler/kotlinx.metadata.-km-property/has-accessible-setter.html
+$dokka.location:io.jentz.winter.compiler$asTypeName(com.squareup.kotlinpoet.metadata.ImmutableKmType)io.jentz.winter.compiler/com.squareup.kotlinpoet.metadata.-immutable-km-type/as-type-name.html
+$dokka.location:io.jentz.winter.compiler$hasAccessibleSetter#com.squareup.kotlinpoet.metadata.ImmutableKmPropertyio.jentz.winter.compiler/com.squareup.kotlinpoet.metadata.-immutable-km-property/has-accessible-setter.html
 $dokka.location:io.jentz.winter.compiler$isAbstract#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-abstract.html
 $dokka.location:io.jentz.winter.compiler$isInjectFieldOrMethod#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-inject-field-or-method.html
 $dokka.location:io.jentz.winter.compiler$isInnerClass#javax.lang.model.element.TypeElementio.jentz.winter.compiler/javax.lang.model.element.-type-element/is-inner-class.html
-$dokka.location:io.jentz.winter.compiler$isJavaxProvider#com.squareup.javapoet.TypeNameio.jentz.winter.compiler/com.squareup.javapoet.-type-name/is-javax-provider.html
-$dokka.location:io.jentz.winter.compiler$isLazy#com.squareup.javapoet.TypeNameio.jentz.winter.compiler/com.squareup.javapoet.-type-name/is-lazy.html
 $dokka.location:io.jentz.winter.compiler$isNotNullable#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-not-nullable.html
 $dokka.location:io.jentz.winter.compiler$isNullable#javax.lang.model.element.VariableElementio.jentz.winter.compiler/javax.lang.model.element.-variable-element/is-nullable.html
 $dokka.location:io.jentz.winter.compiler$isNullable#kotlinx.metadata.KmPropertyio.jentz.winter.compiler/kotlinx.metadata.-km-property/is-nullable.html
 $dokka.location:io.jentz.winter.compiler$isPrivate#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-private.html
-$dokka.location:io.jentz.winter.compiler$isProvider#com.squareup.javapoet.TypeNameio.jentz.winter.compiler/com.squareup.javapoet.-type-name/is-provider.html
+$dokka.location:io.jentz.winter.compiler$isProtected#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-protected.html
 $dokka.location:io.jentz.winter.compiler$isStatic#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/is-static.html
-$dokka.location:io.jentz.winter.compiler$newTypeKeyCode(com.squareup.javapoet.TypeName, kotlin.String)io.jentz.winter.compiler/com.squareup.javapoet.-type-name/new-type-key-code.html
+$dokka.location:io.jentz.winter.compiler$jvmSignature(javax.lang.model.element.ExecutableElement)io.jentz.winter.compiler/javax.lang.model.element.-executable-element/jvm-signature.html
+$dokka.location:io.jentz.winter.compiler$kotlinTypeName#com.squareup.kotlinpoet.TypeNameio.jentz.winter.compiler/com.squareup.kotlinpoet.-type-name/kotlin-type-name.html
 $dokka.location:io.jentz.winter.compiler$qualifier#javax.lang.model.element.Elementio.jentz.winter.compiler/javax.lang.model.element.-element/qualifier.html
 $dokka.location:io.jentz.winter.compiler$selfAndSuperclasses#javax.lang.model.element.TypeElementio.jentz.winter.compiler/javax.lang.model.element.-type-element/self-and-superclasses.html
-$dokka.location:io.jentz.winter.compiler$toClassName(java.lang.Class((kotlin.Any)))io.jentz.winter.compiler/java.lang.-class/to-class-name.html
-$dokka.location:io.jentz.winter.compiler$toClassName(javax.lang.model.element.TypeElement)io.jentz.winter.compiler/javax.lang.model.element.-type-element/to-class-name.html
-$dokka.location:io.jentz.winter.compiler$toClassName(javax.lang.model.type.TypeMirror)io.jentz.winter.compiler/javax.lang.model.type.-type-mirror/to-class-name.html
-$dokka.location:io.jentz.winter.compiler$toGetKotlinKClassCodeBlock(com.squareup.javapoet.ClassName)io.jentz.winter.compiler/com.squareup.javapoet.-class-name/to-get-kotlin-k-class-code-block.html
+$dokka.location:io.jentz.winter.compiler.generator$generatedAnnotation(com.squareup.kotlinpoet.PropertySpec.Builder, com.squareup.kotlinpoet.ClassName)io.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-property-spec.-builder/generated-annotation.html
+$dokka.location:io.jentz.winter.compiler.generator$generatedAnnotation(com.squareup.kotlinpoet.TypeSpec.Builder, com.squareup.kotlinpoet.ClassName)io.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-type-spec.-builder/generated-annotation.html
+$dokka.location:io.jentz.winter.compiler.generator$getInstanceCode(com.squareup.kotlinpoet.TypeName, kotlin.Boolean, kotlin.String)io.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-type-name/get-instance-code.html
+$dokka.location:io.jentz.winter.compiler.generator$isJavaxProvider#com.squareup.kotlinpoet.TypeNameio.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-type-name/is-javax-provider.html
+$dokka.location:io.jentz.winter.compiler.generator$isLazy#com.squareup.kotlinpoet.TypeNameio.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-type-name/is-lazy.html
+$dokka.location:io.jentz.winter.compiler.generator$isProvider#com.squareup.kotlinpoet.TypeNameio.jentz.winter.compiler.generator/com.squareup.kotlinpoet.-type-name/is-provider.html
 io.jentz.winter.compiler
 io.jentz.winter.compiler.generator
 io.jentz.winter.compiler.model
