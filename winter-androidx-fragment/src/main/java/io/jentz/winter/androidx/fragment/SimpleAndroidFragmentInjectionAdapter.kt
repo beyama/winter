@@ -25,9 +25,12 @@ import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
  * * the activity as [FragmentActivity] if the activity is an instance of [FragmentActivity]
  * * the activities [androidx.fragment.app.FragmentManager] if the activity is an instance of
  *   [FragmentActivity]
+ * * a [WinterFragmentFactory] if [enableWinterFragmentFactory] is true and activity is an
+ *   instance of [FragmentActivity]
  */
 open class SimpleAndroidFragmentInjectionAdapter(
-    app: WinterApplication
+    app: WinterApplication,
+    private val enableWinterFragmentFactory: Boolean = false
 ) : SimpleAndroidInjectionAdapter(app) {
 
     override fun get(instance: Any): Graph? {
@@ -40,13 +43,15 @@ open class SimpleAndroidFragmentInjectionAdapter(
 
     override fun provideAndroidTypes(instance: Any, builder: Component.Builder) {
         super.provideAndroidTypes(instance, builder)
-        exportAndroidTypes(instance, builder)
+        exportAndroidTypes(instance, enableWinterFragmentFactory, builder)
     }
 }
 
 /**
  * Register an [SimpleAndroidFragmentInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterApplication.useSimpleAndroidFragmentAdapter() {
-    injectionAdapter = SimpleAndroidFragmentInjectionAdapter(this)
+fun WinterApplication.useSimpleAndroidFragmentAdapter(
+    enableWinterFragmentFactory: Boolean = false
+) {
+    injectionAdapter = SimpleAndroidFragmentInjectionAdapter(this, enableWinterFragmentFactory)
 }

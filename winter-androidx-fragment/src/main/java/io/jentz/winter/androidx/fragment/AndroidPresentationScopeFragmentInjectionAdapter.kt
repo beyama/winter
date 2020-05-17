@@ -25,9 +25,12 @@ import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
  * * the activity as [FragmentActivity] if the activity is an instance of [FragmentActivity]
  * * the activities [androidx.fragment.app.FragmentManager] if the activity is an instance of
  *   [FragmentActivity]
+ * * a [WinterFragmentFactory] if [enableWinterFragmentFactory] is true and activity is an
+ *   instance of [FragmentActivity]
  */
 open class AndroidPresentationScopeFragmentInjectionAdapter(
-    app: WinterApplication
+    app: WinterApplication,
+    private val enableWinterFragmentFactory: Boolean = false
 ) : AndroidPresentationScopeInjectionAdapter(app) {
 
     override fun get(instance: Any): Graph? {
@@ -40,7 +43,7 @@ open class AndroidPresentationScopeFragmentInjectionAdapter(
 
     override fun provideAndroidTypes(instance: Any, builder: Component.Builder) {
         super.provideAndroidTypes(instance, builder)
-        exportAndroidTypes(instance, builder)
+        exportAndroidTypes(instance, enableWinterFragmentFactory, builder)
     }
 
 }
@@ -48,6 +51,10 @@ open class AndroidPresentationScopeFragmentInjectionAdapter(
 /**
  * Register an [AndroidPresentationScopeFragmentInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterApplication.useAndroidPresentationScopeFragmentAdapter() {
-    injectionAdapter = AndroidPresentationScopeFragmentInjectionAdapter(this)
+fun WinterApplication.useAndroidPresentationScopeFragmentAdapter(
+    enableWinterFragmentFactory: Boolean = false
+) {
+    injectionAdapter = AndroidPresentationScopeFragmentInjectionAdapter(
+        this, enableWinterFragmentFactory
+    )
 }
