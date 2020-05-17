@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
 import io.jentz.winter.inject.ApplicationScope
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
@@ -246,6 +247,35 @@ class ComponentBuilderTest {
     fun `#generatedFactory should load generated factory for class`() {
         component {
             generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
+        }
+    }
+
+    @Test
+    fun `#containsKey with should return true if builder contains key otherwise false`() {
+        component { containsKey(typeKey<Any>()).shouldBeFalse() }
+        component {
+            constant(Any())
+            containsKey(typeKey<Any>()).shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `#containsKey should also check parent by default`() {
+        component {
+            constant(Any())
+            subcomponent("sub") {
+                containsKey(typeKey<Any>()).shouldBeTrue()
+            }
+        }
+    }
+
+    @Test
+    fun `#containsKey should ignore parent if checkParent is false`() {
+        component {
+            constant(Any())
+            subcomponent("sub") {
+                containsKey(typeKey<Any>(), checkParent = false).shouldBeFalse()
+            }
         }
     }
 

@@ -559,6 +559,18 @@ class Component private constructor(
         }
 
         /**
+         * Check if the registry contains a service with [key]
+         *
+         * @param key The key to check for.
+         * @param checkParent If true this will also check the parent builder for key.
+         */
+        fun containsKey(key: TypeKey<*>, checkParent: Boolean = true): Boolean {
+            val registry = _registry
+            val contains = registry?.containsKey(key) ?: base.containsKey(key)
+            return if (checkParent) contains || parent?.containsKey(key) == true else contains
+        }
+
+        /**
          * Register a [UnboundService].
          *
          * Don't use that except if you add your own [UnboundService] implementations.
