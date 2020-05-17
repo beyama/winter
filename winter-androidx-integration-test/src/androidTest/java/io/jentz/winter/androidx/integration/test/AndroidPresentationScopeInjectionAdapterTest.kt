@@ -2,6 +2,7 @@ package io.jentz.winter.androidx.integration.test
 
 import android.app.Application
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -90,6 +91,17 @@ class AndroidPresentationScopeInjectionAdapterTest {
         activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
         presentationGraph.isClosed.shouldBeTrue()
+    }
+
+    @Test
+    fun should_provide_view_model_store_to_presentation_graph() {
+        val activityGraph = winterRule.requireTestGraph
+        val presentationGraph = activityGraph.parent!!
+
+        activityScenarioRule.scenario.onActivity { activity ->
+            presentationGraph.instance<ViewModelStore>()
+                .shouldBeSameInstanceAs(activity.viewModelStore)
+        }
     }
 
 }

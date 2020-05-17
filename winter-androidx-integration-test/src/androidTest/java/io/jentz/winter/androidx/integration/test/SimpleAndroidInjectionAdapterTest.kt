@@ -45,7 +45,7 @@ class SimpleAndroidInjectionAdapterTest {
         testGraph(ActivityScope::class)
     }
 
-    private val activityScenarioRule = ActivityScenarioRule<TestActivity>(TestActivity::class.java)
+    private val activityScenarioRule = ActivityScenarioRule(TestActivity::class.java)
 
     @get:Rule val rule: RuleChain = RuleChain
         .outerRule(object : ExternalResource() {

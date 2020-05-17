@@ -32,13 +32,11 @@ android {
 dependencies {
     implementation project(":winter")
     implementation project(":winter-androidx")
+    implementation project(":winter-androidx-fragment")
     implementation project(':winter-androidx-viewmodel-savedstate')
 
     implementation deps.kotlin.stdlib
-
-    implementation deps.androidx.lifecycleCommon
-    implementation deps.androidx.activity
-    implementation deps.androidx.compat
+    implementation deps.androidx.fragment
 
     androidTestImplementation project(":winter-junit4")
     androidTestImplementation deps.test.kotlintest

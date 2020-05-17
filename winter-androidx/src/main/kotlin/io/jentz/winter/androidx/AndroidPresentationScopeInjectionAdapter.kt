@@ -29,8 +29,8 @@ import io.jentz.winter.androidx.viewmodel.WinterViewModel
  * ```
  */
 open class AndroidPresentationScopeInjectionAdapter(
-    winterApplication: WinterApplication
-) : SimpleAndroidInjectionAdapter(winterApplication) {
+    app: WinterApplication
+) : SimpleAndroidInjectionAdapter(app) {
 
     override fun getActivityParentGraph(activity: Activity): Graph {
         activity as? ViewModelStoreOwner ?: throw WinterException(
