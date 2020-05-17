@@ -40,15 +40,13 @@ android {
 
 dependencies {
     implementation project(":winter")
+    implementation project(":winter-androidx")
 
     implementation deps.kotlin.stdlib
-
-    implementation deps.androidx.lifecycleCommon
-    implementation deps.androidx.viewmodel
+    implementation deps.androidx.viewmodelSavedstate
 
     testImplementation deps.test.junit4
     testImplementation deps.test.kotlintest
-    testImplementation deps.androidx.lifecycleRuntime
     testImplementation deps.kotlin.reflect
 }
 
@@ -73,7 +71,7 @@ dokka {
 
     linkMapping {
         dir = "src/main/kotlin"
-        url = "https://github.com/beyama/winter/blob/master/winter-androidx/src/main/kotlin"
+        url = "https://github.com/beyama/winter/blob/master/winter-androidx-viewmodel-savedstate/src/main/kotlin"
         suffix = "#L"
     }
 }

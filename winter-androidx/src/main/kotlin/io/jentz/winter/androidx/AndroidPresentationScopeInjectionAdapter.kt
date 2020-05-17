@@ -7,6 +7,7 @@ import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.androidx.inject.PresentationScope
+import io.jentz.winter.androidx.viewmodel.WinterViewModel
 
 /**
  * Extended version of [SimpleAndroidInjectionAdapter] that retains a [PresentationScope] subgraph
@@ -39,7 +40,9 @@ open class AndroidPresentationScopeInjectionAdapter(
 
         model.graph?.let { return it }
 
-        return app.graph.getOrOpenSubgraph(PresentationScope::class, model).also {
+        return app.graph.getOrOpenSubgraph(PresentationScope::class, model) {
+            constant(activity.viewModelStore)
+        }.also {
             model.graph = it
         }
     }

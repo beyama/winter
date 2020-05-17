@@ -8,11 +8,9 @@ import android.content.ContentProvider
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
@@ -30,10 +28,10 @@ import io.jentz.winter.androidx.inject.ActivityScope
  * The following is provided via the activity graph:
  * * the activity as [Context]
  * * the activity as [Activity]
- * * the activity [lifecycle][Lifecycle]
- * * the activity as [FragmentActivity] if it is an instance of [FragmentActivity]
- * * the activity [FragmentManager] if it is an instance of [FragmentActivity]
- *   instance of [FragmentActivity]
+ * * the activities [lifecycle][Lifecycle] if the activity implement [LifecycleOwner]
+ * * the activity as [LifecycleOwner] if the activity implements that
+ * * the activity as [ViewModelStoreOwner] if the activity implements that
+ * * the activities [androidx.lifecycle.ViewModelStore] if the activity implements [ViewModelStoreOwner]
  */
 open class SimpleAndroidInjectionAdapter(
     protected val app: WinterApplication
@@ -43,7 +41,6 @@ open class SimpleAndroidInjectionAdapter(
         is DependencyGraphContextWrapper -> instance.graph
         is Application -> getApplicationGraph(instance)
         is Activity -> getActivityGraph(instance)
-        is Fragment -> getFragmentGraph(instance)
         is View -> getViewGraph(instance)
         is BroadcastReceiver -> getBroadcastReceiverGraph(instance)
         is ContentProvider -> getContentProviderGraph(instance)
@@ -59,15 +56,13 @@ open class SimpleAndroidInjectionAdapter(
         }
 
     protected open fun getActivityGraph(activity: Activity): Graph? {
-        return getActivityParentGraph(activity)?.getOrOpenSubgraph(ActivityScope::class, activity) {
-            setupActivityGraph(activity, this)
-        }
+        return getActivityParentGraph(activity)
+            ?.getOrOpenSubgraph(ActivityScope::class, activity) {
+                setupActivityGraph(activity, this)
+            }
     }
 
     protected open fun getActivityParentGraph(activity: Activity): Graph? = app.graph
-
-    protected open fun getFragmentGraph(fragment: Fragment): Graph? =
-        get(fragment.requireActivity())
 
     protected open fun getViewGraph(view: View): Graph? = get(view.context)
 
@@ -86,7 +81,6 @@ open class SimpleAndroidInjectionAdapter(
     protected open fun close(instance: Any) {
         when (instance) {
             is Activity -> closeActivityGraph(instance)
-            is Fragment -> closeFragmentGraph(instance)
             else -> throw WinterException("Unsupported type for auto close `$instance`.")
         }
     }
@@ -95,29 +89,34 @@ open class SimpleAndroidInjectionAdapter(
         getActivityParentGraph(activity)?.closeSubgraph(activity)
     }
 
-    protected open fun closeFragmentGraph(fragment: Fragment) {
-    }
-
     protected open fun setupActivityGraph(activity: Activity, builder: Component.Builder) {
         activity as? LifecycleOwner ?: throw WinterException(
             "Activity `$activity` must implement ${LifecycleOwner::class.java.name}"
         )
-
         setupAutoClose(activity)
+        provideAndroidTypes(activity, builder)
+    }
 
-        builder.apply {
-            constant<Context>(activity)
-            constant<Activity>(activity)
-            constant(activity.lifecycle)
-
-            if (activity is FragmentActivity) {
-                constant(activity)
-                constant(activity.supportFragmentManager)
+    protected open fun provideAndroidTypes(instance: Any, builder: Component.Builder) {
+        with(builder) {
+            if (instance is Context) {
+                constant(instance)
+            }
+            if (instance is Activity) {
+                constant(instance)
+            }
+            if (instance is LifecycleOwner) {
+                constant(instance)
+                constant(instance.lifecycle)
+            }
+            if (instance is ViewModelStoreOwner) {
+                constant(instance)
+                constant(instance.viewModelStore)
             }
         }
     }
 
-    private fun setupAutoClose(lifecycleOwner: LifecycleOwner) {
+    protected fun setupAutoClose(lifecycleOwner: LifecycleOwner) {
         val closeEvent: Lifecycle.Event = when (lifecycleOwner.lifecycle.currentState) {
             Lifecycle.State.INITIALIZED -> Lifecycle.Event.ON_DESTROY
             Lifecycle.State.CREATED -> Lifecycle.Event.ON_STOP
