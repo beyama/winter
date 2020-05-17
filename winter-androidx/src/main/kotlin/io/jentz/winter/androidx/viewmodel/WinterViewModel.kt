@@ -1,4 +1,4 @@
-package io.jentz.winter.androidx
+package io.jentz.winter.androidx.viewmodel
 
 import androidx.lifecycle.ViewModel
 import io.jentz.winter.Graph

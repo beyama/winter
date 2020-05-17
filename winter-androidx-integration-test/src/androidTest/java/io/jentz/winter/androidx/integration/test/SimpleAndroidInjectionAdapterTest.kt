@@ -92,20 +92,6 @@ class SimpleAndroidInjectionAdapterTest {
     }
 
     @Test
-    fun should_get_activity_graph_for_fragment() {
-        val fragment = TestFragment()
-        scenario.onActivity { activity ->
-            activity.supportFragmentManager.beginTransaction().apply {
-                add(fragment, "test")
-                commit()
-            }
-        }
-        onIdle()
-
-        winterRule.requireTestGraph.shouldBeSameInstanceAs(adapter.get(fragment))
-    }
-
-    @Test
     fun should_close_activity_graph_when_activity_gets_destroyed() {
         val graph = winterRule.requireTestGraph
 
@@ -127,14 +113,6 @@ class SimpleAndroidInjectionAdapterTest {
         val graph = winterRule.requireTestGraph
         scenario.onActivity {
             graph.instance<Lifecycle>().shouldBeSameInstanceAs(it.lifecycle)
-        }
-    }
-
-    @Test
-    fun should_provide_fragment_manager_from_activity() {
-        val graph = winterRule.requireTestGraph
-        scenario.onActivity {
-            graph.instance<FragmentManager>().shouldBeSameInstanceAs(it.supportFragmentManager)
         }
     }
 
