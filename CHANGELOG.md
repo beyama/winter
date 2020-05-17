@@ -1,6 +1,16 @@
 Changelog
 =========
 
+Version 0.10.0
+--------------
+
+* Reduce dependency of winter-androidx module
+* Remove fragment support from winter-androidx injection adapters
+* Add support for AndroidX view model injection to winter-androidx
+* Add winter-androidx-viewmodel-savedstate module for support for view models with saved state handle
+* Add Component.Builder#containsKey method to check if a key was already registered
+* Remove check if target key exists from Component.Builder#alias 
+
 Version 0.9.0
 -------------
 
