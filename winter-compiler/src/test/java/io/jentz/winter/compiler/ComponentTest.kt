@@ -1,6 +1,5 @@
 package io.jentz.winter.compiler
 
-import com.google.testing.compile.CompilationSubject
 import com.google.testing.compile.Compiler
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview

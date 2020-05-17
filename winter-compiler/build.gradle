@@ -19,6 +19,11 @@ test {
 
     testLogging {
         events "skipped", "failed"
+
+        exceptionFormat "full"
+        showExceptions true
+        showCauses true
+        showStackTraces true
     }
     afterSuite { desc, result ->
         if (!desc.parent) {
