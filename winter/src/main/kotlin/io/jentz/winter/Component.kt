@@ -451,7 +451,7 @@ class Component private constructor(
         }
 
         /**
-         * Create an alias entry.
+         * Creates an alias entry.
          *
          * Be careful, this method will not check if a type cast is possible.
          *
@@ -466,7 +466,6 @@ class Component private constructor(
          * @param newKey The alias [TypeKey].
          * @param override If true this will override an existing factory of type [newKey].
          *
-         * @throws EntryNotFoundException If [targetKey] entry doesn't exist.
          * @throws WinterException If [newKey] entry already exists and [override] is false.
          */
         fun <R0 : Any, R1 : Any> alias(
@@ -474,11 +473,6 @@ class Component private constructor(
             newKey: TypeKey<R1>,
             override: Boolean = false
         ): TypeKey<R0> {
-            registry[targetKey]
-                ?: throw EntryNotFoundException(
-                    targetKey,
-                    "Entry with key `$targetKey` doesn't exist."
-                )
             register(AliasService(targetKey, newKey), override)
             return targetKey
         }

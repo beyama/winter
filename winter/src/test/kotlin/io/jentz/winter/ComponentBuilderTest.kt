@@ -197,13 +197,6 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#alias should throw an exception if from key doesn't exist`() {
-        shouldThrow<EntryNotFoundException> {
-            component { alias(typeKey<Thermosiphon>(), typeKey<Pump>()) }
-        }
-    }
-
-    @Test
     fun `#alias should override existing entry if override is true`() {
         component {
             prototype { Thermosiphon(instance()) }
