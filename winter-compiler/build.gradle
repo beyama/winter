@@ -47,7 +47,10 @@ dependencies {
     testImplementation deps.test.kotlintest
     testImplementation deps.test.compileTesting
     testImplementation deps.javax.annotationApi // to get the legacy Generated annotation on >= JDK9
-    testImplementation files(Jvm.current().getToolsJar())
+
+    if (!Jvm.current().javaVersion.isJava9Compatible()) {
+        testImplementation files(Jvm.current().getToolsJar())
+    }
 
     testRuntimeOnly deps.test.jupiterEngine
 }

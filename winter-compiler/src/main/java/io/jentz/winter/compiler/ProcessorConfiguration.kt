@@ -11,8 +11,8 @@ data class ProcessorConfiguration(
     companion object {
 
         private val generatedAnnotations = listOf(
-            GENERATED_ANNOTATION_LEGACY_INTERFACE_NAME,
-            GENERATED_ANNOTATION_JDK9_INTERFACE_NAME
+            GENERATED_ANNOTATION_JDK9_INTERFACE_NAME,
+            GENERATED_ANNOTATION_LEGACY_INTERFACE_NAME
         )
 
         fun from(processingEnv: ProcessingEnvironment): ProcessorConfiguration {
