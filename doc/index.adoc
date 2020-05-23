@@ -87,8 +87,14 @@ class MyActivity : AppCompatActivity() {
 dependencies {
     // Core
     implementation 'io.jentz.winter:winter:x.x.x'
+    // Kotlin coroutines support
+    implementation 'io.jentz.winter:winter-coroutines:x.x.x'
     // AndroidX support
     implementation 'io.jentz.winter:winter-androidx:x.x.x'
+    // AndroidX fragment support
+    implementation 'io.jentz.winter:winter-androidx-fragment:x.x.x'
+    // AndroidX ViewModel with Savedstate support
+    implementation 'io.jentz.winter:winter-androidx-viewmodel-savedstate:x.x.x'
     // RxJava2 support module
     implementation 'io.jentz.winter:winter-rxjava2:x.x.x'
     // Java support module
