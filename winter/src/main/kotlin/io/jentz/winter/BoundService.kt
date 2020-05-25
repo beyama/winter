@@ -178,6 +178,30 @@ internal class BoundSoftSingletonService<R : Any>(
 
 }
 
+internal class BoundAliasService<R : Any>(
+    private val newKey: TypeKey<R>,
+    private val targetService: BoundService<R>
+) : BoundService<R> {
+
+    override val key: TypeKey<R> get() = newKey
+
+    override val scope: Scope get() = targetService.scope
+
+    override fun instance(): R = targetService.instance()
+
+    override fun newInstance(): R {
+        throw WinterException("BUG: BoundAliasService#newInstance must never been called.")
+    }
+
+    override fun onPostConstruct(instance: R) {
+        throw WinterException("BUG: BoundAliasService#onPostConstruct must never been called.")
+    }
+
+    override fun onClose() {
+    }
+
+}
+
 internal class BoundGraphService(
     override val key: TypeKey<Graph>,
     private val graph: Graph

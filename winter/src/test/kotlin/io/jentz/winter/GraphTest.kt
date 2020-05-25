@@ -323,18 +323,16 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("Alias service")
-    inner class AliasService {
+    inner class Alias {
 
         @Test
-        fun `should bind aliased service only once`() {
+        fun `should wrap aliased service in BoundAliasService`() {
             val graph = graph {
                 prototype { Heater() }
-                prototype { Thermosiphon(instance()) }
+                singleton { Thermosiphon(instance()) }
                 alias(typeKey<Thermosiphon>(), typeKey<Pump>())
             }
-            graph.service<Pump>(typeKey())
-                .shouldBeSameInstanceAs(graph.service<Thermosiphon>(typeKey()))
+            graph.service(typeKey<Pump>()).shouldBeInstanceOf<BoundAliasService<*>>()
         }
 
         @Test
@@ -357,6 +355,17 @@ class GraphTest {
                     remove(typeKey<Thermosiphon>())
                 }.service<Pump>(typeKey())
             }.message.shouldBe("Error resolving alias `${typeKey<Pump>()}` pointing to `${typeKey<Thermosiphon>()}`.")
+        }
+
+        @Test
+        fun `should call close only once for the target`() {
+            var closed = 0
+            val graph = graph {
+                singleton(onClose = { closed += 1 }) { "foo" }.alias<CharSequence>()
+            }
+            graph.instance<CharSequence>()
+            graph.close()
+            closed.shouldBe(1)
         }
 
     }

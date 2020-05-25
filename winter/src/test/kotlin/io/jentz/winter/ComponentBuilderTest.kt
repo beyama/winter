@@ -185,7 +185,7 @@ class ComponentBuilderTest {
         component {
             prototype { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -203,7 +203,7 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -223,7 +223,7 @@ class ComponentBuilderTest {
             prototype {
                 Thermosiphon(instance())
             }.alias<Pump>()
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -233,7 +233,7 @@ class ComponentBuilderTest {
             prototype {
                 Thermosiphon(instance())
             }.alias<Pump>(override = true)
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
     }
 
     @Test

@@ -112,7 +112,7 @@ internal class ConstantService<R : Any>(
     }
 }
 
-internal class AliasService<R: Any>(
+internal class UnboundAliasService<R: Any>(
     private val targetKey: TypeKey<*>,
     private val newKey: TypeKey<R>
 ) : UnboundService<R> {
@@ -124,7 +124,8 @@ internal class AliasService<R: Any>(
     override fun bind(graph: Graph): BoundService<R> {
         try {
             @Suppress("UNCHECKED_CAST")
-            return graph.service(targetKey as TypeKey<R>)
+            val targetService = graph.service(targetKey as TypeKey<R>)
+            return BoundAliasService(newKey, targetService)
         } catch (t: Throwable) {
             throw WinterException("Error resolving alias `$newKey` pointing to `$targetKey`.", t)
         }

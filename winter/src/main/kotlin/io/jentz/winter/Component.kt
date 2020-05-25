@@ -473,7 +473,7 @@ class Component private constructor(
             newKey: TypeKey<R1>,
             override: Boolean = false
         ): TypeKey<R0> {
-            register(AliasService(targetKey, newKey), override)
+            register(UnboundAliasService(targetKey, newKey), override)
             return targetKey
         }
 

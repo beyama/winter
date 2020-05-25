@@ -11,7 +11,8 @@ Version 0.10.0
 * Add winter-androidx-fragment module with injection adapters with Fragment support
 * Add WinterFragmentFactory (again) for constructor injection support in fragments
 * Add Component.Builder#containsKey method to check if a key was already registered
-* Remove check if target key exists from Component.Builder#alias 
+* Remove check if target key exists from Component.Builder#alias
+* Fix aliased service close method was called for the alias and the target
 
 Version 0.9.0
 -------------
