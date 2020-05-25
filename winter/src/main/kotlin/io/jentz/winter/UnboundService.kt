@@ -56,36 +56,6 @@ internal class UnboundSingletonService<R : Any>(
 }
 
 @PublishedApi
-internal class UnboundWeakSingletonService<R : Any>(
-    override val key: TypeKey<R>,
-    val factory: GFactory<R>,
-    val onPostConstruct: GFactoryCallback<R>?
-) : UnboundService<R> {
-
-    override val requiresLifecycleCallbacks: Boolean
-        get() = onPostConstruct != null
-
-    override fun bind(graph: Graph): BoundService<R> {
-        return BoundWeakSingletonService(graph, this)
-    }
-}
-
-@PublishedApi
-internal class UnboundSoftSingletonService<R : Any>(
-    override val key: TypeKey<R>,
-    val factory: GFactory<R>,
-    val onPostConstruct: GFactoryCallback<R>?
-) : UnboundService<R> {
-
-    override val requiresLifecycleCallbacks: Boolean
-        get() = onPostConstruct != null
-
-    override fun bind(graph: Graph): BoundService<R> {
-        return BoundSoftSingletonService(graph, this)
-    }
-}
-
-@PublishedApi
 internal class ConstantService<R : Any>(
     override val key: TypeKey<R>,
     val value: R

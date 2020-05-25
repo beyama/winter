@@ -76,36 +76,6 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#weakSingleton should register UnboundWeakSingletonService`() {
-        component {
-            weakSingleton("d") { Heater() }
-        }.shouldContainServiceOfType<UnboundWeakSingletonService<*>>(typeKey<Heater>("d"))
-    }
-
-    @Test
-    fun `#weakSingleton should return the type key`() {
-        component {
-            weakSingleton("d") { Heater() }
-                .shouldBe(typeKey<Heater>("d"))
-        }
-    }
-
-    @Test
-    fun `#softSingleton should register UnboundSoftSingletonService`() {
-        component {
-            softSingleton("e") { Heater() }
-        }.shouldContainServiceOfType<UnboundSoftSingletonService<*>>(typeKey<Heater>("e"))
-    }
-
-    @Test
-    fun `#softSingleton should return the type key`() {
-        component {
-            softSingleton("e") { Heater() }
-                .shouldBe(typeKey<Heater>("e"))
-        }
-    }
-
-    @Test
     fun `#constant should register ConstantService`() {
         component {
             constant(42, "h")

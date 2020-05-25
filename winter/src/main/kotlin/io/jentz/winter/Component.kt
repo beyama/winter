@@ -302,50 +302,6 @@ class Component private constructor(
         }
 
         /**
-         * Register a weak singleton scoped factory for an instance of type [R].
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param factory The factory for type [R].
-         */
-        inline fun <reified R : Any> weakSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundWeakSingletonService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
-
-        /**
-         * Register a soft singleton scoped factory for an instance of type [R].
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param factory The factory for type [R].
-         */
-        inline fun <reified R : Any> softSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSoftSingletonService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
-
-        /**
          * Register a constant of type [R].
          *
          * @param value The value of this constant provider.

@@ -1,8 +1,5 @@
 package io.jentz.winter
 
-import java.lang.ref.SoftReference
-import java.lang.ref.WeakReference
-
 /**
  * Interface for bound service entries in a [Graph].
  */
@@ -85,95 +82,45 @@ internal class BoundPrototypeService<R : Any>(
 
 }
 
-internal abstract class AbstractBoundSingletonService<R : Any>(
-    protected val graph: Graph
+internal class BoundSingletonService<R : Any>(
+    private val graph: Graph,
+    private val unboundService: UnboundSingletonService<R>
 ) : BoundService<R> {
 
-    protected abstract val instance: Any
+    @Volatile private var _value = UNINITIALIZED_VALUE
 
-    protected abstract val unboundService: UnboundService<R>
-
-    final override val key: TypeKey<R> get() = unboundService.key
-
-    final override fun instance(): R {
-        val instance = this.instance
-        if (instance !== UNINITIALIZED_VALUE) {
-            @Suppress("UNCHECKED_CAST")
-            return instance as R
-        }
-        return graph.evaluate(this)
-    }
-
-}
-
-internal class BoundSingletonService<R : Any>(
-    graph: Graph,
-    override val unboundService: UnboundSingletonService<R>
-) : AbstractBoundSingletonService<R>(graph) {
+    override val key: TypeKey<R> get() = unboundService.key
 
     override val scope: Scope get() = Scope.Singleton
 
-    override var instance: Any = UNINITIALIZED_VALUE
+    @Suppress("UNCHECKED_CAST")
+    override fun instance(): R {
+        val v1 = _value
+        if (v1 !== UNINITIALIZED_VALUE) {
+            return v1 as R
+        }
+        synchronized(this) {
+            val v2 = _value
+            if (v2 !== UNINITIALIZED_VALUE) {
+                return v2 as R
+            }
 
-    override fun newInstance(): R =
-        unboundService.factory(graph).also { instance = it }
-
-    override fun onPostConstruct(instance: R) {
-        unboundService.onPostConstruct?.invoke(graph, instance)
-    }
-
-    override fun onClose() {
-        val instance = instance
-        if (instance !== UNINITIALIZED_VALUE) {
-            @Suppress("UNCHECKED_CAST")
-            unboundService.onClose?.invoke(graph, instance as R)
+            return graph.evaluate(this)
         }
     }
 
-}
-
-internal class BoundWeakSingletonService<R : Any>(
-    graph: Graph,
-    override val unboundService: UnboundWeakSingletonService<R>
-) : AbstractBoundSingletonService<R>(graph) {
-
-    override val scope: Scope get() = Scope.WeakSingleton
-
-    override val instance: Any get() = reference?.get() ?: UNINITIALIZED_VALUE
-
-    private var reference: WeakReference<R>? = null
-
     override fun newInstance(): R =
-        unboundService.factory(graph).also { reference = WeakReference(it) }
+        unboundService.factory(graph).also { _value = it }
 
     override fun onPostConstruct(instance: R) {
         unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onClose() {
-    }
-
-}
-
-internal class BoundSoftSingletonService<R : Any>(
-    graph: Graph,
-    override val unboundService: UnboundSoftSingletonService<R>
-) : AbstractBoundSingletonService<R>(graph) {
-
-    override val instance: Any get() = reference?.get() ?: UNINITIALIZED_VALUE
-
-    override val scope: Scope get() = Scope.SoftSingleton
-
-    private var reference: SoftReference<R>? = null
-
-    override fun newInstance(): R =
-        unboundService.factory(graph).also { reference = SoftReference(it) }
-
-    override fun onPostConstruct(instance: R) {
-        unboundService.onPostConstruct?.invoke(graph, instance)
-    }
-
-    override fun onClose() {
+        val onClose = unboundService.onClose ?: return
+        val instance = _value.takeUnless { it === UNINITIALIZED_VALUE } ?: return
+        onClose(graph, instance as R)
     }
 
 }

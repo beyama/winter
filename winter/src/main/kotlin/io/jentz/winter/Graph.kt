@@ -156,7 +156,7 @@ class Graph internal constructor(
      * @throws EntryNotFoundException
      */
     fun <R : Any> instanceByKey(key: TypeKey<R>): R =
-        synchronizedMap { it.service(key).instance() }
+        service(key).instance()
 
     /**
      * Retrieve an optional instance of `R`.
@@ -177,7 +177,7 @@ class Graph internal constructor(
      * @return An instance of `R` or null if provider doesn't exist.
      */
     fun <R : Any> instanceOrNullByKey(key: TypeKey<R>): R? =
-        synchronizedMap { it.serviceOrNull(key)?.instance() }
+        serviceOrNull(key)?.instance()
 
     /**
      * Retrieves a non-optional provider function that returns `R`.
@@ -201,9 +201,9 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> providerByKey(key: TypeKey<R>): Provider<R> = synchronizedMap {
-        val service = it.service(key)
-        return { synchronized(this) { service.instance() } }
+    fun <R : Any> providerByKey(key: TypeKey<R>): Provider<R> {
+        val service = service(key)
+        return { service.instance() }
     }
 
     /**
@@ -224,11 +224,10 @@ class Graph internal constructor(
      * @param key The type key of the instance.
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
-    fun <R : Any> providerOrNullByKey(key: TypeKey<R>): Provider<R>? =
-        synchronizedMap {
-            val service = it.serviceOrNull(key) ?: return null
-            return { synchronized(this) { service.instance() } }
-        }
+    fun <R : Any> providerOrNullByKey(key: TypeKey<R>): Provider<R>? {
+        val service = serviceOrNull(key) ?: return null
+        return { service.instance() }
+    }
 
     /**
      * Returns a set of all [keys][TypeKey] registered on the backing [Component] and all the
@@ -252,7 +251,7 @@ class Graph internal constructor(
      * Don't use this method except in custom [BoundService] implementations.
      */
     fun <R : Any> evaluate(service: BoundService<R>): R =
-        map { it.serviceEvaluator.evaluate(service) }
+        synchronizedMap { it.serviceEvaluator.evaluate(service) }
 
     /**
      * Inject members of class [T].
