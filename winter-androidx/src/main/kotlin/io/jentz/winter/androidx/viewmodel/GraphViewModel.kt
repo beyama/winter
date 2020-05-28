@@ -9,7 +9,7 @@ import io.jentz.winter.Graph
  * This is intended to be used inside an [io.jentz.winter.WinterApplication.InjectionAdapter] to
  * hold graphs that outlive configuration changes.
  */
-class WinterViewModel : ViewModel() {
+class GraphViewModel : ViewModel() {
 
     var graph: Graph? = null
 

@@ -7,7 +7,7 @@ import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.androidx.inject.PresentationScope
-import io.jentz.winter.androidx.viewmodel.WinterViewModel
+import io.jentz.winter.androidx.viewmodel.GraphViewModel
 
 /**
  * Extended version of [SimpleAndroidInjectionAdapter] that retains a [PresentationScope] subgraph
@@ -36,7 +36,7 @@ open class AndroidPresentationScopeInjectionAdapter(
         activity as? ViewModelStoreOwner ?: throw WinterException(
             "Activity `${activity.javaClass.name}` must implement ViewModelStoreOwner"
         )
-        val model = ViewModelProvider(activity).get(WinterViewModel::class.java)
+        val model = ViewModelProvider(activity).get(GraphViewModel::class.java)
 
         model.graph?.let { return it }
 

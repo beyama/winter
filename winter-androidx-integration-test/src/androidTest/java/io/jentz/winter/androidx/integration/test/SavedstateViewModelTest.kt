@@ -1,8 +1,7 @@
 package io.jentz.winter.androidx.integration.test
 
-import android.app.Activity
 import android.app.Application
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,10 +9,10 @@ import androidx.test.filters.LargeTest
 import io.jentz.winter.Winter
 import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
 import io.jentz.winter.androidx.inject.ActivityScope
-import io.jentz.winter.androidx.viewmodel.savedstate.savedStateViewModel
 import io.jentz.winter.junit4.WinterRule
-import io.jentz.winter.typeKey
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
+import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,9 +40,9 @@ class SavedstateViewModelTest {
 
                 Winter.component {
 
+                    prototype { TestSavedstateViewModel(instance(), instance(), instance()) }
+
                     subcomponent(ActivityScope::class) {
-                        alias(typeKey<Activity>(), typeKey<SavedStateRegistryOwner>())
-                        savedStateViewModel { TestSavedstateViewModel(instance(), instance()) }
                     }
 
                 }
@@ -64,9 +63,12 @@ class SavedstateViewModelTest {
     @Test
     fun should_provide_view_model() {
         scenario.onActivity { activity ->
-            val viewModel0: TestSavedstateViewModel = adapter.get(activity)!!.instance()
-            val viewModel1: TestSavedstateViewModel = adapter.get(activity)!!.instance()
-            viewModel0.shouldBeSameInstanceAs(viewModel1)
+            activity.savedStatViewModel.shouldBeInstanceOf<TestSavedstateViewModel>()
+
+            activity.savedStatViewModel.id.shouldBe("Test ID")
+
+            ViewModelProvider(activity).get(TestSavedstateViewModel::class.java)
+                .shouldBeSameInstanceAs(activity.savedStatViewModel)
         }
     }
 

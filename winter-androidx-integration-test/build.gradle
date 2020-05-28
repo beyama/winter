@@ -33,7 +33,6 @@ dependencies {
     implementation project(":winter")
     implementation project(":winter-androidx")
     implementation project(":winter-androidx-fragment")
-    implementation project(':winter-androidx-viewmodel-savedstate')
 
     implementation deps.kotlin.stdlib
     implementation deps.androidx.fragment

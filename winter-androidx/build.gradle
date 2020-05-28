@@ -42,13 +42,10 @@ dependencies {
     implementation project(":winter")
 
     implementation deps.kotlin.stdlib
-
-    implementation deps.androidx.lifecycleCommon
-    implementation deps.androidx.viewmodel
+    implementation deps.androidx.activity
 
     testImplementation deps.test.junit4
     testImplementation deps.test.kotlintest
-    testImplementation deps.androidx.lifecycleRuntime
     testImplementation deps.kotlin.reflect
 }
 

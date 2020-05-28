@@ -8,9 +8,12 @@ import android.content.ContentProvider
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistryOwner
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
@@ -112,6 +115,19 @@ open class SimpleAndroidInjectionAdapter(
             if (instance is ViewModelStoreOwner) {
                 constant(instance)
                 constant(instance.viewModelStore)
+            }
+            if (instance is SavedStateRegistryOwner) {
+                constant(instance)
+                constant(instance.savedStateRegistry)
+            }
+
+            if (instance is OnBackPressedDispatcherOwner) {
+                constant(instance)
+                constant(instance.onBackPressedDispatcher)
+            }
+
+            if (instance is ComponentActivity) {
+                constant(instance)
             }
         }
     }

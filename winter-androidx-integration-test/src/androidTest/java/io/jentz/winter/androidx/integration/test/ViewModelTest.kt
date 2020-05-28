@@ -1,6 +1,7 @@
 package io.jentz.winter.androidx.integration.test
 
 import android.app.Application
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -9,9 +10,10 @@ import io.jentz.winter.Winter
 import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
-import io.jentz.winter.androidx.viewmodel.viewModel
 import io.jentz.winter.junit4.WinterRule
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
+import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,11 +41,9 @@ class ViewModelTest {
 
                 Winter.component {
 
+                    prototype { TestViewModel(instance(), instance()) }
+
                     subcomponent(PresentationScope::class) {
-
-                        prototype { SomeViewModelDependency() }
-
-                        viewModel { TestViewModel(instance(), instance()) }
 
                         subcomponent(ActivityScope::class) {
                         }
@@ -67,9 +67,12 @@ class ViewModelTest {
     @Test
     fun should_provide_view_model() {
         scenario.onActivity { activity ->
-            val viewModel0: TestViewModel = adapter.get(activity)!!.instance()
-            val viewModel1: TestViewModel = adapter.get(activity)!!.instance()
-            viewModel0.shouldBeSameInstanceAs(viewModel1)
+            activity.viewModel.shouldBeInstanceOf<TestViewModel>()
+
+            activity.viewModel.id.shouldBe("Test ID")
+
+            ViewModelProvider(activity).get(TestViewModel::class.java)
+                .shouldBeSameInstanceAs(activity.viewModel)
         }
     }
 
