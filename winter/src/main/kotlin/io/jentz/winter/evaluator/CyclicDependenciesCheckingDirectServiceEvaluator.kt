@@ -1,6 +1,7 @@
 package io.jentz.winter.evaluator
 
 import io.jentz.winter.BoundService
+import io.jentz.winter.Graph
 import io.jentz.winter.TypeKey
 
 /**
@@ -13,7 +14,7 @@ internal class CyclicDependenciesCheckingDirectServiceEvaluator : ServiceEvaluat
 
     private var stack = mutableListOf<TypeKey<*>>()
 
-    override fun <R : Any> evaluate(service: BoundService<R>): R {
+    override fun <R : Any> evaluate(service: BoundService<R>, graph: Graph): R {
         val key = service.key
 
         checkForCyclicDependencies(key, { stack.contains(key) }, { stack })
@@ -21,7 +22,7 @@ internal class CyclicDependenciesCheckingDirectServiceEvaluator : ServiceEvaluat
         stack.push(key)
 
         return try {
-            service.newInstance()
+            service.newInstance(graph)
         } catch (t: Throwable) {
             handleException(key, t)
         } finally {

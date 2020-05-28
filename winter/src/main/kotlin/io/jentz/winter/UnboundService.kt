@@ -68,9 +68,9 @@ internal class ConstantService<R : Any>(
 
     override fun bind(graph: Graph): BoundService<R> = this
 
-    override fun instance(): R = value
+    override fun instance(block: ComponentBuilderBlock?): R = value
 
-    override fun newInstance(): R {
+    override fun newInstance(graph: Graph): R {
         throw AssertionError("BUG: This method should not be called.")
     }
 

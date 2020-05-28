@@ -1,9 +1,6 @@
 package io.jentz.winter.evaluator
 
-import io.jentz.winter.BoundService
-import io.jentz.winter.Scope
-import io.jentz.winter.TypeKey
-import io.jentz.winter.typeKey
+import io.jentz.winter.*
 
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
@@ -17,10 +14,10 @@ internal class BoundTestService(
 
     override val scope: Scope get() = Scope.Prototype
 
-    override fun instance(): String = throw Error()
+    override fun instance(block: ComponentBuilderBlock?): String = throw Error()
 
-    override fun newInstance(): String {
-        dependency?.let { evaluator.evaluate(it) }
+    override fun newInstance(graph: Graph): String {
+        dependency?.let { evaluator.evaluate(it, graph) }
         throwOnNewInstance?.let { throw it() }
         return this.instance.invoke()
     }

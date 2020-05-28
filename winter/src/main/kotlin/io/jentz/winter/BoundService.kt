@@ -20,19 +20,26 @@ interface BoundService<R : Any> {
      * If this service has to create a new instance to satisfy this request it must do the
      * initialization in [newInstance] by calling [Graph.evaluate].
      *
+     * @param block An optional builder block to derive the graph to pass runtime values to the
+     * factory. This has to be passed to [Graph.evaluate] and if present will result in a extended
+     * graph passed to [newInstance].
      *
      * @return An instance of type `R`.
      */
-    fun instance(): R
+    fun instance(block: ComponentBuilderBlock? = null): R
 
     /**
      * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
      *
      * If you want to memorize the value this is the place to do it.
      *
+     * @param graph The graph that must be used to call this services factory. This is either the
+     * [Graph] this [BoundService] was bound to or an extended version if a builder block was passed
+     * to [instance].
+     *
      * @return The new instance of type `R`.
      */
-    fun newInstance(): R
+    fun newInstance(graph: Graph): R
 
     /**
      * This is called after a new instance was created but not until the complete dependency request
@@ -67,11 +74,11 @@ internal class BoundPrototypeService<R : Any>(
 
     override val key: TypeKey<R> get() = unboundService.key
 
-    override fun instance(): R {
-        return graph.evaluate(this)
+    override fun instance(block: ComponentBuilderBlock?): R {
+        return graph.evaluate(this, block)
     }
 
-    override fun newInstance(): R = unboundService.factory(graph)
+    override fun newInstance(graph: Graph): R = unboundService.factory(graph)
 
     override fun onPostConstruct(instance: R) {
         unboundService.onPostConstruct?.invoke(graph, instance)
@@ -94,7 +101,7 @@ internal class BoundSingletonService<R : Any>(
     override val scope: Scope get() = Scope.Singleton
 
     @Suppress("UNCHECKED_CAST")
-    override fun instance(): R {
+    override fun instance(block: ComponentBuilderBlock?): R {
         val v1 = _value
         if (v1 !== UNINITIALIZED_VALUE) {
             return v1 as R
@@ -105,11 +112,11 @@ internal class BoundSingletonService<R : Any>(
                 return v2 as R
             }
 
-            return graph.evaluate(this)
+            return graph.evaluate(this, block)
         }
     }
 
-    override fun newInstance(): R =
+    override fun newInstance(graph: Graph): R =
         unboundService.factory(graph).also { _value = it }
 
     override fun onPostConstruct(instance: R) {
@@ -134,9 +141,9 @@ internal class BoundAliasService<R : Any>(
 
     override val scope: Scope get() = targetService.scope
 
-    override fun instance(): R = targetService.instance()
+    override fun instance(block: ComponentBuilderBlock?): R = targetService.instance(block)
 
-    override fun newInstance(): R {
+    override fun newInstance(graph: Graph): R {
         throw WinterException("BUG: BoundAliasService#newInstance must never been called.")
     }
 
@@ -157,9 +164,9 @@ internal class BoundGraphService(
     override val scope: Scope
         get() = Scope.Singleton
 
-    override fun instance(): Graph = graph
+    override fun instance(block: ComponentBuilderBlock?): Graph = graph
 
-    override fun newInstance(): Graph {
+    override fun newInstance(graph: Graph): Graph {
         throw IllegalStateException(
             "BUG: New instance for BoundGraphService should never be called."
         )
@@ -190,7 +197,8 @@ internal abstract class BoundOfTypeService<T : Any, R : Any>(
         graph.keys().filterTo(mutableSetOf()) { it.typeEquals(typeOfKey) } as Set<TypeKey<T>>
     }
 
-    override fun instance(): R = graph.evaluate(this)
+    override fun instance(block: ComponentBuilderBlock?): R =
+        graph.evaluate(this, null)
 
     override fun onPostConstruct(instance: R) {
     }
@@ -205,7 +213,8 @@ internal class BoundSetOfTypeService<T : Any>(
     override val unboundService: SetOfTypeService<T>
 ) : BoundOfTypeService<T, Set<T>>(graph) {
 
-    override fun newInstance(): Set<T> = keys.mapTo(LinkedHashSet(keys.size)) { graph.instanceByKey(it) }
+    override fun newInstance(graph: Graph): Set<T> =
+        keys.mapTo(LinkedHashSet(keys.size)) { graph.instanceByKey(it) }
 
 }
 
@@ -214,7 +223,8 @@ internal class BoundSetOfProvidersForTypeService<T : Any>(
     override val unboundService: SetOfProvidersForTypeService<T>
 ) : BoundOfTypeService<T, Set<Provider<T>>>(graph) {
 
-    override fun newInstance(): Set<Provider<T>> = keys.mapTo(LinkedHashSet(keys.size)) { graph.providerByKey(it) }
+    override fun newInstance(graph: Graph): Set<Provider<T>> =
+        keys.mapTo(LinkedHashSet(keys.size)) { graph.providerByKey(it) }
 
 }
 
@@ -223,7 +233,7 @@ internal class BoundMapOfTypeService<T : Any>(
     override val unboundService: MapOfTypeService<T>
 ) : BoundOfTypeService<T, Map<Any, T>>(graph) {
 
-    override fun newInstance(): Map<Any, T> =
+    override fun newInstance(graph: Graph): Map<Any, T> =
         keys.associateByTo(HashMap(keys.size), {
             it.qualifier ?: unboundService.defaultKey
         }, {
@@ -237,7 +247,7 @@ internal class BoundMapOfProvidersForTypeService<T : Any>(
     override val unboundService: MapOfProvidersForTypeService<T>
 ) : BoundOfTypeService<T, Map<Any, Provider<T>>>(graph) {
 
-    override fun newInstance(): Map<Any, Provider<T>> =
+    override fun newInstance(graph: Graph): Map<Any, Provider<T>> =
         keys.associateByTo(HashMap(keys.size), {
             it.qualifier ?: unboundService.defaultKey
         }, {

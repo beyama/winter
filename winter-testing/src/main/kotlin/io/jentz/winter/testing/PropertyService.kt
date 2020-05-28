@@ -23,11 +23,12 @@ internal class PropertyService(
 
     override fun bind(graph: Graph): BoundService<Any> = this
 
-    override fun instance(): Any = property.get(source) ?: throw WinterException(
-        "Property `${source.javaClass.name}::${property.name} returned null`."
-    )
+    override fun instance(block: ComponentBuilderBlock?): Any = property.get(source)
+        ?: throw WinterException(
+            "Property `${source.javaClass.name}::${property.name} returned null`."
+        )
 
-    override fun newInstance(): Any {
+    override fun newInstance(graph: Graph): Any {
         throw IllegalStateException("BUG: Should never been called.")
     }
 

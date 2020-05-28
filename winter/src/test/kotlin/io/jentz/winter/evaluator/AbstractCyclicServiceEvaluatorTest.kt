@@ -1,6 +1,7 @@
 package io.jentz.winter.evaluator
 
 import io.jentz.winter.CyclicDependencyException
+import io.jentz.winter.emptyGraph
 import io.jentz.winter.typeKey
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -17,7 +18,7 @@ abstract class AbstractCyclicServiceEvaluatorTest : AbstractServiceEvaluatorTest
         d.dependency = b
 
         shouldThrow<CyclicDependencyException> {
-            evaluator.evaluate(a)
+            evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
                     "`ClassTypeKey(class java.lang.String qualifier = b)` " +
@@ -36,7 +37,7 @@ abstract class AbstractCyclicServiceEvaluatorTest : AbstractServiceEvaluatorTest
         a.dependency = a
 
         shouldThrow<CyclicDependencyException> {
-            evaluator.evaluate(a)
+            evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
                     "`ClassTypeKey(class java.lang.String qualifier = a)` " +

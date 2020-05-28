@@ -271,6 +271,26 @@ class GraphTest {
         }
 
         @Test
+        fun `should extend the evaluation graph with given builder block`() {
+            var extended: Graph? = null
+            var extendedParent: Graph? = null
+            val heater = Heater()
+            val graph = graph {
+                prototype {
+                    extended = this
+                    extendedParent = parent
+                    Thermosiphon(instance())
+                }
+            }
+            val instance = graph.instance<Thermosiphon> {
+                constant(heater)
+            }
+            extended!!.isClosed.shouldBeTrue()
+            extendedParent.shouldBeSameInstanceAs(graph)
+            instance.heater.shouldBeSameInstanceAs(heater)
+        }
+
+        @Test
         fun `should throw an exception if dependency doesn't exist`() {
             shouldThrow<EntryNotFoundException> { emptyGraph.instance() }
         }
@@ -314,6 +334,26 @@ class GraphTest {
         @Test
         fun `should return null if dependency doesn't exist`() {
             emptyGraph.instanceOrNull<Any>().shouldBe(null)
+        }
+
+        @Test
+        fun `should extend the evaluation graph with given builder block`() {
+            var extended: Graph? = null
+            var extendedParent: Graph? = null
+            val heater = Heater()
+            val graph = graph {
+                prototype {
+                    extended = this
+                    extendedParent = parent
+                    Thermosiphon(instance())
+                }
+            }
+            val instance = graph.instanceOrNull<Thermosiphon> {
+                constant(heater)
+            }
+            extended!!.isClosed.shouldBeTrue()
+            extendedParent.shouldBeSameInstanceAs(graph)
+            instance!!.heater.shouldBeSameInstanceAs(heater)
         }
 
         @Test
@@ -897,4 +937,5 @@ class GraphTest {
         }
 
     }
+
 }

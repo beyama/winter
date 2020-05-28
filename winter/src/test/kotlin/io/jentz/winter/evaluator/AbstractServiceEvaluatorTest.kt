@@ -2,6 +2,7 @@ package io.jentz.winter.evaluator
 
 import io.jentz.winter.DependencyResolutionException
 import io.jentz.winter.EntryNotFoundException
+import io.jentz.winter.emptyGraph
 import io.jentz.winter.typeKey
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
@@ -15,7 +16,7 @@ abstract class AbstractServiceEvaluatorTest {
     @Test
     fun `should call new instance and return result`() {
         evaluator
-            .evaluate(BoundTestService(evaluator) { "FOO" })
+            .evaluate(BoundTestService(evaluator) { "FOO" }, emptyGraph())
             .shouldBe("FOO")
     }
 
@@ -26,7 +27,7 @@ abstract class AbstractServiceEvaluatorTest {
         val a = BoundTestService(evaluator, typeKey("a"), b)
 
         shouldThrow<DependencyResolutionException> {
-            evaluator.evaluate(a)
+            evaluator.evaluate(a, emptyGraph())
         }.run {
             key.shouldBe(typeKey<String>("b"))
             message.shouldBe("Error while resolving dependency with key: " +
@@ -45,7 +46,7 @@ abstract class AbstractServiceEvaluatorTest {
         val a = BoundTestService(evaluator, typeKey("a"), b)
 
         shouldThrow<DependencyResolutionException> {
-            evaluator.evaluate(a)
+            evaluator.evaluate(a, emptyGraph())
         }.run {
             key.shouldBe(typeKey<String>("b"))
             message.shouldBe(

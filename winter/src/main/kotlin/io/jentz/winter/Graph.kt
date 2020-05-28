@@ -138,72 +138,84 @@ class Graph internal constructor(
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R`
      *
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any> instance(
         qualifier: Any? = null,
-        generics: Boolean = false
-    ): R = instanceByKey(typeKey(qualifier, generics))
+        generics: Boolean = false,
+        noinline block: ComponentBuilderBlock? = null
+    ): R = instanceByKey(typeKey(qualifier, generics), block)
 
     /**
      * Retrieve a non-optional instance of `R` by [key].
      *
      * @param key The type key of the instance.
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R`
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> instanceByKey(key: TypeKey<R>): R =
-        service(key).instance()
+    fun <R : Any> instanceByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R =
+        service(key).instance(block)
 
     /**
      * Retrieve an optional instance of `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> instanceOrNull(
         qualifier: Any? = null,
-        generics: Boolean = false
-    ): R? = instanceOrNullByKey(typeKey(qualifier, generics))
+        generics: Boolean = false,
+        noinline block: ComponentBuilderBlock? = null
+    ): R? = instanceOrNullByKey(typeKey(qualifier, generics), block)
 
     /**
      * Retrieve an optional instance of `R` by [key].
      *
      * @param key The type key of the instance.
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R` or null if provider doesn't exist.
      */
-    fun <R : Any> instanceOrNullByKey(key: TypeKey<R>): R? =
-        serviceOrNull(key)?.instance()
+    fun <R : Any> instanceOrNullByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R? =
+        serviceOrNull(key)?.instance(block)
 
     /**
      * Retrieves a non-optional provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The provider function.
      *
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any> provider(
         qualifier: Any? = null,
-        generics: Boolean = false
-    ): Provider<R> = providerByKey(typeKey(qualifier, generics))
+        generics: Boolean = false,
+        noinline block: ComponentBuilderBlock? = null
+    ): Provider<R> = providerByKey(typeKey(qualifier, generics), block)
 
     /**
      * Retrieves a non-optional provider function by [key] that returns `R`.
      *
      * @param key The type key of the instance.
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The provider function.
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> providerByKey(key: TypeKey<R>): Provider<R> {
+    fun <R : Any> providerByKey(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): Provider<R> {
         val service = service(key)
-        return { service.instance() }
+        return { service.instance(block) }
     }
 
     /**
@@ -211,22 +223,28 @@ class Graph internal constructor(
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
     inline fun <reified R : Any> providerOrNull(
         qualifier: Any? = null,
-        generics: Boolean = false
-    ): Provider<R>? = providerOrNullByKey(typeKey(qualifier, generics))
+        generics: Boolean = false,
+        noinline block: ComponentBuilderBlock? = null
+    ): Provider<R>? = providerOrNullByKey(typeKey(qualifier, generics), block)
 
     /**
      * Retrieve an optional provider function by [key] that returns `R`.
      *
      * @param key The type key of the instance.
+     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The provider that returns `R` or null if provider doesn't exist.
      */
-    fun <R : Any> providerOrNullByKey(key: TypeKey<R>): Provider<R>? {
+    fun <R : Any> providerOrNullByKey(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): Provider<R>? {
         val service = serviceOrNull(key) ?: return null
-        return { service.instance() }
+        return { service.instance(block) }
     }
 
     /**
@@ -250,8 +268,23 @@ class Graph internal constructor(
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
      */
-    fun <R : Any> evaluate(service: BoundService<R>): R =
-        synchronizedMap { it.serviceEvaluator.evaluate(service) }
+    fun <R : Any> evaluate(service: BoundService<R>, block: ComponentBuilderBlock?): R =
+        synchronizedMap {
+            if (block == null) {
+                it.serviceEvaluator.evaluate(service, this)
+            } else {
+                val graph = derive(block)
+                try {
+                    it.serviceEvaluator.evaluate(service, graph)
+                } finally {
+                    graph.close()
+                }
+            }
+        }
+
+    private fun derive(block: ComponentBuilderBlock): Graph = map {
+        Graph(it.application, this, component("_DERIVED_", block), null, null)
+    }
 
     /**
      * Inject members of class [T].

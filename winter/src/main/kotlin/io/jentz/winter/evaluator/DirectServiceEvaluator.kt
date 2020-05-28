@@ -1,6 +1,7 @@
 package io.jentz.winter.evaluator
 
 import io.jentz.winter.BoundService
+import io.jentz.winter.Graph
 
 /**
  * The simplest [ServiceEvaluator] which only calls [BoundService.newInstance] and handles
@@ -11,9 +12,9 @@ import io.jentz.winter.BoundService
  */
 internal class DirectServiceEvaluator : ServiceEvaluator {
 
-    override fun <R : Any> evaluate(service: BoundService<R>): R {
+    override fun <R : Any> evaluate(service: BoundService<R>, graph: Graph): R {
         return try {
-            service.newInstance()
+            service.newInstance(graph)
         } catch (t: Throwable) {
             handleException(service.key, t)
         }

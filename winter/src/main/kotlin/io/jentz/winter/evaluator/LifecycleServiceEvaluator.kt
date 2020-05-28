@@ -29,7 +29,7 @@ internal class LifecycleServiceEvaluator(
 
     private var currentRequestStartIndex = 0
 
-    override fun <R : Any> evaluate(service: BoundService<R>): R {
+    override fun <R : Any> evaluate(service: BoundService<R>, graph: Graph): R {
         val key = service.key
 
         if (checkForCyclicDependencies && isRequestPending) {
@@ -54,7 +54,7 @@ internal class LifecycleServiceEvaluator(
 
         if (isRequestPending) {
             try {
-                val instance = service.newInstance()
+                val instance = service.newInstance(graph)
                 stack[instanceIndex] = instance
                 return instance
             } catch (t: Throwable) {
@@ -65,7 +65,7 @@ internal class LifecycleServiceEvaluator(
         try {
             isRequestPending = true
             currentRequestStartIndex = serviceIndex
-            val instance = service.newInstance()
+            val instance = service.newInstance(graph)
             stack[instanceIndex] = instance
             return instance
         } catch (t: Throwable) {

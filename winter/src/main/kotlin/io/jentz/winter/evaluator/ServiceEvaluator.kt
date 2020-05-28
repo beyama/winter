@@ -1,6 +1,7 @@
 package io.jentz.winter.evaluator
 
 import io.jentz.winter.BoundService
+import io.jentz.winter.Graph
 
 /**
  * Service evaluators are used to call [BoundService.newInstance] to retrieve a new instance from
@@ -10,5 +11,5 @@ import io.jentz.winter.BoundService
  * calling plugin and service lifecycle methods and maybe performing cyclic dependency checks.
  */
 internal interface ServiceEvaluator {
-    fun <R : Any> evaluate(service: BoundService<R>): R
+    fun <R : Any> evaluate(service: BoundService<R>, graph: Graph): R
 }
