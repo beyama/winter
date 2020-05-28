@@ -132,17 +132,6 @@ open class WinterApplication() {
     var plugins: Plugins = Plugins.EMPTY
 
     /**
-     * If this is set to true, Winter will check for cyclic dependencies and throws an error if it
-     * encounters one. Without this check you will run in a StackOverflowError when you accidentally
-     * declared a cyclic dependency which may be hard to track down.
-     *
-     * Cyclic dependency checks are a bit more expensive but usually worth it in debug or test
-     * builds.
-     *
-     */
-    var checkForCyclicDependencies: Boolean = false
-
-    /**
      * Sets the application component by supplying an optional qualifier and a component builder
      * block.
      *

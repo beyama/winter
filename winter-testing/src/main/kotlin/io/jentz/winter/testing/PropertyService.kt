@@ -11,15 +11,17 @@ internal class PropertyService(
     override val key: TypeKey<Any>,
     private val source: Any,
     private val property: KProperty1<Any, *>
-) : UnboundService<Any>, BoundService<Any> {
-
-    override val scope: Scope get() = Scope.Prototype
-
-    override val requiresLifecycleCallbacks: Boolean get() = false
+) : BoundService<Any>(), UnboundService<Any> {
 
     init {
         property.isAccessible = true
     }
+
+    override val unboundService: UnboundService<Any> get() = this
+
+    override val scope: Scope get() = Scope.Prototype
+
+    override val requiresPostConstructCallback: Boolean get() = false
 
     override fun bind(graph: Graph): BoundService<Any> = this
 
@@ -29,13 +31,7 @@ internal class PropertyService(
         )
 
     override fun newInstance(graph: Graph): Any {
-        throw IllegalStateException("BUG: Should never been called.")
-    }
-
-    override fun onPostConstruct(instance: Any) {
-    }
-
-    override fun onClose() {
+        throw AssertionError("BUG: Should never been called.")
     }
 
 }

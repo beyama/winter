@@ -5,6 +5,7 @@ Version 0.10.0
 --------------
 
 * Remove soft and weak reference scopes
+* Remove WinterApplication.checkForCyclicDependencies checking has now zero costs and is always on
 * Reduce dependency of winter-androidx module
 * Remove fragment support from winter-androidx injection adapters
 * Add support for AndroidX view model injection to winter-androidx

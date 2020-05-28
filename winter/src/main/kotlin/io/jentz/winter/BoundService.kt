@@ -3,19 +3,34 @@ package io.jentz.winter
 /**
  * Interface for bound service entries in a [Graph].
  */
-interface BoundService<R : Any> {
+abstract class BoundService<R : Any> {
+
+    protected abstract val unboundService: UnboundService<R>
+
+    /**
+     * Internal marker if dependency resolution for this is pending to detect cyclic dependencies.
+     */
+    @JvmField internal var isPending: Boolean = false
+
     /**
      * The [TypeKey] of the type this service is providing.
      */
-    val key: TypeKey<R>
+    open val key: TypeKey<R> get() = unboundService.key
 
     /**
      * A scope that is unique for this type of service e.g. Scope("myCustomScope").
      */
-    val scope: Scope
+    open val scope: Scope get() = unboundService.scope
+
+    /**
+     * Return true if the bound service requires a call to [BoundService.onPostConstruct]
+     * after constructing.
+     */
+    open val requiresPostConstructCallback: Boolean get() = unboundService.requiresPostConstructCallback
 
     /**
      * This is called every time an instance is requested from the [Graph].
+     * Calls to this might not be synchronized.
      *
      * If this service has to create a new instance to satisfy this request it must do the
      * initialization in [newInstance] by calling [Graph.evaluate].
@@ -26,7 +41,7 @@ interface BoundService<R : Any> {
      *
      * @return An instance of type `R`.
      */
-    fun instance(block: ComponentBuilderBlock? = null): R
+    abstract fun instance(block: ComponentBuilderBlock? = null): R
 
     /**
      * This is called when this instance is passed to [Graph.evaluate] to create a new instance.
@@ -39,7 +54,7 @@ interface BoundService<R : Any> {
      *
      * @return The new instance of type `R`.
      */
-    fun newInstance(graph: Graph): R
+    abstract fun newInstance(graph: Graph): R
 
     /**
      * This is called after a new instance was created but not until the complete dependency request
@@ -57,48 +72,40 @@ interface BoundService<R : Any> {
      * dependencies in post-construct callbacks.
      *
      */
-    fun onPostConstruct(instance: R)
+    open fun onPostConstruct(instance: R) {
+    }
 
     /**
      * This is called for each [BoundService] in a [Graph] when [Graph.close] is called.
      */
-    fun onClose()
+    open fun onClose() {
+    }
+
 }
 
 internal class BoundPrototypeService<R : Any>(
     private val graph: Graph,
-    private val unboundService: UnboundPrototypeService<R>
-) : BoundService<R> {
+    override val unboundService: UnboundPrototypeService<R>
+) : BoundService<R>() {
 
-    override val scope: Scope get() = Scope.Prototype
+    override fun instance(block: ComponentBuilderBlock?): R =
+        graph.evaluate(this, block)
 
-    override val key: TypeKey<R> get() = unboundService.key
-
-    override fun instance(block: ComponentBuilderBlock?): R {
-        return graph.evaluate(this, block)
-    }
-
-    override fun newInstance(graph: Graph): R = unboundService.factory(graph)
+    override fun newInstance(graph: Graph): R =
+        unboundService.factory(graph)
 
     override fun onPostConstruct(instance: R) {
         unboundService.onPostConstruct?.invoke(graph, instance)
-    }
-
-    override fun onClose() {
     }
 
 }
 
 internal class BoundSingletonService<R : Any>(
     private val graph: Graph,
-    private val unboundService: UnboundSingletonService<R>
-) : BoundService<R> {
+    override val unboundService: UnboundSingletonService<R>
+) : BoundService<R>() {
 
     @Volatile private var _value = UNINITIALIZED_VALUE
-
-    override val key: TypeKey<R> get() = unboundService.key
-
-    override val scope: Scope get() = Scope.Singleton
 
     @Suppress("UNCHECKED_CAST")
     override fun instance(block: ComponentBuilderBlock?): R {
@@ -133,25 +140,14 @@ internal class BoundSingletonService<R : Any>(
 }
 
 internal class BoundAliasService<R : Any>(
-    private val newKey: TypeKey<R>,
+    override val unboundService: UnboundAliasService<R>,
     private val targetService: BoundService<R>
-) : BoundService<R> {
-
-    override val key: TypeKey<R> get() = newKey
-
-    override val scope: Scope get() = targetService.scope
+) : BoundService<R>() {
 
     override fun instance(block: ComponentBuilderBlock?): R = targetService.instance(block)
 
     override fun newInstance(graph: Graph): R {
-        throw WinterException("BUG: BoundAliasService#newInstance must never been called.")
-    }
-
-    override fun onPostConstruct(instance: R) {
-        throw WinterException("BUG: BoundAliasService#onPostConstruct must never been called.")
-    }
-
-    override fun onClose() {
+        throw AssertionError("BUG: This method should not be called.")
     }
 
 }
@@ -159,20 +155,22 @@ internal class BoundAliasService<R : Any>(
 internal class BoundGraphService(
     override val key: TypeKey<Graph>,
     private val graph: Graph
-) : BoundService<Graph> {
+) : BoundService<Graph>(), UnboundService<Graph> {
+
+    override val unboundService: UnboundService<Graph> get() = this
+
+    override val requiresPostConstructCallback: Boolean
+        get() = false
 
     override val scope: Scope
         get() = Scope.Singleton
 
+    override fun bind(graph: Graph): BoundService<Graph> = this
+
     override fun instance(block: ComponentBuilderBlock?): Graph = graph
 
     override fun newInstance(graph: Graph): Graph {
-        throw IllegalStateException(
-            "BUG: New instance for BoundGraphService should never be called."
-        )
-    }
-
-    override fun onPostConstruct(instance: Graph) {
+        throw AssertionError("BUG: This method should not be called.")
     }
 
     override fun onClose() {
@@ -182,14 +180,9 @@ internal class BoundGraphService(
 
 internal abstract class BoundOfTypeService<T : Any, R : Any>(
     protected val graph: Graph
-) : BoundService<R> {
+) : BoundService<R>() {
 
-    protected abstract val unboundService: OfTypeService<T, R>
-
-    override val key: TypeKey<R> get() = unboundService.key
-
-    override val scope: Scope
-        get() = Scope.Prototype
+    abstract override val unboundService: OfTypeService<T, R>
 
     protected val keys: Set<TypeKey<T>> by lazy {
         val typeOfKey = unboundService.typeOfKey
@@ -199,12 +192,6 @@ internal abstract class BoundOfTypeService<T : Any, R : Any>(
 
     override fun instance(block: ComponentBuilderBlock?): R =
         graph.evaluate(this, null)
-
-    override fun onPostConstruct(instance: R) {
-    }
-
-    override fun onClose() {
-    }
 
 }
 

@@ -1,6 +1,4 @@
-package io.jentz.winter.evaluator
-
-import io.jentz.winter.*
+package io.jentz.winter
 
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
@@ -8,11 +6,19 @@ internal class BoundTestService(
     var dependency: BoundService<String>? = null,
     var throwOnNewInstance: (() -> Throwable)? = null,
     var instance: () -> String = { "" }
-) : BoundService<String> {
+) : BoundService<String>(), UnboundService<String> {
 
     var postConstructCalled = mutableListOf<String>()
 
+    override val unboundService: UnboundService<String>
+        get() = this
+
     override val scope: Scope get() = Scope.Prototype
+
+    override val requiresPostConstructCallback: Boolean
+        get() = true
+
+    override fun bind(graph: Graph): BoundService<String> = this
 
     override fun instance(block: ComponentBuilderBlock?): String = throw Error()
 

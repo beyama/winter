@@ -34,16 +34,11 @@ class Component private constructor(
 
     private val registry: Map<TypeKey<*>, UnboundService<*>>,
 
-    private val subcomponentKeys: Set<TypeKey<Component>>,
-
-    /**
-     * Set to true if any of the services requires lifecycle callbacks.
-     */
-    internal val requiresLifecycleCallbacks: Boolean
+    private val subcomponentKeys: Set<TypeKey<Component>>
 ) {
 
     companion object {
-        val EMPTY = Component(ApplicationScope::class, emptyMap(), emptySet(), false)
+        val EMPTY = Component(ApplicationScope::class, emptyMap(), emptySet())
     }
 
     /**
@@ -186,8 +181,6 @@ class Component private constructor(
             get() = _subcomponentBuilders ?: hashMapOf<TypeKey<Component>, Builder>().also {
                 _subcomponentBuilders = it
             }
-
-        private var requiresLifecycleCallbacks: Boolean = base.requiresLifecycleCallbacks
 
         /**
          * Include dependency from the given component into the new component.
@@ -539,10 +532,6 @@ class Component private constructor(
                 throw WinterException("Entry with key `$key` already exists.")
             }
 
-            if (!requiresLifecycleCallbacks) {
-                requiresLifecycleCallbacks = service.requiresLifecycleCallbacks
-            }
-
             registry[key] = service
         }
 
@@ -714,12 +703,7 @@ class Component private constructor(
                 return if (base.qualifier == qualifier) {
                     base
                 } else {
-                    Component(
-                        qualifier,
-                        base.registry,
-                        base.subcomponentKeys,
-                        base.requiresLifecycleCallbacks
-                    )
+                    Component(qualifier, base.registry, base.subcomponentKeys)
                 }
             }
 
@@ -740,8 +724,7 @@ class Component private constructor(
             return Component(
                 qualifier = qualifier,
                 registry = registry,
-                subcomponentKeys = _subcomponentKeys ?: base.subcomponentKeys,
-                requiresLifecycleCallbacks = requiresLifecycleCallbacks
+                subcomponentKeys = _subcomponentKeys ?: base.subcomponentKeys
             ).also {
                 _registry = null
                 _subcomponentKeys = null

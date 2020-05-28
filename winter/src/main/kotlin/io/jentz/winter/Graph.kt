@@ -1,8 +1,6 @@
 package io.jentz.winter
 
 import io.jentz.winter.delegate.DelegateNotifier
-import io.jentz.winter.evaluator.ServiceEvaluator
-import io.jentz.winter.evaluator.createServiceEvaluator
 import io.jentz.winter.inject.MembersInjector
 import io.jentz.winter.plugin.Plugins
 
@@ -111,12 +109,7 @@ class Graph internal constructor(
             parent = parent,
             application = application,
             plugins = plugins,
-            serviceEvaluator = createServiceEvaluator(
-                graph = this,
-                component = baseComponent,
-                plugins = plugins,
-                checkForCyclicDependencies = application.checkForCyclicDependencies
-            ),
+            serviceEvaluator = ServiceEvaluator(this, plugins),
             onCloseCallback = onCloseCallback
         )
 

@@ -3,7 +3,7 @@ package io.jentz.winter
 /**
  * Interface for service entries registered in a [Component].
  *
- * Custom implementations can be added to a [Component] by using [ComponentBuilder.register].
+ * Custom implementations can be added to a [Component] by using [Component.Builder.register].
  */
 interface UnboundService<R : Any> {
     /**
@@ -12,13 +12,18 @@ interface UnboundService<R : Any> {
     val key: TypeKey<R>
 
     /**
-     * Return true if the bound service requires lifecycle calls to [BoundService.onPostConstruct]
-     * or [BoundService.onClose] otherwise false.
+     * A scope that is unique for this type of service e.g. Scope("myCustomScope").
      */
-    val requiresLifecycleCallbacks: Boolean
+    val scope: Scope
 
     /**
-     * Binds this unbound service a given [graph] and returns a [BoundService].
+     * Return true if the bound service requires a call to [BoundService.onPostConstruct]
+     * after constructing.
+     */
+    val requiresPostConstructCallback: Boolean
+
+    /**
+     * Returns a [BoundService] for this [UnboundService].
      */
     fun bind(graph: Graph): BoundService<R>
 
@@ -31,12 +36,14 @@ internal class UnboundPrototypeService<R : Any>(
     val onPostConstruct: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
-    override val requiresLifecycleCallbacks: Boolean
+    override val scope: Scope
+        get() = Scope.Prototype
+
+    override val requiresPostConstructCallback: Boolean
         get() = onPostConstruct != null
 
-    override fun bind(graph: Graph): BoundService<R> {
-        return BoundPrototypeService(graph, this)
-    }
+    override fun bind(graph: Graph): BoundService<R> =
+        BoundPrototypeService(graph, this)
 }
 
 @PublishedApi
@@ -47,21 +54,26 @@ internal class UnboundSingletonService<R : Any>(
     val onClose: GFactoryCallback<R>?
 ) : UnboundService<R> {
 
-    override val requiresLifecycleCallbacks: Boolean
-        get() = onPostConstruct != null || onClose != null
+    override val scope: Scope
+        get() = Scope.Singleton
 
-    override fun bind(graph: Graph): BoundService<R> {
-        return BoundSingletonService(graph, this)
-    }
+    override val requiresPostConstructCallback: Boolean
+        get() = onPostConstruct != null
+
+    override fun bind(graph: Graph): BoundService<R> =
+        BoundSingletonService(graph, this)
 }
 
 @PublishedApi
 internal class ConstantService<R : Any>(
     override val key: TypeKey<R>,
     val value: R
-) : UnboundService<R>, BoundService<R> {
+) : BoundService<R>(), UnboundService<R> {
 
-    override val requiresLifecycleCallbacks: Boolean
+    override val unboundService: UnboundService<R>
+        get() = this
+
+    override val requiresPostConstructCallback: Boolean
         get() = false
 
     override val scope: Scope get() = Scope.Prototype
@@ -74,28 +86,24 @@ internal class ConstantService<R : Any>(
         throw AssertionError("BUG: This method should not be called.")
     }
 
-    override fun onPostConstruct(instance: R) {
-        throw AssertionError("BUG: This method should not be called.")
-    }
-
-    override fun onClose() {
-    }
 }
 
-internal class UnboundAliasService<R: Any>(
+internal class UnboundAliasService<R : Any>(
     private val targetKey: TypeKey<*>,
     private val newKey: TypeKey<R>
 ) : UnboundService<R> {
 
-    override val requiresLifecycleCallbacks: Boolean get() = false
-
     override val key: TypeKey<R> get() = newKey
+
+    override val scope: Scope get() = Scope.Prototype
+
+    override val requiresPostConstructCallback: Boolean get() = false
 
     override fun bind(graph: Graph): BoundService<R> {
         try {
             @Suppress("UNCHECKED_CAST")
             val targetService = graph.service(targetKey as TypeKey<R>)
-            return BoundAliasService(newKey, targetService)
+            return BoundAliasService(this, targetService)
         } catch (t: Throwable) {
             throw WinterException("Error resolving alias `$newKey` pointing to `$targetKey`.", t)
         }
@@ -103,18 +111,21 @@ internal class UnboundAliasService<R: Any>(
 
 }
 
-internal abstract class OfTypeService<T: Any, R: Any>(
+internal abstract class OfTypeService<T : Any, R : Any>(
     override val key: TypeKey<R>,
     val typeOfKey: TypeKey<T>
 ) : UnboundService<R> {
 
-    override val requiresLifecycleCallbacks: Boolean
+    override val scope: Scope
+        get() = Scope.Prototype
+
+    override val requiresPostConstructCallback: Boolean
         get() = false
 
 }
 
 @PublishedApi
-internal class SetOfTypeService<T: Any>(
+internal class SetOfTypeService<T : Any>(
     key: TypeKey<Set<T>>,
     typeOfKey: TypeKey<T>
 ) : OfTypeService<T, Set<T>>(key, typeOfKey) {
@@ -125,7 +136,7 @@ internal class SetOfTypeService<T: Any>(
 }
 
 @PublishedApi
-internal class SetOfProvidersForTypeService<T: Any>(
+internal class SetOfProvidersForTypeService<T : Any>(
     key: TypeKey<Set<Provider<T>>>,
     typeOfKey: TypeKey<T>
 ) : OfTypeService<T, Set<Provider<T>>>(key, typeOfKey) {
@@ -136,7 +147,7 @@ internal class SetOfProvidersForTypeService<T: Any>(
 }
 
 @PublishedApi
-internal class MapOfTypeService<T: Any>(
+internal class MapOfTypeService<T : Any>(
     key: TypeKey<Map<Any, T>>,
     typeOfKey: TypeKey<T>,
     val defaultKey: Any
@@ -148,7 +159,7 @@ internal class MapOfTypeService<T: Any>(
 }
 
 @PublishedApi
-internal class MapOfProvidersForTypeService<T: Any>(
+internal class MapOfProvidersForTypeService<T : Any>(
     key: TypeKey<Map<Any, Provider<T>>>,
     typeOfKey: TypeKey<T>,
     val defaultKey: Any
