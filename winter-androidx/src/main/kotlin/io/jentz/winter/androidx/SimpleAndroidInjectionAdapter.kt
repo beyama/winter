@@ -35,6 +35,13 @@ import io.jentz.winter.androidx.inject.ActivityScope
  * * the activity as [LifecycleOwner] if the activity implements that
  * * the activity as [ViewModelStoreOwner] if the activity implements that
  * * the activities [androidx.lifecycle.ViewModelStore] if the activity implements [ViewModelStoreOwner]
+ * * the activity as [SavedStateRegistryOwner] if the activity implements that
+ * * the activities [androidx.savedstate.SavedStateRegistry] if the activity implements
+ *   [SavedStateRegistryOwner]
+ * * the activity as [OnBackPressedDispatcherOwner] if the activity implements that
+ * * the activities [androidx.activity.OnBackPressedDispatcher] if the activity implements
+ *   [OnBackPressedDispatcherOwner]
+ * * the activity as [ComponentActivity] if the activity is an instance of [ComponentActivity]
  */
 open class SimpleAndroidInjectionAdapter(
     protected val app: WinterApplication

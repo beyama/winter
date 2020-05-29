@@ -1,27 +1,20 @@
 package io.jentz.winter.androidx.fragment
 
-import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
+import io.jentz.winter.androidx.fragment.inject.FragmentScope
 
 /**
  * Extended version of [SimpleAndroidInjectionAdapter] that has support for fragments and provides
  * a variety of subtypes and components of the activity graphs activity.
  *
  * In addition to the types provided by the base adapter this one provides:
- * * the activity as [SavedStateRegistryOwner] if the activity implements that
- * * the activities [androidx.savedstate.SavedStateRegistry] if the activity implements
- *   [SavedStateRegistryOwner]
- * * the activity as [OnBackPressedDispatcherOwner] if the activity implements that
- * * the activities [androidx.activity.OnBackPressedDispatcher] if the activity implements
- *   [OnBackPressedDispatcherOwner]
- * * the activity as [ComponentActivity] if the activity is an instance of [ComponentActivity]
  * * the activity as [FragmentActivity] if the activity is an instance of [FragmentActivity]
  * * the activities [androidx.fragment.app.FragmentManager] if the activity is an instance of
  *   [FragmentActivity]
@@ -38,12 +31,45 @@ open class SimpleAndroidFragmentInjectionAdapter(
         return super.get(instance)
     }
 
-    protected open fun getFragmentGraph(fragment: Fragment): Graph? =
-        get(fragment.requireActivity())
+    override fun close(instance: Any) {
+        if (instance is Fragment) closeFragmentGraph(instance)
+        else super.close(instance)
+    }
+
+    protected open fun getFragmentGraph(fragment: Fragment): Graph? {
+        val activity = checkNotNull(fragment.activity) {
+            "Fragment is not attached to an activity so we cannot get its dependency graph"
+        }
+        return getActivityGraph(activity)?.getOrOpenSubgraph(FragmentScope::class, fragment) {
+            provideAndroidTypes(fragment, this)
+            setupAutoClose(fragment)
+        }
+    }
+
+    protected open fun closeFragmentGraph(fragment: Fragment) {
+        if (fragment.lifecycle.currentState == Lifecycle.State.DESTROYED) return
+        getFragmentGraph(fragment)?.close()
+    }
 
     override fun provideAndroidTypes(instance: Any, builder: Component.Builder) {
         super.provideAndroidTypes(instance, builder)
-        exportAndroidTypes(instance, enableWinterFragmentFactory, builder)
+
+        with(builder) {
+            if (instance is Fragment) {
+                constant(instance)
+            }
+
+            if (instance is FragmentActivity) {
+                constant(instance)
+                constant(instance.supportFragmentManager)
+
+                if (enableWinterFragmentFactory) {
+                    eagerSingleton(
+                        onPostConstruct = { instance<FragmentManager>().fragmentFactory = it }
+                    ) { WinterFragmentFactory(this) }
+                }
+            }
+        }
     }
 }
 

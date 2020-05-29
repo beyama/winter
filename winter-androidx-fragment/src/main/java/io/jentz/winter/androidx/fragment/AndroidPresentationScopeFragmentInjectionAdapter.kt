@@ -1,27 +1,20 @@
 package io.jentz.winter.androidx.fragment
 
-import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedDispatcherOwner
-import androidx.fragment.app.Fragment
+import android.app.Activity
 import androidx.fragment.app.FragmentActivity
-import androidx.savedstate.SavedStateRegistryOwner
-import io.jentz.winter.Component
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
+import io.jentz.winter.WinterException
+import io.jentz.winter.androidx.inject.PresentationScope
+import io.jentz.winter.androidx.viewmodel.GraphViewModel
 
 /**
- * Extended version of [AndroidPresentationScopeInjectionAdapter] that has support for fragments and
- * provides a variety of subtypes and components of the activity graphs activity.
+ * Extended version of [SimpleAndroidFragmentInjectionAdapter] that retains a [PresentationScope]
+ * subgraph during Activity re-creation (configuration changes).
  *
  * In addition to the types provided by the base adapter this one provides:
- * * the activity as [SavedStateRegistryOwner] if the activity implements that
- * * the activities [androidx.savedstate.SavedStateRegistry] if the activity implements
- *   [SavedStateRegistryOwner]
- * * the activity as [OnBackPressedDispatcherOwner] if the activity implements that
- * * the activities [androidx.activity.OnBackPressedDispatcher] if the activity implements
- *   [OnBackPressedDispatcherOwner]
- * * the activity as [ComponentActivity] if the activity is an instance of [ComponentActivity]
  * * the activity as [FragmentActivity] if the activity is an instance of [FragmentActivity]
  * * the activities [androidx.fragment.app.FragmentManager] if the activity is an instance of
  *   [FragmentActivity]
@@ -30,20 +23,22 @@ import io.jentz.winter.androidx.AndroidPresentationScopeInjectionAdapter
  */
 open class AndroidPresentationScopeFragmentInjectionAdapter(
     app: WinterApplication,
-    private val enableWinterFragmentFactory: Boolean = false
-) : AndroidPresentationScopeInjectionAdapter(app) {
+    enableWinterFragmentFactory: Boolean = false
+) : SimpleAndroidFragmentInjectionAdapter(app, enableWinterFragmentFactory) {
 
-    override fun get(instance: Any): Graph? {
-        if (instance is Fragment) return getFragmentGraph(instance)
-        return super.get(instance)
-    }
+    override fun getActivityParentGraph(activity: Activity): Graph {
+        activity as? ViewModelStoreOwner ?: throw WinterException(
+            "Activity `${activity.javaClass.name}` must implement ViewModelStoreOwner"
+        )
+        val model = ViewModelProvider(activity).get(GraphViewModel::class.java)
 
-    protected open fun getFragmentGraph(fragment: Fragment): Graph? =
-        get(fragment.requireActivity())
+        model.graph?.let { return it }
 
-    override fun provideAndroidTypes(instance: Any, builder: Component.Builder) {
-        super.provideAndroidTypes(instance, builder)
-        exportAndroidTypes(instance, enableWinterFragmentFactory, builder)
+        return app.graph.getOrOpenSubgraph(PresentationScope::class, model) {
+            constant(activity.viewModelStore)
+        }.also {
+            model.graph = it
+        }
     }
 
 }

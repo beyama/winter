@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-class TestSavedstateViewModel(
+class TestSavedStateViewModel(
     val application: Application,
     val handle: SavedStateHandle,
     val id: String

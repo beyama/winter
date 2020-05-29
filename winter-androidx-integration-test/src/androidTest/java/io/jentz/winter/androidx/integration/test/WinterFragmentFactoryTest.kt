@@ -8,6 +8,7 @@ import androidx.test.filters.LargeTest
 import io.jentz.winter.Winter
 import io.jentz.winter.androidx.fragment.SimpleAndroidFragmentInjectionAdapter
 import io.jentz.winter.androidx.fragment.WinterFragmentFactory
+import io.jentz.winter.androidx.fragment.inject.FragmentScope
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -44,6 +45,8 @@ class WinterFragmentFactoryTest {
                         prototype {
                             factoryCalled = true
                             TestFragment()
+                        }
+                        subcomponent(FragmentScope::class) {
                         }
                     }
                 }

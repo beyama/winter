@@ -8,11 +8,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.view.View
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.core.content.FileProvider
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -121,6 +124,28 @@ class SimpleAndroidInjectionAdapterTest {
         val graph = winterRule.requireTestGraph
         scenario.onActivity {
             graph.instance<Context>().shouldBeSameInstanceAs(it)
+        }
+    }
+
+    fun should_provide_android_types_in_activity_graph() {
+        val graph = winterRule.requireTestGraph
+        scenario.onActivity { activity ->
+            graph.instance<Context>().shouldBeSameInstanceAs(activity)
+
+            graph.instance<SavedStateRegistryOwner>()
+                .shouldBeSameInstanceAs(activity)
+
+            graph.instance<SavedStateRegistry>()
+                .shouldBeSameInstanceAs(activity.savedStateRegistry)
+
+            graph.instance<OnBackPressedDispatcherOwner>()
+                .shouldBeSameInstanceAs(activity)
+
+            graph.instance<OnBackPressedDispatcher>()
+                .shouldBeSameInstanceAs(activity.onBackPressedDispatcher)
+
+            graph.instance<ComponentActivity>()
+                .shouldBeSameInstanceAs(activity)
         }
     }
 

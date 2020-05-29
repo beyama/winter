@@ -93,15 +93,4 @@ class AndroidPresentationScopeInjectionAdapterTest {
         presentationGraph.isClosed.shouldBeTrue()
     }
 
-    @Test
-    fun should_provide_view_model_store_to_presentation_graph() {
-        val activityGraph = winterRule.requireTestGraph
-        val presentationGraph = activityGraph.parent!!
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            presentationGraph.instance<ViewModelStore>()
-                .shouldBeSameInstanceAs(activity.viewModelStore)
-        }
-    }
-
 }

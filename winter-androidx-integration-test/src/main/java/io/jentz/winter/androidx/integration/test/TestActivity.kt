@@ -12,7 +12,7 @@ class TestActivity : FragmentActivity() {
         constant("Test ID")
     }
 
-    val savedStatViewModel: TestSavedstateViewModel by injectSavedStateViewModel() {
+    val savedStatViewModel: TestSavedStateViewModel by injectSavedStateViewModel() {
         constant("Test ID")
     }
 
