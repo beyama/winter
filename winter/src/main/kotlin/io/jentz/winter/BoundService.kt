@@ -71,8 +71,10 @@ abstract class BoundService<R : Any> {
      * Child service is called after Parent is initialized. This way we can resolve cyclic
      * dependencies in post-construct callbacks.
      *
+     * @param graph The graph that was passed to [newInstance].
+     * @param instance The instance that was returned from [newInstance].
      */
-    open fun onPostConstruct(instance: R) {
+    open fun onPostConstruct(graph: Graph, instance: R) {
     }
 
     /**
@@ -94,7 +96,7 @@ internal class BoundPrototypeService<R : Any>(
     override fun newInstance(graph: Graph): R =
         unboundService.factory(graph)
 
-    override fun onPostConstruct(instance: R) {
+    override fun onPostConstruct(graph: Graph, instance: R) {
         unboundService.onPostConstruct?.invoke(graph, instance)
     }
 
@@ -126,7 +128,7 @@ internal class BoundSingletonService<R : Any>(
     override fun newInstance(graph: Graph): R =
         unboundService.factory(graph).also { _value = it }
 
-    override fun onPostConstruct(instance: R) {
+    override fun onPostConstruct(graph: Graph, instance: R) {
         unboundService.onPostConstruct?.invoke(graph, instance)
     }
 

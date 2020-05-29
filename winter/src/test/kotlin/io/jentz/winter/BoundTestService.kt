@@ -28,7 +28,7 @@ internal class BoundTestService(
         return this.instance.invoke()
     }
 
-    override fun onPostConstruct(instance: String) {
+    override fun onPostConstruct(graph: Graph, instance: String) {
         postConstructCalled.add(instance)
     }
 

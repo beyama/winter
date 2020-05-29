@@ -84,6 +84,21 @@ class GraphTest {
         }
 
         @Test
+        fun `should invoke post construct callback with extended graph`() {
+            var called = false
+            val graph = graph {
+                prototype(onPostConstruct = {
+                    called = true
+                    component.qualifier.shouldBe("_DERIVED_")
+                }) { instance }
+            }
+            graph.instance<Any> {
+                prototype { constant("foo") }
+            }
+            called.shouldBeTrue()
+        }
+
+        @Test
         fun `should run post construct plugins`() {
             val graph = graph { prototype { instance } }
             graph.instance<Any>()
@@ -143,6 +158,21 @@ class GraphTest {
         fun `should invoke post construct callback with instance`() {
             val parent = testComponent.createGraph().instance<Parent>()
             parent.child.parent.shouldBeSameInstanceAs(parent)
+        }
+
+        @Test
+        fun `should invoke post construct callback with extended graph`() {
+            var called = false
+            val graph = graph {
+                singleton(onPostConstruct = {
+                    called = true
+                    component.qualifier.shouldBe("_DERIVED_")
+                }) { instance }
+            }
+            graph.instance<Any> {
+                prototype { constant("foo") }
+            }
+            called.shouldBeTrue()
         }
 
         @Test
@@ -303,6 +333,16 @@ class GraphTest {
             }
         }
 
+        @Test
+        fun `should pass builder block to factory`() {
+            val heater = Heater()
+            graph {
+                prototype { Thermosiphon(instance()) }
+            }.instance<Thermosiphon> {
+                constant(heater)
+            }.heater.shouldBeSameInstanceAs(heater)
+        }
+
     }
 
     @Nested
@@ -364,6 +404,16 @@ class GraphTest {
             }
         }
 
+        @Test
+        fun `should pass builder block to factory`() {
+            val heater = Heater()
+            graph {
+                singleton { Thermosiphon(instance()) }
+            }.instanceOrNull<Thermosiphon> {
+                constant(heater)
+            }!!.heater.shouldBeSameInstanceAs(heater)
+        }
+
     }
 
     @Nested
@@ -414,6 +464,16 @@ class GraphTest {
             provider.invoke().shouldBe(2)
         }
 
+        @Test
+        fun `should pass builder block to factory`() {
+            val heater = Heater()
+            graph {
+                singleton { Thermosiphon(instance()) }
+            }.provider<Thermosiphon> {
+                constant(heater)
+            }.invoke().heater.shouldBeSameInstanceAs(heater)
+        }
+
     }
 
     @Nested
@@ -462,6 +522,16 @@ class GraphTest {
             counter.shouldBe(0)
             provider.invoke().shouldBe(1)
             provider.invoke().shouldBe(2)
+        }
+
+        @Test
+        fun `should pass builder block to factory`() {
+            val heater = Heater()
+            graph {
+                singleton { Thermosiphon(instance()) }
+            }.provider<Thermosiphon> {
+                constant(heater)
+            }.invoke().heater.shouldBeSameInstanceAs(heater)
         }
 
     }

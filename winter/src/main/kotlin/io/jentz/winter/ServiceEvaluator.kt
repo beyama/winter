@@ -40,10 +40,11 @@ internal class ServiceEvaluator(
             val instance = service.newInstance(graph)
 
             if (service.requiresPostConstructCallback) {
-                // collect services with their instances until we have no pending requests
+                // collect services with their instances & graphs until we have no pending requests
                 postConstructCallbacks = (postConstructCallbacks ?: mutableListOf()).apply {
                     add(service)
                     add(instance)
+                    add(graph)
                 }
             }
 
@@ -80,14 +81,16 @@ internal class ServiceEvaluator(
         val services = postConstructCallbacks ?: return
         postConstructCallbacks = null
 
-        for (instanceIndex in services.lastIndex downTo 0 step 2) {
+        for (graphIndex in services.lastIndex downTo 0 step 3) {
+            val instanceIndex = graphIndex - 1
             val serviceIndex = instanceIndex - 1
 
             @Suppress("UNCHECKED_CAST")
             val service = services[serviceIndex] as BoundService<Any>
             val instance = services[instanceIndex]
+            val graph = services[graphIndex] as Graph
 
-            service.onPostConstruct(instance)
+            service.onPostConstruct(graph, instance)
         }
     }
 
