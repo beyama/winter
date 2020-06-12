@@ -10,19 +10,22 @@ import io.jentz.winter.Graph
 import io.jentz.winter.delegate.InjectedProperty
 import io.jentz.winter.delegate.injectLazy
 
+typealias BundleSupplier = () -> Bundle
+
 /**
  * Creates a property delegate for a [ViewModel] instance of type `R`.
  * This will provide a [SavedStateHandle] dependency to the view model factory block.
  *
+ * @param bundle A bundle supplier which return value is used as default for the saved state handle.
  * @param block An optional builder block to pass runtime dependencies to the view model.
  *
  * @return The created [InjectedProperty].
  */
 inline fun <reified R : ViewModel> injectSavedStateViewModel(
-    defaultArgs: Bundle? = null,
+    noinline bundle: BundleSupplier? = null,
     noinline block: ComponentBuilderBlock? = null
 ): InjectedProperty<R> = injectLazy<Graph>().map { graph ->
-    graph.savedStateViewModel<R>(defaultArgs = defaultArgs, block = block)
+    graph.savedStateViewModel<R>(defaultArgs = bundle?.invoke(), block = block)
 }
 
 /**
@@ -31,16 +34,17 @@ inline fun <reified R : ViewModel> injectSavedStateViewModel(
  *
  * Useful in Fragments to create/retrieve shared view models.
  *
+ * @param bundle A bundle supplier which return value is used as default for the saved state handle.
  * @param block An optional builder block to pass runtime dependencies to the view model.
  *
  * @return The created [InjectedProperty].
  */
 inline fun <reified R : ViewModel> injectActivitySavedStateViewModel(
-    defaultArgs: Bundle? = null,
+    noinline bundle: BundleSupplier? = null,
     noinline block: ComponentBuilderBlock? = null
 ): InjectedProperty<R> = injectLazy<Graph>().map { graph ->
     val activity: ComponentActivity = graph.instance()
-    graph.savedStateViewModel<R>(activity.viewModelStore, activity, defaultArgs, block)
+    graph.savedStateViewModel<R>(activity.viewModelStore, activity, bundle?.invoke(), block)
 }
 
 /**
