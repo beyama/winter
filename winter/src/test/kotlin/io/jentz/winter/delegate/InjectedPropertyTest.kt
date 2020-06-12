@@ -275,8 +275,8 @@ class InjectedPropertyTest {
     }
 
     @Nested
-    @DisplayName("PropertyMapper")
-    inner class PropertyMapperTest {
+    @DisplayName("eager property mapper")
+    inner class EagerPropertyMapperTest {
 
         @Test
         fun `should throw an exception if #value is called before injecting`() {
@@ -285,6 +285,14 @@ class InjectedPropertyTest {
             shouldThrow<UninitializedPropertyAccessException> {
                 property.map { it * 2 }.value
             }
+        }
+
+        @Test
+        fun `should be applied after inject is called`() {
+            InstanceProperty<Int>(typeKey(), null)
+                .map { it * 3 }
+                .apply { inject(testComponent.createGraph()) }
+            atomicInteger.get().shouldBe(1)
         }
 
         @Test
@@ -298,6 +306,40 @@ class InjectedPropertyTest {
         }
 
     }
+
+    @Nested
+    @DisplayName("lazy property mapper")
+    inner class LayzPropertyMapperTest {
+
+        @Test
+        fun `should throw an exception if #value is called before injecting`() {
+            val property = LazyInstanceProperty<Int>(typeKey(), null)
+
+            shouldThrow<UninitializedPropertyAccessException> {
+                property.map { it * 2 }.value
+            }
+        }
+
+        @Test
+        fun `should not be applied before accessing value`() {
+            LazyInstanceProperty<Int>(typeKey(), null)
+                .map { it * 3 }
+                .apply { inject(testComponent.createGraph()) }
+            atomicInteger.get().shouldBe(0)
+        }
+
+        @Test
+        fun `#value should apply mapping function to given property value`() {
+            LazyInstanceProperty<Int>(typeKey(), null)
+                .map { it * 3 }
+                .apply {
+                    inject(testComponent.createGraph())
+                    value.shouldBe(3)
+                }
+        }
+
+    }
+
 
     private class InjectedPropertiesClass(val app: WinterApplication) {
         val property: String by inject()

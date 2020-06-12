@@ -108,13 +108,12 @@ abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
         isInjected = true
     }
 
-    protected abstract fun doInject(graph: Graph)
-
     /**
      * Apply a function to the retrieved instance.
      */
-    fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
-        PropertyMapper(this, mapper)
+    abstract fun <R> map(mapper: (T) -> R): InjectedProperty<R>
+
+    protected abstract fun doInject(graph: Graph)
 
     operator fun provideDelegate(thisRef: Any, prop: KProperty<*>): InjectedProperty<T> {
         DelegateNotifier.register(thisRef, this)
@@ -132,7 +131,7 @@ abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
 }
 
 @PublishedApi
-internal class PropertyMapper<in I, out O>(
+internal class EagerPropertyMapper<in I, out O>(
     base: InjectedProperty<I>,
     mapper: (I) -> O
 ) : InjectedProperty<O>() {
@@ -141,18 +140,48 @@ internal class PropertyMapper<in I, out O>(
 
     private var mapper: ((I) -> O)? = mapper
 
-    override val value: O by lazy {
-        val fn = checkNotNull(this.mapper) { "BUG: PropertyMapper mapper == null" }
-        val property = checkNotNull(this.base) { "BUG: PropertyMapper base == null" }
+    private var _value: Any? = UNINITIALIZED_VALUE
 
-        fn(property.value).also {
-            this.base = null
-            this.mapper = null
+    override val value: O get() {
+        if (_value === UNINITIALIZED_VALUE) {
+            throw UninitializedPropertyAccessException("Property not initialized.")
         }
+        @Suppress("UNCHECKED_CAST")
+        return _value as O
     }
+
+    override fun <R> map(mapper: (O) -> R): InjectedProperty<R> =
+        EagerPropertyMapper(this, mapper)
+
+    override fun doInject(graph: Graph) {
+        val base = this.base!!
+        val mapper = this.mapper!!
+        base.inject(graph)
+        _value = mapper.invoke(base.value)
+        this.base = null
+        this.mapper = null
+    }
+
+}
+
+@PublishedApi
+internal class LazyPropertyMapper<in I, out O>(
+    base: InjectedProperty<I>,
+    mapper: (I) -> O
+) : InjectedProperty<O>() {
+
+    private var base: InjectedProperty<I>? = base
+
+    override val value: O by lazy {
+        mapper.invoke(base.value)
+    }
+
+    override fun <R> map(mapper: (O) -> R): InjectedProperty<R> =
+        LazyPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
         base!!.inject(graph)
+        base = null
     }
 
 }
@@ -172,6 +201,9 @@ internal abstract class AbstractEagerProperty<R : Any, T>(
             @Suppress("UNCHECKED_CAST")
             return _value as T
         }
+
+    override fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
+        EagerPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
         _value = getValue(graph, key)
@@ -204,6 +236,9 @@ internal abstract class AbstractLazyProperty<R : Any, T>(
                 return getValue(service).also { _value = it }
             }
         }
+
+    override fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
+        LazyPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
         service = resolveService(graph, key)
