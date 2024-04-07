@@ -286,6 +286,13 @@ class GraphTest {
         }
 
         @Test
+        fun `should resolve optional instance by class`() {
+            graph {
+                prototype { "string" }
+            }.instance<String?>().shouldBe("string")
+        }
+
+        @Test
         fun `should resolve instance by generic class`() {
             graph {
                 prototype(generics = true) { mapOf(1 to "1") }
@@ -321,8 +328,13 @@ class GraphTest {
         }
 
         @Test
-        fun `should throw an exception if dependency doesn't exist`() {
-            shouldThrow<EntryNotFoundException> { emptyGraph.instance() }
+        fun `should throw an exception if a non-optional dependency doesn't exist`() {
+            shouldThrow<EntryNotFoundException> { emptyGraph.instance<Any>() }
+        }
+
+        @Test
+        fun `should return null if an optional dependency doesn't exist`() {
+            emptyGraph.instance<Any?>().shouldBeNull()
         }
 
         @Test
@@ -346,77 +358,6 @@ class GraphTest {
     }
 
     @Nested
-    @DisplayName("#instancOrNull")
-    inner class InstanceOrNullMethod {
-
-        @Test
-        fun `should resolve instance by class`() {
-            graph {
-                prototype { "string" }
-            }.instanceOrNull<String>().shouldBe("string")
-        }
-
-        @Test
-        fun `should resolve instance by generic class`() {
-            graph {
-                prototype(generics = true) { mapOf(1 to "1") }
-            }.instanceOrNull<Map<Int, String>>(generics = true).shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
-        fun `should resolve instance with qualifier`() {
-            graph {
-                prototype("a") { "a" }
-                prototype("b") { "b" }
-            }.instanceOrNull<String>(qualifier = "b").shouldBe("b")
-        }
-
-        @Test
-        fun `should return null if dependency doesn't exist`() {
-            emptyGraph.instanceOrNull<Any>().shouldBe(null)
-        }
-
-        @Test
-        fun `should extend the evaluation graph with given builder block`() {
-            var extended: Graph? = null
-            var extendedParent: Graph? = null
-            val heater = Heater()
-            val graph = graph {
-                prototype {
-                    extended = this
-                    extendedParent = parent
-                    Thermosiphon(instance())
-                }
-            }
-            val instance = graph.instanceOrNull<Thermosiphon> {
-                constant(heater)
-            }
-            extended!!.isClosed.shouldBeTrue()
-            extendedParent.shouldBeSameInstanceAs(graph)
-            instance!!.heater.shouldBeSameInstanceAs(heater)
-        }
-
-        @Test
-        fun `should throw an exception when graph is closed`() {
-            graph { prototype { "string" } }.apply {
-                close()
-                shouldThrow<WinterException> { instanceOrNull() }
-            }
-        }
-
-        @Test
-        fun `should pass builder block to factory`() {
-            val heater = Heater()
-            graph {
-                singleton { Thermosiphon(instance()) }
-            }.instanceOrNull<Thermosiphon> {
-                constant(heater)
-            }!!.heater.shouldBeSameInstanceAs(heater)
-        }
-
-    }
-
-    @Nested
     @DisplayName("#provider")
     inner class ProviderMethod {
 
@@ -425,6 +366,11 @@ class GraphTest {
             graph {
                 prototype { "string" }
             }.provider<String>().invoke().shouldBe("string")
+        }
+
+        @Test
+        fun `provider should return null for non-existing optional type`() {
+            graph {}.provider<String?>().invoke().shouldBeNull()
         }
 
         @Test
@@ -459,66 +405,6 @@ class GraphTest {
         fun `should postpone evaluation until provider is called`() {
             var counter = 0
             val provider = graph { prototype { counter += 1; counter } }.provider<Int>()
-            counter.shouldBe(0)
-            provider.invoke().shouldBe(1)
-            provider.invoke().shouldBe(2)
-        }
-
-        @Test
-        fun `should pass builder block to factory`() {
-            val heater = Heater()
-            graph {
-                singleton { Thermosiphon(instance()) }
-            }.provider<Thermosiphon> {
-                constant(heater)
-            }.invoke().heater.shouldBeSameInstanceAs(heater)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#providerOrNull")
-    inner class ProviderOrNullMethod {
-
-        @Test
-        fun `should resolve provider by class`() {
-            graph {
-                prototype { "string" }
-            }.providerOrNull<String>()?.invoke().shouldBe("string")
-        }
-
-        @Test
-        fun `should resolve provider by generic class`() {
-            graph {
-                prototype(generics = true) { mapOf(1 to "1") }
-            }.providerOrNull<Map<Int, String>>(generics = true)?.invoke().shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
-        fun `should resolve provider with qualifier`() {
-            graph {
-                prototype("a") { "a" }
-                prototype("b") { "b" }
-            }.providerOrNull<String>(qualifier = "b")?.invoke().shouldBe("b")
-        }
-
-        @Test
-        fun `should return null if dependency doesn't exist`() {
-            emptyGraph.providerOrNull<Any>().shouldBe(null)
-        }
-
-        @Test
-        fun `should throw an exception when graph is closed`() {
-            graph { prototype { "string" } }.apply {
-                close()
-                shouldThrow<WinterException> { providerOrNull<Any>() }
-            }
-        }
-
-        @Test
-        fun `should postpone evaluation until provider is called`() {
-            var counter = 0
-            val provider = graph { prototype { counter += 1; counter } }.providerOrNull<Int>()!!
             counter.shouldBe(0)
             provider.invoke().shouldBe(1)
             provider.invoke().shouldBe(2)
@@ -808,6 +694,14 @@ class GraphTest {
         }
 
         @Test
+        fun `#openSubgraph should not register graph that got closed during creation`() {
+            root.openSubgraph("presentation") {
+                eagerSingleton { close() }
+            }
+            root.getSubgraphOrNull("presentation").shouldBeNull()
+        }
+
+        @Test
         fun `#getSubgraph should return subgraph by identifier`() {
             root.openSubgraph("presentation")
                 .shouldBeSameInstanceAs(root.getSubgraph("presentation"))
@@ -859,7 +753,7 @@ class GraphTest {
             root.closeSubgraph("presentation")
 
             graph.isClosed.shouldBeTrue()
-            root.instanceOrNull<Graph>("presentation").shouldBeNull()
+            root.instance<Graph?>("presentation").shouldBeNull()
         }
 
         @Test
@@ -875,7 +769,7 @@ class GraphTest {
             root.closeSubgraphIfOpen("presentation")
 
             graph.isClosed.shouldBeTrue()
-            root.instanceOrNull<Graph>("presentation").shouldBeNull()
+            root.instance<Graph?>("presentation").shouldBeNull()
         }
 
         @Test

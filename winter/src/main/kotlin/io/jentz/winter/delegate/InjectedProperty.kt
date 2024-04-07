@@ -19,20 +19,6 @@ inline fun <reified R : Any> injectProvider(
 ): InjectedProperty<Provider<R>> = ProviderProperty(typeKey(qualifier, generics), block)
 
 /**
- * Creates a property delegate for an optional [Provider] of type `R`.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectProviderOrNull(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<Provider<R>?> = ProviderOrNullProperty(typeKey(qualifier, generics), block)
-
-/**
  * Creates a property delegate for an instance of type `R`.
  *
  * @param qualifier An optional qualifier.
@@ -45,20 +31,6 @@ inline fun <reified R : Any> inject(
     generics: Boolean = false,
     noinline block: ComponentBuilderBlock? = null
 ): InjectedProperty<R> = InstanceProperty(typeKey(qualifier, generics), block)
-
-/**
- * Creates a property delegate for an optional instance of type `R`.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectOrNull(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<R?> = InstanceOrNullProperty(typeKey(qualifier, generics), block)
 
 /**
  * Creates a lazy property delegate for an instance of type `R`.
@@ -75,22 +47,6 @@ inline fun <reified R : Any> injectLazy(
     generics: Boolean = false,
     noinline block: ComponentBuilderBlock? = null
 ): InjectedProperty<R> = LazyInstanceProperty(typeKey(qualifier, generics), block)
-
-/**
- * Creates a lazy property delegate for an optional instance of type `R`.
- *
- * The instance gets retrieved/created on first property access.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectLazyOrNull(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<R?> = LazyInstanceOrNullProperty(typeKey(qualifier, generics), block)
 
 /**
  * Base class of all injected properties.
@@ -187,7 +143,7 @@ internal class LazyPropertyMapper<in I, out O>(
 }
 
 @PublishedApi
-internal abstract class AbstractEagerProperty<R : Any, T>(
+internal abstract class AbstractEagerProperty<R : Any?, T>(
     private val key: TypeKey<R>
 ) : InjectedProperty<T>() {
 
@@ -214,8 +170,8 @@ internal abstract class AbstractEagerProperty<R : Any, T>(
 }
 
 @PublishedApi
-internal abstract class AbstractLazyProperty<R : Any, T>(
-    private val key: TypeKey<R>
+internal abstract class AbstractLazyProperty<R : Any?, T>(
+    val key: TypeKey<R>
 ) : InjectedProperty<T>() {
 
     @Volatile private var _value: Any? = UNINITIALIZED_VALUE
@@ -251,7 +207,7 @@ internal abstract class AbstractLazyProperty<R : Any, T>(
 }
 
 @PublishedApi
-internal class InstanceProperty<R : Any>(
+internal class InstanceProperty<R : Any?>(
     key: TypeKey<R>,
     private val block: ComponentBuilderBlock?
 ) : AbstractEagerProperty<R, R>(key) {
@@ -262,40 +218,23 @@ internal class InstanceProperty<R : Any>(
 }
 
 @PublishedApi
-internal class InstanceOrNullProperty<R : Any>(
-    key: TypeKey<R>,
-    private val block: ComponentBuilderBlock?
-) : AbstractEagerProperty<R, R?>(key) {
-
-    override fun getValue(graph: Graph, key: TypeKey<R>): R? =
-        graph.instanceOrNullByKey(key, block)
-
-}
-
-@PublishedApi
-internal class LazyInstanceProperty<R : Any>(
+internal class LazyInstanceProperty<R : Any?>(
     key: TypeKey<R>,
     private val block: ComponentBuilderBlock?
 ) : AbstractLazyProperty<R, R>(key) {
 
-    override fun resolveService(graph: Graph, key: TypeKey<R>) = graph.service(key)
+    override fun resolveService(graph: Graph, key: TypeKey<R>): BoundService<R>? {
+        val service = graph.service(key)
+        if (service == null && !key.isOptional)
+            throw EntryNotFoundException(key)
+        return graph.service(key)
+    }
 
     override fun getValue(service: BoundService<R>?): R {
-        service ?: throw UninitializedPropertyAccessException("Service was not resolved.")
-        return service.instance(block)
+        @Suppress("UNCHECKED_CAST")
+        return if (key.isOptional) service?.instance(block) as R
+        else service?.instance(block) ?: throw EntryNotFoundException(key)
     }
-}
-
-@PublishedApi
-internal class LazyInstanceOrNullProperty<R : Any>(
-    key: TypeKey<R>,
-    private val block: ComponentBuilderBlock?
-) : AbstractLazyProperty<R, R?>(key) {
-
-    override fun resolveService(graph: Graph, key: TypeKey<R>) = graph.serviceOrNull(key)
-
-    override fun getValue(service: BoundService<R>?): R? = service?.instance(block)
-
 }
 
 @PublishedApi
@@ -306,16 +245,5 @@ internal class ProviderProperty<R : Any>(
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R> =
         graph.providerByKey(key, block)
-
-}
-
-@PublishedApi
-internal class ProviderOrNullProperty<R : Any>(
-    key: TypeKey<R>,
-    private val block: ComponentBuilderBlock?
-) : AbstractEagerProperty<R, Provider<R>?>(key) {
-
-    override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R>? =
-        graph.providerOrNullByKey(key, block)
 
 }

@@ -5,7 +5,7 @@ package io.jentz.winter
  *
  * Custom implementations can be added to a [Component] by using [Component.Builder.register].
  */
-interface UnboundService<R : Any> {
+interface UnboundService<R : Any?> {
     /**
      * The [TypeKey] of the type this service is providing.
      */
@@ -65,7 +65,7 @@ internal class UnboundSingletonService<R : Any>(
 }
 
 @PublishedApi
-internal class ConstantService<R : Any>(
+internal class ConstantService<R : Any?>(
     override val key: TypeKey<R>,
     val value: R
 ) : BoundService<R>(), UnboundService<R> {
@@ -88,7 +88,7 @@ internal class ConstantService<R : Any>(
 
 }
 
-internal class UnboundAliasService<R : Any>(
+internal class UnboundAliasService<R : Any?>(
     private val targetKey: TypeKey<*>,
     private val newKey: TypeKey<R>
 ) : UnboundService<R> {
@@ -103,6 +103,7 @@ internal class UnboundAliasService<R : Any>(
         try {
             @Suppress("UNCHECKED_CAST")
             val targetService = graph.service(targetKey as TypeKey<R>)
+                ?: throw EntryNotFoundException(targetKey)
             return BoundAliasService(this, targetService)
         } catch (t: Throwable) {
             throw WinterException("Error resolving alias `$newKey` pointing to `$targetKey`.", t)

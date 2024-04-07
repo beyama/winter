@@ -171,7 +171,7 @@ class WinterTestSession private constructor(
      * @return The requested type or null if not found.
      */
     fun resolve(type: Class<*>, qualifier: Any? = null): Any =
-        requireTestGraph.instanceByKey(ClassTypeKey(type.kotlin.javaObjectType, qualifier))
+        requireTestGraph.instanceByKey(ClassTypeKey(type.kotlin.javaObjectType, qualifier = qualifier))
 
     internal enum class AutoCloseMode { NoAutoClose, Graph, GraphAndAncestors, AllGraphs }
 

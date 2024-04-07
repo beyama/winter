@@ -6,7 +6,9 @@ import java.lang.reflect.Type
 /**
  * Interface for all type keys.
  */
-interface TypeKey<out R : Any> {
+interface TypeKey<out R> {
+
+    val isOptional: Boolean
 
     val qualifier: Any?
 
@@ -18,8 +20,9 @@ interface TypeKey<out R : Any> {
 
 }
 
-class ClassTypeKey<R : Any> @JvmOverloads constructor(
+class ClassTypeKey<R> @JvmOverloads constructor(
     val type: Class<R>,
+    override val isOptional: Boolean = false,
     override val qualifier: Any? = null
 ) : TypeKey<R> {
 
@@ -47,7 +50,8 @@ class ClassTypeKey<R : Any> @JvmOverloads constructor(
 
 }
 
-abstract class GenericClassTypeKey<R : Any> @JvmOverloads constructor(
+abstract class GenericClassTypeKey<R> @JvmOverloads constructor(
+    override val isOptional: Boolean = false,
     override val qualifier: Any? = null
 ) : TypeKey<R> {
 

@@ -417,7 +417,7 @@ class Component private constructor(
          *
          * @throws WinterException If [newKey] entry already exists and [override] is false.
          */
-        fun <R0 : Any, R1 : Any> alias(
+        fun <R0 : Any?, R1 : Any?> alias(
             targetKey: TypeKey<R0>,
             newKey: TypeKey<R1>,
             override: Boolean = false
@@ -442,7 +442,7 @@ class Component private constructor(
          *                 into account.
          * @param override If true this will override an existing factory for type [R].
          */
-        inline fun <reified R : Any> TypeKey<*>.alias(
+        inline fun <reified R : Any?> TypeKey<*>.alias(
             aliasQualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false

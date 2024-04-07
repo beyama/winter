@@ -39,32 +39,14 @@ class InjectedPropertyTest {
         }
 
         @Test
-        fun `should return ProviderOrNullProperty for #injectProviderOrNull`() {
-            injectProviderOrNull<String>()
-                .shouldBeInstanceOf<ProviderOrNullProperty<*>>()
-        }
-
-        @Test
         fun `should return InstanceProperty for #inject`() {
             inject<String>().shouldBeInstanceOf<InstanceProperty<*>>()
-        }
-
-        @Test
-        fun `should return InstanceOrNullProperty for #injectOrNull`() {
-            injectOrNull<String>()
-                .shouldBeInstanceOf<InstanceOrNullProperty<*>>()
         }
 
         @Test
         fun `should return LazyInstanceProperty for #injectLazy`() {
             injectLazy<String>()
                 .shouldBeInstanceOf<LazyInstanceProperty<*>>()
-        }
-
-        @Test
-        fun `should return LazyInstanceOrNullProperty for #injectLazyOrNull`() {
-            injectLazyOrNull<String>()
-                .shouldBeInstanceOf<LazyInstanceOrNullProperty<*>>()
         }
 
     }
@@ -130,36 +112,6 @@ class InjectedPropertyTest {
     }
 
     @Nested
-    @DisplayName("ProviderOrNullProperty")
-    inner class ProviderOrNullPropertyTest {
-
-        @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                ProviderOrNullProperty<String>(typeKey(), null).value
-            }
-        }
-
-        @Test
-        fun `#value should be null if dependency is not found`() {
-            ProviderOrNullProperty<String>(typeKey(), null).apply {
-                inject(emptyGraph)
-                value.shouldBeNull()
-            }
-        }
-
-        @Test
-        fun `returns a provider block that resolves dependency when called`() {
-            val property = ProviderOrNullProperty<Int>(typeKey(), null)
-            property.inject(testComponent.createGraph())
-            val provider = property.value
-            atomicInteger.get().shouldBe(0)
-            provider?.invoke().shouldBe(1)
-        }
-
-    }
-
-    @Nested
     @DisplayName("InstanceProperty")
     inner class InstancePropertyTest {
 
@@ -178,27 +130,8 @@ class InjectedPropertyTest {
         }
 
         @Test
-        fun `should eagerly resolve dependency`() {
-            InstanceProperty<Int>(typeKey(), null).inject(testComponent.createGraph())
-            atomicInteger.get().shouldBe(1)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("InstanceOrNullProperty")
-    inner class InstanceOrNullPropertyTest {
-
-        @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                InstanceOrNullProperty<String>(typeKey(), null).value
-            }
-        }
-
-        @Test
-        fun `#value should be null if dependency is not found`() {
-            InstanceOrNullProperty<String>(typeKey(), null).apply {
+        fun `#value should be null if dependency is optional and not found`() {
+            InstanceProperty<String?>(typeKey(), null).apply {
                 inject(emptyGraph)
                 value.shouldBeNull()
             }
@@ -206,8 +139,7 @@ class InjectedPropertyTest {
 
         @Test
         fun `should eagerly resolve dependency`() {
-            InstanceOrNullProperty<Int>(typeKey(), null)
-                .inject(testComponent.createGraph())
+            InstanceProperty<Int>(typeKey(), null).inject(testComponent.createGraph())
             atomicInteger.get().shouldBe(1)
         }
 
@@ -241,34 +173,19 @@ class InjectedPropertyTest {
             }
         }
 
-    }
-
-    @Nested
-    @DisplayName("LazyInstanceOrNullProperty")
-    inner class LazyInstanceOrNullPropertyTest {
-
         @Test
-        fun `should throw an exception if #value is called before injecting`() {
-            shouldThrow<UninitializedPropertyAccessException> {
-                LazyInstanceOrNullProperty<String>(typeKey(), null).value
-            }.message.shouldBe("Property not initialized.")
-        }
-
-        @Test
-        fun `should resolve to null if dependency isn't found`() {
-            LazyInstanceOrNullProperty<String>(typeKey(), null).apply {
-                inject(emptyGraph)
-                value.shouldBeNull()
+        fun `should resolve existing optional dependency`() {
+            LazyInstanceProperty<String?>(typeKey(), null).apply {
+                inject(graph { prototype { "test string" } })
+                value.shouldBe("test string")
             }
         }
 
         @Test
-        fun `should lazy resolve dependency`() {
-            LazyInstanceOrNullProperty<Int>(typeKey(), null).apply {
-                inject(testComponent.createGraph())
-                expectValueToChange(0, 1, atomicInteger::get) {
-                    value.shouldBe(1)
-                }
+        fun `should resolve to null for non-existing optional dependency`() {
+            LazyInstanceProperty<String?>(typeKey(), null).apply {
+                inject(emptyGraph)
+                value.shouldBeNull()
             }
         }
 

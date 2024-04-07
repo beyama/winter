@@ -15,7 +15,7 @@ internal val KProperty1<*, *>.typeKey: TypeKey<Any>
     get() {
         val clazz = (returnType.classifier as? KClass<*>)?.javaObjectType
             ?: throw IllegalArgumentException("Can't get return type for property `$name`")
-        return ClassTypeKey(clazz, namedAnnotationValue)
+        return ClassTypeKey(clazz, qualifier = namedAnnotationValue)
     }
 
 internal val KProperty1<*, *>.namedAnnotationValue: String?

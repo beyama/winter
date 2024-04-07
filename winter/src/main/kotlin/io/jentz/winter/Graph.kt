@@ -39,14 +39,10 @@ class Graph internal constructor(
             }
 
             @Suppress("UNCHECKED_CAST")
-            fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
+            fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
                 registry.getOrPut(key) {
-                    component[key]?.bind(graph) ?: return parent?.serviceOrNull(key)
+                    component[key]?.bind(graph) ?: return parent?.service(key)
                 } as? BoundService<R>
-
-            fun <R : Any> service(key: TypeKey<R>): BoundService<R> = serviceOrNull(key)
-                ?: throw EntryNotFoundException(key, "Service with key `$key` does not exist.")
-
         }
 
         object Closed : State()
@@ -115,7 +111,7 @@ class Graph internal constructor(
 
         plugins.forEach { it.graphInitialized(this) }
 
-        instanceOrNullByKey(eagerDependenciesKey)?.forEach { key ->
+        instanceByKey(eagerDependenciesKey)?.forEach { key ->
             try {
                 instanceByKey(key)
             } catch (e: EntryNotFoundException) {
@@ -127,7 +123,7 @@ class Graph internal constructor(
     }
 
     /**
-     * Retrieve a non-optional instance of `R`.
+     * Retrieve an instance of type `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
@@ -136,50 +132,29 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified R : Any> instance(
+    inline fun <reified R : Any?> instance(
         qualifier: Any? = null,
         generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
     ): R = instanceByKey(typeKey(qualifier, generics), block)
 
     /**
-     * Retrieve a non-optional instance of `R` by [key].
+     * Retrieve an instance of type `R` by [key].
      *
      * @param key The type key of the instance.
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R`
      *
-     * @throws EntryNotFoundException
+     * @throws EntryNotFoundException If no service was found for a non-optional `R`
      */
-    fun <R : Any> instanceByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R =
-        service(key).instance(block)
+    fun <R : Any?> instanceByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R {
+        @Suppress("UNCHECKED_CAST")
+        return if (key.isOptional) service(key)?.instance(block) as R
+        else service(key)?.instance(block) ?: throw EntryNotFoundException(key)
+    }
 
     /**
-     * Retrieve an optional instance of `R`.
-     *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @param block An optional builder block to pass runtime dependencies to the factory.
-     * @return An instance of `R` or null if provider doesn't exist.
-     */
-    inline fun <reified R : Any> instanceOrNull(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        noinline block: ComponentBuilderBlock? = null
-    ): R? = instanceOrNullByKey(typeKey(qualifier, generics), block)
-
-    /**
-     * Retrieve an optional instance of `R` by [key].
-     *
-     * @param key The type key of the instance.
-     * @param block An optional builder block to pass runtime dependencies to the factory.
-     * @return An instance of `R` or null if provider doesn't exist.
-     */
-    fun <R : Any> instanceOrNullByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R? =
-        serviceOrNull(key)?.instance(block)
-
-    /**
-     * Retrieves a non-optional provider function that returns `R`.
+     * Retrieves a provider function that returns `R`.
      *
      * @param qualifier An optional qualifier of the dependency.
      * @param generics Preserves generic type parameters if set to true (default = false).
@@ -188,7 +163,7 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    inline fun <reified R : Any> provider(
+    inline fun <reified R : Any?> provider(
         qualifier: Any? = null,
         generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
@@ -203,41 +178,17 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any> providerByKey(
+    fun <R : Any?> providerByKey(
         key: TypeKey<R>,
         block: ComponentBuilderBlock? = null
     ): Provider<R> {
         val service = service(key)
-        return { service.instance(block) }
-    }
-
-    /**
-     * Retrieve an optional provider function that returns `R`.
-     *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @param block An optional builder block to pass runtime dependencies to the factory.
-     * @return The provider that returns `R` or null if provider doesn't exist.
-     */
-    inline fun <reified R : Any> providerOrNull(
-        qualifier: Any? = null,
-        generics: Boolean = false,
-        noinline block: ComponentBuilderBlock? = null
-    ): Provider<R>? = providerOrNullByKey(typeKey(qualifier, generics), block)
-
-    /**
-     * Retrieve an optional provider function by [key] that returns `R`.
-     *
-     * @param key The type key of the instance.
-     * @param block An optional builder block to pass runtime dependencies to the factory.
-     * @return The provider that returns `R` or null if provider doesn't exist.
-     */
-    fun <R : Any> providerOrNullByKey(
-        key: TypeKey<R>,
-        block: ComponentBuilderBlock? = null
-    ): Provider<R>? {
-        val service = serviceOrNull(key) ?: return null
-        return { service.instance(block) }
+        if (service == null && !key.isOptional)
+            throw EntryNotFoundException(key)
+        return {
+            @Suppress("UNCHECKED_CAST")
+            service?.instance(block) as R
+        }
     }
 
     /**
@@ -251,11 +202,8 @@ class Graph internal constructor(
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
-    internal fun <R : Any> service(key: TypeKey<R>): BoundService<R> =
+    internal fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
         synchronizedMap { it.service(key) }
-
-    internal fun <R : Any> serviceOrNull(key: TypeKey<R>): BoundService<R>? =
-        synchronizedMap { it.serviceOrNull(key) }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.
@@ -293,7 +241,6 @@ class Graph internal constructor(
         DelegateNotifier.notify(instance, this)
 
         while (cls != null) {
-            @Suppress("EmptyCatchBlock")
             try {
                 val className = cls.name + "_WinterMembersInjector"
                 @Suppress("UNCHECKED_CAST")
@@ -301,6 +248,7 @@ class Graph internal constructor(
                 injector = injectorClass.getConstructor().newInstance()
                 break
             } catch (e: Exception) {
+                // pass
             }
 
             cls = cls.superclass
@@ -361,7 +309,7 @@ class Graph internal constructor(
             )
         }
 
-        Graph(
+        val graph = Graph(
             application = state.application,
             parent = this,
             component = instance(subcomponentQualifier),
@@ -374,9 +322,13 @@ class Graph internal constructor(
                 })
             },
             block = block
-        ).also {
-            state.registry[key] = BoundGraphService(key, it)
-        }
+        )
+
+        if (graph.isClosed) return graph
+
+        state.registry[key] = BoundGraphService(key, graph)
+
+        return graph
     }
 
     /**
@@ -419,7 +371,7 @@ class Graph internal constructor(
      *
      * @param identifier The identifier it was opened with.
      */
-    fun getSubgraphOrNull(identifier: Any): Graph? = instanceOrNull(identifier)
+    fun getSubgraphOrNull(identifier: Any): Graph? = instance(identifier)
 
     /**
      * Get a subgraph by [identifier] if present or open and return it.
@@ -434,7 +386,7 @@ class Graph internal constructor(
         block: ComponentBuilderBlock? = null
     ): Graph = synchronizedMap {
         val qualifier = identifier ?: subcomponentQualifier
-        instanceOrNull(qualifier) ?: openSubgraph(subcomponentQualifier, identifier, block)
+        instance<Graph?>(qualifier) ?: openSubgraph(subcomponentQualifier, identifier, block)
     }
 
     /**

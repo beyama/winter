@@ -3,7 +3,7 @@ package io.jentz.winter
 /**
  * Interface for bound service entries in a [Graph].
  */
-abstract class BoundService<R : Any> {
+abstract class BoundService<R : Any?> {
 
     protected abstract val unboundService: UnboundService<R>
 
@@ -141,7 +141,7 @@ internal class BoundSingletonService<R : Any>(
 
 }
 
-internal class BoundAliasService<R : Any>(
+internal class BoundAliasService<R : Any?>(
     override val unboundService: UnboundAliasService<R>,
     private val targetService: BoundService<R>
 ) : BoundService<R>() {

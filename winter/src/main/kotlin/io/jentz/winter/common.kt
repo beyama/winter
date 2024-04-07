@@ -30,7 +30,7 @@ internal typealias OnCloseCallback = (Graph) -> Unit
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>>("EAGER_DEPENDENCIES")
+internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>?>("EAGER_DEPENDENCIES")
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
@@ -71,11 +71,11 @@ fun graph(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock
  * @param generics If true this creates a type key that also takes generic type parameters into
  *                 account.
  */
-inline fun <reified R : Any> typeKey(
+inline fun <reified R : Any?> typeKey(
     qualifier: Any? = null,
     generics: Boolean = false
 ): TypeKey<R> = if (generics) {
-    object : GenericClassTypeKey<R>(qualifier) {}
+    object : GenericClassTypeKey<R>(null is R, qualifier) {}
 } else {
-    ClassTypeKey(R::class.java, qualifier)
+    ClassTypeKey(R::class.java, null is R, qualifier)
 }
