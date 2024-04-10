@@ -50,7 +50,7 @@ class WinterFragmentFactory(
 
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         val clazz = loadFragmentClass(classLoader, className)
-        return graph.instanceOrNullByKey(ClassTypeKey(clazz))
+        return graph.instanceByKey(ClassTypeKey(clazz, isOptional = true))
             ?: super.instantiate(classLoader, className)
     }
 

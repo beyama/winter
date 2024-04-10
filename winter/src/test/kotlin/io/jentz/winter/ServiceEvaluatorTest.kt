@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
 import io.kotlintest.matchers.collections.shouldHaveSize
@@ -9,6 +7,8 @@ import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class ServiceEvaluatorTest {
 

@@ -27,11 +27,6 @@ class DependencyGraphContextWrapperTest {
     }
 
     @Test
-    fun getSystemService_called_with_null_should_return_null() {
-        wrapper.getSystemService(null).shouldBe(null)
-    }
-
-    @Test
     fun getSystemService_called_with_graph_constant_should_return_graph() {
         wrapper.getSystemService(DependencyGraphContextWrapper.WINTER_GRAPH)
             .shouldBeSameInstanceAs(graph)

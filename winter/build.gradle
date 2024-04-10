@@ -1,5 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id 'kotlin'
+    id 'java-library'
+    id "org.jetbrains.kotlin.jvm"
     id 'org.jetbrains.dokka'
     id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC9.2'
 }
@@ -7,8 +10,16 @@ plugins {
 version = VERSION_NAME
 group = GROUP
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
+}
 
 test {
     useJUnitPlatform()
@@ -23,6 +34,7 @@ test {
         showCauses true
         showStackTraces true
     }
+
     afterSuite { desc, result ->
         if (!desc.parent) {
             println "\nTest result: ${result.resultType}"
@@ -47,19 +59,19 @@ dependencies {
     testRuntimeOnly deps.test.jupiterEngine
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from dokka
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
+//task javadocJar(type: Jar) {
+//    classifier = 'javadoc'
+//    from dokka
+//}
+//
+//task sourcesJar(type: Jar) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+//
+//artifacts {
+//    archives javadocJar, sourcesJar
+//}
 
 dokka {
     outputFormat = 'html'

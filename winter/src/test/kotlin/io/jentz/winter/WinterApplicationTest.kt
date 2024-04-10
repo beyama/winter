@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import com.nhaarman.mockitokotlin2.*
 import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull
@@ -10,6 +9,11 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 class WinterApplicationTest {
 

@@ -214,7 +214,7 @@ class WinterTestSessionTest {
                 createAll("sub").apply {
                     instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
                     instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
-                    parent!!.instanceOrNull<Dependency1>().shouldBeNull()
+                    parent!!.instance<Dependency1?>().shouldBeNull()
                 }
             }
         }

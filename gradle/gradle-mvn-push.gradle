@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def isReleaseBuild() {
-    return VERSION_NAME.contains("SNAPSHOT") == false
+    return !VERSION_NAME.contains("SNAPSHOT")
 }
 
 def getRepositoryUsername() {
@@ -30,52 +30,59 @@ def getRepositoryPassword() {
 }
 
 afterEvaluate { project ->
-    uploadArchives {
+    publishing {
         repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            maven {
+                def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-                pom.groupId = GROUP
-                pom.artifactId = project.name
-                pom.version = VERSION_NAME
+                name = "OSSRH"
+                url = isReleaseBuild() ? releaseRepo : snapshotRepo
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+                credentials {
+                    username = getRepositoryUsername()
+                    password = getRepositoryPassword()
                 }
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-                }
+            }
+        }
 
-                pom.project {
-                    name POM_NAME
-                    packaging POM_PACKAGING
-                    description POM_DESCRIPTION
-                    url POM_URL
+        publications {
+            mavenJava(MavenPublication) {
+//                from components.java
+
+                pom {
+                    groupId = GROUP
+                    name = POM_NAME
+                    description = POM_DESCRIPTION
+                    url = POM_URL
+                    packaging = POM_PACKAGING
+                    artifactId = project.name
+                    version = VERSION_NAME
 
                     scm {
-                        url POM_SCM_URL
-                        connection POM_SCM_CONNECTION
-                        developerConnection POM_SCM_DEV_CONNECTION
+                        url = POM_SCM_URL
+                        connection = POM_SCM_CONNECTION
+                        developerConnection = POM_SCM_DEV_CONNECTION
                     }
 
                     licenses {
                         license {
-                            name POM_LICENCE_NAME
-                            url POM_LICENCE_URL
-                            distribution POM_LICENCE_DIST
+                            name = POM_LICENCE_NAME
+                            url = POM_LICENCE_URL
+                            distribution = POM_LICENCE_DIST
                         }
                     }
 
                     developers {
                         developer {
-                            id POM_DEVELOPER_ID
-                            name POM_DEVELOPER_NAME
+                            id = POM_DEVELOPER_ID
+                            name = POM_DEVELOPER_NAME
                         }
                     }
 
                     issueManagement {
-                        system POM_ISSUE_MANAGEMENT_SYSTEM
-                        url POM_ISSUE_MANAGEMENT_URL
+                        system = POM_ISSUE_MANAGEMENT_SYSTEM
+                        url = POM_ISSUE_MANAGEMENT_URL
                     }
                 }
             }
@@ -83,8 +90,13 @@ afterEvaluate { project ->
     }
 
     signing {
-        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
+        sign publishing.publications.mavenJava
+    }
+
+    tasks.withType(Sign).tap {
+        configureEach {
+            onlyIf { isReleaseVersion }
+        }
     }
 
 }
