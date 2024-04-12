@@ -1,6 +1,8 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.*
+import io.jentz.winter.services.BoundService
+import io.jentz.winter.services.UnboundService
 import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.isAccessible
 

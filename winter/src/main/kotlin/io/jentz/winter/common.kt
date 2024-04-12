@@ -10,10 +10,11 @@ internal val UNINITIALIZED_VALUE = Any()
 typealias GFactory<R> = Graph.() -> R
 
 /**
- * Factory callback function signature with [Graph] as receiver.
- * Used for onPostConstruct and onClose callbacks.
+ * Callback function signature with [Graph] as receiver.
  */
-typealias GFactoryCallback<R> = Graph.(R) -> Unit
+typealias GCallback<R> = Graph.(R) -> Unit
+
+typealias GDisposableSideEffect<T> = Graph.(T) -> GCallback<T>?
 
 /**
  * Function signature alias for component builder DSL blocks.

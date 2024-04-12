@@ -2,6 +2,14 @@ package io.jentz.winter
 
 import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
 import io.jentz.winter.inject.ApplicationScope
+import io.jentz.winter.services.ConstantService
+import io.jentz.winter.services.MapOfProvidersForTypeService
+import io.jentz.winter.services.MapOfTypeService
+import io.jentz.winter.services.SetOfProvidersForTypeService
+import io.jentz.winter.services.SetOfTypeService
+import io.jentz.winter.services.AliasService
+import io.jentz.winter.services.PrototypeService
+import io.jentz.winter.services.SingletonService
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeInstanceOf
@@ -29,14 +37,14 @@ class ComponentBuilderTest {
     fun `#prototype should register UnboundPrototypeService`() {
         component {
             prototype("a") { Heater() }
-        }.shouldContainServiceOfType<UnboundPrototypeService<*>>(typeKey<Heater>("a"))
+        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>("a"))
     }
 
     @Test
-    fun `#prototype should return the type key`() {
+    fun `#prototype should return UnboundPrototypeService`() {
         component {
             prototype("a") { Heater() }
-                .shouldBe(typeKey<Heater>("a"))
+                .shouldBeInstanceOf<PrototypeService<*>>()
         }
     }
 
@@ -44,34 +52,14 @@ class ComponentBuilderTest {
     fun `#singleton should register UnboundSingletonService`() {
         component {
             singleton("b") { Heater() }
-        }.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("b"))
+        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>("b"))
     }
 
     @Test
-    fun `#singleton should return the type key`() {
+    fun `#singleton should return UnboundSingletonService`() {
         component {
             singleton("b") { Heater() }
-                .shouldBe(typeKey<Heater>("b"))
-        }
-    }
-
-    @Test
-    fun `#eagerSingleton should register UnboundSingletonService`() {
-        val c = component {
-            eagerSingleton("c") { Heater() }
-        }
-        c.shouldContainServiceOfType<UnboundSingletonService<*>>(typeKey<Heater>("c"))
-        // eager dependencies add a set of type keys of eager dependencies to the dependency
-        // registry
-        c.size.shouldBe(2)
-        c.shouldContainService(eagerDependenciesKey)
-    }
-
-    @Test
-    fun `#eagerSingleton should return the type key`() {
-        component {
-            eagerSingleton("c") { Heater() }
-                .shouldBe(typeKey<Heater>("c"))
+                .shouldBeInstanceOf<SingletonService<*>>()
         }
     }
 
@@ -83,26 +71,10 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#constant should return the type key`() {
-        component {
-            constant(42, "h")
-                .shouldBe(typeKey<Int>("h"))
-        }
-    }
-
-    @Test
     fun `#setOfType should register SetOfTypeService`() {
         component {
             setOfType<String>("a")
         }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>("a",true))
-    }
-
-    @Test
-    fun `#setOfType should return the type key`() {
-        component {
-            setOfType<String>()
-                .shouldBe(typeKey<Set<String>>(generics = true))
-        }
     }
 
     @Test
@@ -113,26 +85,10 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#setOfProvidersForType should return the type key`() {
-        component {
-            setOfProvidersForType<String>()
-                .shouldBe(typeKey<Set<Provider<String>>>(generics = true))
-        }
-    }
-
-    @Test
     fun `#mapOfType should register MapOfTypeService`() {
         component {
             mapOfType<String>("a")
         }.shouldContainServiceOfType<MapOfTypeService<*>>(typeKey<Map<Any, String>>("a",true))
-    }
-
-    @Test
-    fun `#mapOfType should return the type key`() {
-        component {
-            mapOfType<String>()
-                .shouldBe(typeKey<Map<Any, String>>(generics = true))
-        }
     }
 
     @Test
@@ -143,19 +99,11 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#mapOfProvidersForType should return the type key`() {
-        component {
-            mapOfProvidersForType<String>()
-                .shouldBe(typeKey<Map<Any, Provider<String>>>(generics = true))
-        }
-    }
-
-    @Test
     fun `#alias should register alias service`() {
         component {
             prototype { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -173,7 +121,7 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
-        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -193,7 +141,7 @@ class ComponentBuilderTest {
             prototype {
                 Thermosiphon(instance())
             }.alias<Pump>()
-        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -203,21 +151,7 @@ class ComponentBuilderTest {
             prototype {
                 Thermosiphon(instance())
             }.alias<Pump>(override = true)
-        }.shouldContainServiceOfType<UnboundAliasService<*>>(typeKey<Pump>())
-    }
-
-    @Test
-    fun `#generated should register generated factory for class`() {
-        component {
-            generated<Service>()
-        }.shouldContainService(typeKey<Service>())
-    }
-
-    @Test
-    fun `#generatedFactory should load generated factory for class`() {
-        component {
-            generatedFactory<Service>().shouldBeInstanceOf<Service_WinterFactory>()
-        }
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
@@ -422,7 +356,7 @@ class ComponentBuilderTest {
 
     @Test
     fun `#remove should unregister eager singleton`() {
-        val c = component { eagerSingleton { Heater() } }
+        val c = component { singleton { Heater() }.eager() }
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
         c.size.shouldBe(2)
         c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)

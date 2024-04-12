@@ -1,5 +1,8 @@
 package io.jentz.winter
 
+import io.jentz.winter.services.BoundService
+import io.jentz.winter.services.UnboundService
+
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
     override val key: TypeKey<String> = typeKey(),

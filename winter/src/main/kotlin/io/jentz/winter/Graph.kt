@@ -1,8 +1,10 @@
 package io.jentz.winter
 
 import io.jentz.winter.delegate.DelegateNotifier
-import io.jentz.winter.inject.MembersInjector
 import io.jentz.winter.plugin.Plugins
+import io.jentz.winter.services.GraphService
+import io.jentz.winter.services.BoundService
+import io.jentz.winter.services.ConstantService
 
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
@@ -235,27 +237,7 @@ class Graph internal constructor(
      * @throws WinterException When no members injector was found.
      */
     fun <T : Any> inject(instance: T): T {
-        var injector: MembersInjector<T>? = null
-        var cls: Class<*>? = instance.javaClass
-
         DelegateNotifier.notify(instance, this)
-
-        while (cls != null) {
-            try {
-                val className = cls.name + "_WinterMembersInjector"
-                @Suppress("UNCHECKED_CAST")
-                val injectorClass = Class.forName(className) as Class<MembersInjector<T>>
-                injector = injectorClass.getConstructor().newInstance()
-                break
-            } catch (e: Exception) {
-                // pass
-            }
-
-            cls = cls.superclass
-        }
-
-        injector?.inject(this, instance)
-
         return instance
     }
 
@@ -326,7 +308,7 @@ class Graph internal constructor(
 
         if (graph.isClosed) return graph
 
-        state.registry[key] = BoundGraphService(key, graph)
+        state.registry[key] = GraphService(key, graph)
 
         return graph
     }

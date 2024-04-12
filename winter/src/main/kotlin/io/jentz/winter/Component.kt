@@ -2,7 +2,15 @@ package io.jentz.winter
 
 import io.jentz.winter.Component.Builder
 import io.jentz.winter.inject.ApplicationScope
-import io.jentz.winter.inject.Factory
+import io.jentz.winter.services.ConstantService
+import io.jentz.winter.services.MapOfProvidersForTypeService
+import io.jentz.winter.services.MapOfTypeService
+import io.jentz.winter.services.SetOfProvidersForTypeService
+import io.jentz.winter.services.SetOfTypeService
+import io.jentz.winter.services.AliasService
+import io.jentz.winter.services.PrototypeService
+import io.jentz.winter.services.UnboundService
+import io.jentz.winter.services.SingletonService
 import javax.inject.Singleton
 
 /**
@@ -226,21 +234,14 @@ class Component private constructor(
          * @param qualifier An optional qualifier.
          * @param generics If true this will preserve generic information of [R].
          * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
          * @param factory The factory for type [R].
          */
         inline fun <reified R : Any> prototype(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundPrototypeService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
+        ) = register(PrototypeService(typeKey<R>(qualifier, generics), factory), override)
 
         /**
          * Register a singleton scoped factory for an instance of type [R].
@@ -248,51 +249,14 @@ class Component private constructor(
          * @param qualifier An optional qualifier.
          * @param generics If true this will preserve generic information of [R].
          * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param onClose A callback that gets called when the dependency graph gets closed.
          * @param factory The factory for type [R].
          */
         inline fun <reified R : Any> singleton(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline onClose: GFactoryCallback<R>? = null,
             noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
-            register(service, override)
-            return key
-        }
-
-        /**
-         * Register an eager singleton scoped factory for an instance of type [R].
-         *
-         * This behaves exactly like [singleton] but the instance will be created as soon as the
-         * dependency graph is initialize.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param onClose A callback that gets called when the dependency graph gets closed.
-         * @param factory The factory for [R].
-         */
-        inline fun <reified R : Any> eagerSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline onClose: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
-            register(service, override)
-            addEagerDependency(key)
-            return key
-        }
+        ) = register(SingletonService(typeKey<R>(qualifier, generics), factory), override)
 
         /**
          * Register a constant of type [R].
@@ -307,12 +271,8 @@ class Component private constructor(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = ConstantService(key, value)
-            register(service, override)
-            return key
-        }
+        ): UnboundService<R> =
+            register(ConstantService(typeKey<R>(qualifier, generics), value), override)
 
         /**
          * Register a service that resolves a set of instance of type [R].
@@ -327,11 +287,10 @@ class Component private constructor(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false
-        ): TypeKey<Set<R>> {
+        ): UnboundService<Set<R>> {
             val key = typeKey<Set<R>>(qualifier, generics = true)
             val typeOfKey = typeKey<R>(generics = generics)
-            register(SetOfTypeService(key, typeOfKey), override)
-            return key
+            return register(SetOfTypeService(key, typeOfKey), override)
         }
 
         /**
@@ -347,11 +306,10 @@ class Component private constructor(
             qualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false
-        ): TypeKey<Set<Provider<R>>> {
+        ): UnboundService<Set<Provider<R>>> {
             val key = typeKey<Set<Provider<R>>>(qualifier, generics = true)
             val typeOfKey = typeKey<R>(generics = generics)
-            register(SetOfProvidersForTypeService(key, typeOfKey), override)
-            return key
+            return register(SetOfProvidersForTypeService(key, typeOfKey), override)
         }
 
         /**
@@ -369,11 +327,10 @@ class Component private constructor(
             generics: Boolean = false,
             override: Boolean = false,
             defaultKey: Any = "default"
-        ): TypeKey<Map<Any, R>> {
+        ): UnboundService<Map<Any, R>> {
             val key = typeKey<Map<Any, R>>(qualifier, generics = true)
             val typeOfKey = typeKey<R>(generics = generics)
-            register(MapOfTypeService(key, typeOfKey, defaultKey), override)
-            return key
+            return register(MapOfTypeService(key, typeOfKey, defaultKey), override)
         }
 
         /**
@@ -392,11 +349,10 @@ class Component private constructor(
             generics: Boolean = false,
             override: Boolean = false,
             defaultKey: Any = "default"
-        ): TypeKey<Map<Any, Provider<R>>> {
+        ): UnboundService<Map<Any, Provider<R>>> {
             val key = typeKey<Map<Any, Provider<R>>>(qualifier, generics = true)
             val typeOfKey = typeKey<R>(generics = generics)
-            register(MapOfProvidersForTypeService(key, typeOfKey, defaultKey), override)
-            return key
+            return register(MapOfProvidersForTypeService(key, typeOfKey, defaultKey), override)
         }
 
         /**
@@ -422,12 +378,12 @@ class Component private constructor(
             newKey: TypeKey<R1>,
             override: Boolean = false
         ): TypeKey<R0> {
-            register(UnboundAliasService(targetKey, newKey), override)
+            register(AliasService(targetKey, newKey), override)
             return targetKey
         }
 
         /**
-         * Create an alias entry for a [TypeKey].
+         * Create an alias entry for the [UnboundService].
          *
          * Be careful, this method will not check if a type cast is possible.
          *
@@ -442,32 +398,21 @@ class Component private constructor(
          *                 into account.
          * @param override If true this will override an existing factory for type [R].
          */
-        inline fun <reified R : Any?> TypeKey<*>.alias(
+        inline fun <reified R : Any?> UnboundService<*>.alias(
             aliasQualifier: Any? = null,
             generics: Boolean = false,
             override: Boolean = false
         ): TypeKey<*> {
             val newKey = typeKey<R>(aliasQualifier, generics)
-            return alias(this, newKey, override)
+            return alias(key, newKey, override)
         }
 
         /**
-         * Register a generated factory.
-         *
-         * @param override If true this will override an existing factory for same type.
+         * Marks a singleton as eager which will instantiate the singleton when the graph opens.
          */
-        inline fun <reified R : Any> generated(override: Boolean = false): TypeKey<R> {
-            return generatedFactory<R>().register(this, override)
-        }
-
-        /**
-         * Loads the generated factory of the given type.
-         */
-        inline fun <reified R : Any> generatedFactory(): Factory<R> {
-            val factoryName = R::class.java.name + "_WinterFactory"
-            @Suppress("UNCHECKED_CAST")
-            val factory = Class.forName(factoryName) as Class<Factory<R>>
-            return factory.getConstructor().newInstance()
+        fun <R: Any> SingletonService<R>.eager(): SingletonService<R> {
+            addEagerDependency(key)
+            return this
         }
 
         /**
@@ -524,7 +469,7 @@ class Component private constructor(
          *
          * Don't use that except if you add your own [UnboundService] implementations.
          */
-        fun register(service: UnboundService<*>, override: Boolean) {
+        fun <S: UnboundService<*>> register(service: S, override: Boolean): S {
             val key = service.key
             val alreadyExists = registry.containsKey(key)
 
@@ -533,6 +478,7 @@ class Component private constructor(
             }
 
             registry[key] = service
+            return service
         }
 
         /**
@@ -551,8 +497,7 @@ class Component private constructor(
         }
 
         /**
-         * Allow a different component qualifier than [qualifier] for [include] and
-         * [Factory.register].
+         * Allow a different component qualifier than [qualifier] for [include].
          *
          * @param qualifier The qualifier that is allowed in the scope of [block].
          * @param block The block to execute.
@@ -565,7 +510,7 @@ class Component private constructor(
         }
 
         /**
-         * Checks if the given [qualifier] meets criteria for [include] and [Factory.register].
+         * Checks if the given [qualifier] meets criteria for [include].
          *
          * This is only public because it is needed for annotation preprocessed factories.
          * No need to use that in consumer code.
@@ -582,8 +527,7 @@ class Component private constructor(
             }
         }
 
-        @PublishedApi
-        internal fun addEagerDependency(key: TypeKey<Any>) {
+        private fun addEagerDependency(key: TypeKey<Any>) {
             if (!registry.containsKey(key)) {
                 throw WinterException("Key `$key` is not registered.")
             }

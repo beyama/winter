@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.plugin.Plugins
+import io.jentz.winter.services.BoundService
 
 internal class ServiceEvaluator(
     private val graph: Graph,

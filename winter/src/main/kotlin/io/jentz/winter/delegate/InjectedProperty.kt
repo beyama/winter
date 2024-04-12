@@ -1,6 +1,7 @@
 package io.jentz.winter.delegate
 
 import io.jentz.winter.*
+import io.jentz.winter.services.BoundService
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 

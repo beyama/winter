@@ -11,7 +11,14 @@ import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.kotlin.any
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
@@ -82,10 +89,11 @@ class GraphTest {
         fun `should invoke post construct callback with instance`() {
             var called = false
             graph {
-                prototype(onPostConstruct = {
-                    it.shouldBeSameInstanceAs(instance)
-                    called = true
-                }) { instance }
+                prototype { instance }
+                    .onPostConstruct {
+                        it.shouldBeSameInstanceAs(instance)
+                        called = true
+                    }
             }.instance<Any>()
             called.shouldBeTrue()
         }
@@ -94,10 +102,11 @@ class GraphTest {
         fun `should invoke post construct callback with extended graph`() {
             var called = false
             val graph = graph {
-                prototype(onPostConstruct = {
-                    called = true
-                    component.qualifier.shouldBe("_DERIVED_")
-                }) { instance }
+                prototype { instance }
+                    .onPostConstruct {
+                        called = true
+                        component.qualifier.shouldBe("_DERIVED_")
+                    }
             }
             graph.instance<Any> {
                 prototype { constant("foo") }
@@ -143,10 +152,9 @@ class GraphTest {
         private val testComponent = component {
             singleton { instance }
             singleton { Parent(instance()) }
-            singleton(
-                onPostConstruct = { it.parent = instance() },
-                onClose = { it.parent = null }
-            ) { Child() }
+            singleton { Child() }
+                .onPostConstruct { it.parent = instance() }
+                .onClose { it.parent = null }
         }
 
         @Test
@@ -171,10 +179,11 @@ class GraphTest {
         fun `should invoke post construct callback with extended graph`() {
             var called = false
             val graph = graph {
-                singleton(onPostConstruct = {
-                    called = true
-                    component.qualifier.shouldBe("_DERIVED_")
-                }) { instance }
+                singleton { instance }
+                    .onPostConstruct {
+                        called = true
+                        component.qualifier.shouldBe("_DERIVED_")
+                    }
             }
             graph.instance<Any> {
                 prototype { constant("foo") }
@@ -200,11 +209,10 @@ class GraphTest {
         }
 
         @Test
-        fun `#eagerSingleton should be a singleton but created as soon as the graph gets initialized`() {
+        fun `eager singleton should be initialized as soon as the graph gets initialized`() {
             var initialized = false
-            val graph = graph { eagerSingleton { initialized = true; instance } }
+            graph { singleton { initialized = true; instance }.eager() }
             initialized.shouldBeTrue()
-            graph.service(typeKey<Any>()).shouldBeInstanceOf<BoundSingletonService<*>>()
         }
 
         @Test
@@ -237,16 +245,6 @@ class GraphTest {
     inner class Alias {
 
         @Test
-        fun `should wrap aliased service in BoundAliasService`() {
-            val graph = graph {
-                prototype { Heater() }
-                singleton { Thermosiphon(instance()) }
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-            }
-            graph.service(typeKey<Pump>()).shouldBeInstanceOf<BoundAliasService<*>>()
-        }
-
-        @Test
         fun `should allow aliases to aliases`() {
             graph {
                 prototype { Heater() }
@@ -272,7 +270,9 @@ class GraphTest {
         fun `should call close only once for the target`() {
             var closed = 0
             val graph = graph {
-                singleton(onClose = { closed += 1 }) { "foo" }.alias<CharSequence>()
+                singleton { "foo" }
+                    .onClose { closed += 1 }
+                    .alias<CharSequence>()
             }
             graph.instance<CharSequence>()
             graph.close()
@@ -486,17 +486,7 @@ class GraphTest {
     @Nested
     @DisplayName("#inject method")
     inner class InjectMethod {
-
-        @Test
-        fun `#inject should call members injector for type`() {
-            emptyGraph.inject(Service()).property.shouldBe(42)
-        }
-
-        @Test
-        fun `#inject should call members injector for superclass`() {
-            emptyGraph.inject(ExtendedService()).property.shouldBe(42)
-        }
-
+        // TODO: Test property delegate
     }
 
     @Nested
@@ -703,7 +693,7 @@ class GraphTest {
         @Test
         fun `#openSubgraph should not register graph that got closed during creation`() {
             root.openSubgraph("presentation") {
-                eagerSingleton { close() }
+                singleton { close() }.eager()
             }
             root.getSubgraphOrNull("presentation").shouldBeNull()
         }
@@ -815,10 +805,9 @@ class GraphTest {
 
         private val testComponent = component {
             singleton { Parent(instance()) }
-            singleton(
-                onPostConstruct = { it.parent = instance() },
-                onClose = { it.parent = null }
-            ) { Child() }
+            singleton { Child() }
+                .onPostConstruct { it.parent = instance() }
+                .onClose { it.parent = null }
         }
 
         @Test
@@ -886,9 +875,8 @@ class GraphTest {
             var called = false
             shouldThrow<DependencyResolutionException> {
                 graph {
-                    prototype(
-                        onPostConstruct = { called = true }
-                    ) { Heater() }
+                    prototype { Heater() }
+                        .onPostConstruct { called = true }
                     prototype<Pump> { throw Error("Boom!") }
                     prototype { CoffeeMaker(instance(), instance()) }
                 }.instance<CoffeeMaker>()
