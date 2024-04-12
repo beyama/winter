@@ -1,2 +1,0 @@
-include ':winter', ':winter-junit4', ':winter-androidx', ':winter-junit5', ':winter-testing',
-        ':winter-androidx-integration-test', ':winter-androidx-fragment'

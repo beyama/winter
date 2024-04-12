@@ -1,13 +1,11 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     id("kotlin-library-configuration")
+    id("junit5-configuration")
 }
 
 dependencies {
     api(project(":winter"))
     api(project(":winter-testing"))
-    api(libs.junit)
 
-    testImplementation(libs.kotlintest.assertions)
+    api(libs.junit.jupiter.api)
 }
