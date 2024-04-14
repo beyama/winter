@@ -2,16 +2,15 @@ package io.jentz.winter
 
 import io.jentz.winter.Component.Builder
 import io.jentz.winter.inject.ApplicationScope
+import io.jentz.winter.services.AliasService
 import io.jentz.winter.services.ConstantService
 import io.jentz.winter.services.MapOfProvidersForTypeService
 import io.jentz.winter.services.MapOfTypeService
+import io.jentz.winter.services.PrototypeService
 import io.jentz.winter.services.SetOfProvidersForTypeService
 import io.jentz.winter.services.SetOfTypeService
-import io.jentz.winter.services.AliasService
-import io.jentz.winter.services.PrototypeService
-import io.jentz.winter.services.UnboundService
 import io.jentz.winter.services.SingletonService
-import javax.inject.Singleton
+import io.jentz.winter.services.UnboundService
 
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an
@@ -143,13 +142,6 @@ class Component private constructor(
             Merge
         }
 
-        init {
-            require(qualifier != Singleton::class) {
-                "Use `${ApplicationScope::class.java.name}::class` instead of " +
-                        "`${Singleton::class.java.name}::class` as component qualifier"
-            }
-        }
-
         private val root: Builder = if (parent == null) this else run {
             var base = parent!!
             while (base.parent != null) {
@@ -172,8 +164,6 @@ class Component private constructor(
         private val subcomponentKeys: MutableSet<TypeKey<Component>>
             get() = _subcomponentKeys
                 ?: HashSet(base.subcomponentKeys).also { _subcomponentKeys = it }
-
-        private var componentQualifierOverride: Any? = null
 
         private val eagerDependencies: MutableSet<TypeKey<Any>>
             get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
@@ -205,8 +195,6 @@ class Component private constructor(
             override: Boolean = true,
             subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
         ) {
-            checkComponentQualifier(component.qualifier)
-
             component.registry.forEach { (k, v) ->
                 when {
                     k === eagerDependenciesKey -> {
@@ -273,6 +261,7 @@ class Component private constructor(
             override: Boolean = false
         ): UnboundService<R> =
             register(ConstantService(typeKey<R>(qualifier, generics), value), override)
+
 
         /**
          * Register a service that resolves a set of instance of type [R].
@@ -494,37 +483,6 @@ class Component private constructor(
             }
             subcomponentKeys.remove(key)
             eagerDependencies.remove(key)
-        }
-
-        /**
-         * Allow a different component qualifier than [qualifier] for [include].
-         *
-         * @param qualifier The qualifier that is allowed in the scope of [block].
-         * @param block The block to execute.
-         */
-        fun allowComponentQualifier(qualifier: Any, block: () -> Unit) {
-            val previousOverride = componentQualifierOverride
-            componentQualifierOverride = qualifier
-            block()
-            componentQualifierOverride = previousOverride
-        }
-
-        /**
-         * Checks if the given [qualifier] meets criteria for [include].
-         *
-         * This is only public because it is needed for annotation preprocessed factories.
-         * No need to use that in consumer code.
-         */
-        fun checkComponentQualifier(qualifier: Any) {
-            // Singleton factories can be registered on ApplicationScope by default.
-            if (qualifier == Singleton::class
-                && (this.qualifier == ApplicationScope::class
-                        || componentQualifierOverride == ApplicationScope::class)) return
-
-            if (this.qualifier != qualifier && componentQualifierOverride != qualifier) {
-                throw WinterException("Component qualifier `$qualifier` does not match required " +
-                        "qualifier `${this.qualifier}`.")
-            }
         }
 
         private fun addEagerDependency(key: TypeKey<Any>) {
