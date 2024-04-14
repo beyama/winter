@@ -5,4 +5,5 @@ plugins {
 
 dependencies {
     api(libs.javax.inject)
+    id("mvn-push-configuration")
 }
