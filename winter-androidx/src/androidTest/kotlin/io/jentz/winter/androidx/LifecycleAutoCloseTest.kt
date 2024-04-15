@@ -4,6 +4,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.*
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.test.espresso.base.MainThread
+import androidx.test.platform.app.InstrumentationRegistry
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
@@ -17,7 +19,7 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     override val lifecycle: Lifecycle get() = registry
 
     @Test
-    fun `should throw an exception if the close event is a start event or ON_ANY`() {
+    fun should_throw_if_close_event_is_a_start_event_or_ON_ANY() {
         listOf(ON_CREATE, ON_START, ON_RESUME, ON_ANY).forEach { event ->
             shouldThrow<IllegalArgumentException> {
                 LifecycleAutoCloseImpl(event)
@@ -26,21 +28,25 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     }
 
     @Test
-    fun `should call close if a close event was emitted`() {
+    fun should_call_close_if_a_close_event_was_emitted() {
         listOf(ON_PAUSE, ON_STOP, ON_DESTROY).forEach { event ->
             val observer = LifecycleAutoCloseImpl(event)
             observer.closeCalled.shouldBeFalse()
-            observer.onStateChanged(this, event)
+            InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                observer.onStateChanged(this, event)
+            }
             observer.closeCalled.shouldBeTrue()
         }
     }
 
     @Test
-    fun `should unregister itself if the close event was emitted`() {
+    fun should_unregister_itself_if_the_close_event_was_emitted() {
         val observer = LifecycleAutoCloseImpl(ON_STOP)
-        registry.addObserver(observer)
-        observer.onStateChanged(this, ON_STOP)
-        registry.observerCount.shouldBe(0)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            registry.addObserver(observer)
+            observer.onStateChanged(this, ON_STOP)
+            registry.observerCount.shouldBe(0)
+        }
     }
 
     private class LifecycleAutoCloseImpl(

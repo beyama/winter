@@ -9,10 +9,10 @@ android {
 
 dependencies {
     implementation(project(":winter"))
-
     implementation(libs.androidx.activity)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlintest.assertions)
-    testImplementation(libs.kotlin.reflect)
+    androidTestImplementation(project(":winter-junit4"))
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.kotlintest.assertions)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

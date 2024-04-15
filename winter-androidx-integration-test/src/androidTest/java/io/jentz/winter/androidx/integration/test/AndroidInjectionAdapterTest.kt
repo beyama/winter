@@ -21,10 +21,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.androidx.DependencyGraphContextWrapper
-import io.jentz.winter.androidx.SimpleAndroidInjectionAdapter
+import io.jentz.winter.androidx.WinterContextWrapper
+import io.jentz.winter.androidx.AndroidInjectionAdapter
 import io.jentz.winter.androidx.inject.ActivityScope
-import io.jentz.winter.androidx.useSimpleAndroidAdapter
+import io.jentz.winter.androidx.inject.PresentationScope
+import io.jentz.winter.androidx.useAndroidInjectionAdapter
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
@@ -40,9 +41,9 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class SimpleAndroidInjectionAdapterTest {
+class AndroidInjectionAdapterTest {
 
-    private val adapter = SimpleAndroidInjectionAdapter(Winter)
+    private val adapter = AndroidInjectionAdapter(Winter)
 
     private val winterRule = WinterRule {
         testGraph(ActivityScope::class)
@@ -57,7 +58,9 @@ class SimpleAndroidInjectionAdapterTest {
                 Winter.closeGraph()
 
                 Winter.component {
-                    subcomponent(ActivityScope::class) {
+                    subcomponent(PresentationScope::class) {
+                        subcomponent(ActivityScope::class) {
+                        }
                     }
                 }
                 Winter.injectionAdapter = adapter
@@ -76,8 +79,8 @@ class SimpleAndroidInjectionAdapterTest {
 
     @Test
     fun use_app_extension_should_register_adapter() {
-        val app = WinterApplication().apply { useSimpleAndroidAdapter() }
-        app.injectionAdapter.shouldBeInstanceOf<SimpleAndroidInjectionAdapter>()
+        val app = WinterApplication().apply { useAndroidInjectionAdapter() }
+        app.injectionAdapter.shouldBeInstanceOf<AndroidInjectionAdapter>()
     }
 
     @Test
@@ -101,6 +104,24 @@ class SimpleAndroidInjectionAdapterTest {
         graph.isClosed.shouldBeFalse()
         scenario.moveToState(Lifecycle.State.DESTROYED)
         graph.isClosed.shouldBeTrue()
+    }
+
+    @Test
+    fun should_retain_presentation_graph_when_activity_gets_recreated() {
+        val activityGraph = winterRule.requireTestGraph
+        val presentationGraph = activityGraph.parent!!
+        activityScenarioRule.scenario.recreate()
+
+        presentationGraph.isClosed.shouldBeFalse()
+    }
+
+    @Test
+    fun should_close_presentation_graph_when_activity_gets_destroyed() {
+        val activityGraph = winterRule.requireTestGraph
+        val presentationGraph = activityGraph.parent!!
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
+
+        presentationGraph.isClosed.shouldBeTrue()
     }
 
     @Test
@@ -181,7 +202,7 @@ class SimpleAndroidInjectionAdapterTest {
     fun should_get_graph_from_dependency_graph_context_wrapper_for_context_wrapper_instance() {
         val graph = emptyGraph()
         scenario.onActivity { activity ->
-            adapter.get(DependencyGraphContextWrapper(activity, graph))
+            adapter.get(WinterContextWrapper(activity, graph))
                 .shouldBeSameInstanceAs(graph)
         }
     }

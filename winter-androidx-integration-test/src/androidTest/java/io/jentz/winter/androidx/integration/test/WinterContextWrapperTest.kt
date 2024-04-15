@@ -3,20 +3,19 @@ package io.jentz.winter.androidx.integration.test
 import android.content.Context
 import android.view.LayoutInflater
 import androidx.test.platform.app.InstrumentationRegistry
-import io.jentz.winter.androidx.DependencyGraphContextWrapper
+import io.jentz.winter.androidx.WinterContextWrapper
 import io.jentz.winter.emptyGraph
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.shouldBe
 import org.junit.Test
 
-class DependencyGraphContextWrapperTest {
+class WinterContextWrapperTest {
 
     private val graph = emptyGraph()
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val wrapper = DependencyGraphContextWrapper(context, graph)
+    private val wrapper = WinterContextWrapper(context, graph)
 
     @Test
     fun getSystemService_should_return_cloned_layout_inflater() {
@@ -28,7 +27,7 @@ class DependencyGraphContextWrapperTest {
 
     @Test
     fun getSystemService_called_with_graph_constant_should_return_graph() {
-        wrapper.getSystemService(DependencyGraphContextWrapper.WINTER_GRAPH)
+        wrapper.getSystemService(WinterContextWrapper.WINTER_GRAPH)
             .shouldBeSameInstanceAs(graph)
     }
 

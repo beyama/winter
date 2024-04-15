@@ -1,6 +1,6 @@
 package io.jentz.winter.androidx.inject
 
-import javax.inject.Scope
+import io.jentz.winter.inject.Scope
 
 /**
  * Scope annotation for dependencies with [android.app.Activity] lifetime.

@@ -12,7 +12,7 @@ import io.jentz.winter.Graph
  * This is useful if you need to provide a specific dependency graph to a view hierarchy other than
  * your Activity graph.
  */
-class DependencyGraphContextWrapper(base: Context, val graph: Graph) : ContextWrapper(base) {
+class WinterContextWrapper(base: Context, val graph: Graph) : ContextWrapper(base) {
 
     companion object {
         /**

@@ -7,5 +7,6 @@ plugins {
 dependencies {
     api(project(":winter"))
 
+    implementation(libs.javax.inject)
     implementation(libs.kotlin.reflect)
 }

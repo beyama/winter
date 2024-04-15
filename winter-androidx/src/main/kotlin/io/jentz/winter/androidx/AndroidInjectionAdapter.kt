@@ -12,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import io.jentz.winter.Component
@@ -19,14 +20,33 @@ import io.jentz.winter.Graph
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.androidx.inject.ActivityScope
+import io.jentz.winter.androidx.inject.PresentationScope
 
 /**
- * Extensible injection adapter that operates on an [io.jentz.winter.inject.ApplicationScope]
- * component with an [ActivityScope] subcomponent.
+ * Extensible injection adapter that retains a [PresentationScope] subgraph during Activity
+ * re-creation.
  *
- * The adapters opens the application component for [Application] and the "activity" component
- * for [Activity]. The [Activity] must implement [LifecycleOwner] so that the opened activity graph
+ * The adapters opens the application component for [Application], a presentation subgraph hold
+ * by the activities [androidx.lifecycle.ViewModelStore] and an "activity" component
+ * for [Activity].
+ *
+ * The [Activity] must implement [LifecycleOwner] so that the opened activity graph
  * can be automatically closed.
+ *
+ * It expects an application component like:
+ *
+ * ```
+ * Winter.component {
+ *   // this subgraph outlives configuration changes and is only disposed when the Activity
+ *   // view models are cleared.
+ *   subcomponent(PresentationScope::class) {
+ *     // this is recreated every time the Activity is recreated
+ *     subcomponent(ActivityScope::class) {
+ *     }
+ *   }
+ * }
+ * Winter.useAndroidInjectionAdapter()
+ * ```
  *
  * The following is provided via the activity graph:
  * * the activity as [Context]
@@ -43,12 +63,12 @@ import io.jentz.winter.androidx.inject.ActivityScope
  *   [OnBackPressedDispatcherOwner]
  * * the activity as [ComponentActivity] if the activity is an instance of [ComponentActivity]
  */
-open class SimpleAndroidInjectionAdapter(
+open class AndroidInjectionAdapter(
     protected val app: WinterApplication
 ) : WinterApplication.InjectionAdapter {
 
     override fun get(instance: Any): Graph? = when (instance) {
-        is DependencyGraphContextWrapper -> instance.graph
+        is WinterContextWrapper -> instance.graph
         is Application -> getApplicationGraph(instance)
         is Activity -> getActivityGraph(instance)
         is View -> getViewGraph(instance)
@@ -59,20 +79,33 @@ open class SimpleAndroidInjectionAdapter(
         else -> null
     }
 
-    protected open fun getApplicationGraph(application: Application): Graph? =
+    protected open fun getApplicationGraph(application: Application): Graph =
         app.getOrOpenGraph {
             constant(application)
             constant<Context>(application)
         }
 
-    protected open fun getActivityGraph(activity: Activity): Graph? {
+    protected open fun getActivityGraph(activity: Activity): Graph {
         return getActivityParentGraph(activity)
-            ?.getOrOpenSubgraph(ActivityScope::class, activity) {
+            .getOrOpenSubgraph(ActivityScope::class, activity) {
                 setupActivityGraph(activity, this)
             }
     }
 
-    protected open fun getActivityParentGraph(activity: Activity): Graph? = app.graph
+    protected open fun getActivityParentGraph(activity: Activity): Graph {
+        activity as? ViewModelStoreOwner ?: throw WinterException(
+            "Activity `${activity.javaClass.name}` must implement ViewModelStoreOwner"
+        )
+        val model = ViewModelProvider(activity)[WinterViewModel::class.java]
+
+        model.graph?.let { return it }
+
+        return app.graph.getOrOpenSubgraph(PresentationScope::class, model) {
+            constant(activity.viewModelStore)
+        }.also {
+            model.graph = it
+        }
+    }
 
     protected open fun getViewGraph(view: View): Graph? = get(view.context)
 
@@ -158,8 +191,8 @@ open class SimpleAndroidInjectionAdapter(
 }
 
 /**
- * Register an [SimpleAndroidInjectionAdapter] on this [WinterApplication] instance.
+ * Register an [AndroidInjectionAdapter] on this [WinterApplication] instance.
  */
-fun WinterApplication.useSimpleAndroidAdapter() {
-    injectionAdapter = SimpleAndroidInjectionAdapter(this)
+fun WinterApplication.useAndroidInjectionAdapter() {
+    injectionAdapter = AndroidInjectionAdapter(this)
 }
