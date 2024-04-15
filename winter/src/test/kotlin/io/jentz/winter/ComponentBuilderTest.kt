@@ -1,6 +1,8 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
+import io.jentz.winter.dsl.prototypeOf
+import io.jentz.winter.dsl.singletonOf
 import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.services.ConstantService
 import io.jentz.winter.services.MapOfProvidersForTypeService
@@ -33,11 +35,10 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#prototype should return UnboundPrototypeService`() {
+    fun `#prototypeOf should register UnboundPrototypeService`() {
         component {
-            prototype("a") { Heater() }
-                .shouldBeInstanceOf<PrototypeService<*>>()
-        }
+            prototypeOf(::Heater, qualifier = "a")
+        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>("a"))
     }
 
     @Test
@@ -48,11 +49,10 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#singleton should return UnboundSingletonService`() {
+    fun `#singletonOf should register UnboundSingletonService`() {
         component {
-            singleton("b") { Heater() }
-                .shouldBeInstanceOf<SingletonService<*>>()
-        }
+            singletonOf(::Heater, qualifier = "b")
+        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>("b"))
     }
 
     @Test

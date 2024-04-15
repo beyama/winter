@@ -1,5 +1,8 @@
 package io.jentz.winter
 
+import io.jentz.winter.dsl.new
+import io.jentz.winter.dsl.prototypeOf
+import io.jentz.winter.dsl.singletonOf
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.plugin.SimplePlugin
@@ -893,6 +896,24 @@ class GraphTest {
             }
             shouldThrow<DependencyResolutionException> { graph.instance<CoffeeMaker>() }
             graph.instance<Heater>().shouldBeInstanceOf<Heater>()
+        }
+
+    }
+
+    @Nested
+    @DisplayName("#new")
+    inner class NewMethod {
+
+        @Test
+        fun `should resolve all constructor parameters`() {
+            val graph = graph {
+                singletonOf(::Heater)
+                singletonOf(::Thermosiphon)
+                    .alias<Pump>()
+            }
+            val coffeeMaker = graph.new(::CoffeeMaker)
+            coffeeMaker.heater.shouldBeSameInstanceAs(graph.instance<Heater>())
+            coffeeMaker.pump.shouldBeSameInstanceAs(graph.instance<Pump>())
         }
 
     }
