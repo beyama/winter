@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 includeBuild("build-configuration")
 include(":winter", "winter-testing", "winter-junit4", "winter-junit5",
-    ":winter-androidx", ":winter-androidx-fragment", ":winter-androidx-integration-test")
+    ":winter-androidx", ":winter-androidx-integration-test")

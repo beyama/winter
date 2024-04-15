@@ -31,7 +31,6 @@ android {
 dependencies {
     implementation(project(":winter"))
     implementation(project(":winter-androidx"))
-    implementation(project(":winter-androidx-fragment"))
 
     implementation(libs.androidx.fragment)
 
