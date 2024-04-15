@@ -1,9 +1,8 @@
-package io.jentz.winter.androidx.integration.test
+package io.jentz.winter.androidx
 
 import android.content.Context
 import android.view.LayoutInflater
 import androidx.test.platform.app.InstrumentationRegistry
-import io.jentz.winter.androidx.WinterContextWrapper
 import io.jentz.winter.emptyGraph
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs

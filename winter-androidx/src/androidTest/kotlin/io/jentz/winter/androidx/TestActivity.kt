@@ -1,10 +1,10 @@
-package io.jentz.winter.androidx.integration.test
+package io.jentz.winter.androidx
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
+import androidx.activity.ComponentActivity
 import io.jentz.winter.Winter
 
-class TestActivity : FragmentActivity() {
+class TestActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Winter.inject(this)

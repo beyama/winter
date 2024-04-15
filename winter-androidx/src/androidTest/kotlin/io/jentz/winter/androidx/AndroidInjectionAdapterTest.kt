@@ -1,4 +1,4 @@
-package io.jentz.winter.androidx.integration.test
+package io.jentz.winter.androidx
 
 import android.app.Activity
 import android.app.Application
@@ -19,13 +19,11 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.androidx.WinterContextWrapper
-import io.jentz.winter.androidx.AndroidInjectionAdapter
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
-import io.jentz.winter.androidx.useAndroidInjectionAdapter
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.junit4.WinterRule
 import io.kotlintest.matchers.boolean.shouldBeFalse
@@ -54,8 +52,11 @@ class AndroidInjectionAdapterTest {
     @get:Rule val rule: RuleChain = RuleChain
         .outerRule(object : ExternalResource() {
             override fun before() {
-                val application: Application = Winter.graph.instance()
-                Winter.closeGraph()
+                val application = InstrumentationRegistry.getInstrumentation()
+                    .targetContext
+                    .applicationContext as Application
+
+                Winter.closeGraphIfOpen()
 
                 Winter.component {
                     subcomponent(PresentationScope::class) {
