@@ -13,6 +13,6 @@ dependencies {
 
     androidTestImplementation(project(":winter-junit4"))
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.kotlintest.assertions)
+    androidTestImplementation(libs.assertk)
     androidTestImplementation(libs.androidx.espresso.core)
 }

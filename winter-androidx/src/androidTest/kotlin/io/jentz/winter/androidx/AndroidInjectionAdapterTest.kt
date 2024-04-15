@@ -20,16 +20,18 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import assertk.assertThat
+import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.isSameInstanceAs
+import assertk.assertions.isTrue
 import io.jentz.winter.Winter
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.junit4.WinterRule
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -81,20 +83,22 @@ class AndroidInjectionAdapterTest {
     @Test
     fun use_app_extension_should_register_adapter() {
         val app = WinterApplication().apply { useAndroidInjectionAdapter() }
-        app.injectionAdapter.shouldBeInstanceOf<AndroidInjectionAdapter>()
+        assertThat(app.injectionAdapter)
+            .isNotNull()
+            .isInstanceOf<AndroidInjectionAdapter>()
     }
 
     @Test
     fun should_get_application_graph_for_application_instance() {
         scenario.onActivity { activity ->
-            Winter.graph.shouldBeSameInstanceAs(adapter.get(activity.application))
+            assertThat(Winter.graph).isSameInstanceAs(adapter.get(activity.application))
         }
     }
 
     @Test
     fun should_get_activity_graph_for_activity_instance() {
         scenario.onActivity { activity ->
-            winterRule.requireTestGraph.shouldBeSameInstanceAs(adapter.get(activity))
+            assertThat(winterRule.requireTestGraph).isSameInstanceAs(adapter.get(activity))
         }
     }
 
@@ -102,9 +106,9 @@ class AndroidInjectionAdapterTest {
     fun should_close_activity_graph_when_activity_gets_destroyed() {
         val graph = winterRule.requireTestGraph
 
-        graph.isClosed.shouldBeFalse()
+        assertThat(graph.isClosed).isFalse()
         scenario.moveToState(Lifecycle.State.DESTROYED)
-        graph.isClosed.shouldBeTrue()
+        assertThat(graph.isClosed).isTrue()
     }
 
     @Test
@@ -113,7 +117,7 @@ class AndroidInjectionAdapterTest {
         val presentationGraph = activityGraph.parent!!
         activityScenarioRule.scenario.recreate()
 
-        presentationGraph.isClosed.shouldBeFalse()
+        assertThat(presentationGraph.isClosed).isFalse()
     }
 
     @Test
@@ -122,52 +126,35 @@ class AndroidInjectionAdapterTest {
         val presentationGraph = activityGraph.parent!!
         activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
-        presentationGraph.isClosed.shouldBeTrue()
-    }
-
-    @Test
-    fun should_provide_activity() {
-        val graph = winterRule.requireTestGraph
-        scenario.onActivity {
-            graph.instance<Activity>().shouldBeSameInstanceAs(it)
-        }
-    }
-
-    @Test
-    fun should_provide_lifecycle_from_activity() {
-        val graph = winterRule.requireTestGraph
-        scenario.onActivity {
-            graph.instance<Lifecycle>().shouldBeSameInstanceAs(it.lifecycle)
-        }
-    }
-
-    @Test
-    fun should_provide_activity_as_context() {
-        val graph = winterRule.requireTestGraph
-        scenario.onActivity {
-            graph.instance<Context>().shouldBeSameInstanceAs(it)
-        }
+        assertThat(presentationGraph.isClosed).isTrue()
     }
 
     fun should_provide_android_types_in_activity_graph() {
         val graph = winterRule.requireTestGraph
         scenario.onActivity { activity ->
-            graph.instance<Context>().shouldBeSameInstanceAs(activity)
+            assertThat(graph.instance<Context>())
+                .isSameInstanceAs(activity)
 
-            graph.instance<SavedStateRegistryOwner>()
-                .shouldBeSameInstanceAs(activity)
+            assertThat(graph.instance<Activity>())
+                .isSameInstanceAs(activity)
 
-            graph.instance<SavedStateRegistry>()
-                .shouldBeSameInstanceAs(activity.savedStateRegistry)
+            assertThat(graph.instance<SavedStateRegistryOwner>())
+                .isSameInstanceAs(activity)
 
-            graph.instance<OnBackPressedDispatcherOwner>()
-                .shouldBeSameInstanceAs(activity)
+            assertThat(graph.instance<Lifecycle>())
+                .isSameInstanceAs(activity.lifecycle)
 
-            graph.instance<OnBackPressedDispatcher>()
-                .shouldBeSameInstanceAs(activity.onBackPressedDispatcher)
+            assertThat(graph.instance<SavedStateRegistry>())
+                .isSameInstanceAs(activity.savedStateRegistry)
 
-            graph.instance<ComponentActivity>()
-                .shouldBeSameInstanceAs(activity)
+            assertThat(graph.instance<OnBackPressedDispatcherOwner>())
+                .isSameInstanceAs(activity)
+
+            assertThat(graph.instance<OnBackPressedDispatcher>())
+                .isSameInstanceAs(activity.onBackPressedDispatcher)
+
+            assertThat(graph.instance<ComponentActivity>())
+                .isSameInstanceAs(activity)
         }
     }
 
@@ -175,36 +162,37 @@ class AndroidInjectionAdapterTest {
     fun should_get_graph_of_view_context_for_view_instance() {
         scenario.onActivity { activity ->
             val view = View(activity)
-            winterRule.requireTestGraph.shouldBeSameInstanceAs(adapter.get(view))
+            assertThat(winterRule.requireTestGraph).isSameInstanceAs(adapter.get(view))
         }
     }
 
     @Test
     fun should_get_application_graph_for_broadcast_receiver_instance() {
-        Winter.graph.shouldBeSameInstanceAs(adapter.get(object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-            }
-        }))
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) = Unit
+        }
+        assertThat(Winter.graph).isSameInstanceAs(adapter.get(receiver))
     }
 
     @Test
     fun should_get_application_graph_for_service_instance() {
-        Winter.graph.shouldBeSameInstanceAs(adapter.get(object : Service() {
+        val service = object : Service() {
             override fun onBind(intent: Intent?): IBinder? = null
-        }))
+        }
+        assertThat(Winter.graph).isSameInstanceAs(adapter.get(service))
     }
 
     @Test
     fun should_get_application_graph_for_content_provider_instance() {
-        Winter.graph.shouldBeSameInstanceAs(adapter.get(FileProvider()))
+        assertThat(Winter.graph).isSameInstanceAs(adapter.get(FileProvider()))
     }
 
     @Test
     fun should_get_graph_from_dependency_graph_context_wrapper_for_context_wrapper_instance() {
         val graph = emptyGraph()
         scenario.onActivity { activity ->
-            adapter.get(WinterContextWrapper(activity, graph))
-                .shouldBeSameInstanceAs(graph)
+            assertThat(graph)
+                .isSameInstanceAs(adapter.get(WinterContextWrapper(activity, graph)))
         }
     }
 

@@ -1,15 +1,20 @@
 package io.jentz.winter.androidx
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Lifecycle.Event.*
+import androidx.lifecycle.Lifecycle.Event.ON_ANY
+import androidx.lifecycle.Lifecycle.Event.ON_CREATE
+import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
+import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
+import androidx.lifecycle.Lifecycle.Event.ON_RESUME
+import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.test.espresso.base.MainThread
-import androidx.test.platform.app.InstrumentationRegistry
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import assertk.assertFailure
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isTrue
 import org.junit.Test
 
 class LifecycleAutoCloseTest : LifecycleOwner {
@@ -21,32 +26,27 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     @Test
     fun should_throw_if_close_event_is_a_start_event_or_ON_ANY() {
         listOf(ON_CREATE, ON_START, ON_RESUME, ON_ANY).forEach { event ->
-            shouldThrow<IllegalArgumentException> {
+            assertFailure {
                 LifecycleAutoCloseImpl(event)
-            }
+            }.isInstanceOf<IllegalArgumentException>()
         }
     }
 
     @Test
-    fun should_call_close_if_a_close_event_was_emitted() {
+    fun should_call_close_if_a_close_event_was_emitted() = runOnMainSync {
         listOf(ON_PAUSE, ON_STOP, ON_DESTROY).forEach { event ->
             val observer = LifecycleAutoCloseImpl(event)
-            observer.closeCalled.shouldBeFalse()
-            InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                observer.onStateChanged(this, event)
-            }
-            observer.closeCalled.shouldBeTrue()
+            observer.onStateChanged(this, event)
+            assertThat(observer.closeCalled).isTrue()
         }
     }
 
     @Test
-    fun should_unregister_itself_if_the_close_event_was_emitted() {
+    fun should_unregister_itself_if_the_close_event_was_emitted() = runOnMainSync {
         val observer = LifecycleAutoCloseImpl(ON_STOP)
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            registry.addObserver(observer)
-            observer.onStateChanged(this, ON_STOP)
-            registry.observerCount.shouldBe(0)
-        }
+        registry.addObserver(observer)
+        observer.onStateChanged(this, ON_STOP)
+        assertThat(registry.observerCount).isEqualTo(0)
     }
 
     private class LifecycleAutoCloseImpl(
