@@ -1,6 +1,5 @@
 plugins {
     id("android-library-configuration")
-//    id("mvn-push-configuration")
 }
 
 android {
