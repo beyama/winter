@@ -12,8 +12,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.savedstate.SavedStateRegistryOwner
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
@@ -21,6 +23,7 @@ import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
 import io.jentz.winter.androidx.inject.ActivityScope
 import io.jentz.winter.androidx.inject.PresentationScope
+import io.jentz.winter.inject.ApplicationScope
 
 /**
  * Extensible injection adapter that retains a [PresentationScope] subgraph during Activity
@@ -47,12 +50,17 @@ import io.jentz.winter.androidx.inject.PresentationScope
  * }
  * Winter.useAndroidInjectionAdapter()
  * ```
+ * The following is provided via the application graph:
+ * * the application as [Context]
+ * * the application as [Application]
+ * * the process lifecycle as [Lifecycle] with qualifier [ApplicationScope] class
+ * * the process lifecycle scope as [androidx.lifecycle.LifecycleCoroutineScope] with qualifier [ApplicationScope] class
  *
  * The following is provided via the activity graph:
  * * the activity as [Context]
  * * the activity as [Activity]
- * * the activities [lifecycle][Lifecycle] if the activity implement [LifecycleOwner]
- * * the activity as [LifecycleOwner] if the activity implements that
+ * * the activities [Lifecycle] if the activity implement [LifecycleOwner]
+ * * the activities [androidx.lifecycle.LifecycleCoroutineScope] if the activity implement [LifecycleOwner]
  * * the activity as [ViewModelStoreOwner] if the activity implements that
  * * the activities [androidx.lifecycle.ViewModelStore] if the activity implements [ViewModelStoreOwner]
  * * the activity as [SavedStateRegistryOwner] if the activity implements that
@@ -83,6 +91,8 @@ open class AndroidInjectionAdapter(
         app.getOrOpenGraph {
             constant(application)
             constant<Context>(application)
+            constant(ProcessLifecycleOwner.get().lifecycle, qualifier = ApplicationScope::class)
+            constant(ProcessLifecycleOwner.get().lifecycleScope, qualifier = ApplicationScope::class)
         }
 
     protected open fun getActivityGraph(activity: Activity): Graph {
@@ -149,8 +159,8 @@ open class AndroidInjectionAdapter(
                 constant(instance)
             }
             if (instance is LifecycleOwner) {
-                constant(instance)
                 constant(instance.lifecycle)
+                constant(instance.lifecycleScope)
             }
             if (instance is ViewModelStoreOwner) {
                 constant(instance)

@@ -8,8 +8,10 @@ import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
+import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -17,11 +19,7 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isTrue
 import org.junit.Test
 
-class LifecycleAutoCloseTest : LifecycleOwner {
-
-    private val registry = LifecycleRegistry(this)
-
-    override val lifecycle: Lifecycle get() = registry
+class LifecycleAutoCloseTest {
 
     @Test
     fun should_throw_if_close_event_is_a_start_event_or_ON_ANY() {
@@ -33,20 +31,21 @@ class LifecycleAutoCloseTest : LifecycleOwner {
     }
 
     @Test
-    fun should_call_close_if_a_close_event_was_emitted() = runOnMainSync {
-        listOf(ON_PAUSE, ON_STOP, ON_DESTROY).forEach { event ->
-            val observer = LifecycleAutoCloseImpl(event)
-            observer.onStateChanged(this, event)
-            assertThat(observer.closeCalled).isTrue()
-        }
-    }
+    fun should_call_close_on_close_event_and_unregister_itself() {
+        listOf(
+            State.RESUMED to ON_PAUSE,
+            State.STARTED to ON_STOP,
+            State.CREATED to ON_DESTROY
+        ).forEach { (initialState, closeEvent) ->
+            val lifecycleOwner = TestLifecycleOwner(initialState)
+            val observer = LifecycleAutoCloseImpl(closeEvent)
+            lifecycleOwner.lifecycle.addObserver(observer)
 
-    @Test
-    fun should_unregister_itself_if_the_close_event_was_emitted() = runOnMainSync {
-        val observer = LifecycleAutoCloseImpl(ON_STOP)
-        registry.addObserver(observer)
-        observer.onStateChanged(this, ON_STOP)
-        assertThat(registry.observerCount).isEqualTo(0)
+            lifecycleOwner.handleLifecycleEvent(closeEvent)
+
+            assertThat(observer.closeCalled).isTrue()
+            assertThat(lifecycleOwner.observerCount).isEqualTo(0)
+        }
     }
 
     private class LifecycleAutoCloseImpl(

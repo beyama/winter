@@ -8,11 +8,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":winter"))
+    api(project(":winter"))
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.lifecycle.process)
 
     androidTestImplementation(project(":winter-junit4"))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.assertk)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.lifecycle.runtime.testing)
 }

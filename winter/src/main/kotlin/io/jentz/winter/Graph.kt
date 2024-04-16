@@ -117,8 +117,8 @@ class Graph internal constructor(
             try {
                 instanceByKey(key)
             } catch (e: EntryNotFoundException) {
-                throw EntryNotFoundException(
-                    key, "BUG: Eager dependency with key `$key` doesn't exist."
+                throw DependencyResolutionException(
+                    key, "Error resolving eager dependency with key `$key`", e
                 )
             }
         }
