@@ -15,5 +15,4 @@ dependencies{
     implementation(gradleApi())
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
-
 }
