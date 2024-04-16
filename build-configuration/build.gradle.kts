@@ -11,7 +11,6 @@ repositories{
 
 dependencies{
     compileOnly(libs.kotlinJvmLib)
-    compileOnly(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 
     implementation(gradleApi())
     implementation(libs.android.gradle.plugin)
