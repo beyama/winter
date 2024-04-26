@@ -1,6 +1,7 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.*
+import io.jentz.winter.delegate.Injector
 import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.SimplePlugin
 
@@ -46,6 +47,7 @@ typealias OnGraphCloseCallback = (Graph) -> Unit
 @Suppress("MaxLineLength") // maybe I should get rid of Detekt...
 class WinterTestSession private constructor(
     private val application: WinterApplication,
+    private val injector: Injector?,
     private val testInstances: List<Any>,
     private val graphExtenders: List<Pair<ComponentMatcher, ComponentBuilderBlock>>,
     private val onGraphInitializedCallbacks: List<Pair<ComponentMatcher, OnGraphInitializedCallback>>,
@@ -96,7 +98,7 @@ class WinterTestSession private constructor(
 
             if (testGraphComponentMatcher.matches(graph)) {
                 this@WinterTestSession.testGraph = graph
-                testInstances.forEach { graph.inject(it) }
+                this@WinterTestSession.injector?.inject(graph)
             }
 
             for ((matcher, callback) in onGraphInitializedCallbacks) {
@@ -184,6 +186,8 @@ class WinterTestSession private constructor(
 
     class Builder {
         var application: WinterApplication = Winter
+
+        var testInjector: Injector? = null
 
         private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
@@ -284,6 +288,7 @@ class WinterTestSession private constructor(
 
         fun build(testInstances: List<Any>) = WinterTestSession(
             application = application,
+            injector = testInjector,
             testInstances = testInstances,
             graphExtenders = graphExtenders,
             onGraphInitializedCallbacks = onGraphInitializedCallbacks,

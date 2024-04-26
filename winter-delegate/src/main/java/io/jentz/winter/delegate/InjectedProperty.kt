@@ -5,49 +5,7 @@ import io.jentz.winter.services.BoundService
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-/**
- * Creates a property delegate for a [Provider] of type `() -> R`.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectProvider(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<Provider<R>> = ProviderProperty(typeKey(qualifier, generics), block)
-
-/**
- * Creates a property delegate for an instance of type `R`.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> inject(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<R> = InstanceProperty(typeKey(qualifier, generics), block)
-
-/**
- * Creates a lazy property delegate for an instance of type `R`.
- *
- * The instance gets retrieved/created on first property access.
- *
- * @param qualifier An optional qualifier.
- * @param generics Preserve generic type parameters.
- * @param block An optional builder block to pass runtime dependencies to the factory.
- * @return The created [InjectedProperty].
- */
-inline fun <reified R : Any> injectLazy(
-    qualifier: Any? = null,
-    generics: Boolean = false,
-    noinline block: ComponentBuilderBlock? = null
-): InjectedProperty<R> = LazyInstanceProperty(typeKey(qualifier, generics), block)
+private val UNINITIALIZED_VALUE = Any()
 
 /**
  * Base class of all injected properties.
@@ -71,11 +29,6 @@ abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
     abstract fun <R> map(mapper: (T) -> R): InjectedProperty<R>
 
     protected abstract fun doInject(graph: Graph)
-
-    operator fun provideDelegate(thisRef: Any, prop: KProperty<*>): InjectedProperty<T> {
-        DelegateNotifier.register(thisRef, this)
-        return this
-    }
 
     final override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return try {

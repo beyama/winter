@@ -208,6 +208,7 @@ open class WinterApplication() {
     ).also { graphOrNull = it }
 
     /**
+     * TODO: Replace with a better solution
      * Inject dependencies into [instance] by using the dependency graph returned from
      * [InjectionAdapter.get] called with [instance].
      *
@@ -215,38 +216,13 @@ open class WinterApplication() {
      *                 into.
      * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
      */
-    fun inject(instance: Any) {
+    fun inject(instance: Any): Graph {
         val adapter = injectionAdapter ?: throw WinterException(
             "No injection adapter configured."
         )
-        val graph = adapter.get(instance) ?: throw WinterException(
+        return adapter.get(instance) ?: throw WinterException(
             "No graph found for instance `$instance`."
         )
-        graph.inject(instance)
-    }
-
-    /**
-     * Inject dependencies with dependency graph from [instance] into [target].
-     * This uses the dependency graph returned from [InjectionAdapter.get] called with [instance].
-     *
-     * Usually we do not want knowledge of who owns a [Graph] in our application classes so
-     * the [InjectionAdapter] was created to hide that. But sometimes we find cases, especially
-     * on Android, where, for example, a class member function gets a Context passed into to
-     * do its work and we need that Context to retrieve the required dependency graph to inject
-     * the class dependencies into the class.
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @param target The target to inject dependencies into.
-     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
-     */
-    fun inject(instance: Any, target: Any) {
-        val adapter = injectionAdapter ?: throw WinterException(
-            "No injection adapter configured."
-        )
-        val graph = adapter.get(instance) ?: throw WinterException(
-            "No graph found for instance `$instance`."
-        )
-        graph.inject(target)
     }
 
     /**

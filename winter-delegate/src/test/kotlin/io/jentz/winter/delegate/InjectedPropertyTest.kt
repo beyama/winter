@@ -1,12 +1,22 @@
 package io.jentz.winter.delegate
 
-import io.jentz.winter.*
+import io.jentz.winter.EntryNotFoundException
+import io.jentz.winter.WinterApplication
+import io.jentz.winter.WinterException
 import io.jentz.winter.adapter.useApplicationGraphOnlyAdapter
+import io.jentz.winter.component
+import io.jentz.winter.emptyGraph
+import io.jentz.winter.graph
+import io.jentz.winter.typeKey
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.jvm.isAccessible
 
@@ -33,27 +43,29 @@ class InjectedPropertyTest {
     @Nested
     inner class DelegateMethods {
 
+        private val injector = Injector(this, app)
+
         @Test
-        fun `should return ProviderProperty for #injectProvider`() {
-            injectProvider<String>().shouldBeInstanceOf<ProviderProperty<*>>()
+        fun `should return ProviderProperty for #provider`() {
+            injector.provider<String>().shouldBeInstanceOf<ProviderProperty<*>>()
         }
 
         @Test
-        fun `should return InstanceProperty for #inject`() {
-            inject<String>().shouldBeInstanceOf<InstanceProperty<*>>()
+        fun `should return InstanceProperty for #instance`() {
+            injector.instance<String>().shouldBeInstanceOf<InstanceProperty<*>>()
         }
 
         @Test
-        fun `should return LazyInstanceProperty for #injectLazy`() {
-            injectLazy<String>()
+        fun `should return LazyInstanceProperty for #lazyInstance`() {
+            injector.lazyInstance<String>()
                 .shouldBeInstanceOf<LazyInstanceProperty<*>>()
         }
 
     }
 
     @Nested
-    @DisplayName("InjectedProperty")
-    inner class InjectedPropertyTest {
+    @DisplayName("Injector")
+    inner class InjectorTest {
 
         @BeforeEach
         fun beforeEach() {
@@ -62,7 +74,7 @@ class InjectedPropertyTest {
         }
 
         @Test
-        fun `should register itself on the delegate notifier`() {
+        fun `should inject on init`() {
             InjectedPropertiesClass(app).property.shouldBe("a value")
         }
 
@@ -167,9 +179,9 @@ class InjectedPropertyTest {
         fun `should lazy resolve dependency`() {
             LazyInstanceProperty<Int>(typeKey(), null).apply {
                 inject(testComponent.createGraph())
-                expectValueToChange(0, 1, atomicInteger::get) {
-                    value.shouldBe(1)
-                }
+                atomicInteger.get().shouldBe(0)
+                value.shouldBe(1)
+                atomicInteger.get().shouldBe(1)
             }
         }
 
@@ -258,11 +270,13 @@ class InjectedPropertyTest {
     }
 
 
-    private class InjectedPropertiesClass(val app: WinterApplication) {
-        val property: String by inject()
+    private class InjectedPropertiesClass(app: WinterApplication) {
+
+        private val injector by app
+        val property: String by injector.instance()
 
         init {
-            app.inject(this)
+            injector.inject()
         }
     }
 

@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.delegate.DelegateNotifier
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.services.GraphService
 import io.jentz.winter.services.BoundService
@@ -204,7 +203,7 @@ class Graph internal constructor(
         return parent?.keys()?.let { keys + it } ?: keys
     }
 
-    internal fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
+    fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
         synchronizedMap { it.service(key) }
 
     /**
@@ -227,18 +226,6 @@ class Graph internal constructor(
 
     private fun derive(block: ComponentBuilderBlock): Graph = map {
         Graph(it.application, this, component("_DERIVED_", block), null, null)
-    }
-
-    /**
-     * Inject members of class [T].
-     *
-     * @param instance The instance to inject members to.
-     *
-     * @throws WinterException When no members injector was found.
-     */
-    fun <T : Any> inject(instance: T): T {
-        DelegateNotifier.notify(instance, this)
-        return instance
     }
 
     /**
