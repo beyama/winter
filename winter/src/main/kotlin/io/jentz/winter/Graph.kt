@@ -1,9 +1,9 @@
 package io.jentz.winter
 
 import io.jentz.winter.plugin.Plugins
-import io.jentz.winter.services.GraphService
 import io.jentz.winter.services.BoundService
 import io.jentz.winter.services.ConstantService
+import io.jentz.winter.services.GraphService
 
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
@@ -374,7 +374,7 @@ class Graph internal constructor(
 
                 state.plugins.forEach { it.graphClose(this) }
 
-                state.registry.values.forEach { boundService -> boundService.onClose() }
+                state.registry.values.forEach { it.onClose() }
 
                 state.onCloseCallback?.invoke(this)
             } finally {

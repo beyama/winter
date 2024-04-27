@@ -4,15 +4,13 @@ import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Graph
 import io.jentz.winter.Provider
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.WinterApplication.InjectionAdapter
-import io.jentz.winter.WinterException
 import io.jentz.winter.typeKey
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class Injector internal constructor(
     private val target: Any,
-    private val application: WinterApplication
+    val application: WinterApplication
 ): ReadOnlyProperty<Any, Injector> {
 
     @PublishedApi
@@ -66,21 +64,16 @@ class Injector internal constructor(
         .also { properties.add(it) }
 
     /**
-     * Inject dependencies into target by using the dependency graph returned from
-     * [InjectionAdapter.get] called with [target].
-     *
-     * @throws [io.jentz.winter.WinterException] If given [target] type is not supported.
+     * Inject dependencies into properties by using the graph from [Graph.resolveGraph] with
+     * the [Injector] [target].
      */
     fun inject() {
-        val adapter = application.injectionAdapter ?: throw WinterException(
-            "No injection adapter configured."
-        )
-        val graph = adapter.get(target) ?: throw WinterException(
-            "No graph found for instance `$target`."
-        )
-        inject(graph)
+        inject(application.graph.resolveGraph(target))
     }
 
+    /**
+     * Inject dependencies into properties by using the [graph].
+     */
     fun inject(graph: Graph) {
         for (property in properties)
             property.inject(graph)

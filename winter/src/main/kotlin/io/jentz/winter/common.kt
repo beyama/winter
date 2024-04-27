@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.inject.ApplicationScope
+import kotlin.reflect.KClass
 
 internal val UNINITIALIZED_VALUE = Any()
 
@@ -80,3 +81,6 @@ inline fun <reified R : Any?> typeKey(
 } else {
     ClassTypeKey(R::class.java, null is R, qualifier)
 }
+
+inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Any? = null) =
+    ClassTypeKey(java, false, qualifier)
