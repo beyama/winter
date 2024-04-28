@@ -3,6 +3,7 @@ package io.jentz.winter.testing
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.TypeKey
 import io.jentz.winter.WinterException
+import io.jentz.winter.qualifier
 import javax.inject.Named
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -15,7 +16,7 @@ internal val KProperty1<*, *>.typeKey: TypeKey<Any>
     get() {
         val clazz = (returnType.classifier as? KClass<*>)?.javaObjectType
             ?: throw IllegalArgumentException("Can't get return type for property `$name`")
-        return ClassTypeKey(clazz, qualifier = namedAnnotationValue)
+        return ClassTypeKey(clazz, qualifier = namedAnnotationValue?.let { qualifier(it) })
     }
 
 internal val KProperty1<*, *>.namedAnnotationValue: String?

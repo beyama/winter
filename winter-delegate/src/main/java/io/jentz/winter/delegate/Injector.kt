@@ -3,6 +3,7 @@ package io.jentz.winter.delegate
 import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Graph
 import io.jentz.winter.Provider
+import io.jentz.winter.TypeKey
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.typeKey
 import kotlin.properties.ReadOnlyProperty
@@ -19,31 +20,46 @@ class Injector internal constructor(
     /**
      * Creates a property delegate for an instance of type `R`.
      *
-     * @param qualifier An optional qualifier.
-     * @param generics Preserve generic type parameters.
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> instance(
-        qualifier: Any? = null,
-        generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<R> = InstanceProperty<R>(typeKey(qualifier, generics), block)
+    ): InjectedProperty<R> = instance(typeKey(), block)
+
+    /**
+     * Creates a property delegate for an instance of type `R`.
+     *
+     * @param key The [TypeKey] of the service to resolve
+     * @param block An optional builder block to pass runtime dependencies to the factory.
+     * @return The created [InjectedProperty].
+     */
+    fun <R : Any> instance(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): InjectedProperty<R> = InstanceProperty(key, block)
         .also { properties.add(it) }
 
     /**
      * Creates a property delegate for a [Provider] of type `() -> R`.
      *
-     * @param qualifier An optional qualifier.
-     * @param generics Preserve generic type parameters.
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> provider(
-        qualifier: Any? = null,
-        generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<Provider<R>> = ProviderProperty(typeKey<R>(qualifier, generics), block)
+    ): InjectedProperty<Provider<R>> = provider(typeKey(), block)
+
+    /**
+     * Creates a property delegate for a [Provider] of type `() -> R`.
+     *
+     * @param key The [TypeKey] of the service to resolve
+     * @return The created [InjectedProperty].
+     */
+    fun <R : Any> provider(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): InjectedProperty<Provider<R>> = ProviderProperty(key, block)
         .also { properties.add(it) }
 
     /**
@@ -51,16 +67,26 @@ class Injector internal constructor(
      *
      * The instance gets retrieved/created on first property access.
      *
-     * @param qualifier An optional qualifier.
-     * @param generics Preserve generic type parameters.
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> lazyInstance(
-        qualifier: Any? = null,
-        generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<R> = LazyInstanceProperty(typeKey<R>(qualifier, generics), block)
+    ): InjectedProperty<R> = lazyInstance(typeKey(), block)
+
+    /**
+     * Creates a lazy property delegate for an instance of type `R`.
+     *
+     * The instance gets retrieved/created on first property access.
+     *
+     * @param key The [TypeKey] of the service to resolve
+     * @param block An optional builder block to pass runtime dependencies to the factory.
+     * @return The created [InjectedProperty].
+     */
+    fun <R : Any> lazyInstance(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): InjectedProperty<R> = LazyInstanceProperty(key, block)
         .also { properties.add(it) }
 
     /**

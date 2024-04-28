@@ -1,16 +1,17 @@
 package io.jentz.winter.services
 
 import io.jentz.winter.Graph
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 @PublishedApi
 internal class MapOfTypeService<T : Any>(
-    key: TypeKey<Map<Any, T>>,
+    key: TypeKey<Map<Qualifier, T>>,
     typeOfKey: TypeKey<T>,
-    val defaultKey: Any
-) : OfTypeService<T, Map<Any, T>>(key, typeOfKey) {
+    val defaultKey: Qualifier
+) : OfTypeService<T, Map<Qualifier, T>>(key, typeOfKey) {
 
-    override fun bind(graph: Graph): BoundService<Map<Any, T>> =
+    override fun bind(graph: Graph): BoundService<Map<Qualifier, T>> =
         BoundMapOfTypeService(graph, this)
 
 }
@@ -18,13 +19,13 @@ internal class MapOfTypeService<T : Any>(
 private class BoundMapOfTypeService<T : Any>(
     graph: Graph,
     override val unboundService: MapOfTypeService<T>
-) : BoundOfTypeService<T, Map<Any, T>>(graph) {
+) : BoundOfTypeService<T, Map<Qualifier, T>>(graph) {
 
-    override fun newInstance(graph: Graph): Map<Any, T> =
+    override fun newInstance(graph: Graph): Map<Qualifier, T> =
         keys.associateByTo(HashMap(keys.size), {
             it.qualifier ?: unboundService.defaultKey
         }, {
-            graph.instanceByKey(it)
+            graph.instance(it)
         })
 
 }

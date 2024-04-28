@@ -30,17 +30,17 @@ class ServiceEvaluatorTest {
     @Test
     fun `should throw DependencyResolutionException if service throws an EntryNotFoundException`() {
         val exception = EntryNotFoundException(typeKey<List<*>>(), "")
-        val b = BoundTestService(evaluator, typeKey("b"), throwOnNewInstance = { exception })
-        val a = BoundTestService(evaluator, typeKey("a"), b)
+        val b = BoundTestService(evaluator, typeKey(Qualifier.b), throwOnNewInstance = { exception })
+        val a = BoundTestService(evaluator, typeKey(Qualifier.a), b)
 
         shouldThrow<DependencyResolutionException> {
             evaluator.evaluate(a, emptyGraph())
         }.run {
-            key.shouldBe(typeKey<String>("b"))
+            key.shouldBe(typeKey<String>(Qualifier.b))
             message.shouldBe("Error while resolving dependency with key: " +
-                    "ClassTypeKey(class java.lang.String qualifier = b) " +
+                    "ClassTypeKey(class java.lang.String, qualifier(b)) " +
                     "reason: could not find dependency with key " +
-                    "ClassTypeKey(interface java.util.List qualifier = null)")
+                    "ClassTypeKey(interface java.util.List, null)")
             cause.shouldBeSameInstanceAs(exception)
         }
     }
@@ -48,17 +48,17 @@ class ServiceEvaluatorTest {
     @Test
     fun `should throw DependencyResolutionException if service throws an exception`() {
         val exception = Exception()
-        val b = BoundTestService(evaluator, typeKey("b"),
+        val b = BoundTestService(evaluator, typeKey(Qualifier.b),
             throwOnNewInstance = { exception })
-        val a = BoundTestService(evaluator, typeKey("a"), b)
+        val a = BoundTestService(evaluator, typeKey(Qualifier.a), b)
 
         shouldThrow<DependencyResolutionException> {
             evaluator.evaluate(a, emptyGraph())
         }.run {
-            key.shouldBe(typeKey<String>("b"))
+            key.shouldBe(typeKey<String>(Qualifier.b))
             message.shouldBe(
                 "Factory of dependency with key " +
-                        "ClassTypeKey(class java.lang.String qualifier = b) " +
+                        "ClassTypeKey(class java.lang.String, qualifier(b)) " +
                         "threw an exception on invocation.")
             cause.shouldBeSameInstanceAs(exception)
         }
@@ -66,40 +66,40 @@ class ServiceEvaluatorTest {
 
     @Test
     fun `should check for cyclic dependencies`() {
-        val d = BoundTestService(evaluator, typeKey("d"))
-        val c = BoundTestService(evaluator, typeKey("c"), d)
-        val b = BoundTestService(evaluator, typeKey("b"), c)
-        val a = BoundTestService(evaluator, typeKey("a"), b)
+        val d = BoundTestService(evaluator, typeKey(Qualifier.d))
+        val c = BoundTestService(evaluator, typeKey(Qualifier.c), d)
+        val b = BoundTestService(evaluator, typeKey(Qualifier.b), c)
+        val a = BoundTestService(evaluator, typeKey(Qualifier.a), b)
         d.dependency = b
 
         shouldThrow<CyclicDependencyException> {
             evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
-                    "`ClassTypeKey(class java.lang.String qualifier = b)` " +
+                    "`ClassTypeKey(class java.lang.String, qualifier(b))` " +
                     "is dependent of itself.\n" +
                     "Dependency chain: " +
-                    "ClassTypeKey(class java.lang.String qualifier = b) -> " +
-                    "ClassTypeKey(class java.lang.String qualifier = c) -> " +
-                    "ClassTypeKey(class java.lang.String qualifier = d) => " +
-                    "ClassTypeKey(class java.lang.String qualifier = b)"
+                    "ClassTypeKey(class java.lang.String, qualifier(b)) -> " +
+                    "ClassTypeKey(class java.lang.String, qualifier(c)) -> " +
+                    "ClassTypeKey(class java.lang.String, qualifier(d)) => " +
+                    "ClassTypeKey(class java.lang.String, qualifier(b))"
         )
     }
 
     @Test
     fun `should check for direct cyclic dependencies`() {
-        val a = BoundTestService(evaluator, typeKey("a"))
+        val a = BoundTestService(evaluator, typeKey(Qualifier.a))
         a.dependency = a
 
         shouldThrow<CyclicDependencyException> {
             evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
-                    "`ClassTypeKey(class java.lang.String qualifier = a)` " +
+                    "`ClassTypeKey(class java.lang.String, qualifier(a))` " +
                     "is directly dependent of itself.\n" +
                     "Dependency chain: " +
-                    "ClassTypeKey(class java.lang.String qualifier = a) => " +
-                    "ClassTypeKey(class java.lang.String qualifier = a)"
+                    "ClassTypeKey(class java.lang.String, qualifier(a)) => " +
+                    "ClassTypeKey(class java.lang.String, qualifier(a))"
         )
     }
 

@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -9,29 +8,20 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 
 class WinterApplicationTest {
 
     private val app = WinterApplication {}
 
-    private val adapter: InjectionAdapter = mock()
-
     @BeforeEach
     fun beforeEach() {
-        reset(adapter)
         app.closeGraphIfOpen()
-        app.injectionAdapter = adapter
     }
 
     @Test
     fun `#component should configure new component`() {
-        app.component("test") { constant("") }
-        app.component.qualifier.shouldBe("test")
+        app.component(qualifier("test")) { constant("") }
+        app.component.qualifier.shouldBe(qualifier("test"))
         app.component.size.shouldBe(1)
     }
 
@@ -53,14 +43,6 @@ class WinterApplicationTest {
     @Test
     fun `#plugins should be empty by default`() {
         app.plugins.isEmpty().shouldBeTrue()
-    }
-
-    @Test
-    fun `#injectionAdapter should throw an exception if tree is already open`() {
-        app.openGraph()
-        shouldThrow<WinterException> {
-            app.injectionAdapter = mock(); null
-        }.message.shouldBe("Cannot set injection adapter because application graph is already open.")
     }
 
     @Test

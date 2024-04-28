@@ -1,6 +1,9 @@
 package io.jentz.winter
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class TypeKeyTest {
@@ -9,19 +12,13 @@ class TypeKeyTest {
     class TestClass
 
     @Test
-    fun `TypeKey should not be equal to null`() {
-        @Suppress("SENSELESS_COMPARISON")
-        assertFalse(typeKey<TestInterface>() == null)
-    }
-
-    @Test
     fun `TypeKey should be equal to TypeKey from same class`() {
         assertSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>())
     }
 
     @Test
     fun `TypeKey should be equal to TypeKey from same class with same qualifier`() {
-        assertSameHashAndEquals(typeKey<TestInterface>("test"), typeKey<TestInterface>("test"))
+        assertSameHashAndEquals(typeKey<TestInterface>(Qualifier.test), typeKey<TestInterface>(Qualifier.test))
     }
 
     @Test
@@ -31,12 +28,12 @@ class TypeKeyTest {
 
     @Test
     fun `TypeKey should not be equal to TypeKey from same class but with different qualifier`() {
-        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>("test"))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(Qualifier.test))
     }
 
     @Test
     fun `TypeKey should be type equal to TypeKey from same class`() {
-        assertTrue(typeKey<TestInterface>().typeEquals(typeKey<TestInterface>(qualifier = Any())))
+        assertTrue(typeKey<TestInterface>().typeEquals(typeKey<TestInterface>(Qualifier.test)))
     }
 
     @Test
@@ -52,8 +49,8 @@ class TypeKeyTest {
     @Test
     fun `GenericTypeKey should be equal to GenericTypeKey from same class with same qualifier`() {
         assertSameHashAndEquals(
-                typeKey<Map<String, List<Int>>>("test", true),
-                typeKey<Map<String, List<Int>>>("test", true))
+                typeKey<Map<String, List<Int>>>(Qualifier.test, true),
+                typeKey<Map<String, List<Int>>>(Qualifier.test, true))
     }
 
     @Test
@@ -67,7 +64,7 @@ class TypeKeyTest {
     fun `GenericTypeKey should not be equal to GenericTypeKey from same class but different qualifier`() {
         assertNotSameHashAndEquals(
                 typeKey<Map<String, List<Int>>>(generics = true),
-                typeKey<Map<String, List<Int>>>("test", true))
+                typeKey<Map<String, List<Int>>>(Qualifier.test, true))
     }
 
     @Test
@@ -78,14 +75,14 @@ class TypeKeyTest {
 
     @Test
     fun `TypeKey and GenericTypeKey should not be equal when created from the same class but different qualifier`() {
-        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>("test", true))
-        assertNotSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>("test"))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(Qualifier.test, true))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>(Qualifier.test))
     }
 
     @Test
     fun `TypeKey and GenericTypeKey should be type equal when created from the same class`() {
-        assertTrue(typeKey<TestInterface>(qualifier = Any()).typeEquals(typeKey<TestInterface>(generics = true)))
-        assertTrue(typeKey<TestInterface>(qualifier = Any(), generics = true).typeEquals(typeKey<TestInterface>()))
+        assertTrue(typeKey<TestInterface>(Qualifier.test).typeEquals(typeKey<TestInterface>(generics = true)))
+        assertTrue(typeKey<TestInterface>(Qualifier.test, generics = true).typeEquals(typeKey<TestInterface>()))
     }
 
     private fun assertSameHashAndEquals(left: Any, right: Any) {

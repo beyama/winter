@@ -9,14 +9,12 @@ import kotlin.reflect.full.declaredMemberProperties
  *
  * @param source The instance to retrieve the [property] value from.
  * @param property The [KProperty1] instance.
- * @param override If true this will override an existing service of this type.
  */
 internal fun Component.Builder.property(
     source: Any,
-    property: KProperty1<Any, *>,
-    override: Boolean = false
+    property: KProperty1<Any, *>
 ) {
-    register(PropertyService(property.typeKey, source, property), override)
+    register(PropertyService(property.typeKey, source, property))
 }
 
 /**
@@ -29,7 +27,9 @@ fun Component.Builder.bindAllMocks(source: Any) {
         .declaredMemberProperties
         .filter { it.hasMockAnnotation() }
         .forEach {
-            @Suppress("UNCHECKED_CAST")
-            property(source, it as (KProperty1<Any, *>), true)
+            override {
+                @Suppress("UNCHECKED_CAST")
+                property(source, it as (KProperty1<Any, *>))
+            }
         }
 }

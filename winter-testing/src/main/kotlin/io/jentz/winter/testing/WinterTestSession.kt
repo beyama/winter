@@ -1,9 +1,15 @@
 package io.jentz.winter.testing
 
-import io.jentz.winter.*
+import io.jentz.winter.ClassTypeKey
+import io.jentz.winter.Component
+import io.jentz.winter.ComponentBuilderBlock
+import io.jentz.winter.Graph
+import io.jentz.winter.Qualifier
+import io.jentz.winter.Winter
+import io.jentz.winter.WinterApplication
 import io.jentz.winter.delegate.Injector
-import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.SimplePlugin
+import io.jentz.winter.qualifier
 
 typealias WinterTestSessionBlock = WinterTestSession.Builder.() -> Unit
 
@@ -172,12 +178,17 @@ class WinterTestSession private constructor(
      *
      * @return The requested type or null if not found.
      */
-    fun resolve(type: Class<*>, qualifier: Any? = null): Any =
-        requireTestGraph.instanceByKey(ClassTypeKey(type.kotlin.javaObjectType, qualifier = qualifier))
+    fun resolve(type: Class<*>, qualifier: String? = null): Any {
+        val key = ClassTypeKey(
+            type = type.kotlin.javaObjectType,
+            qualifier = qualifier?.let { qualifier(it) }
+        )
+        return requireTestGraph.instance(key)
+    }
 
     internal enum class AutoCloseMode { NoAutoClose, Graph, GraphAndAncestors, AllGraphs }
 
-    internal class ComponentMatcher(private val qualifier: Any) {
+    internal class ComponentMatcher(private val qualifier: Qualifier) {
 
         fun matches(graph: Graph): Boolean = qualifier == graph.component.qualifier
 
@@ -191,7 +202,7 @@ class WinterTestSession private constructor(
 
         private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
-        private var testGraphComponentMatcher = ComponentMatcher(ApplicationScope::class)
+        private var testGraphComponentMatcher = ComponentMatcher(Qualifier.App)
 
         private var bindAllMocksMatcher: ComponentMatcher? = null
 
@@ -208,7 +219,7 @@ class WinterTestSession private constructor(
          *
          * Default: Uses the application graph.
          */
-        fun testGraph(qualifier: Any) {
+        fun testGraph(qualifier: Qualifier) {
             testGraphComponentMatcher = ComponentMatcher(qualifier)
         }
 
@@ -246,7 +257,7 @@ class WinterTestSession private constructor(
          * @param qualifier The qualifier of the graph component.
          * @param block The block to apply to the graph component builder.
          */
-        fun extend(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock) {
+        fun extend(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock) {
             graphExtenders += ComponentMatcher(qualifier) to block
         }
 
@@ -257,7 +268,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphInitialized(
-            qualifier: Any = ApplicationScope::class,
+            qualifier: Qualifier = Qualifier.App,
             callback: OnGraphInitializedCallback
         ) {
             onGraphInitializedCallbacks += ComponentMatcher(qualifier) to callback
@@ -270,7 +281,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphClose(
-            qualifier: Any = ApplicationScope::class,
+            qualifier: Qualifier = Qualifier.App,
             callback: OnGraphCloseCallback
         ) {
             onGraphCloseCallbacks += ComponentMatcher(qualifier) to callback
@@ -282,7 +293,7 @@ class WinterTestSession private constructor(
          *
          * @param qualifier The qualifier of the graph component.
          */
-        fun bindAllMocks(qualifier: Any = ApplicationScope::class) {
+        fun bindAllMocks(qualifier: Qualifier = Qualifier.App) {
             bindAllMocksMatcher = ComponentMatcher(qualifier)
         }
 

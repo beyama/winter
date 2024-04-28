@@ -10,6 +10,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import io.jentz.winter.androidx.dsl.androidLifecycle
 import io.jentz.winter.graph
+import io.jentz.winter.qualifier
 import org.junit.Test
 
 class AndroidLifecycleTest {
@@ -59,14 +60,14 @@ class AndroidLifecycleTest {
     fun should_unregister_observer_on_close() {
         val graph = graph {
             constant<Lifecycle>(lifecycleOwner.lifecycle)
-            subcomponent("sub") {
+            subcomponent(qualifier("sub")) {
                 singleton { "" }
                     .eager()
                     .androidLifecycle()
             }
         }
 
-        val sub = graph.createSubgraph("sub")
+        val sub = graph.createSubgraph(qualifier("sub"))
         assertThat(lifecycleOwner.observerCount).isEqualTo(1)
         sub.close()
         assertThat(lifecycleOwner.observerCount).isEqualTo(0)

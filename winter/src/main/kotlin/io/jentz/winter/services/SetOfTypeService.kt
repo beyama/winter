@@ -20,6 +20,6 @@ private class BoundSetOfTypeService<T : Any>(
 ) : BoundOfTypeService<T, Set<T>>(graph) {
 
     override fun newInstance(graph: Graph): Set<T> =
-        keys.mapTo(LinkedHashSet(keys.size)) { graph.instanceByKey(it) }
+        keys.mapTo(LinkedHashSet(keys.size)) { graph.instance(it) }
 
 }

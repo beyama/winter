@@ -2,16 +2,17 @@ package io.jentz.winter.services
 
 import io.jentz.winter.Graph
 import io.jentz.winter.Provider
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 @PublishedApi
 internal class MapOfProvidersForTypeService<T : Any>(
-    key: TypeKey<Map<Any, Provider<T>>>,
+    key: TypeKey<Map<Qualifier, Provider<T>>>,
     typeOfKey: TypeKey<T>,
-    val defaultKey: Any
-) : OfTypeService<T, Map<Any, Provider<T>>>(key, typeOfKey) {
+    val defaultKey: Qualifier
+) : OfTypeService<T, Map<Qualifier, Provider<T>>>(key, typeOfKey) {
 
-    override fun bind(graph: Graph): BoundService<Map<Any, Provider<T>>> =
+    override fun bind(graph: Graph): BoundService<Map<Qualifier, Provider<T>>> =
         BoundMapOfProvidersForTypeService(graph, this)
 
 }
@@ -19,13 +20,13 @@ internal class MapOfProvidersForTypeService<T : Any>(
 private class BoundMapOfProvidersForTypeService<T : Any>(
     graph: Graph,
     override val unboundService: MapOfProvidersForTypeService<T>
-) : BoundOfTypeService<T, Map<Any, Provider<T>>>(graph) {
+) : BoundOfTypeService<T, Map<Qualifier, Provider<T>>>(graph) {
 
-    override fun newInstance(graph: Graph): Map<Any, Provider<T>> =
+    override fun newInstance(graph: Graph): Map<Qualifier, Provider<T>> =
         keys.associateByTo(HashMap(keys.size), {
             it.qualifier ?: unboundService.defaultKey
         }, {
-            graph.providerByKey(it)
+            graph.provider(it)
         })
 
 }

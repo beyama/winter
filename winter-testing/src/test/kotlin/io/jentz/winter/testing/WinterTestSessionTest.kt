@@ -1,8 +1,12 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.Graph
+import io.jentz.winter.Qualifier
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.delegate.provideDelegate
+import io.jentz.winter.qualifier
+import io.jentz.winter.testing.WinterTestSession.Companion.session
+import io.jentz.winter.typeKey
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull
@@ -20,10 +24,10 @@ class WinterTestSessionTest {
     private val app =  WinterApplication {
         constant("application")
 
-        subcomponent("sub") {
+        subcomponent(Sub) {
             constant("sub")
 
-            subcomponent("sub sub") {
+            subcomponent(SubSub) {
                 constant("sub sub")
             }
         }
@@ -39,7 +43,7 @@ class WinterTestSessionTest {
         fun `should resolve dependency from test graph`() {
             session {
                 extend {
-                    prototype("test") { "test" }
+                    prototype(typeKey(qualifier("test"))) { "test" }
                 }
             }.test {
                 createAll()
@@ -56,11 +60,11 @@ class WinterTestSessionTest {
         @Test
         fun `#autoCloseTestGraph should close test graph but not parents on #stop`() {
             session {
-                testGraph("sub")
+                testGraph(Sub)
                 autoCloseTestGraph()
             }.apply {
                 start()
-                val graph = createAll("sub")
+                val graph = createAll(Sub)
                 val parent = graph.parent!!
                 stop()
                 graph.isClosed.shouldBeTrue()
@@ -71,11 +75,11 @@ class WinterTestSessionTest {
         @Test
         fun `#autoCloseTestGraphAndAncestors should close test graph and its ancestors on #stop`() {
             session {
-                testGraph("sub")
+                testGraph(Sub)
                 autoCloseTestGraphAndAncestors()
             }.apply {
                 start()
-                val graph = createAll("sub")
+                val graph = createAll(Sub)
                 val parent = graph.parent!!
                 stop()
                 graph.isClosed.shouldBeTrue()
@@ -99,10 +103,10 @@ class WinterTestSessionTest {
         @Test
         fun `should not close test graph on #stop if no auto close is configured`() {
             session {
-                testGraph("sub")
+                testGraph(Sub)
             }.apply {
                 start()
-                val graph = createAll("sub")
+                val graph = createAll(Sub)
                 stop()
                 graph.isClosed.shouldBeFalse()
             }
@@ -117,7 +121,11 @@ class WinterTestSessionTest {
         @Test
         fun `without arguments should extend application graph`() {
             session {
-                extend { prototype(override = true) { "new string" } }
+                extend {
+                    override {
+                        prototype { "new string" }
+                    }
+                }
             }.test {
                 createAll()
                     .instance<String>().shouldBe("new string")
@@ -127,10 +135,14 @@ class WinterTestSessionTest {
         @Test
         fun `should extend graph with component qualifier`() {
             session {
-                extend("sub") { prototype(override = true) { "new string" } }
-                testGraph("sub")
+                extend(Sub) {
+                    override {
+                        prototype { "new string" }
+                    }
+                }
+                testGraph(Sub)
             }.test {
-                createAll("sub")
+                createAll(Sub)
                     .instance<String>().shouldBe("new string")
             }
         }
@@ -170,10 +182,10 @@ class WinterTestSessionTest {
         @Test
         fun `should configure the graph to use`() {
             session {
-                testGraph("sub")
+                testGraph(Sub)
             }.test {
-                createAll("sub", "sub sub")
-                requireTestGraph.component.qualifier.shouldBe("sub")
+                createAll(Sub, SubSub)
+                requireTestGraph.component.qualifier.shouldBe(Sub)
             }
         }
 
@@ -181,9 +193,9 @@ class WinterTestSessionTest {
         fun `should call #inject with test instances on test graph`() {
             session(this) {
                 testInjector = injector
-                testGraph("sub")
+                testGraph(Sub)
             }.test {
-                createAll("sub")
+                createAll(Sub)
                 injectedProperty.shouldBe("sub")
             }
         }
@@ -211,9 +223,9 @@ class WinterTestSessionTest {
         @Test
         fun `with qualifier should bind all mocks on graph with component qualifier`() {
             session(this@WinterTestSessionTest, this) {
-                bindAllMocks("sub")
+                bindAllMocks(Sub)
             }.test {
-                createAll("sub").apply {
+                createAll(Sub).apply {
                     instance<Dependency1>().shouldBeSameInstanceAs(dependency1)
                     instance<Dependency2>().shouldBeSameInstanceAs(dependency2)
                     parent!!.instance<Dependency1?>().shouldBeNull()
@@ -231,12 +243,12 @@ class WinterTestSessionTest {
         fun `with qualifier should get invoked with graph`() {
             var called = false
             session {
-                onGraphInitialized("sub") { graph ->
+                onGraphInitialized(Sub) { graph ->
                     graph.instance<String>().shouldBe("sub")
                     called = true
                 }
             }.test {
-                createAll("sub")
+                createAll(Sub)
                 called.shouldBeTrue()
             }
         }
@@ -252,12 +264,12 @@ class WinterTestSessionTest {
         fun `with qualifier should get invoked with graph`() {
             var called = false
             session {
-                onGraphClose("sub") { graph ->
+                onGraphClose(Sub) { graph ->
                     graph.instance<String>().shouldBe("sub")
                     called = true
                 }
             }.test {
-                createAll("sub").close()
+                createAll(Sub).close()
                 called.shouldBeTrue()
             }
         }
@@ -278,7 +290,7 @@ class WinterTestSessionTest {
         stop()
     }
 
-    private fun createAll(vararg qualifiers: Any): Graph =
+    private fun createAll(vararg qualifiers: Qualifier): Graph =
         qualifiers.fold(app.createGraph()) { parent, qualifier -> parent.createSubgraph(qualifier) }
 
 }

@@ -3,7 +3,8 @@ package io.jentz.winter
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.services.BoundService
 import io.jentz.winter.services.ConstantService
-import io.jentz.winter.services.GraphService
+
+private val QUALIFIER_DERIVED = qualifier("_DERIVED_")
 
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
@@ -112,9 +113,9 @@ class Graph internal constructor(
 
         plugins.forEach { it.graphInitialized(this) }
 
-        instanceByKey(eagerDependenciesKey)?.forEach { key ->
+        instance(eagerDependenciesKey)?.forEach { key ->
             try {
-                instanceByKey(key)
+                instance(key)
             } catch (e: EntryNotFoundException) {
                 throw DependencyResolutionException(
                     key, "Error resolving eager dependency with key `$key`", e
@@ -126,30 +127,28 @@ class Graph internal constructor(
     /**
      * Retrieve an instance of type `R`.
      *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R`
      *
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any?> instance(
-        qualifier: Any? = null,
-        generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
-    ): R = instanceByKey(typeKey(qualifier, generics), block)
+    ): R = instance(typeKey(), block)
 
     /**
-     * Retrieve an instance of type `R` by [key].
+     * Retrieve an instance of type `R`.
      *
-     * @param key The type key of the instance.
+     * @param key The [TypeKey] of the service to resolve.
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return An instance of `R`
      *
-     * @throws EntryNotFoundException If no service was found for a non-optional `R`
+     * @throws EntryNotFoundException
      */
-    fun <R : Any?> instanceByKey(key: TypeKey<R>, block: ComponentBuilderBlock? = null): R {
-        @Suppress("UNCHECKED_CAST")
+    fun <R : Any?> instance(
+        key: TypeKey<R>,
+        block: ComponentBuilderBlock? = null
+    ): R {
         return if (key.isOptional) service(key)?.instance(block) as R
         else service(key)?.instance(block) ?: throw EntryNotFoundException(key)
     }
@@ -157,40 +156,32 @@ class Graph internal constructor(
     /**
      * Retrieves a provider function that returns `R`.
      *
-     * @param qualifier An optional qualifier of the dependency.
-     * @param generics Preserves generic type parameters if set to true (default = false).
-     * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The provider function.
      *
      * @throws EntryNotFoundException
      */
     inline fun <reified R : Any?> provider(
-        qualifier: Any? = null,
-        generics: Boolean = false,
         noinline block: ComponentBuilderBlock? = null
-    ): Provider<R> = providerByKey(typeKey(qualifier, generics), block)
+    ): Provider<R> = provider(typeKey(), block)
 
     /**
-     * Retrieves a non-optional provider function by [key] that returns `R`.
+     * Retrieves a provider function that returns `R`.
      *
-     * @param key The type key of the instance.
-     * @param block An optional builder block to pass runtime dependencies to the factory.
+     * @param key The [TypeKey] of the service to resolve.
      * @return The provider function.
      *
      * @throws EntryNotFoundException
      */
-    fun <R : Any?> providerByKey(
+    fun <R : Any?> provider(
         key: TypeKey<R>,
         block: ComponentBuilderBlock? = null
     ): Provider<R> {
         val service = service(key)
         if (service == null && !key.isOptional)
             throw EntryNotFoundException(key)
-        return {
-            @Suppress("UNCHECKED_CAST")
-            service?.instance(block) as R
-        }
+        return { service?.instance(block) as R }
     }
+
 
     /**
      * Returns a set of all [keys][TypeKey] registered on the backing [Component] and all the
@@ -225,7 +216,7 @@ class Graph internal constructor(
         }
 
     private fun derive(block: ComponentBuilderBlock): Graph = map {
-        Graph(it.application, this, component("_DERIVED_", block), null, null)
+        Graph(it.application, this, component(QUALIFIER_DERIVED, block), null, null)
     }
 
     /**
@@ -243,119 +234,16 @@ class Graph internal constructor(
      * @param block An optional builder block to derive the subcomponent with.
      */
     fun createSubgraph(
-        subcomponentQualifier: Any,
+        subcomponentQualifier: Qualifier,
         block: ComponentBuilderBlock? = null
     ): Graph = synchronizedMap { state ->
-        Graph(state.application, this, instance(subcomponentQualifier), null, block)
-    }
-
-    /**
-     * Initialize and return a subgraph by using the subcomponent with [subcomponentQualifier] and
-     * this graph as parent and register it under the [subcomponentQualifier] or when given under
-     * [identifier].
-     *
-     * The resulting graph gets automatically closed when this graph gets closed.
-     * You can later retrieve the subgraph by calling an instance retrieve method e.g.:
-     * ```
-     * parent.instance<Graph>(identifier)
-     * ```
-     *
-     * @param subcomponentQualifier The qualifier of the subcomponent.
-     * @param identifier An optional identifier to register the subgraph with.
-     * @param block An optional builder block to derive the subcomponent with.
-     */
-    fun openSubgraph(
-        subcomponentQualifier: Any,
-        identifier: Any? = null,
-        block: ComponentBuilderBlock? = null
-    ): Graph = synchronizedMap { state ->
-        val name = identifier ?: subcomponentQualifier
-        val key = typeKey<Graph>(name)
-
-        if (key in state.registry) {
-            throw WinterException(
-                "Cannot open subgraph with identifier `$name` because it is already open."
-            )
-        }
-
-        val graph = Graph(
+        Graph(
             application = state.application,
             parent = this,
-            component = instance(subcomponentQualifier),
-            onCloseCallback = {
-                if (state.isClosing) return@Graph
-                synchronizedFold({}, { state ->
-                    if (!state.isClosing) {
-                        state.registry.remove(key)
-                    }
-                })
-            },
+            component = instance(typeKey(subcomponentQualifier)),
+            onCloseCallback = null,
             block = block
         )
-
-        if (graph.isClosed) return graph
-
-        state.registry[key] = GraphService(key, graph)
-
-        return graph
-    }
-
-    /**
-     * Close a subgraph and remove it from the registry.
-     *
-     * @param identifier The identifier it was opened with.
-     */
-    fun closeSubgraph(identifier: Any) {
-        synchronizedMap { state ->
-            val key = typeKey<Graph>(identifier)
-            val service = state.registry.remove(key) ?: throw WinterException(
-                "Subgraph with identifier `$identifier` doesn't exist."
-            )
-            service.onClose()
-        }
-    }
-
-    /**
-     * Close a subgraph and remove it from the registry if it is open.
-     *
-     * @param identifier The identifier it was opened with.
-     */
-    fun closeSubgraphIfOpen(identifier: Any) {
-        synchronizedMap { it.registry.remove(typeKey<Graph>(identifier))?.onClose() }
-    }
-
-    /**
-     * Get a subgraph by [identifier].
-     *
-     * Alias for `instance<Graph>(identifier)`
-     *
-     * @param identifier The identifier it was opened with.
-     */
-    fun getSubgraph(identifier: Any): Graph = instance(identifier)
-
-    /**
-     * Get an optional subgraph by [identifier].
-     *
-     * Alias for `instanceOrNull<Graph>(identifier)`
-     *
-     * @param identifier The identifier it was opened with.
-     */
-    fun getSubgraphOrNull(identifier: Any): Graph? = instance(identifier)
-
-    /**
-     * Get a subgraph by [identifier] if present or open and return it.
-     *
-     * @param subcomponentQualifier The qualifier of the subcomponent.
-     * @param identifier An optional qualifier for the graph.
-     * @param block An optional builder block to derive the subcomponent with.
-     */
-    fun getOrOpenSubgraph(
-        subcomponentQualifier: Any,
-        identifier: Any? = null,
-        block: ComponentBuilderBlock? = null
-    ): Graph = synchronizedMap {
-        val qualifier = identifier ?: subcomponentQualifier
-        instance<Graph?>(qualifier) ?: openSubgraph(subcomponentQualifier, identifier, block)
     }
 
     /**

@@ -1,5 +1,6 @@
 package io.jentz.winter.junit5
 
+import io.jentz.winter.qualifier
 import io.jentz.winter.testing.WinterTestSession
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext

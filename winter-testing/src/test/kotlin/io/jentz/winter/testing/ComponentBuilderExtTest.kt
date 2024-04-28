@@ -1,6 +1,8 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.graph
+import io.jentz.winter.qualifier
+import io.jentz.winter.typeKey
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.Spy
@@ -34,9 +36,9 @@ class ComponentBuilderExtTest {
     @Test
     fun `#bindAllMocks should provide all Mock or Spy annotated fields`() {
         val graph = graph { bindAllMocks(this@ComponentBuilderExtTest) }
-        graph.instance<String>("mock field").shouldBe("mock field")
-        graph.instance<String>("spy field").shouldBe("spy field")
-        graph.instance<String>("mock property").shouldBe("mock property")
+        graph.instance(typeKey<String>(qualifier("mock field"))).shouldBe("mock field")
+        graph.instance(typeKey<String>(qualifier("spy field"))).shouldBe("spy field")
+        graph.instance(typeKey<String>(qualifier("mock property"))).shouldBe("mock property")
     }
 
 }

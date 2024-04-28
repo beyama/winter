@@ -9,6 +9,7 @@ import assertk.assertions.isSameInstanceAs
 import io.jentz.winter.component
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.graph
+import io.jentz.winter.qualifier
 import io.jentz.winter.typeKey
 import org.junit.jupiter.api.Test
 
@@ -23,7 +24,7 @@ class GraphResolverTest {
         }
         val graph = component.createGraph()
 
-        assertThat(graph.keys()).contains(typeKey<GraphResolver<*>>(qualifier = Target::class))
+        assertThat(graph.keys()).contains(typeKey<GraphResolver<*>>(Target::class.qualifier()))
     }
 
     @Test
@@ -42,11 +43,11 @@ class GraphResolverTest {
     @Test
     fun `Graph#resolveGraph should return result from graph resolver`() {
         val graph = graph {
-            graphResolver<Target> { root, _ -> root.createSubgraph("sub") }
-            subcomponent("sub") {}
+            graphResolver<Target> { root, _ -> root.createSubgraph(qualifier("sub")) }
+            subcomponent(qualifier("sub")) {}
         }
         assertThat(graph.resolveGraph(Target()).component.qualifier)
-            .isEqualTo("sub")
+            .isEqualTo(qualifier("sub"))
     }
 
     @Test

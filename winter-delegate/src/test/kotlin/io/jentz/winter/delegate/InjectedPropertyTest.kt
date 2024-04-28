@@ -3,7 +3,6 @@ package io.jentz.winter.delegate
 import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.WinterException
-import io.jentz.winter.adapter.useApplicationGraphOnlyAdapter
 import io.jentz.winter.component
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.graph
@@ -37,7 +36,6 @@ class InjectedPropertyTest {
     fun beforeEach() {
         atomicInteger.set(0)
         app.closeGraphIfOpen()
-        app.useApplicationGraphOnlyAdapter()
     }
 
     @Nested

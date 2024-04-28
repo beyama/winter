@@ -10,7 +10,7 @@ interface TypeKey<out R> {
 
     val isOptional: Boolean
 
-    val qualifier: Any?
+    val qualifier: Qualifier?
 
     /**
      * Test if [other] has the same type.
@@ -20,10 +20,10 @@ interface TypeKey<out R> {
 
 }
 
-class ClassTypeKey<R> @JvmOverloads constructor(
+class ClassTypeKey<R>(
     val type: Class<R>,
     override val isOptional: Boolean = false,
-    override val qualifier: Any? = null
+    override val qualifier: Qualifier? = null
 ) : TypeKey<R> {
 
     private var _hashCode = 0
@@ -46,13 +46,13 @@ class ClassTypeKey<R> @JvmOverloads constructor(
         return _hashCode
     }
 
-    override fun toString(): String = "ClassTypeKey($type qualifier = $qualifier)"
+    override fun toString(): String = "ClassTypeKey($type, $qualifier)"
 
 }
 
-abstract class GenericClassTypeKey<R> @JvmOverloads constructor(
+abstract class GenericClassTypeKey<R>(
     override val isOptional: Boolean = false,
-    override val qualifier: Any? = null
+    override val qualifier: Qualifier? = null
 ) : TypeKey<R> {
 
     private var _hashCode = 0
@@ -77,6 +77,6 @@ abstract class GenericClassTypeKey<R> @JvmOverloads constructor(
         return _hashCode
     }
 
-    override fun toString(): String = "GenericClassTypeKey($type qualifier = $qualifier)"
+    override fun toString(): String = "GenericClassTypeKey($type, $qualifier)"
 
 }

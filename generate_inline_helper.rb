@@ -25,11 +25,9 @@ proto_of_methods = []
     sig +="noinline constructor: ("
     sig += constructor_parameters.join(", ")
     sig += ") -> R, "
-    sig += "qualifier: Any? = null, "
-    sig += "generics: Boolean = false, "
-    sig += "override: Boolean = false)"
+    sig += "key: TypeKey<R> = typeKey())"
 
-    body = "    singleton(qualifier, generics, override) { new(constructor) }"
+    body = "    singleton(key) { new(constructor) }"
 
     method = sig + " =\n"
     method += body
@@ -42,11 +40,9 @@ proto_of_methods = []
     sig +="noinline constructor: ("
     sig += constructor_parameters.join(", ")
     sig += ") -> R, "
-    sig += "qualifier: Any? = null, "
-    sig += "generics: Boolean = false, "
-    sig += "override: Boolean = false)"
+    sig += "key: TypeKey<R> = typeKey())"
 
-    body = "    prototype(qualifier, generics, override) { new(constructor) }"
+    body = "    prototype(key) { new(constructor) }"
 
     method = sig + " =\n"
     method += body
@@ -74,14 +70,14 @@ single_of = <<-SRC
 package io.jentz.winter.dsl
 
 import io.jentz.winter.Component
+import io.jentz.winter.TypeKey
+import io.jentz.winter.typeKey
 
 /**
 * Register a singleton scoped constructor for an instance of type [R].
 *
 * @param constructor The constructor of type [R].
-* @param qualifier An optional qualifier.
-* @param generics If true this will preserve generic information of [R].
-* @param override If true this will override a existing provider of this type.
+* @param key The [TypeKey] to register this singleton.
 */
 #{single_of_methods.join("\n\n")}
 
@@ -91,14 +87,14 @@ proto_of = <<-SRC
 package io.jentz.winter.dsl
 
 import io.jentz.winter.Component
+import io.jentz.winter.TypeKey
+import io.jentz.winter.typeKey
 
 /**
 * Register a prototype scoped constructor for an instance of type [R].
 *
 * @param constructor The constructor of type [R].
-* @param qualifier An optional qualifier.
-* @param generics If true this will preserve generic information of [R].
-* @param override If true this will override a existing provider of this type.
+* * @param key The [TypeKey] to register this prototype.
 */
 #{proto_of_methods.join("\n\n")}
 

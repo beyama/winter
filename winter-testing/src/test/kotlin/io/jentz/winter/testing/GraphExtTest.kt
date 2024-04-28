@@ -1,6 +1,8 @@
 package io.jentz.winter.testing
 
 import io.jentz.winter.graph
+import io.jentz.winter.qualifier
+import io.jentz.winter.typeKey
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,8 +31,8 @@ class GraphExtTest {
     lateinit var lateinitProperty: String
 
     private val graph = graph {
-        prototype("one") { 1 }
-        prototype("two") { 2 }
+        prototype(typeKey(qualifier("one"))) { 1 }
+        prototype(typeKey(qualifier("two"))) { 2 }
         prototype { "test" }
     }
 

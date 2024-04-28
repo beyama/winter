@@ -1,6 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.inject.ApplicationScope
 import kotlin.reflect.KClass
 
 internal val UNINITIALIZED_VALUE = Any()
@@ -32,7 +31,7 @@ internal typealias OnCloseCallback = (Graph) -> Unit
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>?>("EAGER_DEPENDENCIES")
+internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>?>(qualifier("EAGER_DEPENDENCIES"))
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
@@ -52,7 +51,7 @@ fun emptyGraph(): Graph = Component.EMPTY.createGraph()
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun component(
-    qualifier: Any = ApplicationScope::class,
+    qualifier: Qualifier = Qualifier.App,
     block: ComponentBuilderBlock
 ): Component = Component.Builder(qualifier).apply(block).build()
 
@@ -63,7 +62,7 @@ fun component(
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock): Graph =
+fun graph(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
 
 /**
@@ -74,7 +73,7 @@ fun graph(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock
  *                 account.
  */
 inline fun <reified R : Any?> typeKey(
-    qualifier: Any? = null,
+    qualifier: Qualifier? = null,
     generics: Boolean = false
 ): TypeKey<R> = if (generics) {
     object : GenericClassTypeKey<R>(null is R, qualifier) {}
@@ -82,5 +81,5 @@ inline fun <reified R : Any?> typeKey(
     ClassTypeKey(R::class.java, null is R, qualifier)
 }
 
-inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Any? = null) =
+inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Qualifier? = null) =
     ClassTypeKey(java, false, qualifier)

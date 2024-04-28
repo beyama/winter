@@ -1,20 +1,21 @@
 package io.jentz.winter
 
-import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.*
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.DoNotInclude
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.DoNotIncludeIfAlreadyPresent
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.Merge
+import io.jentz.winter.Component.Builder.SubcomponentIncludeMode.Replace
 import io.jentz.winter.dsl.prototypeOf
 import io.jentz.winter.dsl.singletonOf
-import io.jentz.winter.inject.ApplicationScope
+import io.jentz.winter.services.AliasService
 import io.jentz.winter.services.ConstantService
 import io.jentz.winter.services.MapOfProvidersForTypeService
 import io.jentz.winter.services.MapOfTypeService
+import io.jentz.winter.services.PrototypeService
 import io.jentz.winter.services.SetOfProvidersForTypeService
 import io.jentz.winter.services.SetOfTypeService
-import io.jentz.winter.services.AliasService
-import io.jentz.winter.services.PrototypeService
 import io.jentz.winter.services.SingletonService
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Nested
@@ -30,64 +31,70 @@ class ComponentBuilderTest {
     @Test
     fun `#prototype should register UnboundPrototypeService`() {
         component {
-            prototype("a") { Heater() }
-        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>("a"))
+            prototype { Heater() }
+        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>())
     }
 
     @Test
     fun `#prototypeOf should register UnboundPrototypeService`() {
         component {
-            prototypeOf(::Heater, qualifier = "a")
-        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>("a"))
+            prototypeOf(::Heater)
+        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>())
     }
 
     @Test
     fun `#singleton should register UnboundSingletonService`() {
         component {
-            singleton("b") { Heater() }
-        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>("b"))
+            singleton { Heater() }
+        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>())
     }
 
     @Test
     fun `#singletonOf should register UnboundSingletonService`() {
         component {
-            singletonOf(::Heater, qualifier = "b")
-        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>("b"))
+            singletonOf(::Heater)
+        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>())
     }
 
     @Test
     fun `#constant should register ConstantService`() {
         component {
-            constant(42, "h")
-        }.shouldContainServiceOfType<ConstantService<*>>(typeKey<Int>("h"))
+            constant(42)
+        }.shouldContainServiceOfType<ConstantService<*>>(typeKey<Int>())
     }
 
     @Test
     fun `#setOfType should register SetOfTypeService`() {
         component {
-            setOfType<String>("a")
-        }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>("a",true))
+            setOfType<String>()
+        }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>(generics = true))
     }
 
     @Test
     fun `#setOfProvidersForType should register SetOfProvidersForTypeService`() {
         component {
-            setOfProvidersForType<String>("a")
-        }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(typeKey<Set<Provider<String>>>("a",true))
+            setOfProvidersForType<String>()
+        }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(
+            typeKey<Set<Provider<String>>>(generics = true)
+        )
     }
 
     @Test
     fun `#mapOfType should register MapOfTypeService`() {
         component {
-            mapOfType<String>("a")
-        }.shouldContainServiceOfType<MapOfTypeService<*>>(typeKey<Map<Any, String>>("a",true))
+            mapOfType<String>()
+        }.shouldContainServiceOfType<MapOfTypeService<*>>(
+            typeKey<Map<Qualifier, String>>(generics = true)
+        )
     }
 
     @Test
     fun `#mapOfProvidersForType should register MapOfProvidersForTypeService`() {
         component {
-            mapOfProvidersForType<String>("a")
-        }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(typeKey<Map<Any, Provider<String>>>("a",true))
+            mapOfProvidersForType<String>()
+        }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(
+            typeKey<Map<Qualifier, Provider<String>>>(generics = true)
+        )
     }
 
     @Test
@@ -112,7 +119,9 @@ class ComponentBuilderTest {
         component {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>(), override = true)
+            override {
+                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+            }
         }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
@@ -140,9 +149,11 @@ class ComponentBuilderTest {
     fun `TypeKey#alias extension should override existing entry if override is true`() {
         component {
             singleton<Pump> { Thermosiphon(instance()) }
-            prototype {
-                Thermosiphon(instance())
-            }.alias<Pump>(override = true)
+            override {
+                prototype {
+                    Thermosiphon(instance())
+                }.alias<Pump>()
+            }
         }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
@@ -159,7 +170,7 @@ class ComponentBuilderTest {
     fun `#containsKey should also check parent by default`() {
         component {
             constant(Any())
-            subcomponent("sub") {
+            subcomponent(Qualifier.sub) {
                 containsKey(typeKey<Any>()).shouldBeTrue()
             }
         }
@@ -169,7 +180,7 @@ class ComponentBuilderTest {
     fun `#containsKey should ignore parent if checkParent is false`() {
         component {
             constant(Any())
-            subcomponent("sub") {
+            subcomponent(Qualifier.sub) {
                 containsKey(typeKey<Any>(), checkParent = false).shouldBeFalse()
             }
         }
@@ -179,8 +190,8 @@ class ComponentBuilderTest {
     fun `#register should throw an exception if the same key is registered twice`() {
         shouldThrow<WinterException> {
             component {
-                register(ConstantService(typeKey(), ""), false)
-                register(ConstantService(typeKey(), ""), false)
+                register(ConstantService(typeKey(), ""))
+                register(ConstantService(typeKey(), ""))
             }
         }
     }
@@ -188,14 +199,19 @@ class ComponentBuilderTest {
     @Test
     fun `#register should override key if override is true`() {
         component {
-            register(ConstantService(typeKey(), ""), false)
-            register(ConstantService(typeKey(), ""), true)
+            register(ConstantService(typeKey(), ""))
+            override { register(ConstantService(typeKey(), "")) }
         }.size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'DoNotInclude' should not include subcomponents`() {
-        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
+        val c1 = component {
+            subcomponent(Qualifier.sub) {
+                constant("a")
+            }
+        }
+
         component {
             include(c1, subcomponentIncludeMode = DoNotInclude)
         }.isEmpty().shouldBeTrue()
@@ -203,92 +219,102 @@ class ComponentBuilderTest {
 
     @Test
     fun `#include with subcomponent include mode 'DoNotIncludeIfAlreadyPresent' should not touch existing subcomponents`() {
-        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
-        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
-        val c3 = c1.derive { include(c2, false, DoNotIncludeIfAlreadyPresent) }
+        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
+        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c3 = c1.derive { include(c2, DoNotIncludeIfAlreadyPresent) }
 
-        c3.subcomponent("sub").shouldNotContainService(typeKey<String>("b"))
-        c3.subcomponent("sub").size.shouldBe(1)
+        c3.subcomponent(Qualifier.sub).shouldNotContainService(typeKey<String>(Qualifier.b))
+        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Replace' should replace existing subcomponents`() {
-        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
-        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
-        val c3 = c1.derive { include(c2, false, Replace) }
+        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
+        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c3 = c1.derive { include(c2, Replace) }
 
-        c3.subcomponent("sub").shouldNotContainService(typeKey<String>("a"))
-        c3.subcomponent("sub").size.shouldBe(1)
+        c3.subcomponent(Qualifier.sub).shouldNotContainService(typeKey<String>(Qualifier.a))
+        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should merge existing subcomponents`() {
-        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
-        val c2 = component { subcomponent("sub") { constant("b", qualifier = "b") } }
-        val c3 = c1.derive { include(c2, false, Merge) }
+        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
+        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c3 = c1.derive { include(c2, Merge) }
 
-        c3.subcomponent("sub").shouldContainService(typeKey<String>("a"))
-        c3.subcomponent("sub").shouldContainService(typeKey<String>("b"))
-        c3.subcomponent("sub").size.shouldBe(2)
+        c3.subcomponent(Qualifier.sub).shouldContainService(typeKey<String>(Qualifier.a))
+        c3.subcomponent(Qualifier.sub).shouldContainService(typeKey<String>(Qualifier.b))
+        c3.subcomponent(Qualifier.sub).size.shouldBe(2)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should override existing provider`() {
-        val c1 = component { subcomponent("sub") { constant("a", qualifier = "a") } }
-        val c2 = component { subcomponent("sub") { constant("b", qualifier = "a") } }
-        val c3 = c1.derive { include(c2, false, Merge) }
+        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
+        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.a)) } }
+        val c3 = c1.derive { override { include(c2, Merge) }}
 
-        c3.subcomponent("sub").size.shouldBe(1)
-        (c3.subcomponent("sub")[typeKey<String>("a")] as ConstantService).value.shouldBe("b")
+        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
+        (c3.subcomponent(Qualifier.sub)[typeKey<String>(Qualifier.a)] as ConstantService).value.shouldBe("b")
     }
 
     @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
-            subcomponent("sub") { }
-        }.shouldContainService(typeKey<Component>("sub"))
+            subcomponent(Qualifier.sub) { }
+        }.shouldContainService(typeKey<Component>(Qualifier.sub))
     }
 
     @Test
     fun `#subcomponent should extend existing subcomponent when deriveExisting is true`() {
-        val base = component { subcomponent("sub") { constant("a", "a") } }
-        val derived = base.derive { subcomponent("sub", deriveExisting = true) { constant("b", "b") } }
-        val sub = derived.subcomponent("sub")
+        val base = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
+        val derived = base.derive { subcomponent(Qualifier.sub, deriveExisting = true) { constant("b", typeKey(Qualifier.b)) } }
+        val sub = derived.subcomponent(Qualifier.sub)
 
-        sub.shouldContainService(typeKey<String>("a"))
-        sub.shouldContainService(typeKey<String>("b"))
+        sub.shouldContainService(typeKey<String>(Qualifier.a))
+        sub.shouldContainService(typeKey<String>(Qualifier.b))
     }
 
     @Test
     fun `#subcomponent should replace existing subcomponent when override is true`() {
-        val base = component { subcomponent("sub") { constant("a", "a") } }
-        val derived = base.derive { subcomponent("sub", override = true) { constant("b", "b") } }
-        val sub = derived.subcomponent("sub")
+        val base = component {
+            subcomponent(Qualifier.sub) {
+                constant("a", typeKey(Qualifier.a))
+            }
+        }
+        val derived = base.derive {
+            override {
+                subcomponent(Qualifier.sub) {
+                    constant("b", typeKey(Qualifier.b))
+                }
+            }
+        }
+        val sub = derived.subcomponent(Qualifier.sub)
 
-        sub.shouldNotContainService(typeKey<String>("a"))
-        sub.shouldContainService(typeKey<String>("b"))
+        sub.shouldNotContainService(typeKey<String>(Qualifier.a))
+        sub.shouldContainService(typeKey<String>(Qualifier.b))
     }
 
     @Test
     fun `#subcomponent should throw an exception when deriveExisting and override is true`() {
-        val base = component { subcomponent("sub") {} }
+        val base = component { subcomponent(Qualifier.sub) {} }
         shouldThrow<WinterException> {
-            base.derive { subcomponent("sub", deriveExisting = true, override = true) {} }
+            base.derive { override { subcomponent(Qualifier.sub, true) {} } }
         }
     }
 
     @Test
     fun `#subcomponent should throw an exception when subcomponent qualifier is not unique`() {
         shouldThrow<WinterException> {
-            component { subcomponent(ApplicationScope::class) {} }
-        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `class io.jentz.winter.inject.ApplicationScope` is roots component qualifier).")
+            component { subcomponent(Qualifier.App) {} }
+        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `qualifier(app)` is roots component qualifier).")
     }
 
     @Test
     fun `#subcomponent should set qualifier to resulting subcomponent`() {
         component {
-            subcomponent("sub") {}
-        }.subcomponent("sub").qualifier.shouldBe("sub")
+            subcomponent(Qualifier.sub) {}
+        }.subcomponent(Qualifier.sub).qualifier.shouldBe(Qualifier.sub)
     }
 
     @Test
@@ -324,25 +350,25 @@ class ComponentBuilderTest {
         fun `should validate that component qualifiers are unique in component tree`() {
             shouldThrow<WinterException> {
                 component {
-                    subcomponent("sub") {
-                        subcomponent(ApplicationScope::class) {}
+                    subcomponent(Qualifier.sub) {
+                        subcomponent(Qualifier.App) {}
                     }
                 }
-            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${ApplicationScope::class}` is roots component qualifier).")
+            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${Qualifier.App}` is roots component qualifier).")
 
             val c = component {
-                subcomponent("sub") {
-                    subcomponent("sub sub") {}
+                subcomponent(Qualifier.a) {
+                    subcomponent(Qualifier.b) {}
                 }
             }
 
             val c2 = component {
-                subcomponent("sub sub") {}
+                subcomponent(Qualifier.b) {}
             }
 
             shouldThrow<WinterException> {
                 c.derive { include(c2) }
-            }.message.shouldBe("Subcomponent with qualifier `sub sub` already exists.")
+            }.message.shouldBe("Subcomponent with qualifier `qualifier(b)` already exists.")
         }
 
     }

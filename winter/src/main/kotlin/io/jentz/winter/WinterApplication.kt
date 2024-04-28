@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.WinterApplication.InjectionAdapter
-import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.Plugins
 
 /**
@@ -74,7 +72,7 @@ open class WinterApplication() {
      * @param block The component builder block.
      */
     constructor(
-        qualifier: Any = ApplicationScope::class,
+        qualifier: Qualifier = Qualifier.App,
         block: ComponentBuilderBlock
     ) : this() {
         component(qualifier, block)
@@ -112,21 +110,6 @@ open class WinterApplication() {
         }
 
     /**
-     * The application injection adapter.
-     */
-    var injectionAdapter: InjectionAdapter? = null
-        set(value) {
-            synchronized(this) {
-                if (graphOrNull != null) {
-                    throw WinterException(
-                        "Cannot set injection adapter because application graph is already open."
-                    )
-                }
-                field = value
-            }
-        }
-
-    /**
      * The plugins registered on the application.
      */
     var plugins: Plugins = Plugins.EMPTY
@@ -138,7 +121,7 @@ open class WinterApplication() {
      * @param qualifier The qualifier for the new component.
      * @param block The component builder block.
      */
-    fun component(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock) {
+    fun component(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock) {
         this.component = io.jentz.winter.component(qualifier, block)
     }
 
@@ -206,38 +189,5 @@ open class WinterApplication() {
         },
         block = block
     ).also { graphOrNull = it }
-
-    /**
-     * TODO: Replace with a better solution
-     * Inject dependencies into [instance] by using the dependency graph returned from
-     * [InjectionAdapter.get] called with [instance].
-     *
-     * @param instance The instance to retrieve the dependency graph for and inject dependencies
-     *                 into.
-     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
-     */
-    fun inject(instance: Any): Graph {
-        val adapter = injectionAdapter ?: throw WinterException(
-            "No injection adapter configured."
-        )
-        return adapter.get(instance) ?: throw WinterException(
-            "No graph found for instance `$instance`."
-        )
-    }
-
-    /**
-     * Adapter interface to provide application specific graph creation and retrieval strategy.
-     */
-    interface InjectionAdapter {
-
-        /**
-         * Get dependency graph for [instance].
-         *
-         * @param instance The instance to get the graph for.
-         * @return The graph for [instance] or null when instance type is not supported.
-         */
-        fun get(instance: Any): Graph?
-
-    }
 
 }

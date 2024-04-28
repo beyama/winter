@@ -21,6 +21,6 @@ private class BoundSetOfProvidersForTypeService<T : Any>(
 ) : BoundOfTypeService<T, Set<Provider<T>>>(graph) {
 
     override fun newInstance(graph: Graph): Set<Provider<T>> =
-        keys.mapTo(LinkedHashSet(keys.size)) { graph.providerByKey(it) }
+        keys.mapTo(LinkedHashSet(keys.size)) { graph.provider(it) }
 
 }

@@ -167,7 +167,7 @@ internal class InstanceProperty<R : Any?>(
 ) : AbstractEagerProperty<R, R>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): R =
-        graph.instanceByKey(key, block)
+        graph.instance(key, block)
 
 }
 
@@ -198,6 +198,6 @@ internal class ProviderProperty<R : Any>(
 ) : AbstractEagerProperty<R, Provider<R>>(key) {
 
     override fun getValue(graph: Graph, key: TypeKey<R>): Provider<R> =
-        graph.providerByKey(key, block)
+        graph.provider(key, block)
 
 }
