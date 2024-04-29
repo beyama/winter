@@ -105,15 +105,6 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#alias should return the target type key`() {
-        component {
-            prototype { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-                .shouldBe(typeKey<Thermosiphon>())
-        }
-    }
-
-    @Test
     fun `#alias should override existing entry if override is true`() {
         component {
             prototype { Thermosiphon(instance()) }
@@ -136,24 +127,33 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `TypeKey#alias extension should register alias`() {
+    fun `UnboundService#alias extension should register alias`() {
         component {
             prototype {
                 Thermosiphon(instance())
-            }.alias<Pump>()
+            }.alias(typeKey<Pump>())
         }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
     }
 
     @Test
-    fun `TypeKey#alias extension should override existing entry if override is true`() {
+    fun `UnboundService#alias extension should override existing entry if override is true`() {
         component {
             singleton<Pump> { Thermosiphon(instance()) }
             override {
                 prototype {
                     Thermosiphon(instance())
-                }.alias<Pump>()
+                }.alias(typeKey<Pump>())
             }
         }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+    }
+
+    @Test
+    fun `UnboundService#alias extension with class argument should register alias`() {
+        component {
+            prototype {
+                Thermosiphon(instance())
+            }.alias(Pump::class, QualifierTest)
+        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>(QualifierTest))
     }
 
     @Test

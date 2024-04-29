@@ -343,9 +343,8 @@ class Component private constructor(
         fun <R0 : Any?, R1 : Any?> alias(
             targetKey: TypeKey<R0>,
             newKey: TypeKey<R1>,
-        ): TypeKey<R0> {
+        ) {
             register(AliasService(targetKey, newKey))
-            return targetKey
         }
 
         /**
@@ -361,17 +360,31 @@ class Component private constructor(
          * ```
          * @param key The [TypeKey] of the alias.
          */
-        inline fun <reified R : Any?> UnboundService<*>.alias(
-            key: TypeKey<R> = typeKey()
-        ): TypeKey<*> = alias(this.key, key)
-
-        inline fun <reified R : Any, T> UnboundService<T>.alias(
-            kClass: KClass<R>,
-            qualifier: Qualifier? = null
-        ): UnboundService<T> {
-            alias(this.key, kClass.typeKey(qualifier))
+        fun <R: Any?, A: Any?, S: UnboundService<R>> S.alias(
+            key: TypeKey<A>
+        ): S {
+            alias(this.key, key)
             return this
         }
+
+        /**
+         * Create an alias entry for the [UnboundService].
+         *
+         * Be careful, this method will not check if a type cast is possible.
+         *
+         * Example:
+         * ```
+         * singleton {
+         *   ReposViewModelImpl(instance())
+         * }.alias(::ReposViewModel)
+         * ```
+         * @param kClass The [KClass] of the alias.
+         * @param qualifier The optional [Qualifier] for the alias.
+         */
+        inline fun <R: Any?, reified A: Any, S: UnboundService<R>> S.alias(
+            kClass: KClass<A>,
+            qualifier: Qualifier? = null
+        ): S = alias(kClass.typeKey(qualifier))
 
         /**
          * Marks a singleton as eager which will instantiate the singleton when the graph opens.
@@ -433,7 +446,7 @@ class Component private constructor(
          *
          * Don't use that except if you add your own [UnboundService] implementations.
          */
-        fun <S: UnboundService<*>> register(service: S): S {
+        fun <R: Any?, S: UnboundService<R>> register(service: S): S {
             val key = service.key
             val alreadyExists = registry.containsKey(key)
 

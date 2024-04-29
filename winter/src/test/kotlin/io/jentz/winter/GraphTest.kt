@@ -274,7 +274,7 @@ class GraphTest {
             val graph = graph {
                 singleton { "foo" }
                     .onClose { closed += 1 }
-                    .alias<CharSequence>()
+                    .alias(typeKey<CharSequence>())
             }
             graph.instance<CharSequence>()
             graph.close()
@@ -758,7 +758,7 @@ class GraphTest {
             val graph = graph {
                 singletonOf(::Heater)
                 singletonOf(::Thermosiphon)
-                    .alias<Pump>()
+                    .alias(Pump::class)
             }
             val coffeeMaker = graph.new(::CoffeeMaker)
             coffeeMaker.heater.shouldBeSameInstanceAs(graph.instance<Heater>())
