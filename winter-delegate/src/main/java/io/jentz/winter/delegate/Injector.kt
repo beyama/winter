@@ -20,12 +20,14 @@ class Injector internal constructor(
     /**
      * Creates a property delegate for an instance of type `R`.
      *
+     * @param key The [TypeKey] of the service to resolve
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
-    inline fun <reified R : Any> instance(
+    inline operator fun <reified R : Any> invoke(
+        key: TypeKey<R> = typeKey(),
         noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<R> = instance(typeKey(), block)
+    ) = instance(key, block)
 
     /**
      * Creates a property delegate for an instance of type `R`.
@@ -34,31 +36,22 @@ class Injector internal constructor(
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
-    fun <R : Any> instance(
-        key: TypeKey<R>,
-        block: ComponentBuilderBlock? = null
+    inline fun <reified R : Any> instance(
+        key: TypeKey<R> = typeKey(),
+        noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = InstanceProperty(key, block)
         .also { properties.add(it) }
 
     /**
      * Creates a property delegate for a [Provider] of type `() -> R`.
      *
+     * @param key The [TypeKey] of the service to resolve
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> provider(
+        key: TypeKey<R> = typeKey(),
         noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<Provider<R>> = provider(typeKey(), block)
-
-    /**
-     * Creates a property delegate for a [Provider] of type `() -> R`.
-     *
-     * @param key The [TypeKey] of the service to resolve
-     * @return The created [InjectedProperty].
-     */
-    fun <R : Any> provider(
-        key: TypeKey<R>,
-        block: ComponentBuilderBlock? = null
     ): InjectedProperty<Provider<R>> = ProviderProperty(key, block)
         .also { properties.add(it) }
 
@@ -67,25 +60,13 @@ class Injector internal constructor(
      *
      * The instance gets retrieved/created on first property access.
      *
-     * @param block An optional builder block to pass runtime dependencies to the factory.
-     * @return The created [InjectedProperty].
-     */
-    inline fun <reified R : Any> lazyInstance(
-        noinline block: ComponentBuilderBlock? = null
-    ): InjectedProperty<R> = lazyInstance(typeKey(), block)
-
-    /**
-     * Creates a lazy property delegate for an instance of type `R`.
-     *
-     * The instance gets retrieved/created on first property access.
-     *
      * @param key The [TypeKey] of the service to resolve
      * @param block An optional builder block to pass runtime dependencies to the factory.
      * @return The created [InjectedProperty].
      */
-    fun <R : Any> lazyInstance(
-        key: TypeKey<R>,
-        block: ComponentBuilderBlock? = null
+    inline fun <reified R : Any> lazyInstance(
+        key: TypeKey<R> = typeKey(),
+        noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = LazyInstanceProperty(key, block)
         .also { properties.add(it) }
 

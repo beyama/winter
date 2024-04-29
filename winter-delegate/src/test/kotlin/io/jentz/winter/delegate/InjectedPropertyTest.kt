@@ -271,7 +271,7 @@ class InjectedPropertyTest {
     private class InjectedPropertiesClass(app: WinterApplication) {
 
         private val injector by app
-        val property: String by injector.instance()
+        val property: String by injector()
 
         init {
             injector.inject()
