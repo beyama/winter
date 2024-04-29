@@ -77,7 +77,7 @@ class Component private constructor(
             val key = typeKey<Component>(qualifier)
             val constant = component.registry[key] as? ConstantService<*>
             if (constant == null) {
-                val path = qualifiers.joinToString(".")
+                val path = qualifiers.joinToString(".") { it.value }
                 throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
             }
             constant.value as Component

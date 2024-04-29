@@ -4,11 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "io.jentz.winter.androidx.lifecycle"
+    namespace = "io.jentz.winter.androidx"
 }
 
 dependencies {
     api(project(":winter"))
+    api(project(":winter-delegate"))
+
     implementation(libs.androidx.activity)
     implementation(libs.androidx.lifecycle.process)
 

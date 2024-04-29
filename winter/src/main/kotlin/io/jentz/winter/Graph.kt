@@ -240,7 +240,7 @@ class Graph internal constructor(
         Graph(
             application = state.application,
             parent = this,
-            component = instance(typeKey(subcomponentQualifier)),
+            component = component.subcomponent(subcomponentQualifier),
             onCloseCallback = null,
             block = block
         )

@@ -12,6 +12,7 @@ import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldFail
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
@@ -532,7 +534,13 @@ class GraphTest {
     @DisplayName("initialization")
     inner class Initialisation {
 
-        val component = component { subcomponent(Qualifier.test) {} }
+        val component = component {
+            subcomponent(Qualifier.a) {
+                subcomponent(Qualifier.b) {
+                    subcomponent(Qualifier.c) {}
+                }
+            }
+        }
 
         @Test
         fun `should initialize graph with given component`() {
@@ -567,15 +575,34 @@ class GraphTest {
 
         @Test
         fun `#createSubgraph should derive component when builder block is given`() {
-            val graph = component.createGraph().createSubgraph(Qualifier.test) { constant(42) }
+            val graph = component.createGraph().createSubgraph(Qualifier.a) { constant(42) }
             graph.instance<Int>().shouldBe(42)
+        }
+
+        @Test
+        fun `#createSubgraph should create subgraph from a derived component`() {
+            component.createGraph()
+                .createSubgraph(Qualifier.a) { constant(42) }
+                .createSubgraph(Qualifier.b)
+                .instance<Int>()
+                .shouldBe(42)
+        }
+
+        @Test
+        fun `#createSubgraph should not create subgraph from ancestor components`() {
+            shouldThrow<EntryNotFoundException> {
+                component.createGraph()
+                    .createSubgraph(Qualifier.a)
+                    .createSubgraph(Qualifier.b)
+                    .createSubgraph(Qualifier.a)
+            }.message.shouldBe("Subcomponent with path [a] doesn't exist.")
         }
 
         @Test
         fun `#createSubgraph should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
             component.createGraph(testApp)
-                .createSubgraph(Qualifier.test)
+                .createSubgraph(Qualifier.a)
                 .application.shouldBeSameInstanceAs(testApp)
         }
 
