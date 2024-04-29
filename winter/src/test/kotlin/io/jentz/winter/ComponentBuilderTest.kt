@@ -304,13 +304,6 @@ class ComponentBuilderTest {
     }
 
     @Test
-    fun `#subcomponent should throw an exception when subcomponent qualifier is not unique`() {
-        shouldThrow<WinterException> {
-            component { subcomponent(Qualifier.App) {} }
-        }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `qualifier(app)` is roots component qualifier).")
-    }
-
-    @Test
     fun `#subcomponent should set qualifier to resulting subcomponent`() {
         component {
             subcomponent(Qualifier.sub) {}
@@ -341,36 +334,6 @@ class ComponentBuilderTest {
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
         c.size.shouldBe(2)
         c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
-    }
-
-    @Nested
-    inner class Validation {
-
-        @Test
-        fun `should validate that component qualifiers are unique in component tree`() {
-            shouldThrow<WinterException> {
-                component {
-                    subcomponent(Qualifier.sub) {
-                        subcomponent(Qualifier.App) {}
-                    }
-                }
-            }.message.shouldBe("Subcomponent must have unique qualifier (qualifier `${Qualifier.App}` is roots component qualifier).")
-
-            val c = component {
-                subcomponent(Qualifier.a) {
-                    subcomponent(Qualifier.b) {}
-                }
-            }
-
-            val c2 = component {
-                subcomponent(Qualifier.b) {}
-            }
-
-            shouldThrow<WinterException> {
-                c.derive { include(c2) }
-            }.message.shouldBe("Subcomponent with qualifier `qualifier(b)` already exists.")
-        }
-
     }
 
 }

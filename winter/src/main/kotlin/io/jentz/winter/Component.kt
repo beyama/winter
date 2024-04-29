@@ -40,12 +40,10 @@ class Component private constructor(
     val qualifier: Qualifier,
 
     private val registry: Map<TypeKey<*>, UnboundService<*>>,
-
-    private val subcomponentKeys: Set<TypeKey<Component>>
 ) {
 
     companion object {
-        val EMPTY = Component(Qualifier.App, emptyMap(), emptySet())
+        val EMPTY = Component(Qualifier.App, emptyMap())
     }
 
     /**
@@ -151,8 +149,6 @@ class Component private constructor(
 
         private var _registry: MutableMap<TypeKey<*>, UnboundService<*>>? = null
 
-        private var _subcomponentKeys: MutableSet<TypeKey<Component>>? = null
-
         private var _eagerDependencies: MutableSet<TypeKey<Any>>? = null
 
         private var _subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>? = null
@@ -162,10 +158,6 @@ class Component private constructor(
 
         private val registry: MutableMap<TypeKey<*>, UnboundService<*>>
             get() = _registry ?: HashMap(base.registry).also { _registry = it }
-
-        private val subcomponentKeys: MutableSet<TypeKey<Component>>
-            get() = _subcomponentKeys
-                ?: HashSet(base.subcomponentKeys).also { _subcomponentKeys = it }
 
         private val eagerDependencies: MutableSet<TypeKey<Any>>
             get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
@@ -469,7 +461,6 @@ class Component private constructor(
             if (!silent && !wasRemoved) {
                 throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
             }
-            subcomponentKeys.remove(key)
             eagerDependencies.remove(key)
         }
 
@@ -492,7 +483,6 @@ class Component private constructor(
                     if (!registry.containsKey(key)
                         && (_subcomponentBuilders == null
                                 || !subcomponentBuilders.containsKey(key))) {
-                        addSubcomponentKey(key)
                         registry[key] = entry
                     }
                 }
@@ -516,80 +506,9 @@ class Component private constructor(
             return subcomponentBuilders.getOrPut(key) {
                 val constant = registry.remove(key) as? ConstantService<*>
                 val existingSubcomponent = constant?.value as? Component
-
-                if (existingSubcomponent == null) {
-                    addSubcomponentKey(key)
-                }
-
                 val base = existingSubcomponent ?: EMPTY
 
                 Builder(key.requireQualifier, base, this)
-            }
-        }
-
-        private fun addSubcomponentKey(key: TypeKey<Component>) {
-            if (root.qualifier == key.requireQualifier) {
-                throw WinterException(
-                    "Subcomponent must have unique qualifier (qualifier `${root.qualifier}` " +
-                            "is roots component qualifier)."
-                )
-            }
-
-            root.checkDescendantsForUniquenessOfKey(key)
-
-            subcomponentKeys.add(key)
-        }
-
-        private fun checkDescendantsForUniquenessOfKey(key: TypeKey<Component>) {
-            val keys = _subcomponentKeys ?: base.subcomponentKeys
-            val registry = _registry ?: base.registry
-
-            for (subcomponentKey in keys) {
-
-                @Suppress("UNCHECKED_CAST")
-                val service = registry[subcomponentKey] as? ConstantService<Component>
-
-                if (service != null) {
-                    checkDescendantsForUniquenessOfKey(key, service.value)
-                } else {
-                    val builder = subcomponentBuilders[subcomponentKey] ?: throw WinterException(
-                        "BUG: Key `$subcomponentKey` found in subcomponentKeys but component does not exist."
-                    )
-
-                    val subcomponentKeys = builder._subcomponentKeys
-                        ?: builder.base.subcomponentKeys
-
-                    if (builder.qualifier == key.qualifier || key in subcomponentKeys) {
-                        throw WinterException(
-                            "Subcomponent with qualifier `${key.qualifier}` already exists."
-                        )
-                    }
-
-                    builder.checkDescendantsForUniquenessOfKey(key)
-                }
-
-            }
-        }
-
-        private fun checkDescendantsForUniquenessOfKey(
-            key: TypeKey<Component>,
-            component: Component
-        ) {
-            if (component.qualifier == key.qualifier || key in component.subcomponentKeys) {
-                throw WinterException(
-                    "Subcomponent with qualifier `${key.qualifier}` already exists."
-                )
-            }
-
-            for (subcomponentKey in component.subcomponentKeys) {
-                @Suppress("UNCHECKED_CAST")
-                val service = component.registry[key] as? ConstantService<Component>
-                    ?: throw WinterException(
-                        "BUG: Key `$key` found in subcomponentKeys of " +
-                                "component `${component.qualifier}` but component does not exist."
-                    )
-
-                checkDescendantsForUniquenessOfKey(key, service.value)
             }
         }
 
@@ -598,7 +517,7 @@ class Component private constructor(
                 return if (base.qualifier == qualifier) {
                     base
                 } else {
-                    Component(qualifier, base.registry, base.subcomponentKeys)
+                    Component(qualifier, base.registry)
                 }
             }
 
@@ -616,13 +535,8 @@ class Component private constructor(
 
             _eagerDependencies = null
 
-            return Component(
-                qualifier = qualifier,
-                registry = registry,
-                subcomponentKeys = _subcomponentKeys ?: base.subcomponentKeys
-            ).also {
+            return Component(qualifier, registry).also {
                 _registry = null
-                _subcomponentKeys = null
                 base = it
             }
         }
