@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.jentz.winter.dsl.subcomponent
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
@@ -17,7 +18,7 @@ class ComponentTest {
 
     @Test
     fun `#component should create component with default qualifier`() {
-        testComponent.qualifier.shouldBe(Qualifier.App)
+        testComponent.qualifier.shouldBe(ApplicationScope)
     }
 
     @Test
@@ -53,27 +54,27 @@ class ComponentTest {
     @Test
     fun `#subcomponent should throw an exception if entry doesn't exist`() {
         shouldThrow<EntryNotFoundException> {
-            component {}.subcomponent(Qualifier.a)
+            component {}.subcomponent(QualifierA)
         }
     }
 
     @Test
     fun `#subcomponent with one qualifier should return the corresponding subcomponent`() {
         component {
-            subcomponent(Qualifier.a) {}
-            subcomponent(Qualifier.b) {}
-        }.subcomponent(Qualifier.b).qualifier.shouldBe(Qualifier.b)
+            subcomponent(QualifierA) {}
+            subcomponent(QualifierB) {}
+        }.subcomponent(QualifierB).qualifier.shouldBe(QualifierB)
     }
 
     @Test
     fun `#subcomponent with multiple qualifiers should return the corresponding nested subcomponent`() {
         component {
-            subcomponent(Qualifier.a) {
-                subcomponent(Qualifier.b) {
-                    subcomponent(Qualifier.c) {}
+            subcomponent(QualifierA) {
+                subcomponent(QualifierB) {
+                    subcomponent(QualifierC) {}
                 }
             }
-        }.subcomponent(Qualifier.a, Qualifier.b, Qualifier.c).qualifier.shouldBe(Qualifier.c)
+        }.subcomponent(listOf(QualifierA, QualifierB, QualifierC)).qualifier.shouldBe(QualifierC)
     }
 
     @Test
@@ -92,7 +93,7 @@ class ComponentTest {
     fun `#createGraph with builder block should return graph with derived component`() {
         val c = component { }
         val graph = c.createGraph { constant(42) }
-        graph.component.qualifier.shouldBe(Qualifier.App)
+        graph.component.qualifier.shouldBe(ApplicationScope)
         graph.component.shouldNotBeSameInstanceAs(c)
     }
 

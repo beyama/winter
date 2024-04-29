@@ -2,7 +2,7 @@ package io.jentz.winter.plugin
 
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Qualifier
 
 /**
  * The interface for Winter plugins.
@@ -35,9 +35,9 @@ interface Plugin {
      * This is called whenever a new instance was created.
      *
      * @param graph The [Graph] the instance was created in.
-     * @param scope The [Scope] of the instance.
+     * @param scope The [Qualifier] of service scope (e.g. Singleton/Prototype).
      * @param instance The instance that was created.
      */
-    fun postConstruct(graph: Graph, scope: Scope, instance: Any)
+    fun postConstruct(graph: Graph, scope: Qualifier, instance: Any)
 
 }

@@ -2,11 +2,8 @@ package io.jentz.winter
 
 import kotlin.reflect.KClass
 
-data class Qualifier(val value: String) {
-    companion object {
-        val App = qualifier("app")
-    }
-
+@JvmInline
+value class Qualifier(val value: String) {
     init {
         require(value.isNotBlank()) { "Qualifier value must not be blank" }
     }

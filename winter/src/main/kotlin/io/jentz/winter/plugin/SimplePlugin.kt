@@ -2,7 +2,7 @@ package io.jentz.winter.plugin
 
 import io.jentz.winter.Component
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Qualifier
 
 /**
  * Empty implementation of [Plugin].
@@ -18,7 +18,7 @@ open class SimplePlugin : Plugin {
     override fun graphClose(graph: Graph) {
     }
 
-    override fun postConstruct(graph: Graph, scope: Scope, instance: Any) {
+    override fun postConstruct(graph: Graph, scope: Qualifier, instance: Any) {
     }
 
 }

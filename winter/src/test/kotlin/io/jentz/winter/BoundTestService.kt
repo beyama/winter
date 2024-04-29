@@ -16,7 +16,7 @@ internal class BoundTestService(
     override val unboundService: UnboundService<String>
         get() = this
 
-    override val scope: Scope get() = Scope.Prototype
+    override val scope: Qualifier get() = Prototype
 
     override val requiresPostConstructCallback: Boolean
         get() = true

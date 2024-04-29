@@ -1,13 +1,14 @@
 package io.jentz.winter.services
 
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 /**
- * Interface for service entries registered in a [Component].
+ * Interface for service entries registered in a [io.jentz.winter.Component].
  *
- * Custom implementations can be added to a [Component] by using [Component.Builder.register].
+ * Custom implementations can be added to a [io.jentz.winter.Component] by using
+ * [io.jentz.winter.Component.Builder.register].
  */
 interface UnboundService<R : Any?> {
     /**
@@ -16,9 +17,9 @@ interface UnboundService<R : Any?> {
     val key: TypeKey<R>
 
     /**
-     * A scope that is unique for this type of service e.g. Scope("myCustomScope").
+     * A scope that is unique for this type of service e.g. Prototype/Singleton.
      */
-    val scope: Scope
+    val scope: Qualifier
 
     /**
      * Return true if the bound service requires a call to [BoundService.onPostConstruct]

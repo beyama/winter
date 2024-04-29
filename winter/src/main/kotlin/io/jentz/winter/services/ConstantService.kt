@@ -2,7 +2,8 @@ package io.jentz.winter.services
 
 import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Prototype
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 class ConstantService<R : Any?>(
@@ -16,7 +17,7 @@ class ConstantService<R : Any?>(
     override val requiresPostConstructCallback: Boolean
         get() = false
 
-    override val scope: Scope get() = Scope.Prototype
+    override val scope: Qualifier get() = Prototype
 
     override fun bind(graph: Graph): BoundService<R> = this
 

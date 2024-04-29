@@ -43,7 +43,7 @@ class Component private constructor(
 ) {
 
     companion object {
-        val EMPTY = Component(Qualifier.App, emptyMap())
+        val EMPTY = Component(ApplicationScope, emptyMap())
     }
 
     /**
@@ -60,26 +60,21 @@ class Component private constructor(
     ) = Builder(qualifier, this).apply(block).build()
 
     /**
-     * Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.
+     * Returns a subcomponent by its qualifier.
      *
-     * Main usage for this is to restructure components when using [Builder.include]
-     * in conjunction with [Builder.SubcomponentIncludeMode.DoNotInclude].
+     * Main usage for this is to restructure components when using [Builder.include].
      *
-     * @param qualifiers The qualifier/path of qualifiers of the subcomponent
+     * @param qualifier The qualifier of the subcomponent
      * @return The subcomponent
      *
      * @throws EntryNotFoundException If the component does not exist.
      */
-    fun subcomponent(vararg qualifiers: Qualifier): Component =
-        qualifiers.fold(this) { component, qualifier ->
-            val key = typeKey<Component>(qualifier)
-            val constant = component.registry[key] as? ConstantService<*>
-            if (constant == null) {
-                val path = qualifiers.joinToString(".") { it.value }
-                throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
-            }
-            constant.value as Component
-        }
+    fun subcomponent(qualifier: Qualifier): Component {
+        val key = typeKey<Component>(qualifier)
+        val constant = registry[key] as? ConstantService<*>
+            ?: throw EntryNotFoundException(key, "Subcomponent `$qualifier` doesn't exist.")
+        return constant.value as Component
+    }
 
     /**
      * Create a [object graph][Graph] from this component.

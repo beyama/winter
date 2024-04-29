@@ -2,7 +2,7 @@ package io.jentz.winter.services
 
 import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 /**
@@ -23,9 +23,9 @@ abstract class BoundService<R : Any?> {
     open val key: TypeKey<R> get() = unboundService.key
 
     /**
-     * A scope that is unique for this type of service e.g. Scope("myCustomScope").
+     * A scope that is unique for this type of service e.g. Prototype/Singleton.
      */
-    open val scope: Scope get() = unboundService.scope
+    open val scope: Qualifier get() = unboundService.scope
 
     /**
      * Return true if the bound service requires a call to [BoundService.onPostConstruct]

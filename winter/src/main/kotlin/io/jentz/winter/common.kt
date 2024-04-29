@@ -51,7 +51,7 @@ fun emptyGraph(): Graph = Component.EMPTY.createGraph()
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun component(
-    qualifier: Qualifier = Qualifier.App,
+    qualifier: Qualifier = ApplicationScope,
     block: ComponentBuilderBlock
 ): Component = Component.Builder(qualifier).apply(block).build()
 
@@ -62,7 +62,7 @@ fun component(
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock): Graph =
+fun graph(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
 
 /**

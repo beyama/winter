@@ -4,8 +4,8 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import io.jentz.winter.ApplicationScope
 import io.jentz.winter.Component
-import io.jentz.winter.androidx.ApplicationScope
 import io.jentz.winter.typeKey
 
 inline fun <reified A: Application> Component.Builder.application(application: A) {

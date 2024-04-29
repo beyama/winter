@@ -18,7 +18,7 @@ class TypeKeyTest {
 
     @Test
     fun `TypeKey should be equal to TypeKey from same class with same qualifier`() {
-        assertSameHashAndEquals(typeKey<TestInterface>(Qualifier.test), typeKey<TestInterface>(Qualifier.test))
+        assertSameHashAndEquals(typeKey<TestInterface>(QualifierTest), typeKey<TestInterface>(QualifierTest))
     }
 
     @Test
@@ -28,12 +28,12 @@ class TypeKeyTest {
 
     @Test
     fun `TypeKey should not be equal to TypeKey from same class but with different qualifier`() {
-        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(Qualifier.test))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(QualifierTest))
     }
 
     @Test
     fun `TypeKey should be type equal to TypeKey from same class`() {
-        assertTrue(typeKey<TestInterface>().typeEquals(typeKey<TestInterface>(Qualifier.test)))
+        assertTrue(typeKey<TestInterface>().typeEquals(typeKey<TestInterface>(QualifierTest)))
     }
 
     @Test
@@ -49,8 +49,8 @@ class TypeKeyTest {
     @Test
     fun `GenericTypeKey should be equal to GenericTypeKey from same class with same qualifier`() {
         assertSameHashAndEquals(
-                typeKey<Map<String, List<Int>>>(Qualifier.test, true),
-                typeKey<Map<String, List<Int>>>(Qualifier.test, true))
+                typeKey<Map<String, List<Int>>>(QualifierTest, true),
+                typeKey<Map<String, List<Int>>>(QualifierTest, true))
     }
 
     @Test
@@ -64,7 +64,7 @@ class TypeKeyTest {
     fun `GenericTypeKey should not be equal to GenericTypeKey from same class but different qualifier`() {
         assertNotSameHashAndEquals(
                 typeKey<Map<String, List<Int>>>(generics = true),
-                typeKey<Map<String, List<Int>>>(Qualifier.test, true))
+                typeKey<Map<String, List<Int>>>(QualifierTest, true))
     }
 
     @Test
@@ -75,14 +75,14 @@ class TypeKeyTest {
 
     @Test
     fun `TypeKey and GenericTypeKey should not be equal when created from the same class but different qualifier`() {
-        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(Qualifier.test, true))
-        assertNotSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>(Qualifier.test))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(), typeKey<TestInterface>(QualifierTest, true))
+        assertNotSameHashAndEquals(typeKey<TestInterface>(generics = true), typeKey<TestInterface>(QualifierTest))
     }
 
     @Test
     fun `TypeKey and GenericTypeKey should be type equal when created from the same class`() {
-        assertTrue(typeKey<TestInterface>(Qualifier.test).typeEquals(typeKey<TestInterface>(generics = true)))
-        assertTrue(typeKey<TestInterface>(Qualifier.test, generics = true).typeEquals(typeKey<TestInterface>()))
+        assertTrue(typeKey<TestInterface>(QualifierTest).typeEquals(typeKey<TestInterface>(generics = true)))
+        assertTrue(typeKey<TestInterface>(QualifierTest, generics = true).typeEquals(typeKey<TestInterface>()))
     }
 
     private fun assertSameHashAndEquals(left: Any, right: Any) {

@@ -6,7 +6,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import io.jentz.winter.Qualifier
+import io.jentz.winter.ApplicationScope
 import io.jentz.winter.androidx.dsl.androidProcessLifecycle
 import io.jentz.winter.graph
 import io.jentz.winter.qualifier
@@ -22,7 +22,7 @@ class AndroidProcessLifecycleTest {
         val events = mutableListOf<String>()
 
         graph {
-            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(Qualifier.App))
+            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(ApplicationScope))
             singleton { "" }
                 .eager()
                 .androidProcessLifecycle(
@@ -54,7 +54,7 @@ class AndroidProcessLifecycleTest {
     @Test
     fun should_unregister_observer_on_close() {
         val graph = graph {
-            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(Qualifier.App))
+            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(ApplicationScope))
             subcomponent(qualifier("sub")) {
                 singleton { "" }
                     .eager()

@@ -5,7 +5,8 @@ import io.jentz.winter.GCallback
 import io.jentz.winter.GDisposableSideEffect
 import io.jentz.winter.GFactory
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Qualifier
+import io.jentz.winter.Singleton
 import io.jentz.winter.TypeKey
 import io.jentz.winter.UNINITIALIZED_VALUE
 
@@ -16,8 +17,8 @@ class SingletonService<R : Any>(
 
     internal var sideEffects: List<GDisposableSideEffect<R>> = emptyList()
 
-    override val scope: Scope
-        get() = Scope.Singleton
+    override val scope: Qualifier
+        get() = Singleton
 
     override val requiresPostConstructCallback: Boolean
         get() = sideEffects.isNotEmpty()

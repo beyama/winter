@@ -1,6 +1,11 @@
 package io.jentz.winter.testing
 
-import io.jentz.winter.*
+import io.jentz.winter.ComponentBuilderBlock
+import io.jentz.winter.Graph
+import io.jentz.winter.Prototype
+import io.jentz.winter.Qualifier
+import io.jentz.winter.TypeKey
+import io.jentz.winter.WinterException
 import io.jentz.winter.services.BoundService
 import io.jentz.winter.services.UnboundService
 import kotlin.reflect.KProperty1
@@ -21,7 +26,7 @@ internal class PropertyService(
 
     override val unboundService: UnboundService<Any> get() = this
 
-    override val scope: Scope get() = Scope.Prototype
+    override val scope: Qualifier get() = Prototype
 
     override val requiresPostConstructCallback: Boolean get() = false
 

@@ -12,7 +12,6 @@ import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldFail
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
@@ -122,7 +120,7 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { prototype { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Prototype, instance)
+            verify(plugin, times(1)).postConstruct(graph, Prototype, instance)
         }
 
         @Test
@@ -199,7 +197,7 @@ class GraphTest {
         fun `should run post construct plugins`() {
             val graph = graph { singleton { instance } }
             graph.instance<Any>()
-            verify(plugin, times(1)).postConstruct(graph, Scope.Singleton, instance)
+            verify(plugin, times(1)).postConstruct(graph, Singleton, instance)
         }
 
         @Test
@@ -313,9 +311,9 @@ class GraphTest {
         @Test
         fun `should resolve instance with qualifier`() {
             graph {
-                prototype(typeKey(Qualifier.a)) { "a" }
-                prototype(typeKey(Qualifier.b)) { "b" }
-            }.instance(typeKey<String>(Qualifier.b)).shouldBe("b")
+                prototype(typeKey(QualifierA)) { "a" }
+                prototype(typeKey(QualifierB)) { "b" }
+            }.instance(typeKey<String>(QualifierB)).shouldBe("b")
         }
 
         @Test
@@ -394,9 +392,9 @@ class GraphTest {
         @Test
         fun `should resolve provider with qualifier`() {
             graph {
-                prototype(typeKey(Qualifier.a)) { "a" }
-                prototype(typeKey(Qualifier.b)) { "b" }
-            }.provider(typeKey<String>(Qualifier.b)).invoke().shouldBe("b")
+                prototype(typeKey(QualifierA)) { "a" }
+                prototype(typeKey(QualifierB)) { "b" }
+            }.provider(typeKey<String>(QualifierB)).invoke().shouldBe("b")
         }
 
         @Test
@@ -439,48 +437,48 @@ class GraphTest {
 
         private val testGraph = graph {
             prototype(typeKey(qualifier("something else"))) { Any() }
-            prototype(typeKey(Qualifier.a)) { "a" }
-            prototype(typeKey(Qualifier.b)) { "b" }
-            prototype(typeKey(Qualifier.c)) { "c" }
+            prototype(typeKey(QualifierA)) { "a" }
+            prototype(typeKey(QualifierB)) { "b" }
+            prototype(typeKey(QualifierC)) { "c" }
             prototype { "bar" }
 
-            setOfType<String>(Qualifier.a)
-            setOfProvidersForType<String>(Qualifier.b)
-            mapOfType<String>(Qualifier.c, defaultKey = qualifier("foo"))
-            mapOfProvidersForType<String>(Qualifier.d, defaultKey = qualifier("foo"))
+            setOfType<String>(QualifierA)
+            setOfProvidersForType<String>(QualifierB)
+            mapOfType<String>(QualifierC, defaultKey = qualifier("foo"))
+            mapOfProvidersForType<String>(QualifierD, defaultKey = qualifier("foo"))
         }
 
         @Test
         fun `should provide a set of instances of type`() {
-            val set: Set<String> = testGraph.instance(typeKey(Qualifier.a, generics = true))
+            val set: Set<String> = testGraph.instance(typeKey(QualifierA, generics = true))
             set.shouldBe(setOf("a", "b", "c", "bar"))
         }
 
         @Test
         fun `should provide a set of providers of type`() {
-            val set: Set<Provider<String>> = testGraph.instance(typeKey(Qualifier.b, true))
+            val set: Set<Provider<String>> = testGraph.instance(typeKey(QualifierB, true))
             set.map { it() }.shouldContainAll("a", "b", "c", "bar")
         }
 
         @Test
         fun `should provide a map of instances of type`() {
-            val map: Map<Qualifier, String> = testGraph.instance(typeKey(Qualifier.c, true))
+            val map: Map<Qualifier, String> = testGraph.instance(typeKey(QualifierC, true))
             map.shouldBe(mapOf(
-                Qualifier.a to "a",
-                Qualifier.b to "b",
-                Qualifier.c to "c",
+                QualifierA to "a",
+                QualifierB to "b",
+                QualifierC to "c",
                 qualifier("foo") to "bar"
             ))
         }
 
         @Test
         fun `should provide a map of providers of type`() {
-            val map: Map<Qualifier, Provider<String>> = testGraph.instance(typeKey(Qualifier.d, true))
+            val map: Map<Qualifier, Provider<String>> = testGraph.instance(typeKey(QualifierD, true))
             map.map { (k, v) -> k to v() }.toMap()
                 .shouldBe(mapOf(
-                    Qualifier.a to "a",
-                    Qualifier.b to "b",
-                    Qualifier.c to "c",
+                    QualifierA to "a",
+                    QualifierB to "b",
+                    QualifierC to "c",
                     qualifier("foo") to "bar"
                 ))
         }
@@ -498,14 +496,14 @@ class GraphTest {
 
         @Test
         fun `#parent should return parent graph`() {
-            val parent = graph { subcomponent(Qualifier.a) {} }
-            val sub = parent.createSubgraph(Qualifier.a)
+            val parent = graph { subcomponent(QualifierA) {} }
+            val sub = parent.createSubgraph(QualifierA)
             sub.parent.shouldBeSameInstanceAs(parent)
         }
 
         @Test
         fun `#parent should throw an exception when graph is closed`() {
-            val sub = graph { subcomponent(Qualifier.a) {} }.createSubgraph(Qualifier.a)
+            val sub = graph { subcomponent(QualifierA) {} }.createSubgraph(QualifierA)
             shouldThrow<WinterException> {
                 sub.close()
                 sub.parent
@@ -514,14 +512,14 @@ class GraphTest {
 
         @Test
         fun `#component should return backing component`() {
-            val parent = graph { subcomponent(Qualifier.a) {} }
-            val sub = parent.createSubgraph(Qualifier.a)
-            sub.component.shouldBeSameInstanceAs(parent.component.subcomponent(Qualifier.a))
+            val parent = graph { subcomponent(QualifierA) {} }
+            val sub = parent.createSubgraph(QualifierA)
+            sub.component.shouldBeSameInstanceAs(parent.component.subcomponent(QualifierA))
         }
 
         @Test
         fun `#component should throw an exception when graph is closed`() {
-            val sub = graph { subcomponent(Qualifier.a) {} }.createSubgraph(Qualifier.a)
+            val sub = graph { subcomponent(QualifierA) {} }.createSubgraph(QualifierA)
             shouldThrow<WinterException> {
                 sub.close()
                 sub.component
@@ -535,9 +533,9 @@ class GraphTest {
     inner class Initialisation {
 
         val component = component {
-            subcomponent(Qualifier.a) {
-                subcomponent(Qualifier.b) {
-                    subcomponent(Qualifier.c) {}
+            subcomponent(QualifierA) {
+                subcomponent(QualifierB) {
+                    subcomponent(QualifierC) {}
                 }
             }
         }
@@ -575,15 +573,15 @@ class GraphTest {
 
         @Test
         fun `#createSubgraph should derive component when builder block is given`() {
-            val graph = component.createGraph().createSubgraph(Qualifier.a) { constant(42) }
+            val graph = component.createGraph().createSubgraph(QualifierA) { constant(42) }
             graph.instance<Int>().shouldBe(42)
         }
 
         @Test
         fun `#createSubgraph should create subgraph from a derived component`() {
             component.createGraph()
-                .createSubgraph(Qualifier.a) { constant(42) }
-                .createSubgraph(Qualifier.b)
+                .createSubgraph(QualifierA) { constant(42) }
+                .createSubgraph(QualifierB)
                 .instance<Int>()
                 .shouldBe(42)
         }
@@ -592,17 +590,17 @@ class GraphTest {
         fun `#createSubgraph should not create subgraph from ancestor components`() {
             shouldThrow<EntryNotFoundException> {
                 component.createGraph()
-                    .createSubgraph(Qualifier.a)
-                    .createSubgraph(Qualifier.b)
-                    .createSubgraph(Qualifier.a)
-            }.message.shouldBe("Subcomponent with path [a] doesn't exist.")
+                    .createSubgraph(QualifierA)
+                    .createSubgraph(QualifierB)
+                    .createSubgraph(QualifierA)
+            }.message.shouldBe("Subcomponent `qualifier(a)` doesn't exist.")
         }
 
         @Test
         fun `#createSubgraph should pass WinterApplication to new graph`() {
             val testApp = WinterApplication()
             component.createGraph(testApp)
-                .createSubgraph(Qualifier.a)
+                .createSubgraph(QualifierA)
                 .application.shouldBeSameInstanceAs(testApp)
         }
 

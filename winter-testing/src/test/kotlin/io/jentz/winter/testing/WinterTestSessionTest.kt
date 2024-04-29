@@ -5,7 +5,6 @@ import io.jentz.winter.Qualifier
 import io.jentz.winter.WinterApplication
 import io.jentz.winter.delegate.provideDelegate
 import io.jentz.winter.qualifier
-import io.jentz.winter.testing.WinterTestSession.Companion.session
 import io.jentz.winter.typeKey
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -184,7 +183,7 @@ class WinterTestSessionTest {
             session {
                 testGraph(Sub)
             }.test {
-                createAll(Sub, SubSub)
+                createAll(listOf(Sub, SubSub))
                 requireTestGraph.component.qualifier.shouldBe(Sub)
             }
         }
@@ -290,7 +289,11 @@ class WinterTestSessionTest {
         stop()
     }
 
-    private fun createAll(vararg qualifiers: Qualifier): Graph =
+    private fun createAll(): Graph = createAll(emptyList())
+
+    private fun createAll(qualifier: Qualifier): Graph = createAll(listOf(qualifier))
+
+    private fun createAll(qualifiers: List<Qualifier>): Graph =
         qualifiers.fold(app.createGraph()) { parent, qualifier -> parent.createSubgraph(qualifier) }
 
 }

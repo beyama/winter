@@ -72,7 +72,7 @@ open class WinterApplication() {
      * @param block The component builder block.
      */
     constructor(
-        qualifier: Qualifier = Qualifier.App,
+        qualifier: Qualifier = ApplicationScope,
         block: ComponentBuilderBlock
     ) : this() {
         component(qualifier, block)
@@ -121,7 +121,7 @@ open class WinterApplication() {
      * @param qualifier The qualifier for the new component.
      * @param block The component builder block.
      */
-    fun component(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock) {
+    fun component(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock) {
         this.component = io.jentz.winter.component(qualifier, block)
     }
 

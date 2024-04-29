@@ -1,5 +1,6 @@
 package io.jentz.winter.testing
 
+import io.jentz.winter.ApplicationScope
 import io.jentz.winter.ClassTypeKey
 import io.jentz.winter.Component
 import io.jentz.winter.ComponentBuilderBlock
@@ -202,7 +203,7 @@ class WinterTestSession private constructor(
 
         private var autoCloseMode: AutoCloseMode = AutoCloseMode.NoAutoClose
 
-        private var testGraphComponentMatcher = ComponentMatcher(Qualifier.App)
+        private var testGraphComponentMatcher = ComponentMatcher(ApplicationScope)
 
         private var bindAllMocksMatcher: ComponentMatcher? = null
 
@@ -257,7 +258,7 @@ class WinterTestSession private constructor(
          * @param qualifier The qualifier of the graph component.
          * @param block The block to apply to the graph component builder.
          */
-        fun extend(qualifier: Qualifier = Qualifier.App, block: ComponentBuilderBlock) {
+        fun extend(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock) {
             graphExtenders += ComponentMatcher(qualifier) to block
         }
 
@@ -268,7 +269,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphInitialized(
-            qualifier: Qualifier = Qualifier.App,
+            qualifier: Qualifier = ApplicationScope,
             callback: OnGraphInitializedCallback
         ) {
             onGraphInitializedCallbacks += ComponentMatcher(qualifier) to callback
@@ -281,7 +282,7 @@ class WinterTestSession private constructor(
          * @param callback The callback that gets invoked with the graph.
          */
         fun onGraphClose(
-            qualifier: Qualifier = Qualifier.App,
+            qualifier: Qualifier = ApplicationScope,
             callback: OnGraphCloseCallback
         ) {
             onGraphCloseCallbacks += ComponentMatcher(qualifier) to callback
@@ -293,7 +294,7 @@ class WinterTestSession private constructor(
          *
          * @param qualifier The qualifier of the graph component.
          */
-        fun bindAllMocks(qualifier: Qualifier = Qualifier.App) {
+        fun bindAllMocks(qualifier: Qualifier = ApplicationScope) {
             bindAllMocksMatcher = ComponentMatcher(qualifier)
         }
 

@@ -1,6 +1,7 @@
 package io.jentz.winter.services
 
-import io.jentz.winter.Scope
+import io.jentz.winter.Prototype
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
 internal abstract class OfTypeService<T : Any, R : Any>(
@@ -8,8 +9,8 @@ internal abstract class OfTypeService<T : Any, R : Any>(
     val typeOfKey: TypeKey<T>
 ) : UnboundService<R> {
 
-    override val scope: Scope
-        get() = Scope.Prototype
+    override val scope: Qualifier
+        get() = Prototype
 
     override val requiresPostConstructCallback: Boolean
         get() = false

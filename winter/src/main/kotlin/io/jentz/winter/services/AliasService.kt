@@ -3,7 +3,8 @@ package io.jentz.winter.services
 import io.jentz.winter.ComponentBuilderBlock
 import io.jentz.winter.EntryNotFoundException
 import io.jentz.winter.Graph
-import io.jentz.winter.Scope
+import io.jentz.winter.Prototype
+import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 import io.jentz.winter.WinterException
 
@@ -14,7 +15,7 @@ internal class AliasService<R : Any?>(
 
     override val key: TypeKey<R> get() = newKey
 
-    override val scope: Scope get() = Scope.Prototype
+    override val scope: Qualifier get() = Prototype
 
     override val requiresPostConstructCallback: Boolean get() = false
 

@@ -18,7 +18,6 @@ import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ComponentBuilderTest {
@@ -170,7 +169,7 @@ class ComponentBuilderTest {
     fun `#containsKey should also check parent by default`() {
         component {
             constant(Any())
-            subcomponent(Qualifier.sub) {
+            subcomponent(QualifierSub) {
                 containsKey(typeKey<Any>()).shouldBeTrue()
             }
         }
@@ -180,7 +179,7 @@ class ComponentBuilderTest {
     fun `#containsKey should ignore parent if checkParent is false`() {
         component {
             constant(Any())
-            subcomponent(Qualifier.sub) {
+            subcomponent(QualifierSub) {
                 containsKey(typeKey<Any>(), checkParent = false).shouldBeFalse()
             }
         }
@@ -207,7 +206,7 @@ class ComponentBuilderTest {
     @Test
     fun `#include with subcomponent include mode 'DoNotInclude' should not include subcomponents`() {
         val c1 = component {
-            subcomponent(Qualifier.sub) {
+            subcomponent(QualifierSub) {
                 constant("a")
             }
         }
@@ -219,95 +218,95 @@ class ComponentBuilderTest {
 
     @Test
     fun `#include with subcomponent include mode 'DoNotIncludeIfAlreadyPresent' should not touch existing subcomponents`() {
-        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
-        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
         val c3 = c1.derive { include(c2, DoNotIncludeIfAlreadyPresent) }
 
-        c3.subcomponent(Qualifier.sub).shouldNotContainService(typeKey<String>(Qualifier.b))
-        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
+        c3.subcomponent(QualifierSub).shouldNotContainService(typeKey<String>(QualifierB))
+        c3.subcomponent(QualifierSub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Replace' should replace existing subcomponents`() {
-        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
-        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
         val c3 = c1.derive { include(c2, Replace) }
 
-        c3.subcomponent(Qualifier.sub).shouldNotContainService(typeKey<String>(Qualifier.a))
-        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
+        c3.subcomponent(QualifierSub).shouldNotContainService(typeKey<String>(QualifierA))
+        c3.subcomponent(QualifierSub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should merge existing subcomponents`() {
-        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
-        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.b)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
         val c3 = c1.derive { include(c2, Merge) }
 
-        c3.subcomponent(Qualifier.sub).shouldContainService(typeKey<String>(Qualifier.a))
-        c3.subcomponent(Qualifier.sub).shouldContainService(typeKey<String>(Qualifier.b))
-        c3.subcomponent(Qualifier.sub).size.shouldBe(2)
+        c3.subcomponent(QualifierSub).shouldContainService(typeKey<String>(QualifierA))
+        c3.subcomponent(QualifierSub).shouldContainService(typeKey<String>(QualifierB))
+        c3.subcomponent(QualifierSub).size.shouldBe(2)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should override existing provider`() {
-        val c1 = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
-        val c2 = component { subcomponent(Qualifier.sub) { constant("b", typeKey(Qualifier.a)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierA)) } }
         val c3 = c1.derive { override { include(c2, Merge) }}
 
-        c3.subcomponent(Qualifier.sub).size.shouldBe(1)
-        (c3.subcomponent(Qualifier.sub)[typeKey<String>(Qualifier.a)] as ConstantService).value.shouldBe("b")
+        c3.subcomponent(QualifierSub).size.shouldBe(1)
+        (c3.subcomponent(QualifierSub)[typeKey<String>(QualifierA)] as ConstantService).value.shouldBe("b")
     }
 
     @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
-            subcomponent(Qualifier.sub) { }
-        }.shouldContainService(typeKey<Component>(Qualifier.sub))
+            subcomponent(QualifierSub) { }
+        }.shouldContainService(typeKey<Component>(QualifierSub))
     }
 
     @Test
     fun `#subcomponent should extend existing subcomponent when deriveExisting is true`() {
-        val base = component { subcomponent(Qualifier.sub) { constant("a", typeKey(Qualifier.a)) } }
-        val derived = base.derive { subcomponent(Qualifier.sub, deriveExisting = true) { constant("b", typeKey(Qualifier.b)) } }
-        val sub = derived.subcomponent(Qualifier.sub)
+        val base = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
+        val derived = base.derive { subcomponent(QualifierSub, deriveExisting = true) { constant("b", typeKey(QualifierB)) } }
+        val sub = derived.subcomponent(QualifierSub)
 
-        sub.shouldContainService(typeKey<String>(Qualifier.a))
-        sub.shouldContainService(typeKey<String>(Qualifier.b))
+        sub.shouldContainService(typeKey<String>(QualifierA))
+        sub.shouldContainService(typeKey<String>(QualifierB))
     }
 
     @Test
     fun `#subcomponent should replace existing subcomponent when override is true`() {
         val base = component {
-            subcomponent(Qualifier.sub) {
-                constant("a", typeKey(Qualifier.a))
+            subcomponent(QualifierSub) {
+                constant("a", typeKey(QualifierA))
             }
         }
         val derived = base.derive {
             override {
-                subcomponent(Qualifier.sub) {
-                    constant("b", typeKey(Qualifier.b))
+                subcomponent(QualifierSub) {
+                    constant("b", typeKey(QualifierB))
                 }
             }
         }
-        val sub = derived.subcomponent(Qualifier.sub)
+        val sub = derived.subcomponent(QualifierSub)
 
-        sub.shouldNotContainService(typeKey<String>(Qualifier.a))
-        sub.shouldContainService(typeKey<String>(Qualifier.b))
+        sub.shouldNotContainService(typeKey<String>(QualifierA))
+        sub.shouldContainService(typeKey<String>(QualifierB))
     }
 
     @Test
     fun `#subcomponent should throw an exception when deriveExisting and override is true`() {
-        val base = component { subcomponent(Qualifier.sub) {} }
+        val base = component { subcomponent(QualifierSub) {} }
         shouldThrow<WinterException> {
-            base.derive { override { subcomponent(Qualifier.sub, true) {} } }
+            base.derive { override { subcomponent(QualifierSub, true) {} } }
         }
     }
 
     @Test
     fun `#subcomponent should set qualifier to resulting subcomponent`() {
         component {
-            subcomponent(Qualifier.sub) {}
-        }.subcomponent(Qualifier.sub).qualifier.shouldBe(Qualifier.sub)
+            subcomponent(QualifierSub) {}
+        }.subcomponent(QualifierSub).qualifier.shouldBe(QualifierSub)
     }
 
     @Test
