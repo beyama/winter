@@ -1,7 +1,8 @@
 package io.jentz.winter.junit5
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import io.jentz.winter.WinterApplication
-import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -13,14 +14,12 @@ class WinterAllExtensionStaticTest {
 
         @JvmField
         @RegisterExtension
-        val extension = WinterAllExtension {
-            application = app
-        }
+        val extension = WinterAllExtension(app) {}
     }
 
     @Test
     fun `session plugin should be registered`() {
-        app.plugins.size.shouldBe(1)
+        assertThat(app.plugins.size).isEqualTo(1)
     }
 
 }

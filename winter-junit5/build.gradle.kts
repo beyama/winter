@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     api(project(":winter"))
-    api(project(":winter-testing"))
 
     api(libs.junit.jupiter.api)
+
+    testImplementation(libs.assertk)
 }

@@ -4,7 +4,6 @@ import io.jentz.winter.dsl.new
 import io.jentz.winter.dsl.singletonOf
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
-import io.jentz.winter.plugin.SimplePlugin
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.collections.shouldContainAll
@@ -628,7 +627,7 @@ class GraphTest {
         @Test
         fun `#close should run graph close plugins before marking graph as closed`() {
             var called = false
-            Winter.plugins += object : SimplePlugin() {
+            Winter.plugins += object : Plugin {
                 override fun graphClose(graph: Graph) {
                     called = true
                     graph.isClosed.shouldBeFalse()
@@ -641,7 +640,7 @@ class GraphTest {
 
         @Test
         fun `#close should ignore calls to close from plugin`() {
-            Winter.plugins + object : SimplePlugin() {
+            Winter.plugins + object : Plugin {
                 override fun graphClose(graph: Graph) {
                     graph.close()
                 }

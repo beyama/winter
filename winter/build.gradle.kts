@@ -3,3 +3,7 @@ plugins {
     id("junit5-configuration")
     id("mvn-push-configuration")
 }
+
+dependencies {
+    testImplementation(libs.assertk)
+}

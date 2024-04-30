@@ -5,8 +5,7 @@ plugins {
 
 dependencies {
     api(project(":winter"))
-    api(project(":winter-testing"))
     api(libs.junit)
 
-    testImplementation(libs.kotlintest.assertions)
+    testImplementation(libs.assertk)
 }

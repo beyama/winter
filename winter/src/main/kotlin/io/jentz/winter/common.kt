@@ -4,6 +4,10 @@ import kotlin.reflect.KClass
 
 internal val UNINITIALIZED_VALUE = Any()
 
+val ApplicationScope = qualifier("application scope")
+val Prototype = qualifier("prototype")
+val Singleton = qualifier("singleton")
+
 /**
  * Factory function signature with [Graph] as receiver.
  */

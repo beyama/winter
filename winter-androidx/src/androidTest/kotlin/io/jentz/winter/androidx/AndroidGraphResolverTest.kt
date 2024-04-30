@@ -17,6 +17,7 @@ import io.jentz.winter.Winter
 import io.jentz.winter.androidx.dsl.activityGraphResolver
 import io.jentz.winter.androidx.dsl.application
 import io.jentz.winter.delegate.graphResolver
+import io.jentz.winter.dsl.requireParent
 import io.jentz.winter.dsl.singletonOf
 import io.jentz.winter.junit4.WinterRule
 import org.junit.Before
@@ -27,8 +28,10 @@ import org.junit.rules.RuleChain
 
 class AndroidGraphResolverTest {
 
+    private lateinit var testGraph: Graph
+
     private val winterRule = WinterRule {
-        testGraph(ActivityScope)
+        withNewGraph(ActivityScope) { testGraph = this }
     }
 
     private val activityScenarioRule = ActivityScenarioRule(TestActivity::class.java)
@@ -71,7 +74,7 @@ class AndroidGraphResolverTest {
 
     @Test
     fun should_close_activity_graph_when_activity_gets_destroyed() {
-        val graph = winterRule.requireTestGraph
+        val graph = testGraph
 
         assertThat(graph.isClosed).isFalse()
         scenario.moveToState(Lifecycle.State.DESTROYED)
@@ -82,9 +85,9 @@ class AndroidGraphResolverTest {
     @Test
     fun should_retain_view_model_graph() {
         scenario.onActivity { activity ->
-            assertThat(activity.graph).isSameInstanceAs(winterRule.requireTestGraph)
+            assertThat(activity.graph).isSameInstanceAs(testGraph)
         }
-        val viewModelScope = checkNotNull(winterRule.requireTestGraph.parent)
+        val viewModelScope = testGraph.requireParent
 
         scenario.recreate()
 
