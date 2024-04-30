@@ -8,7 +8,7 @@ import io.jentz.winter.erased
 * Register a prototype scoped constructor for an instance of type [R].
 *
 * @param constructor The constructor of type [R].
-* * @param key The [TypeKey] to register this prototype.
+* @param key The [TypeKey] to register this prototype.
 */
 inline fun <reified R: Any> Component.Builder.prototypeOf(noinline constructor: () -> R, key: TypeKey<R> = erased()) =
     prototype(key) { new(constructor) }

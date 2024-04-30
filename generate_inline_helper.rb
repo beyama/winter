@@ -25,7 +25,7 @@ proto_of_methods = []
     sig +="noinline constructor: ("
     sig += constructor_parameters.join(", ")
     sig += ") -> R, "
-    sig += "key: TypeKey<R> = typeKey())"
+    sig += "key: TypeKey<R> = erased())"
 
     body = "    singleton(key) { new(constructor) }"
 
@@ -40,7 +40,7 @@ proto_of_methods = []
     sig +="noinline constructor: ("
     sig += constructor_parameters.join(", ")
     sig += ") -> R, "
-    sig += "key: TypeKey<R> = typeKey())"
+    sig += "key: TypeKey<R> = erased())"
 
     body = "    prototype(key) { new(constructor) }"
 
@@ -71,7 +71,7 @@ package io.jentz.winter.dsl
 
 import io.jentz.winter.Component
 import io.jentz.winter.TypeKey
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 
 /**
 * Register a singleton scoped constructor for an instance of type [R].
@@ -88,13 +88,13 @@ package io.jentz.winter.dsl
 
 import io.jentz.winter.Component
 import io.jentz.winter.TypeKey
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 
 /**
 * Register a prototype scoped constructor for an instance of type [R].
 *
 * @param constructor The constructor of type [R].
-* * @param key The [TypeKey] to register this prototype.
+* @param key The [TypeKey] to register this prototype.
 */
 #{proto_of_methods.join("\n\n")}
 
