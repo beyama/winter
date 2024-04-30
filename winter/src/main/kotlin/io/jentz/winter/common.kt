@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import kotlin.reflect.KClass
-
 internal val UNINITIALIZED_VALUE = Any()
 
 val ApplicationScope = qualifier("application scope")
@@ -35,7 +33,7 @@ internal typealias OnCloseCallback = (Graph) -> Unit
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>?>(qualifier("EAGER_DEPENDENCIES"))
+internal val eagerDependenciesKey = erased<Set<TypeKey<Any>>?>(qualifier("EAGER_DEPENDENCIES"))
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
@@ -68,22 +66,3 @@ fun component(
  */
 fun graph(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
-
-/**
- * Returns [TypeKey] for type [R].
- *
- * @param qualifier An optional qualifier for this key.
- * @param generics If true this creates a type key that also takes generic type parameters into
- *                 account.
- */
-inline fun <reified R : Any?> typeKey(
-    qualifier: Qualifier? = null,
-    generics: Boolean = false
-): TypeKey<R> = if (generics) {
-    object : GenericClassTypeKey<R>(null is R, qualifier) {}
-} else {
-    ClassTypeKey(R::class.java, null is R, qualifier)
-}
-
-inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Qualifier? = null) =
-    ClassTypeKey(java, false, qualifier)

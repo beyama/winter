@@ -3,14 +3,13 @@ package io.jentz.winter.delegate
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isSameInstanceAs
 import io.jentz.winter.component
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.graph
 import io.jentz.winter.qualifier
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 import org.junit.jupiter.api.Test
 
 class GraphResolverTest {
@@ -24,7 +23,7 @@ class GraphResolverTest {
         }
         val graph = component.createGraph()
 
-        assertThat(graph.keys()).contains(typeKey<GraphResolver<*>>(Target::class.qualifier()))
+        assertThat(graph.keys()).contains(erased<GraphResolver<*>>(Target::class.qualifier()))
     }
 
     @Test

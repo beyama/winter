@@ -10,7 +10,7 @@ import io.jentz.winter.ApplicationScope
 import io.jentz.winter.androidx.dsl.androidProcessLifecycle
 import io.jentz.winter.graph
 import io.jentz.winter.qualifier
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 import org.junit.Test
 
 class AndroidProcessLifecycleTest {
@@ -22,7 +22,7 @@ class AndroidProcessLifecycleTest {
         val events = mutableListOf<String>()
 
         graph {
-            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(ApplicationScope))
+            constant<Lifecycle>(lifecycleOwner.lifecycle, erased(ApplicationScope))
             singleton { "" }
                 .eager()
                 .androidProcessLifecycle(
@@ -54,7 +54,7 @@ class AndroidProcessLifecycleTest {
     @Test
     fun should_unregister_observer_on_close() {
         val graph = graph {
-            constant<Lifecycle>(lifecycleOwner.lifecycle, typeKey(ApplicationScope))
+            constant<Lifecycle>(lifecycleOwner.lifecycle, erased(ApplicationScope))
             subcomponent(qualifier("sub")) {
                 singleton { "" }
                     .eager()

@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.savedstate.SavedStateRegistryOwner
 import io.jentz.winter.Component
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 
 inline fun <reified A: Activity> Component.Builder.activity(activity: A) {
     constant<Context>(activity)
@@ -35,11 +35,11 @@ inline fun <reified A: Activity> Component.Builder.activity(activity: A) {
         constant(activity.onBackPressedDispatcher)
     }
 
-    if (activity is ComponentActivity && !containsKey(typeKey<ComponentActivity>())) {
+    if (activity is ComponentActivity && !containsKey(erased<ComponentActivity>())) {
         constant<ComponentActivity>(activity)
     }
 
-    if (!containsKey(typeKey<A>())) {
+    if (!containsKey(erased<A>())) {
         constant<A>(activity)
     }
 }

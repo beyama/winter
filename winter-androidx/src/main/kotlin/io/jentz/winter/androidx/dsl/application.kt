@@ -6,14 +6,14 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import io.jentz.winter.ApplicationScope
 import io.jentz.winter.Component
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 
 inline fun <reified A: Application> Component.Builder.application(application: A) {
     constant<A>(application)
     constant<Context>(application)
-    if (!containsKey(typeKey<Application>())) { // In case A is just android.app.Application
+    if (!containsKey(erased<Application>())) { // In case A is just android.app.Application
         constant<Application>(application)
     }
-    constant(ProcessLifecycleOwner.get().lifecycle, typeKey(ApplicationScope))
-    constant(ProcessLifecycleOwner.get().lifecycleScope, typeKey(ApplicationScope))
+    constant(ProcessLifecycleOwner.get().lifecycle, erased(ApplicationScope))
+    constant(ProcessLifecycleOwner.get().lifecycleScope, erased(ApplicationScope))
 }

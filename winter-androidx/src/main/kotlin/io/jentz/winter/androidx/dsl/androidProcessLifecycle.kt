@@ -7,7 +7,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import io.jentz.winter.ApplicationScope
 import io.jentz.winter.GCallback
 import io.jentz.winter.services.SingletonService
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 
 /**
  * Registers an Android [androidx.lifecycle.LifecycleObserver] on the [ProcessLifecycleOwner] and
@@ -49,7 +49,7 @@ inline fun <reified R: Any> SingletonService<R>.androidProcessLifecycle(
         }
     }
 
-    val lifecycle: Lifecycle = instance(typeKey(ApplicationScope))
+    val lifecycle: Lifecycle = instance(erased(ApplicationScope))
     lifecycle.addObserver(observer)
 
     return@addSideEffect { lifecycle.removeObserver(observer) }

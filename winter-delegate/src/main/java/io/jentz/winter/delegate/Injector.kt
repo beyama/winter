@@ -5,7 +5,7 @@ import io.jentz.winter.Graph
 import io.jentz.winter.Provider
 import io.jentz.winter.TypeKey
 import io.jentz.winter.WinterApplication
-import io.jentz.winter.typeKey
+import io.jentz.winter.erased
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -25,7 +25,7 @@ class Injector internal constructor(
      * @return The created [InjectedProperty].
      */
     inline operator fun <reified R : Any> invoke(
-        key: TypeKey<R> = typeKey(),
+        key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ) = instance(key, block)
 
@@ -37,7 +37,7 @@ class Injector internal constructor(
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> instance(
-        key: TypeKey<R> = typeKey(),
+        key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = InstanceProperty(key, block)
         .also { properties.add(it) }
@@ -50,7 +50,7 @@ class Injector internal constructor(
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> provider(
-        key: TypeKey<R> = typeKey(),
+        key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<Provider<R>> = ProviderProperty(key, block)
         .also { properties.add(it) }
@@ -65,7 +65,7 @@ class Injector internal constructor(
      * @return The created [InjectedProperty].
      */
     inline fun <reified R : Any> lazyInstance(
-        key: TypeKey<R> = typeKey(),
+        key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = LazyInstanceProperty(key, block)
         .also { properties.add(it) }

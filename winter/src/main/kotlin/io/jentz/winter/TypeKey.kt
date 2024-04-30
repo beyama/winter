@@ -2,6 +2,7 @@ package io.jentz.winter
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import kotlin.reflect.KClass
 
 /**
  * Interface for all type keys.
@@ -19,6 +20,28 @@ interface TypeKey<out R> {
     fun typeEquals(other: TypeKey<*>): Boolean
 
 }
+
+/**
+ * Returns [TypeKey] for type [R] with erased generics.
+ *
+ * @param qualifier An optional qualifier for this key.
+ */
+inline fun <reified R : Any?> erased(
+    qualifier: Qualifier? = null
+): TypeKey<R> = ClassTypeKey(R::class.java, null is R, qualifier)
+
+/**
+ * Returns [TypeKey] for type [R] with generics information preserved.
+ *
+ * @param qualifier An optional qualifier for this key.
+ */
+inline fun <reified R: Any?> generic(
+    qualifier: Qualifier? = null
+): TypeKey<R> = object : GenericClassTypeKey<R>(null is R, qualifier) {}
+
+inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Qualifier? = null) =
+    ClassTypeKey(java, false, qualifier)
+
 
 class ClassTypeKey<R>(
     val type: Class<R>,

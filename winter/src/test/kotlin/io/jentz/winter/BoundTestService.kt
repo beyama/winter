@@ -5,7 +5,7 @@ import io.jentz.winter.services.UnboundService
 
 internal class BoundTestService(
     private val evaluator: ServiceEvaluator,
-    override val key: TypeKey<String> = typeKey(),
+    override val key: TypeKey<String> = erased(),
     var dependency: BoundService<String>? = null,
     var throwOnNewInstance: (() -> Throwable)? = null,
     var instance: () -> String = { "" }

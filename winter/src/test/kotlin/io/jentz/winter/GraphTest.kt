@@ -135,12 +135,12 @@ class GraphTest {
         fun `should be thread safe`() {
             val graph = graph {
                 (0..100).forEach { value ->
-                    prototype(typeKey(qualifier(value.toString()))) { value }
+                    prototype(erased(qualifier(value.toString()))) { value }
                 }
             }
 
             (0..100).map {
-                executor.submit { graph.instance(typeKey<Int>(qualifier(it.toString()))).shouldBe(it) }
+                executor.submit { graph.instance(erased<Int>(qualifier(it.toString()))).shouldBe(it) }
             }.forEach { it.get() }
         }
 
@@ -231,12 +231,12 @@ class GraphTest {
         fun `should be thread safe`() {
             val graph = graph {
                 (0..100).forEach { value ->
-                    singleton(typeKey(qualifier(value.toString()))) { value }
+                    singleton(erased(qualifier(value.toString()))) { value }
                 }
             }
 
             (0..100).map {
-                executor.submit { graph.instance(typeKey<Int>(qualifier(it.toString()))).shouldBe(it) }
+                executor.submit { graph.instance(erased<Int>(qualifier(it.toString()))).shouldBe(it) }
             }.forEach { it.get() }
         }
 
@@ -250,8 +250,8 @@ class GraphTest {
             graph {
                 prototype { Heater() }
                 prototype { Thermosiphon(instance()) }
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-                alias(typeKey<Pump>(), typeKey<Any>())
+                alias(erased<Thermosiphon>(), erased<Pump>())
+                alias(erased<Pump>(), erased<Any>())
             }.instance<Any>().shouldBeInstanceOf<Thermosiphon>()
         }
 
@@ -261,10 +261,10 @@ class GraphTest {
                 graph {
                     prototype { Heater() }
                     prototype { Thermosiphon(instance()) }
-                    alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-                    remove(typeKey<Thermosiphon>())
-                }.service<Pump>(typeKey())
-            }.message.shouldBe("Error resolving alias `${typeKey<Pump>()}` pointing to `${typeKey<Thermosiphon>()}`.")
+                    alias(erased<Thermosiphon>(), erased<Pump>())
+                    remove(erased<Thermosiphon>())
+                }.service<Pump>(erased())
+            }.message.shouldBe("Error resolving alias `${erased<Pump>()}` pointing to `${erased<Thermosiphon>()}`.")
         }
 
         @Test
@@ -273,7 +273,7 @@ class GraphTest {
             val graph = graph {
                 singleton { "foo" }
                     .onClose { closed += 1 }
-                    .alias(typeKey<CharSequence>())
+                    .alias(erased<CharSequence>())
             }
             graph.instance<CharSequence>()
             graph.close()
@@ -303,16 +303,16 @@ class GraphTest {
         @Test
         fun `should resolve instance by generic class`() {
             graph {
-                prototype(typeKey(generics = true)) { mapOf(1 to "1") }
-            }.instance(typeKey<Map<Int, String>>(generics = true)).shouldBe(mapOf(1 to "1"))
+                prototype(generic()) { mapOf(1 to "1") }
+            }.instance(generic<Map<Int, String>>()).shouldBe(mapOf(1 to "1"))
         }
 
         @Test
         fun `should resolve instance with qualifier`() {
             graph {
-                prototype(typeKey(QualifierA)) { "a" }
-                prototype(typeKey(QualifierB)) { "b" }
-            }.instance(typeKey<String>(QualifierB)).shouldBe("b")
+                prototype(erased(QualifierA)) { "a" }
+                prototype(erased(QualifierB)) { "b" }
+            }.instance(erased<String>(QualifierB)).shouldBe("b")
         }
 
         @Test
@@ -384,16 +384,16 @@ class GraphTest {
         @Test
         fun `should resolve provider by generic class`() {
             graph {
-                prototype(typeKey(generics = true)) { mapOf(1 to "1") }
-            }.provider(typeKey<Map<Int, String>>(generics = true)).invoke().shouldBe(mapOf(1 to "1"))
+                prototype(generic()) { mapOf(1 to "1") }
+            }.provider(generic<Map<Int, String>>()).invoke().shouldBe(mapOf(1 to "1"))
         }
 
         @Test
         fun `should resolve provider with qualifier`() {
             graph {
-                prototype(typeKey(QualifierA)) { "a" }
-                prototype(typeKey(QualifierB)) { "b" }
-            }.provider(typeKey<String>(QualifierB)).invoke().shouldBe("b")
+                prototype(erased(QualifierA)) { "a" }
+                prototype(erased(QualifierB)) { "b" }
+            }.provider(erased<String>(QualifierB)).invoke().shouldBe("b")
         }
 
         @Test
@@ -435,33 +435,33 @@ class GraphTest {
     inner class OfTypeMethods {
 
         private val testGraph = graph {
-            prototype(typeKey(qualifier("something else"))) { Any() }
-            prototype(typeKey(QualifierA)) { "a" }
-            prototype(typeKey(QualifierB)) { "b" }
-            prototype(typeKey(QualifierC)) { "c" }
+            prototype(erased(qualifier("something else"))) { Any() }
+            prototype(erased(QualifierA)) { "a" }
+            prototype(erased(QualifierB)) { "b" }
+            prototype(erased(QualifierC)) { "c" }
             prototype { "bar" }
 
-            setOfType<String>(QualifierA)
-            setOfProvidersForType<String>(QualifierB)
-            mapOfType<String>(QualifierC, defaultKey = qualifier("foo"))
-            mapOfProvidersForType<String>(QualifierD, defaultKey = qualifier("foo"))
+            setOfType<String>(qualifier = QualifierA)
+            setOfProvidersForType<String>(qualifier = QualifierB)
+            mapOfType<String>(qualifier = QualifierC, defaultKey = qualifier("foo"))
+            mapOfProvidersForType<String>(qualifier = QualifierD, defaultKey = qualifier("foo"))
         }
 
         @Test
         fun `should provide a set of instances of type`() {
-            val set: Set<String> = testGraph.instance(typeKey(QualifierA, generics = true))
+            val set: Set<String> = testGraph.instance(generic(QualifierA))
             set.shouldBe(setOf("a", "b", "c", "bar"))
         }
 
         @Test
         fun `should provide a set of providers of type`() {
-            val set: Set<Provider<String>> = testGraph.instance(typeKey(QualifierB, true))
+            val set: Set<Provider<String>> = testGraph.instance(generic(QualifierB))
             set.map { it() }.shouldContainAll("a", "b", "c", "bar")
         }
 
         @Test
         fun `should provide a map of instances of type`() {
-            val map: Map<Qualifier, String> = testGraph.instance(typeKey(QualifierC, true))
+            val map: Map<Qualifier, String> = testGraph.instance(generic(QualifierC))
             map.shouldBe(mapOf(
                 QualifierA to "a",
                 QualifierB to "b",
@@ -472,7 +472,7 @@ class GraphTest {
 
         @Test
         fun `should provide a map of providers of type`() {
-            val map: Map<Qualifier, Provider<String>> = testGraph.instance(typeKey(QualifierD, true))
+            val map: Map<Qualifier, Provider<String>> = testGraph.instance(generic(QualifierD))
             map.map { (k, v) -> k to v() }.toMap()
                 .shouldBe(mapOf(
                     QualifierA to "a",
@@ -692,7 +692,7 @@ class GraphTest {
             shouldThrow<DependencyResolutionException> {
                 graph {
                     prototype { Heater() }
-                    prototype<Pump> { Thermosiphon(instance(typeKey(qualifier("doesn't exist")))) }
+                    prototype<Pump> { Thermosiphon(instance(erased(qualifier("doesn't exist")))) }
                     prototype { CoffeeMaker(instance(), instance()) }
                 }.instance<CoffeeMaker>()
             }.message.shouldBe(

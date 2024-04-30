@@ -33,9 +33,9 @@ class ComponentTest {
 
     @Test
     fun `#derive with block should copy all dependencies to new component`() {
-        val new = testComponent.derive { prototype(typeKey(qualifier("qualifier"))) { Heater() } }
+        val new = testComponent.derive { prototype(erased(qualifier("qualifier"))) { Heater() } }
         new.size.shouldBe(testComponent.size + 1)
-        new.containsKey(typeKey<Heater>(qualifier("qualifier"))).shouldBeTrue()
+        new.containsKey(erased<Heater>(qualifier("qualifier"))).shouldBeTrue()
         testComponent.keys().forEach { key -> new[key].shouldBeSameInstanceAs(testComponent[key]) }
     }
 

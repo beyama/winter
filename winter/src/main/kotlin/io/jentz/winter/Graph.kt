@@ -36,7 +36,7 @@ class Graph internal constructor(
             var isClosing = false
 
             init {
-                val selfKey = typeKey<Graph>()
+                val selfKey = erased<Graph>()
                 registry[selfKey] = ConstantService(selfKey, graph)
             }
 
@@ -134,7 +134,7 @@ class Graph internal constructor(
      */
     inline fun <reified R : Any?> instance(
         noinline block: ComponentBuilderBlock? = null
-    ): R = instance(typeKey(), block)
+    ): R = instance(erased(), block)
 
     /**
      * Retrieve an instance of type `R`.
@@ -162,7 +162,7 @@ class Graph internal constructor(
      */
     inline fun <reified R : Any?> provider(
         noinline block: ComponentBuilderBlock? = null
-    ): Provider<R> = provider(typeKey(), block)
+    ): Provider<R> = provider(erased(), block)
 
     /**
      * Retrieves a provider function that returns `R`.

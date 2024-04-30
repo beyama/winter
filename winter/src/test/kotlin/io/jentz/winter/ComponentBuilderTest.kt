@@ -31,42 +31,42 @@ class ComponentBuilderTest {
     fun `#prototype should register UnboundPrototypeService`() {
         component {
             prototype { Heater() }
-        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>())
+        }.shouldContainServiceOfType<PrototypeService<*>>(erased<Heater>())
     }
 
     @Test
     fun `#prototypeOf should register UnboundPrototypeService`() {
         component {
             prototypeOf(::Heater)
-        }.shouldContainServiceOfType<PrototypeService<*>>(typeKey<Heater>())
+        }.shouldContainServiceOfType<PrototypeService<*>>(erased<Heater>())
     }
 
     @Test
     fun `#singleton should register UnboundSingletonService`() {
         component {
             singleton { Heater() }
-        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>())
+        }.shouldContainServiceOfType<SingletonService<*>>(erased<Heater>())
     }
 
     @Test
     fun `#singletonOf should register UnboundSingletonService`() {
         component {
             singletonOf(::Heater)
-        }.shouldContainServiceOfType<SingletonService<*>>(typeKey<Heater>())
+        }.shouldContainServiceOfType<SingletonService<*>>(erased<Heater>())
     }
 
     @Test
     fun `#constant should register ConstantService`() {
         component {
             constant(42)
-        }.shouldContainServiceOfType<ConstantService<*>>(typeKey<Int>())
+        }.shouldContainServiceOfType<ConstantService<*>>(erased<Int>())
     }
 
     @Test
     fun `#setOfType should register SetOfTypeService`() {
         component {
             setOfType<String>()
-        }.shouldContainServiceOfType<SetOfTypeService<*>>(typeKey<Set<String>>(generics = true))
+        }.shouldContainServiceOfType<SetOfTypeService<*>>(generic<Set<String>>())
     }
 
     @Test
@@ -74,7 +74,7 @@ class ComponentBuilderTest {
         component {
             setOfProvidersForType<String>()
         }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(
-            typeKey<Set<Provider<String>>>(generics = true)
+            generic<Set<Provider<String>>>()
         )
     }
 
@@ -83,7 +83,7 @@ class ComponentBuilderTest {
         component {
             mapOfType<String>()
         }.shouldContainServiceOfType<MapOfTypeService<*>>(
-            typeKey<Map<Qualifier, String>>(generics = true)
+            generic<Map<Qualifier, String>>()
         )
     }
 
@@ -92,7 +92,7 @@ class ComponentBuilderTest {
         component {
             mapOfProvidersForType<String>()
         }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(
-            typeKey<Map<Qualifier, Provider<String>>>(generics = true)
+            generic<Map<Qualifier, Provider<String>>>()
         )
     }
 
@@ -100,8 +100,8 @@ class ComponentBuilderTest {
     fun `#alias should register alias service`() {
         component {
             prototype { Thermosiphon(instance()) }
-            alias(typeKey<Thermosiphon>(), typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+            alias(erased<Thermosiphon>(), erased<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(erased<Pump>())
     }
 
     @Test
@@ -110,9 +110,9 @@ class ComponentBuilderTest {
             prototype { Thermosiphon(instance()) }
             singleton<Pump> { Thermosiphon(instance()) }
             override {
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                alias(erased<Thermosiphon>(), erased<Pump>())
             }
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(erased<Pump>())
     }
 
     @Test
@@ -121,7 +121,7 @@ class ComponentBuilderTest {
             component {
                 prototype { Thermosiphon(instance()) }
                 prototype<Pump> { Thermosiphon(instance()) }
-                alias(typeKey<Thermosiphon>(), typeKey<Pump>())
+                alias(erased<Thermosiphon>(), erased<Pump>())
             }
         }
     }
@@ -131,8 +131,8 @@ class ComponentBuilderTest {
         component {
             prototype {
                 Thermosiphon(instance())
-            }.alias(typeKey<Pump>())
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+            }.alias(erased<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(erased<Pump>())
     }
 
     @Test
@@ -142,9 +142,9 @@ class ComponentBuilderTest {
             override {
                 prototype {
                     Thermosiphon(instance())
-                }.alias(typeKey<Pump>())
+                }.alias(erased<Pump>())
             }
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>())
+        }.shouldContainServiceOfType<AliasService<*>>(erased<Pump>())
     }
 
     @Test
@@ -153,15 +153,15 @@ class ComponentBuilderTest {
             prototype {
                 Thermosiphon(instance())
             }.alias(Pump::class, QualifierTest)
-        }.shouldContainServiceOfType<AliasService<*>>(typeKey<Pump>(QualifierTest))
+        }.shouldContainServiceOfType<AliasService<*>>(erased<Pump>(QualifierTest))
     }
 
     @Test
     fun `#containsKey with should return true if builder contains key otherwise false`() {
-        component { containsKey(typeKey<Any>()).shouldBeFalse() }
+        component { containsKey(erased<Any>()).shouldBeFalse() }
         component {
             constant(Any())
-            containsKey(typeKey<Any>()).shouldBeTrue()
+            containsKey(erased<Any>()).shouldBeTrue()
         }
     }
 
@@ -170,7 +170,7 @@ class ComponentBuilderTest {
         component {
             constant(Any())
             subcomponent(QualifierSub) {
-                containsKey(typeKey<Any>()).shouldBeTrue()
+                containsKey(erased<Any>()).shouldBeTrue()
             }
         }
     }
@@ -180,7 +180,7 @@ class ComponentBuilderTest {
         component {
             constant(Any())
             subcomponent(QualifierSub) {
-                containsKey(typeKey<Any>(), checkParent = false).shouldBeFalse()
+                containsKey(erased<Any>(), checkParent = false).shouldBeFalse()
             }
         }
     }
@@ -189,8 +189,8 @@ class ComponentBuilderTest {
     fun `#register should throw an exception if the same key is registered twice`() {
         shouldThrow<WinterException> {
             component {
-                register(ConstantService(typeKey(), ""))
-                register(ConstantService(typeKey(), ""))
+                register(ConstantService(erased(), ""))
+                register(ConstantService(erased(), ""))
             }
         }
     }
@@ -198,8 +198,8 @@ class ComponentBuilderTest {
     @Test
     fun `#register should override key if override is true`() {
         component {
-            register(ConstantService(typeKey(), ""))
-            override { register(ConstantService(typeKey(), "")) }
+            register(ConstantService(erased(), ""))
+            override { register(ConstantService(erased(), "")) }
         }.size.shouldBe(1)
     }
 
@@ -218,80 +218,80 @@ class ComponentBuilderTest {
 
     @Test
     fun `#include with subcomponent include mode 'DoNotIncludeIfAlreadyPresent' should not touch existing subcomponents`() {
-        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
-        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", erased(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", erased(QualifierB)) } }
         val c3 = c1.derive { include(c2, DoNotIncludeIfAlreadyPresent) }
 
-        c3.subcomponent(QualifierSub).shouldNotContainService(typeKey<String>(QualifierB))
+        c3.subcomponent(QualifierSub).shouldNotContainService(erased<String>(QualifierB))
         c3.subcomponent(QualifierSub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Replace' should replace existing subcomponents`() {
-        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
-        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", erased(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", erased(QualifierB)) } }
         val c3 = c1.derive { include(c2, Replace) }
 
-        c3.subcomponent(QualifierSub).shouldNotContainService(typeKey<String>(QualifierA))
+        c3.subcomponent(QualifierSub).shouldNotContainService(erased<String>(QualifierA))
         c3.subcomponent(QualifierSub).size.shouldBe(1)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should merge existing subcomponents`() {
-        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
-        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierB)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", erased(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", erased(QualifierB)) } }
         val c3 = c1.derive { include(c2, Merge) }
 
-        c3.subcomponent(QualifierSub).shouldContainService(typeKey<String>(QualifierA))
-        c3.subcomponent(QualifierSub).shouldContainService(typeKey<String>(QualifierB))
+        c3.subcomponent(QualifierSub).shouldContainService(erased<String>(QualifierA))
+        c3.subcomponent(QualifierSub).shouldContainService(erased<String>(QualifierB))
         c3.subcomponent(QualifierSub).size.shouldBe(2)
     }
 
     @Test
     fun `#include with subcomponent include mode 'Merge' should override existing provider`() {
-        val c1 = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
-        val c2 = component { subcomponent(QualifierSub) { constant("b", typeKey(QualifierA)) } }
+        val c1 = component { subcomponent(QualifierSub) { constant("a", erased(QualifierA)) } }
+        val c2 = component { subcomponent(QualifierSub) { constant("b", erased(QualifierA)) } }
         val c3 = c1.derive { override { include(c2, Merge) }}
 
         c3.subcomponent(QualifierSub).size.shouldBe(1)
-        (c3.subcomponent(QualifierSub)[typeKey<String>(QualifierA)] as ConstantService).value.shouldBe("b")
+        (c3.subcomponent(QualifierSub)[erased<String>(QualifierA)] as ConstantService).value.shouldBe("b")
     }
 
     @Test
     fun `#subcomponent should register a subcomponent`() {
         component {
             subcomponent(QualifierSub) { }
-        }.shouldContainService(typeKey<Component>(QualifierSub))
+        }.shouldContainService(erased<Component>(QualifierSub))
     }
 
     @Test
     fun `#subcomponent should extend existing subcomponent when deriveExisting is true`() {
-        val base = component { subcomponent(QualifierSub) { constant("a", typeKey(QualifierA)) } }
-        val derived = base.derive { subcomponent(QualifierSub, deriveExisting = true) { constant("b", typeKey(QualifierB)) } }
+        val base = component { subcomponent(QualifierSub) { constant("a", erased(QualifierA)) } }
+        val derived = base.derive { subcomponent(QualifierSub, deriveExisting = true) { constant("b", erased(QualifierB)) } }
         val sub = derived.subcomponent(QualifierSub)
 
-        sub.shouldContainService(typeKey<String>(QualifierA))
-        sub.shouldContainService(typeKey<String>(QualifierB))
+        sub.shouldContainService(erased<String>(QualifierA))
+        sub.shouldContainService(erased<String>(QualifierB))
     }
 
     @Test
     fun `#subcomponent should replace existing subcomponent when override is true`() {
         val base = component {
             subcomponent(QualifierSub) {
-                constant("a", typeKey(QualifierA))
+                constant("a", erased(QualifierA))
             }
         }
         val derived = base.derive {
             override {
                 subcomponent(QualifierSub) {
-                    constant("b", typeKey(QualifierB))
+                    constant("b", erased(QualifierB))
                 }
             }
         }
         val sub = derived.subcomponent(QualifierSub)
 
-        sub.shouldNotContainService(typeKey<String>(QualifierA))
-        sub.shouldContainService(typeKey<String>(QualifierB))
+        sub.shouldNotContainService(erased<String>(QualifierA))
+        sub.shouldContainService(erased<String>(QualifierB))
     }
 
     @Test
@@ -312,19 +312,19 @@ class ComponentBuilderTest {
     @Test
     fun `#remove should throw an exception when service doesn't exist`() {
         shouldThrow<WinterException> {
-            component { remove(typeKey<Heater>()) }
+            component { remove(erased<Heater>()) }
         }
     }
 
     @Test
     fun `#remove should not throw an exception when service doesn't exist but silent is true`() {
-        component { remove(typeKey<Heater>(), silent = true) }
+        component { remove(erased<Heater>(), silent = true) }
     }
 
     @Test
     fun `#remove should remove service`() {
         val c1 = component { prototype { Heater() } }
-        c1.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
+        c1.derive { remove(erased<Heater>()) }.size.shouldBe(0)
     }
 
     @Test
@@ -332,7 +332,7 @@ class ComponentBuilderTest {
         val c = component { singleton { Heater() }.eager() }
         // eager dependencies add a set of type keys to the dependency map; so one more dependency
         c.size.shouldBe(2)
-        c.derive { remove(typeKey<Heater>()) }.size.shouldBe(0)
+        c.derive { remove(erased<Heater>()) }.size.shouldBe(0)
     }
 
 }

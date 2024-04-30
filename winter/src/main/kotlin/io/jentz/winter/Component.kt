@@ -70,7 +70,7 @@ class Component private constructor(
      * @throws EntryNotFoundException If the component does not exist.
      */
     fun subcomponent(qualifier: Qualifier): Component {
-        val key = typeKey<Component>(qualifier)
+        val key = erased<Component>(qualifier)
         val constant = registry[key] as? ConstantService<*>
             ?: throw EntryNotFoundException(key, "Subcomponent `$qualifier` doesn't exist.")
         return constant.value as Component
@@ -222,7 +222,7 @@ class Component private constructor(
          * @param factory The factory for type [R].
          */
         inline fun <reified R : Any> prototype(
-            typeKey: TypeKey<R> = typeKey(),
+            typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
         ) = register(PrototypeService(typeKey, factory))
 
@@ -233,7 +233,7 @@ class Component private constructor(
          * @param factory The factory for type [R].
          */
         inline fun <reified R : Any> singleton(
-            typeKey: TypeKey<R> = typeKey(),
+            typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
         ) = register(SingletonService(typeKey, factory))
 
@@ -245,7 +245,7 @@ class Component private constructor(
          */
         inline fun <reified R : Any> constant(
             value: R,
-            typeKey: TypeKey<R> = typeKey()
+            typeKey: TypeKey<R> = erased()
         ): UnboundService<R> =
             register(ConstantService(typeKey, value))
 
@@ -255,16 +255,16 @@ class Component private constructor(
          *
          * This may return an empty set if no service of type [R] is registered.
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
+         * @param key The [TypeKey] of the services to collect.
+         * @param qualifier An optional qualifier for the new service.
          */
         inline fun <reified R : Any> setOfType(
+            key: TypeKey<R> = erased(),
             qualifier: Qualifier? = null,
-            generics: Boolean = false,
         ): UnboundService<Set<R>> {
-            val key = typeKey<Set<R>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            return register(SetOfTypeService(key, typeOfKey))
+            require(key.qualifier == null) { "setOfType key must not have a qualifier." }
+            val setOfKey = generic<Set<R>>(qualifier)
+            return register(SetOfTypeService(setOfKey, key))
         }
 
         /**
@@ -272,16 +272,18 @@ class Component private constructor(
          *
          * This may return an empty set if no service of type [R] is registered.
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
+         * @param key The [TypeKey] of the services to collect.
+         * @param qualifier An optional qualifier for the new service.
          */
         inline fun <reified R : Any> setOfProvidersForType(
+            key: TypeKey<R> = erased(),
             qualifier: Qualifier? = null,
-            generics: Boolean = false
         ): UnboundService<Set<Provider<R>>> {
-            val key = typeKey<Set<Provider<R>>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            return register(SetOfProvidersForTypeService(key, typeOfKey))
+            require(key.qualifier == null) {
+                "setOfProvidersForType key must not have a qualifier."
+            }
+            val setOfProvidersKey = generic<Set<Provider<R>>>(qualifier)
+            return register(SetOfProvidersForTypeService(setOfProvidersKey, key))
         }
 
         /**
@@ -289,18 +291,18 @@ class Component private constructor(
          *
          * This may return an empty map if no service of type [R] is registered.
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
+         * @param key The [TypeKey] of the services to collect.
+         * @param qualifier An optional qualifier for the new service.
          * @param defaultKey The key that is used for a service that was registered without qualifier.
          */
         inline fun <reified R : Any> mapOfType(
+            key: TypeKey<R> = erased(),
             qualifier: Qualifier? = null,
-            generics: Boolean = false,
             defaultKey: Qualifier = qualifier("default")
         ): UnboundService<Map<Qualifier, R>> {
-            val key = typeKey<Map<Qualifier, R>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            return register(MapOfTypeService(key, typeOfKey, defaultKey))
+            require(key.qualifier == null) { "mapOfType key must not have a qualifier." }
+            val mapOfTypeKey = generic<Map<Qualifier, R>>(qualifier)
+            return register(MapOfTypeService(mapOfTypeKey, key, defaultKey))
         }
 
         /**
@@ -309,18 +311,20 @@ class Component private constructor(
          *
          * This may return an empty map if no service of type [R] is registered.
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
+         * @param key The [TypeKey] of the services to collect.
+         * @param qualifier An optional qualifier for the new service.
          * @param defaultKey The key that is used for a service that was registered without qualifier.
          */
         inline fun <reified R : Any> mapOfProvidersForType(
+            key: TypeKey<R> = erased(),
             qualifier: Qualifier? = null,
-            generics: Boolean = false,
             defaultKey: Qualifier = qualifier("default")
         ): UnboundService<Map<Qualifier, Provider<R>>> {
-            val key = typeKey<Map<Qualifier, Provider<R>>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            return register(MapOfProvidersForTypeService(key, typeOfKey, defaultKey))
+            require(key.qualifier == null) {
+                "mapOfProvidersForType key must not have a qualifier."
+            }
+            val mapOfProvidersKey = generic<Map<Qualifier, Provider<R>>>(qualifier)
+            return register(MapOfProvidersForTypeService(mapOfProvidersKey, key, defaultKey))
         }
 
         /**
@@ -413,7 +417,7 @@ class Component private constructor(
                 )
             }
 
-            val key = typeKey<Component>(qualifier)
+            val key = erased<Component>(qualifier)
 
             val doesAlreadyExist =
                 registry.containsKey(key) || subcomponentBuilders.containsKey(key)
