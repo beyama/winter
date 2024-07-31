@@ -16,7 +16,7 @@ typealias GFactory<R> = Graph.() -> R
  */
 typealias GCallback<R> = Graph.(R) -> Unit
 
-typealias GDisposableSideEffect<T> = Graph.(T) -> GCallback<T>?
+typealias GDisposableSideEffect<R> = Graph.(R) -> GCallback<R>?
 
 /**
  * Function signature alias for component builder DSL blocks.

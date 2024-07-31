@@ -6,8 +6,7 @@ package io.jentz.winter
 open class WinterException(message: String?, cause: Throwable? = null) : Exception(message, cause)
 
 /**
- * Exception that is thrown when a component entry or graph was not found but was requested as
- * non-optional.
+ * Exception that is thrown when a service was not found but was requested as non-optional.
  */
 class EntryNotFoundException(
     val key: TypeKey<*>,

@@ -3,11 +3,7 @@ package io.jentz.winter
 import io.jentz.winter.Component.Builder
 import io.jentz.winter.services.AliasService
 import io.jentz.winter.services.ConstantService
-import io.jentz.winter.services.MapOfProvidersForTypeService
-import io.jentz.winter.services.MapOfTypeService
 import io.jentz.winter.services.PrototypeService
-import io.jentz.winter.services.SetOfProvidersForTypeService
-import io.jentz.winter.services.SetOfTypeService
 import io.jentz.winter.services.SingletonService
 import io.jentz.winter.services.UnboundService
 import kotlin.reflect.KClass
@@ -221,7 +217,7 @@ class Component private constructor(
          * @param typeKey The [TypeKey] this service is registered with.
          * @param factory The factory for type [R].
          */
-        inline fun <reified R : Any> prototype(
+        inline fun <reified R : Any?> prototype(
             typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
         ) = register(PrototypeService(typeKey, factory))
@@ -232,7 +228,7 @@ class Component private constructor(
          * @param typeKey The [TypeKey] this service is registered with.
          * @param factory The factory for type [R].
          */
-        inline fun <reified R : Any> singleton(
+        inline fun <reified R : Any?> singleton(
             typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
         ) = register(SingletonService(typeKey, factory))
@@ -243,89 +239,10 @@ class Component private constructor(
          * @param value The value of this constant provider.
          * @param typeKey The [TypeKey] this service is registered with.
          */
-        inline fun <reified R : Any> constant(
+        inline fun <reified R : Any?> constant(
             value: R,
             typeKey: TypeKey<R> = erased()
-        ): UnboundService<R> =
-            register(ConstantService(typeKey, value))
-
-
-        /**
-         * Register a service that resolves a set of instance of type [R].
-         *
-         * This may return an empty set if no service of type [R] is registered.
-         *
-         * @param key The [TypeKey] of the services to collect.
-         * @param qualifier An optional qualifier for the new service.
-         */
-        inline fun <reified R : Any> setOfType(
-            key: TypeKey<R> = erased(),
-            qualifier: Qualifier? = null,
-        ): UnboundService<Set<R>> {
-            require(key.qualifier == null) { "setOfType key must not have a qualifier." }
-            val setOfKey = generic<Set<R>>(qualifier)
-            return register(SetOfTypeService(setOfKey, key))
-        }
-
-        /**
-         * Register a service that resolves a set of [providers][Provider] for type [R].
-         *
-         * This may return an empty set if no service of type [R] is registered.
-         *
-         * @param key The [TypeKey] of the services to collect.
-         * @param qualifier An optional qualifier for the new service.
-         */
-        inline fun <reified R : Any> setOfProvidersForType(
-            key: TypeKey<R> = erased(),
-            qualifier: Qualifier? = null,
-        ): UnboundService<Set<Provider<R>>> {
-            require(key.qualifier == null) {
-                "setOfProvidersForType key must not have a qualifier."
-            }
-            val setOfProvidersKey = generic<Set<Provider<R>>>(qualifier)
-            return register(SetOfProvidersForTypeService(setOfProvidersKey, key))
-        }
-
-        /**
-         * Register a service that resolves a map of qualifiers to type [R].
-         *
-         * This may return an empty map if no service of type [R] is registered.
-         *
-         * @param key The [TypeKey] of the services to collect.
-         * @param qualifier An optional qualifier for the new service.
-         * @param defaultKey The key that is used for a service that was registered without qualifier.
-         */
-        inline fun <reified R : Any> mapOfType(
-            key: TypeKey<R> = erased(),
-            qualifier: Qualifier? = null,
-            defaultKey: Qualifier = qualifier("default")
-        ): UnboundService<Map<Qualifier, R>> {
-            require(key.qualifier == null) { "mapOfType key must not have a qualifier." }
-            val mapOfTypeKey = generic<Map<Qualifier, R>>(qualifier)
-            return register(MapOfTypeService(mapOfTypeKey, key, defaultKey))
-        }
-
-        /**
-         * Register a service that resolves a map of qualifiers to [providers][Provider] for
-         * type [R].
-         *
-         * This may return an empty map if no service of type [R] is registered.
-         *
-         * @param key The [TypeKey] of the services to collect.
-         * @param qualifier An optional qualifier for the new service.
-         * @param defaultKey The key that is used for a service that was registered without qualifier.
-         */
-        inline fun <reified R : Any> mapOfProvidersForType(
-            key: TypeKey<R> = erased(),
-            qualifier: Qualifier? = null,
-            defaultKey: Qualifier = qualifier("default")
-        ): UnboundService<Map<Qualifier, Provider<R>>> {
-            require(key.qualifier == null) {
-                "mapOfProvidersForType key must not have a qualifier."
-            }
-            val mapOfProvidersKey = generic<Map<Qualifier, Provider<R>>>(qualifier)
-            return register(MapOfProvidersForTypeService(mapOfProvidersKey, key, defaultKey))
-        }
+        ): UnboundService<R> = register(ConstantService(typeKey, value))
 
         /**
          * Creates an alias entry.
@@ -464,7 +381,15 @@ class Component private constructor(
 
         /**
          * Remove a dependency from the component.
-         * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false.
+         * @throws EntryNotFoundException If the dependency doesn't exist and [silent] is false.
+         */
+        inline fun <reified R: Any?> remove(silent: Boolean = false) {
+            remove(erased<R>(), silent)
+        }
+
+        /**
+         * Remove a dependency from the component.
+         * @throws EntryNotFoundException If the dependency doesn't exist and [silent] is false.
          */
         fun remove(key: TypeKey<*>, silent: Boolean = false) {
             val wasRemoved = registry.remove(key) != null

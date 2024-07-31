@@ -6,7 +6,6 @@ import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -87,6 +86,12 @@ class GraphTest {
         }
 
         @Test
+        fun `should return null for optional type if service returns null`() {
+            val graph = graph { prototype<String?> { null } }
+            graph.instance<String?>().shouldBeNull()
+        }
+
+        @Test
         fun `should invoke post construct callback with instance`() {
             var called = false
             graph {
@@ -161,6 +166,12 @@ class GraphTest {
         @Test
         fun `should return instance returned by factory function`() {
             testComponent.createGraph().instance<Any>().shouldBeSameInstanceAs(instance)
+        }
+
+        @Test
+        fun `should return null for optional type if service returns null`() {
+            val graph = graph { singleton<String?> { null } }
+            graph.instance<String?>().shouldBeNull()
         }
 
         @Test
@@ -240,6 +251,36 @@ class GraphTest {
             }.forEach { it.get() }
         }
 
+        @Test
+        fun `should not resolve classes from child graphs`() {
+            /**
+             * class Heater
+             *
+             * class Thermosiphon(val heater: Heater) : Pump
+             *
+             * class CoffeeMaker(val heater: Heater, val pump: Pump)
+             */
+
+            val component = component {
+                singletonOf(::Heater)
+                    .onClose { println("onClose($it)") }
+                singletonOf(::Thermosiphon)
+                    .alias(Pump::class)
+                    .onClose { println("onClose($it)") }
+
+                subcomponent(QualifierSub) {
+                    singletonOf(::CoffeeMaker)
+                        .onClose { println("onClose($it)") }
+                }
+            }
+            val parent = component.createGraph()
+            val child = parent.createSubgraph(QualifierSub)
+            val coffeeMaker: CoffeeMaker = child.instance()
+            child.close()
+            parent.close()
+//            println(coffeeMaker)
+        }
+
     }
 
     @Nested
@@ -287,17 +328,38 @@ class GraphTest {
     inner class InstanceMethod {
 
         @Test
-        fun `should resolve instance by class`() {
+        fun `should resolve instance`() {
             graph {
                 prototype { "string" }
             }.instance<String>().shouldBe("string")
         }
 
         @Test
-        fun `should resolve optional instance by class`() {
+        fun `should resolve optional instance`() {
             graph {
                 prototype { "string" }
             }.instance<String?>().shouldBe("string")
+        }
+
+        @Test
+        fun `should resolve null if optional service does not exit`() {
+            emptyGraph().instance<String?>().shouldBeNull()
+        }
+
+        @Test
+        fun `should resolve null if optional service returns null`() {
+            graph {
+                prototype<String?> { null }
+            }.instance<String?>().shouldBeNull()
+        }
+
+        @Test
+        fun `should fail if service returns null for non-optional key`() {
+            shouldThrow<DependencyResolutionException> {
+                graph {
+                    prototype<String?> { null }
+                }.instance<String>().uppercase()
+            }
         }
 
         @Test
@@ -361,125 +423,6 @@ class GraphTest {
             }.instance<Thermosiphon> {
                 constant(heater)
             }.heater.shouldBeSameInstanceAs(heater)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#provider")
-    inner class ProviderMethod {
-
-        @Test
-        fun `should resolve provider by class`() {
-            graph {
-                prototype { "string" }
-            }.provider<String>().invoke().shouldBe("string")
-        }
-
-        @Test
-        fun `provider should return null for non-existing optional type`() {
-            graph {}.provider<String?>().invoke().shouldBeNull()
-        }
-
-        @Test
-        fun `should resolve provider by generic class`() {
-            graph {
-                prototype(generic()) { mapOf(1 to "1") }
-            }.provider(generic<Map<Int, String>>()).invoke().shouldBe(mapOf(1 to "1"))
-        }
-
-        @Test
-        fun `should resolve provider with qualifier`() {
-            graph {
-                prototype(erased(QualifierA)) { "a" }
-                prototype(erased(QualifierB)) { "b" }
-            }.provider(erased<String>(QualifierB)).invoke().shouldBe("b")
-        }
-
-        @Test
-        fun `should throw an exception if dependency doesn't exist`() {
-            shouldThrow<EntryNotFoundException> { emptyGraph.provider<Any>() }
-        }
-
-        @Test
-        fun `should throw an exception when graph is closed`() {
-            graph { prototype { "string" } }.apply {
-                close()
-                shouldThrow<WinterException> { provider<Any>() }
-            }
-        }
-
-        @Test
-        fun `should postpone evaluation until provider is called`() {
-            var counter = 0
-            val provider = graph { prototype { counter += 1; counter } }.provider<Int>()
-            counter.shouldBe(0)
-            provider.invoke().shouldBe(1)
-            provider.invoke().shouldBe(2)
-        }
-
-        @Test
-        fun `should pass builder block to factory`() {
-            val heater = Heater()
-            graph {
-                singleton { Thermosiphon(instance()) }
-            }.provider<Thermosiphon> {
-                constant(heater)
-            }.invoke().heater.shouldBeSameInstanceAs(heater)
-        }
-
-    }
-
-    @Nested
-    @DisplayName("#*OfType")
-    inner class OfTypeMethods {
-
-        private val testGraph = graph {
-            prototype(erased(qualifier("something else"))) { Any() }
-            prototype(erased(QualifierA)) { "a" }
-            prototype(erased(QualifierB)) { "b" }
-            prototype(erased(QualifierC)) { "c" }
-            prototype { "bar" }
-
-            setOfType<String>(qualifier = QualifierA)
-            setOfProvidersForType<String>(qualifier = QualifierB)
-            mapOfType<String>(qualifier = QualifierC, defaultKey = qualifier("foo"))
-            mapOfProvidersForType<String>(qualifier = QualifierD, defaultKey = qualifier("foo"))
-        }
-
-        @Test
-        fun `should provide a set of instances of type`() {
-            val set: Set<String> = testGraph.instance(generic(QualifierA))
-            set.shouldBe(setOf("a", "b", "c", "bar"))
-        }
-
-        @Test
-        fun `should provide a set of providers of type`() {
-            val set: Set<Provider<String>> = testGraph.instance(generic(QualifierB))
-            set.map { it() }.shouldContainAll("a", "b", "c", "bar")
-        }
-
-        @Test
-        fun `should provide a map of instances of type`() {
-            val map: Map<Qualifier, String> = testGraph.instance(generic(QualifierC))
-            map.shouldBe(mapOf(
-                QualifierA to "a",
-                QualifierB to "b",
-                QualifierC to "c",
-                qualifier("foo") to "bar"
-            ))
-        }
-
-        @Test
-        fun `should provide a map of providers of type`() {
-            val map: Map<Qualifier, Provider<String>> = testGraph.instance(generic(QualifierD))
-            map.map { (k, v) -> k to v() }.toMap()
-                .shouldBe(mapOf(
-                    QualifierA to "a",
-                    QualifierB to "b",
-                    QualifierC to "c",
-                    qualifier("foo") to "bar"
-                ))
         }
 
     }
@@ -681,9 +624,9 @@ class GraphTest {
                 }.instance<CoffeeMaker>()
             }.message.shouldBe(
                 "Error while resolving dependency with key: " +
-                        "ClassTypeKey(class io.jentz.winter.CoffeeMaker, null) " +
+                        "TypeKey(io.jentz.winter.CoffeeMaker, qualifier = null, isOptional = false) " +
                         "reason: could not find dependency with key " +
-                        "ClassTypeKey(class io.jentz.winter.Heater, null)"
+                        "TypeKey(io.jentz.winter.Heater, qualifier = null, isOptional = false)"
             )
         }
 
@@ -697,9 +640,9 @@ class GraphTest {
                 }.instance<CoffeeMaker>()
             }.message.shouldBe(
                 "Error while resolving dependency with key: " +
-                        "ClassTypeKey(interface io.jentz.winter.Pump, null) " +
+                        "TypeKey(io.jentz.winter.Pump, qualifier = null, isOptional = false) " +
                         "reason: could not find dependency with key " +
-                        "ClassTypeKey(class io.jentz.winter.Heater, qualifier(doesn't exist))"
+                        "TypeKey(io.jentz.winter.Heater, qualifier = qualifier(doesn't exist), isOptional = false)"
             )
         }
 
@@ -714,7 +657,7 @@ class GraphTest {
             }.let {
                 it.message.shouldBe(
                     "Factory of dependency with key " +
-                            "ClassTypeKey(interface io.jentz.winter.Pump, null) " +
+                            "TypeKey(io.jentz.winter.Pump, qualifier = null, isOptional = false) " +
                             "threw an exception on invocation."
                 )
                 it.cause?.message.shouldBe("Boom!")

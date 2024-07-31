@@ -8,7 +8,7 @@ import io.jentz.winter.Prototype
 import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
 
-class PrototypeService<R : Any>(
+class PrototypeService<R : Any?>(
     override val key: TypeKey<R>,
     internal val factory: GFactory<R>
 ) : UnboundService<R> {
@@ -30,7 +30,7 @@ class PrototypeService<R : Any>(
     }
 }
 
-private class BoundPrototypeService<R : Any>(
+private class BoundPrototypeService<R : Any?>(
     private val graph: Graph,
     override val unboundService: PrototypeService<R>
 ) : BoundService<R>() {

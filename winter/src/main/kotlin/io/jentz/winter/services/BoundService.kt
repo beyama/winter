@@ -1,6 +1,7 @@
 package io.jentz.winter.services
 
 import io.jentz.winter.ComponentBuilderBlock
+import io.jentz.winter.DependencyResolutionException
 import io.jentz.winter.Graph
 import io.jentz.winter.Qualifier
 import io.jentz.winter.TypeKey
@@ -88,5 +89,15 @@ abstract class BoundService<R : Any?> {
     open fun onClose() {
     }
 
+}
+
+fun <R> BoundService<R>.checkedInstance(
+    isOptional: Boolean,
+    block: ComponentBuilderBlock? = null
+): R {
+    val instance = instance(block)
+    if (instance == null && !isOptional)
+        throw DependencyResolutionException(key, "Service `$key` returned null for non-optional key")
+    else return instance
 }
 

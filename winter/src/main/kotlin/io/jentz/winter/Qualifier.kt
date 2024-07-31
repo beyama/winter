@@ -3,7 +3,7 @@ package io.jentz.winter
 import kotlin.reflect.KClass
 
 @JvmInline
-value class Qualifier(val value: String) {
+value class Qualifier internal constructor(val value: String) {
     init {
         require(value.isNotBlank()) { "Qualifier value must not be blank" }
     }

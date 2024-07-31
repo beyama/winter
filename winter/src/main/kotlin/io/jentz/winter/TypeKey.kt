@@ -21,6 +21,10 @@ interface TypeKey<out R> {
 
 }
 
+@Suppress("UNCHECKED_CAST")
+inline fun <reified R: Any?> Set<TypeKey<*>>.ofType(key: TypeKey<R> = erased()): Set<TypeKey<R>> =
+    filterTo(mutableSetOf()) { it.typeEquals(key) } as Set<TypeKey<R>>
+
 /**
  * Returns [TypeKey] for type [R] with erased generics.
  *
@@ -69,7 +73,8 @@ class ClassTypeKey<R>(
         return _hashCode
     }
 
-    override fun toString(): String = "ClassTypeKey($type, $qualifier)"
+    override fun toString(): String =
+        "TypeKey(${type.name}, qualifier = $qualifier, isOptional = $isOptional)"
 
 }
 

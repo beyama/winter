@@ -8,11 +8,7 @@ import io.jentz.winter.dsl.prototypeOf
 import io.jentz.winter.dsl.singletonOf
 import io.jentz.winter.services.AliasService
 import io.jentz.winter.services.ConstantService
-import io.jentz.winter.services.MapOfProvidersForTypeService
-import io.jentz.winter.services.MapOfTypeService
 import io.jentz.winter.services.PrototypeService
-import io.jentz.winter.services.SetOfProvidersForTypeService
-import io.jentz.winter.services.SetOfTypeService
 import io.jentz.winter.services.SingletonService
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
@@ -60,40 +56,6 @@ class ComponentBuilderTest {
         component {
             constant(42)
         }.shouldContainServiceOfType<ConstantService<*>>(erased<Int>())
-    }
-
-    @Test
-    fun `#setOfType should register SetOfTypeService`() {
-        component {
-            setOfType<String>()
-        }.shouldContainServiceOfType<SetOfTypeService<*>>(generic<Set<String>>())
-    }
-
-    @Test
-    fun `#setOfProvidersForType should register SetOfProvidersForTypeService`() {
-        component {
-            setOfProvidersForType<String>()
-        }.shouldContainServiceOfType<SetOfProvidersForTypeService<*>>(
-            generic<Set<Provider<String>>>()
-        )
-    }
-
-    @Test
-    fun `#mapOfType should register MapOfTypeService`() {
-        component {
-            mapOfType<String>()
-        }.shouldContainServiceOfType<MapOfTypeService<*>>(
-            generic<Map<Qualifier, String>>()
-        )
-    }
-
-    @Test
-    fun `#mapOfProvidersForType should register MapOfProvidersForTypeService`() {
-        component {
-            mapOfProvidersForType<String>()
-        }.shouldContainServiceOfType<MapOfProvidersForTypeService<*>>(
-            generic<Map<Qualifier, Provider<String>>>()
-        )
     }
 
     @Test

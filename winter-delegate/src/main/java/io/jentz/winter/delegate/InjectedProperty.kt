@@ -1,7 +1,14 @@
 package io.jentz.winter.delegate
 
-import io.jentz.winter.*
+import io.jentz.winter.ComponentBuilderBlock
+import io.jentz.winter.EntryNotFoundException
+import io.jentz.winter.Graph
+import io.jentz.winter.Provider
+import io.jentz.winter.TypeKey
+import io.jentz.winter.WinterException
+import io.jentz.winter.dsl.provider
 import io.jentz.winter.services.BoundService
+import io.jentz.winter.services.checkedInstance
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -151,10 +158,8 @@ internal abstract class AbstractLazyProperty<R : Any?, T>(
         LazyPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
-        service = resolveService(graph, key)
+        service = graph.checkedService(key)
     }
-
-    protected abstract fun resolveService(graph: Graph, key: TypeKey<R>): BoundService<R>?
 
     protected abstract fun getValue(service: BoundService<R>?): T
 
@@ -176,19 +181,9 @@ internal class LazyInstanceProperty<R : Any?>(
     key: TypeKey<R>,
     private val block: ComponentBuilderBlock?
 ) : AbstractLazyProperty<R, R>(key) {
-
-    override fun resolveService(graph: Graph, key: TypeKey<R>): BoundService<R>? {
-        val service = graph.service(key)
-        if (service == null && !key.isOptional)
-            throw EntryNotFoundException(key)
-        return graph.service(key)
-    }
-
-    override fun getValue(service: BoundService<R>?): R {
-        @Suppress("UNCHECKED_CAST")
-        return if (key.isOptional) service?.instance(block) as R
-        else service?.instance(block) ?: throw EntryNotFoundException(key)
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun getValue(service: BoundService<R>?): R =
+        service?.checkedInstance(key.isOptional, block) as R
 }
 
 @PublishedApi

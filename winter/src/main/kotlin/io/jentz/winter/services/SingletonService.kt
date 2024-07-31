@@ -10,7 +10,7 @@ import io.jentz.winter.Singleton
 import io.jentz.winter.TypeKey
 import io.jentz.winter.UNINITIALIZED_VALUE
 
-class SingletonService<R : Any>(
+class SingletonService<R : Any?>(
     override val key: TypeKey<R>,
     internal val factory: GFactory<R>
 ) : UnboundService<R> {
@@ -39,12 +39,12 @@ class SingletonService<R : Any>(
     fun onClose(callback: GCallback<R>) = addSideEffect { callback }
 }
 
-private class BoundSingletonService<R : Any>(
+private class BoundSingletonService<R : Any?>(
     private val graph: Graph,
     override val unboundService: SingletonService<R>
 ) : BoundService<R>() {
 
-    @Volatile private var _value = UNINITIALIZED_VALUE
+    @Volatile private var _value: Any? = UNINITIALIZED_VALUE
     private var closeCallbacks: List<GCallback<R>>? = null
 
     @Suppress("UNCHECKED_CAST")

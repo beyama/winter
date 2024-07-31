@@ -6,6 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isSameInstanceAs
 import io.jentz.winter.component
+import io.jentz.winter.dsl.keys
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.graph
 import io.jentz.winter.qualifier

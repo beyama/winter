@@ -3,14 +3,16 @@ package io.jentz.winter
 import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.services.BoundService
 import io.jentz.winter.services.ConstantService
+import io.jentz.winter.services.checkedInstance
 
 private val QUALIFIER_DERIVED = qualifier("_DERIVED_")
+
+private val KEY_GRAPH = erased<Graph>()
 
 /**
  * The object graph class that retrieves and instantiates dependencies registered in its component.
  *
- * An instance is created by calling [Component.createGraph], [Graph.createSubgraph]
- * or [Graph.openSubgraph].
+ * An instance is created by calling [Component.createGraph] or [Graph.createSubgraph].
  */
 class Graph internal constructor(
     application: WinterApplication,
@@ -36,18 +38,11 @@ class Graph internal constructor(
             var isClosing = false
 
             init {
-                val selfKey = erased<Graph>()
-                registry[selfKey] = ConstantService(selfKey, graph)
+                registry[KEY_GRAPH] = ConstantService(KEY_GRAPH, graph)
             }
-
-            @Suppress("UNCHECKED_CAST")
-            fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
-                registry.getOrPut(key) {
-                    component[key]?.bind(graph) ?: return parent?.service(key)
-                } as? BoundService<R>
         }
 
-        object Closed : State()
+        data object Closed : State()
     }
 
     private var state: State
@@ -145,63 +140,32 @@ class Graph internal constructor(
      *
      * @throws EntryNotFoundException
      */
+    @Suppress("UNCHECKED_CAST")
     fun <R : Any?> instance(
         key: TypeKey<R>,
         block: ComponentBuilderBlock? = null
-    ): R {
-        return if (key.isOptional) service(key)?.instance(block) as R
-        else service(key)?.instance(block) ?: throw EntryNotFoundException(key)
-    }
+    ): R = checkedService(key)?.checkedInstance(key.isOptional, block) as R
 
-    /**
-     * Retrieves a provider function that returns `R`.
-     *
-     * @return The provider function.
-     *
-     * @throws EntryNotFoundException
-     */
-    inline fun <reified R : Any?> provider(
-        noinline block: ComponentBuilderBlock? = null
-    ): Provider<R> = provider(erased(), block)
+    tailrec fun <R : Any?> service(key: TypeKey<R>, base: Graph? = this): BoundService<R>? =
+        base?.synchronizedMap { state ->
+            @Suppress("UNCHECKED_CAST")
+            return state.registry.getOrPut(key) {
+                state.component[key]?.bind(base) ?: return service(key, base.parent)
+            } as BoundService<R>
+        }
 
-    /**
-     * Retrieves a provider function that returns `R`.
-     *
-     * @param key The [TypeKey] of the service to resolve.
-     * @return The provider function.
-     *
-     * @throws EntryNotFoundException
-     */
-    fun <R : Any?> provider(
-        key: TypeKey<R>,
-        block: ComponentBuilderBlock? = null
-    ): Provider<R> {
+    fun <R: Any?> checkedService(key: TypeKey<R>): BoundService<R>? {
         val service = service(key)
         if (service == null && !key.isOptional)
             throw EntryNotFoundException(key)
-        return { service?.instance(block) as R }
+        return service
     }
-
-
-    /**
-     * Returns a set of all [keys][TypeKey] registered on the backing [Component] and all the
-     * ancestor components.
-     *
-     * This is used internally and may be useful for debugging and testing.
-     */
-    fun keys(): Set<TypeKey<*>> {
-        val keys = component.keys()
-        return parent?.keys()?.let { keys + it } ?: keys
-    }
-
-    fun <R : Any?> service(key: TypeKey<R>): BoundService<R>? =
-        synchronizedMap { it.service(key) }
 
     /**
      * This is called from [BoundService.instance] when a new instance is created.
      * Don't use this method except in custom [BoundService] implementations.
      */
-    fun <R : Any> evaluate(service: BoundService<R>, block: ComponentBuilderBlock?): R =
+    fun <R : Any?> evaluate(service: BoundService<R>, block: ComponentBuilderBlock?): R =
         synchronizedMap {
             if (block == null) {
                 it.serviceEvaluator.evaluate(service, this)

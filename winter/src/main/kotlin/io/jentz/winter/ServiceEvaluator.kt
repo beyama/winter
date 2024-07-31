@@ -19,7 +19,7 @@ internal class ServiceEvaluator(
     // list where we collect all pending keys from the stack down to the cyclic key
     private var cyclicDependenciesChain: MutableList<TypeKey<*>>? = null
 
-    fun <R : Any> evaluate(service: BoundService<R>, graph: Graph): R {
+    fun <R : Any?> evaluate(service: BoundService<R>, graph: Graph): R {
         val key = service.key
 
         val isInitialServiceRequest = !isRequestPending
@@ -39,6 +39,9 @@ internal class ServiceEvaluator(
 
         try {
             val instance = service.newInstance(graph)
+                ?: @Suppress("UNCHECKED_CAST")
+                if (service.key.isOptional) return null as R
+                else throw WinterException("Service for key `${service.key}` returned null")
 
             if (service.requiresPostConstructCallback) {
                 // collect services with their instances & graphs until we have no pending requests

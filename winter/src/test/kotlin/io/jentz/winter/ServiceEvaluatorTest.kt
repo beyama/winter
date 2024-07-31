@@ -38,9 +38,9 @@ class ServiceEvaluatorTest {
         }.run {
             key.shouldBe(erased<String>(QualifierB))
             message.shouldBe("Error while resolving dependency with key: " +
-                    "ClassTypeKey(class java.lang.String, qualifier(b)) " +
+                    "TypeKey(java.lang.String, qualifier = qualifier(b), isOptional = false) " +
                     "reason: could not find dependency with key " +
-                    "ClassTypeKey(interface java.util.List, null)")
+                    "TypeKey(java.util.List, qualifier = null, isOptional = false)")
             cause.shouldBeSameInstanceAs(exception)
         }
     }
@@ -58,7 +58,7 @@ class ServiceEvaluatorTest {
             key.shouldBe(erased<String>(QualifierB))
             message.shouldBe(
                 "Factory of dependency with key " +
-                        "ClassTypeKey(class java.lang.String, qualifier(b)) " +
+                        "TypeKey(java.lang.String, qualifier = qualifier(b), isOptional = false) " +
                         "threw an exception on invocation.")
             cause.shouldBeSameInstanceAs(exception)
         }
@@ -76,13 +76,13 @@ class ServiceEvaluatorTest {
             evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
-                    "`ClassTypeKey(class java.lang.String, qualifier(b))` " +
+                    "`TypeKey(java.lang.String, qualifier = qualifier(b), isOptional = false)` " +
                     "is dependent of itself.\n" +
                     "Dependency chain: " +
-                    "ClassTypeKey(class java.lang.String, qualifier(b)) -> " +
-                    "ClassTypeKey(class java.lang.String, qualifier(c)) -> " +
-                    "ClassTypeKey(class java.lang.String, qualifier(d)) => " +
-                    "ClassTypeKey(class java.lang.String, qualifier(b))"
+                    "TypeKey(java.lang.String, qualifier = qualifier(b), isOptional = false) -> " +
+                    "TypeKey(java.lang.String, qualifier = qualifier(c), isOptional = false) -> " +
+                    "TypeKey(java.lang.String, qualifier = qualifier(d), isOptional = false) => " +
+                    "TypeKey(java.lang.String, qualifier = qualifier(b), isOptional = false)"
         )
     }
 
@@ -95,11 +95,11 @@ class ServiceEvaluatorTest {
             evaluator.evaluate(a, emptyGraph())
         }.message.shouldBe(
             "Cyclic dependency found: " +
-                    "`ClassTypeKey(class java.lang.String, qualifier(a))` " +
+                    "`TypeKey(java.lang.String, qualifier = qualifier(a), isOptional = false)` " +
                     "is directly dependent of itself.\n" +
                     "Dependency chain: " +
-                    "ClassTypeKey(class java.lang.String, qualifier(a)) => " +
-                    "ClassTypeKey(class java.lang.String, qualifier(a))"
+                    "TypeKey(java.lang.String, qualifier = qualifier(a), isOptional = false) => " +
+                    "TypeKey(java.lang.String, qualifier = qualifier(a), isOptional = false)"
         )
     }
 
