@@ -1,9 +1,12 @@
 package io.jentz.winter
 
 import io.jentz.winter.Component.Builder
-import io.jentz.winter.inject.ApplicationScope
-import io.jentz.winter.inject.Factory
-import javax.inject.Singleton
+import io.jentz.winter.services.AliasService
+import io.jentz.winter.services.ConstantService
+import io.jentz.winter.services.PrototypeService
+import io.jentz.winter.services.SingletonService
+import io.jentz.winter.services.UnboundService
+import kotlin.reflect.KClass
 
 /**
  * The Component stores the dependency providers which are than retrieved and instantiated by an
@@ -19,7 +22,7 @@ import javax.inject.Singleton
  *     singleton<MyService> { MyServiceImpl(instance()) }
  * }
  * val derived = appComponent.derive {
- *     prototype<MyOtherService> { MyOtherServiceImpl(instance(), instance("named")) }
+ *     prototype<MyOtherService> { MyOtherServiceImpl(instance(), instance()) }
  * }
  * val graph = derived.createGraph { constant<Application>(myApplicationInstance) }
  * ```
@@ -30,20 +33,13 @@ class Component private constructor(
     /**
      * The components qualifier.
      */
-    val qualifier: Any,
+    val qualifier: Qualifier,
 
     private val registry: Map<TypeKey<*>, UnboundService<*>>,
-
-    private val subcomponentKeys: Set<TypeKey<Component>>,
-
-    /**
-     * Set to true if any of the services requires lifecycle callbacks.
-     */
-    internal val requiresLifecycleCallbacks: Boolean
 ) {
 
     companion object {
-        val EMPTY = Component(ApplicationScope::class, emptyMap(), emptySet(), false)
+        val EMPTY = Component(ApplicationScope, emptyMap())
     }
 
     /**
@@ -54,33 +50,27 @@ class Component private constructor(
      * @return A new [Component] that contains all provider of the base component plus the one
      *         defined in the builder block.
      */
-    @JvmOverloads
     fun derive(
-        qualifier: Any = this.qualifier,
+        qualifier: Qualifier = this.qualifier,
         block: ComponentBuilderBlock
     ) = Builder(qualifier, this).apply(block).build()
 
     /**
-     * Returns a subcomponent by its qualifier or a nested subcomponent by its path of qualifiers.
+     * Returns a subcomponent by its qualifier.
      *
-     * Main usage for this is to restructure components when using [Builder.include]
-     * in conjunction with [Builder.SubcomponentIncludeMode.DoNotInclude].
+     * Main usage for this is to restructure components when using [Builder.include].
      *
-     * @param qualifiers The qualifier/path of qualifiers of the subcomponent
+     * @param qualifier The qualifier of the subcomponent
      * @return The subcomponent
      *
      * @throws EntryNotFoundException If the component does not exist.
      */
-    fun subcomponent(vararg qualifiers: Any): Component =
-        qualifiers.fold(this) { component, qualifier ->
-            val key = typeKey<Component>(qualifier)
-            val constant = component.registry[key] as? ConstantService<*>
-            if (constant == null) {
-                val path = qualifiers.joinToString(".")
-                throw EntryNotFoundException(key, "Subcomponent with path [$path] doesn't exist.")
-            }
-            constant.value as Component
-        }
+    fun subcomponent(qualifier: Qualifier): Component {
+        val key = erased<Component>(qualifier)
+        val constant = registry[key] as? ConstantService<*>
+            ?: throw EntryNotFoundException(key, "Subcomponent `$qualifier` doesn't exist.")
+        return constant.value as Component
+    }
 
     /**
      * Create a [object graph][Graph] from this component.
@@ -112,7 +102,7 @@ class Component private constructor(
     internal fun containsKey(typeKey: TypeKey<*>): Boolean = registry.containsKey(typeKey)
 
     class Builder internal constructor(
-        val qualifier: Any,
+        val qualifier: Qualifier,
         private var base: Component = EMPTY,
         private val parent: Builder? = null
     ) {
@@ -140,13 +130,6 @@ class Component private constructor(
             Merge
         }
 
-        init {
-            require(qualifier != Singleton::class) {
-                "Use `${ApplicationScope::class.java.name}::class` instead of " +
-                        "`${Singleton::class.java.name}::class` as component qualifier"
-            }
-        }
-
         private val root: Builder = if (parent == null) this else run {
             var base = parent!!
             while (base.parent != null) {
@@ -157,20 +140,15 @@ class Component private constructor(
 
         private var _registry: MutableMap<TypeKey<*>, UnboundService<*>>? = null
 
-        private var _subcomponentKeys: MutableSet<TypeKey<Component>>? = null
-
         private var _eagerDependencies: MutableSet<TypeKey<Any>>? = null
 
         private var _subcomponentBuilders: MutableMap<TypeKey<Component>, Builder>? = null
 
+        @PublishedApi
+        internal var override = false
+
         private val registry: MutableMap<TypeKey<*>, UnboundService<*>>
             get() = _registry ?: HashMap(base.registry).also { _registry = it }
-
-        private val subcomponentKeys: MutableSet<TypeKey<Component>>
-            get() = _subcomponentKeys
-                ?: HashSet(base.subcomponentKeys).also { _subcomponentKeys = it }
-
-        private var componentQualifierOverride: Any? = null
 
         private val eagerDependencies: MutableSet<TypeKey<Any>>
             get() = _eagerDependencies ?: hashSetOf<TypeKey<Any>>().also { set ->
@@ -187,25 +165,31 @@ class Component private constructor(
                 _subcomponentBuilders = it
             }
 
-        private var requiresLifecycleCallbacks: Boolean = base.requiresLifecycleCallbacks
+        /**
+         * Service registry functions will override already existing services with the same
+         * [TypeKey] inside of the block.
+         */
+        inline fun override(block: () -> Unit) {
+            try {
+                override = true
+                block()
+            } finally {
+                override = false
+            }
+        }
 
         /**
          * Include dependency from the given component into the new component.
          *
          * @param component The component to include the dependencies from.
-         * @param override Set to false to throw an exception if a dependency already exists
-         *                 otherwise it will be replaced.
          * @param subcomponentIncludeMode Defines the behaviour when a subcomponent with the same
          *                                qualifier already exists.
          */
         @Suppress("UNCHECKED_CAST")
         fun include(
             component: Component,
-            override: Boolean = true,
             subcomponentIncludeMode: SubcomponentIncludeMode = SubcomponentIncludeMode.Merge
         ) {
-            checkComponentQualifier(component.qualifier)
-
             component.registry.forEach { (k, v) ->
                 when {
                     k === eagerDependenciesKey -> {
@@ -230,225 +214,35 @@ class Component private constructor(
         /**
          * Register a prototype scoped factory for an instance of type [R].
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
+         * @param typeKey The [TypeKey] this service is registered with.
          * @param factory The factory for type [R].
          */
-        inline fun <reified R : Any> prototype(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
+        inline fun <reified R : Any?> prototype(
+            typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundPrototypeService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
+        ) = register(PrototypeService(typeKey, factory))
 
         /**
          * Register a singleton scoped factory for an instance of type [R].
          *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param onClose A callback that gets called when the dependency graph gets closed.
+         * @param typeKey The [TypeKey] this service is registered with.
          * @param factory The factory for type [R].
          */
-        inline fun <reified R : Any> singleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline onClose: GFactoryCallback<R>? = null,
+        inline fun <reified R : Any?> singleton(
+            typeKey: TypeKey<R> = erased(),
             noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
-            register(service, override)
-            return key
-        }
-
-        /**
-         * Register an eager singleton scoped factory for an instance of type [R].
-         *
-         * This behaves exactly like [singleton] but the instance will be created as soon as the
-         * dependency graph is initialize.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param onClose A callback that gets called when the dependency graph gets closed.
-         * @param factory The factory for [R].
-         */
-        inline fun <reified R : Any> eagerSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline onClose: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSingletonService(key, factory, onPostConstruct, onClose)
-            register(service, override)
-            addEagerDependency(key)
-            return key
-        }
-
-        /**
-         * Register a weak singleton scoped factory for an instance of type [R].
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param factory The factory for type [R].
-         */
-        inline fun <reified R : Any> weakSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundWeakSingletonService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
-
-        /**
-         * Register a soft singleton scoped factory for an instance of type [R].
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override a existing provider of this type.
-         * @param onPostConstruct A post construct callback.
-         * @param factory The factory for type [R].
-         */
-        inline fun <reified R : Any> softSingleton(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            noinline onPostConstruct: GFactoryCallback<R>? = null,
-            noinline factory: GFactory<R>
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = UnboundSoftSingletonService(key, factory, onPostConstruct)
-            register(service, override)
-            return key
-        }
+        ) = register(SingletonService(typeKey, factory))
 
         /**
          * Register a constant of type [R].
          *
          * @param value The value of this constant provider.
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override an existing factory of this type.
+         * @param typeKey The [TypeKey] this service is registered with.
          */
-        inline fun <reified R : Any> constant(
+        inline fun <reified R : Any?> constant(
             value: R,
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false
-        ): TypeKey<R> {
-            val key = typeKey<R>(qualifier, generics)
-            val service = ConstantService(key, value)
-            register(service, override)
-            return key
-        }
-
-        /**
-         * Register a service that resolves a set of instance of type [R].
-         *
-         * This may return an empty set if no service of type [R] is registered.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override an existing factory of this type.
-         */
-        inline fun <reified R : Any> setOfType(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false
-        ): TypeKey<Set<R>> {
-            val key = typeKey<Set<R>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            register(SetOfTypeService(key, typeOfKey), override)
-            return key
-        }
-
-        /**
-         * Register a service that resolves a set of [providers][Provider] for type [R].
-         *
-         * This may return an empty set if no service of type [R] is registered.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override an existing factory of this type.
-         */
-        inline fun <reified R : Any> setOfProvidersForType(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false
-        ): TypeKey<Set<Provider<R>>> {
-            val key = typeKey<Set<Provider<R>>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            register(SetOfProvidersForTypeService(key, typeOfKey), override)
-            return key
-        }
-
-        /**
-         * Register a service that resolves a map of qualifiers to type [R].
-         *
-         * This may return an empty map if no service of type [R] is registered.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override an existing factory of this type.
-         * @param defaultKey The key that is used for a service that was registered without qualifier.
-         */
-        inline fun <reified R : Any> mapOfType(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            defaultKey: Any = "default"
-        ): TypeKey<Map<Any, R>> {
-            val key = typeKey<Map<Any, R>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            register(MapOfTypeService(key, typeOfKey, defaultKey), override)
-            return key
-        }
-
-        /**
-         * Register a service that resolves a map of qualifiers to [providers][Provider] for
-         * type [R].
-         *
-         * This may return an empty map if no service of type [R] is registered.
-         *
-         * @param qualifier An optional qualifier.
-         * @param generics If true this will preserve generic information of [R].
-         * @param override If true this will override an existing factory of this type.
-         * @param defaultKey The key that is used for a service that was registered without qualifier.
-         */
-        inline fun <reified R : Any> mapOfProvidersForType(
-            qualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false,
-            defaultKey: Any = "default"
-        ): TypeKey<Map<Any, Provider<R>>> {
-            val key = typeKey<Map<Any, Provider<R>>>(qualifier, generics = true)
-            val typeOfKey = typeKey<R>(generics = generics)
-            register(MapOfProvidersForTypeService(key, typeOfKey, defaultKey), override)
-            return key
-        }
+            typeKey: TypeKey<R> = erased()
+        ): UnboundService<R> = register(ConstantService(typeKey, value))
 
         /**
          * Creates an alias entry.
@@ -464,21 +258,18 @@ class Component private constructor(
          *
          * @param targetKey The [TypeKey] of an entry an alias should be created for.
          * @param newKey The alias [TypeKey].
-         * @param override If true this will override an existing factory of type [newKey].
          *
          * @throws WinterException If [newKey] entry already exists and [override] is false.
          */
-        fun <R0 : Any, R1 : Any> alias(
+        fun <R0 : Any?, R1 : Any?> alias(
             targetKey: TypeKey<R0>,
             newKey: TypeKey<R1>,
-            override: Boolean = false
-        ): TypeKey<R0> {
-            register(AliasService(targetKey, newKey), override)
-            return targetKey
+        ) {
+            register(AliasService(targetKey, newKey))
         }
 
         /**
-         * Create an alias entry for a [TypeKey].
+         * Create an alias entry for the [UnboundService].
          *
          * Be careful, this method will not check if a type cast is possible.
          *
@@ -486,53 +277,54 @@ class Component private constructor(
          * ```
          * singleton {
          *   ReposViewModel(instance())
-         * }.alias<ViewModel<ReposViewState>>(generics = true)
+         * }.alias(typeKey<ViewModel<ReposViewState>>(generics = true))
          * ```
-         * @param aliasQualifier The qualifier of the alias entry.
-         * @param generics If true this creates a type key that also takes generic type parameters
-         *                 into account.
-         * @param override If true this will override an existing factory for type [R].
+         * @param key The [TypeKey] of the alias.
          */
-        inline fun <reified R : Any> TypeKey<*>.alias(
-            aliasQualifier: Any? = null,
-            generics: Boolean = false,
-            override: Boolean = false
-        ): TypeKey<*> {
-            val newKey = typeKey<R>(aliasQualifier, generics)
-            return alias(this, newKey, override)
+        fun <R: Any?, A: Any?, S: UnboundService<R>> S.alias(
+            key: TypeKey<A>
+        ): S {
+            alias(this.key, key)
+            return this
         }
 
         /**
-         * Register a generated factory.
+         * Create an alias entry for the [UnboundService].
          *
-         * @param override If true this will override an existing factory for same type.
+         * Be careful, this method will not check if a type cast is possible.
+         *
+         * Example:
+         * ```
+         * singleton {
+         *   ReposViewModelImpl(instance())
+         * }.alias(::ReposViewModel)
+         * ```
+         * @param kClass The [KClass] of the alias.
+         * @param qualifier The optional [Qualifier] for the alias.
          */
-        inline fun <reified R : Any> generated(override: Boolean = false): TypeKey<R> {
-            return generatedFactory<R>().register(this, override)
-        }
+        inline fun <R: Any?, reified A: Any, S: UnboundService<R>> S.alias(
+            kClass: KClass<A>,
+            qualifier: Qualifier? = null
+        ): S = alias(kClass.typeKey(qualifier))
 
         /**
-         * Loads the generated factory of the given type.
+         * Marks a singleton as eager which will instantiate the singleton when the graph opens.
          */
-        inline fun <reified R : Any> generatedFactory(): Factory<R> {
-            val factoryName = R::class.java.name + "_WinterFactory"
-            @Suppress("UNCHECKED_CAST")
-            val factory = Class.forName(factoryName) as Class<Factory<R>>
-            return factory.getConstructor().newInstance()
+        fun <R: Any> SingletonService<R>.eager(): SingletonService<R> {
+            addEagerDependency(key)
+            return this
         }
 
         /**
          * Register a subcomponent.
          *
          * @param qualifier The qualifier of the subcomponent.
-         * @param override If true an existing subcomponent will be replaced.
          * @param deriveExisting If true an existing subcomponent will be derived and replaced with
          *                       the derived version.
          * @param block A builder block to register provider on the subcomponent.
          */
         fun subcomponent(
-            qualifier: Any,
-            override: Boolean = false,
+            qualifier: Qualifier,
             deriveExisting: Boolean = false,
             block: Builder.() -> Unit
         ) {
@@ -542,7 +334,7 @@ class Component private constructor(
                 )
             }
 
-            val key = typeKey<Component>(qualifier)
+            val key = erased<Component>(qualifier)
 
             val doesAlreadyExist =
                 registry.containsKey(key) || subcomponentBuilders.containsKey(key)
@@ -575,7 +367,7 @@ class Component private constructor(
          *
          * Don't use that except if you add your own [UnboundService] implementations.
          */
-        fun register(service: UnboundService<*>, override: Boolean) {
+        fun <R: Any?, S: UnboundService<R>> register(service: S): S {
             val key = service.key
             val alreadyExists = registry.containsKey(key)
 
@@ -583,16 +375,21 @@ class Component private constructor(
                 throw WinterException("Entry with key `$key` already exists.")
             }
 
-            if (!requiresLifecycleCallbacks) {
-                requiresLifecycleCallbacks = service.requiresLifecycleCallbacks
-            }
-
             registry[key] = service
+            return service
         }
 
         /**
          * Remove a dependency from the component.
-         * Throws an [EntryNotFoundException] if the dependency doesn't exist and [silent] is false.
+         * @throws EntryNotFoundException If the dependency doesn't exist and [silent] is false.
+         */
+        inline fun <reified R: Any?> remove(silent: Boolean = false) {
+            remove(erased<R>(), silent)
+        }
+
+        /**
+         * Remove a dependency from the component.
+         * @throws EntryNotFoundException If the dependency doesn't exist and [silent] is false.
          */
         fun remove(key: TypeKey<*>, silent: Boolean = false) {
             val wasRemoved = registry.remove(key) != null
@@ -601,44 +398,10 @@ class Component private constructor(
             if (!silent && !wasRemoved) {
                 throw EntryNotFoundException(key, "Entry with key `$key` doesn't exist.")
             }
-            subcomponentKeys.remove(key)
             eagerDependencies.remove(key)
         }
 
-        /**
-         * Allow a different component qualifier than [qualifier] for [include] and
-         * [Factory.register].
-         *
-         * @param qualifier The qualifier that is allowed in the scope of [block].
-         * @param block The block to execute.
-         */
-        fun allowComponentQualifier(qualifier: Any, block: () -> Unit) {
-            val previousOverride = componentQualifierOverride
-            componentQualifierOverride = qualifier
-            block()
-            componentQualifierOverride = previousOverride
-        }
-
-        /**
-         * Checks if the given [qualifier] meets criteria for [include] and [Factory.register].
-         *
-         * This is only public because it is needed for annotation preprocessed factories.
-         * No need to use that in consumer code.
-         */
-        fun checkComponentQualifier(qualifier: Any) {
-            // Singleton factories can be registered on ApplicationScope by default.
-            if (qualifier == Singleton::class
-                && (this.qualifier == ApplicationScope::class
-                        || componentQualifierOverride == ApplicationScope::class)) return
-
-            if (this.qualifier != qualifier && componentQualifierOverride != qualifier) {
-                throw WinterException("Component qualifier `$qualifier` does not match required " +
-                        "qualifier `${this.qualifier}`.")
-            }
-        }
-
-        @PublishedApi
-        internal fun addEagerDependency(key: TypeKey<Any>) {
+        private fun addEagerDependency(key: TypeKey<Any>) {
             if (!registry.containsKey(key)) {
                 throw WinterException("Key `$key` is not registered.")
             }
@@ -657,7 +420,6 @@ class Component private constructor(
                     if (!registry.containsKey(key)
                         && (_subcomponentBuilders == null
                                 || !subcomponentBuilders.containsKey(key))) {
-                        addSubcomponentKey(key)
                         registry[key] = entry
                     }
                 }
@@ -667,7 +429,12 @@ class Component private constructor(
                 }
                 SubcomponentIncludeMode.Merge -> {
                     val builder = getOrCreateSubcomponentBuilder(key)
-                    builder.include(entry.value)
+                    try {
+                        builder.override = override
+                        builder.include(entry.value)
+                    } finally {
+                        builder.override = false
+                    }
                 }
             }
         }
@@ -676,80 +443,9 @@ class Component private constructor(
             return subcomponentBuilders.getOrPut(key) {
                 val constant = registry.remove(key) as? ConstantService<*>
                 val existingSubcomponent = constant?.value as? Component
-
-                if (existingSubcomponent == null) {
-                    addSubcomponentKey(key)
-                }
-
                 val base = existingSubcomponent ?: EMPTY
 
                 Builder(key.requireQualifier, base, this)
-            }
-        }
-
-        private fun addSubcomponentKey(key: TypeKey<Component>) {
-            if (root.qualifier == key.requireQualifier) {
-                throw WinterException(
-                    "Subcomponent must have unique qualifier (qualifier `${root.qualifier}` " +
-                            "is roots component qualifier)."
-                )
-            }
-
-            root.checkDescendantsForUniquenessOfKey(key)
-
-            subcomponentKeys.add(key)
-        }
-
-        private fun checkDescendantsForUniquenessOfKey(key: TypeKey<Component>) {
-            val keys = _subcomponentKeys ?: base.subcomponentKeys
-            val registry = _registry ?: base.registry
-
-            for (subcomponentKey in keys) {
-
-                @Suppress("UNCHECKED_CAST")
-                val service = registry[subcomponentKey] as? ConstantService<Component>
-
-                if (service != null) {
-                    checkDescendantsForUniquenessOfKey(key, service.value)
-                } else {
-                    val builder = subcomponentBuilders[subcomponentKey] ?: throw WinterException(
-                        "BUG: Key `$subcomponentKey` found in subcomponentKeys but component does not exist."
-                    )
-
-                    val subcomponentKeys = builder._subcomponentKeys
-                        ?: builder.base.subcomponentKeys
-
-                    if (builder.qualifier == key.qualifier || key in subcomponentKeys) {
-                        throw WinterException(
-                            "Subcomponent with qualifier `${key.qualifier}` already exists."
-                        )
-                    }
-
-                    builder.checkDescendantsForUniquenessOfKey(key)
-                }
-
-            }
-        }
-
-        private fun checkDescendantsForUniquenessOfKey(
-            key: TypeKey<Component>,
-            component: Component
-        ) {
-            if (component.qualifier == key.qualifier || key in component.subcomponentKeys) {
-                throw WinterException(
-                    "Subcomponent with qualifier `${key.qualifier}` already exists."
-                )
-            }
-
-            for (subcomponentKey in component.subcomponentKeys) {
-                @Suppress("UNCHECKED_CAST")
-                val service = component.registry[key] as? ConstantService<Component>
-                    ?: throw WinterException(
-                        "BUG: Key `$key` found in subcomponentKeys of " +
-                                "component `${component.qualifier}` but component does not exist."
-                    )
-
-                checkDescendantsForUniquenessOfKey(key, service.value)
             }
         }
 
@@ -758,12 +454,7 @@ class Component private constructor(
                 return if (base.qualifier == qualifier) {
                     base
                 } else {
-                    Component(
-                        qualifier,
-                        base.registry,
-                        base.subcomponentKeys,
-                        base.requiresLifecycleCallbacks
-                    )
+                    Component(qualifier, base.registry)
                 }
             }
 
@@ -781,22 +472,15 @@ class Component private constructor(
 
             _eagerDependencies = null
 
-            return Component(
-                qualifier = qualifier,
-                registry = registry,
-                subcomponentKeys = _subcomponentKeys ?: base.subcomponentKeys,
-                requiresLifecycleCallbacks = requiresLifecycleCallbacks
-            ).also {
+            return Component(qualifier, registry).also {
                 _registry = null
-                _subcomponentKeys = null
                 base = it
             }
         }
 
-        private val TypeKey<*>.requireQualifier: Any
-            get() = checkNotNull(qualifier) {
-                "BUG! qualifier for subcomponent key must not be null"
-            }
+        private val TypeKey<*>.requireQualifier get() = checkNotNull(qualifier) {
+            "BUG! qualifier for subcomponent key must not be null"
+        }
 
     }
 

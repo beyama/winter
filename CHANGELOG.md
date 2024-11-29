@@ -4,6 +4,8 @@ Changelog
 Version 0.10.0
 --------------
 
+* Remove soft and weak reference scopes
+* Remove WinterApplication.checkForCyclicDependencies checking has now zero costs and is always on
 * Reduce dependency of winter-androidx module
 * Remove fragment support from winter-androidx injection adapters
 * Add support for AndroidX view model injection to winter-androidx
@@ -11,7 +13,9 @@ Version 0.10.0
 * Add winter-androidx-fragment module with injection adapters with Fragment support
 * Add WinterFragmentFactory (again) for constructor injection support in fragments
 * Add Component.Builder#containsKey method to check if a key was already registered
-* Remove check if target key exists from Component.Builder#alias 
+* Remove check if target key exists from Component.Builder#alias
+* Fix aliased service close method was called for the alias and the target
+* Fix bug where access to a dependency of an ancestor graph wasn't synchronized 
 
 Version 0.9.0
 -------------

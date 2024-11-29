@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import com.nhaarman.mockitokotlin2.*
-import io.jentz.winter.WinterApplication.InjectionAdapter
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -15,19 +13,15 @@ class WinterApplicationTest {
 
     private val app = WinterApplication {}
 
-    private val adapter: InjectionAdapter = mock()
-
     @BeforeEach
     fun beforeEach() {
-        reset(adapter)
         app.closeGraphIfOpen()
-        app.injectionAdapter = adapter
     }
 
     @Test
     fun `#component should configure new component`() {
-        app.component("test") { constant("") }
-        app.component.qualifier.shouldBe("test")
+        app.component(qualifier("test")) { constant("") }
+        app.component.qualifier.shouldBe(qualifier("test"))
         app.component.size.shouldBe(1)
     }
 
@@ -49,14 +43,6 @@ class WinterApplicationTest {
     @Test
     fun `#plugins should be empty by default`() {
         app.plugins.isEmpty().shouldBeTrue()
-    }
-
-    @Test
-    fun `#injectionAdapter should throw an exception if tree is already open`() {
-        app.openGraph()
-        shouldThrow<WinterException> {
-            app.injectionAdapter = mock(); null
-        }.message.shouldBe("Cannot set injection adapter because application graph is already open.")
     }
 
     @Test
@@ -128,27 +114,6 @@ class WinterApplicationTest {
         app.closeGraphIfOpen()
         graph.isClosed.shouldBeTrue()
         app.graphOrNull.shouldBeNull()
-    }
-
-    @Test
-    fun `#inject should call graph#inject with given instance`() {
-        val instance = Any()
-        val graph = mock<Graph>()
-        whenever(adapter.get(instance)).thenReturn(graph)
-
-        app.inject(instance)
-        verify(graph, times(1)).inject(instance)
-    }
-
-    @Test
-    fun `#inject with injection target should call graph#inject with target`() {
-        val instance = Any()
-        val target = Any()
-        val graph = mock<Graph>()
-        whenever(adapter.get(instance)).thenReturn(graph)
-
-        app.inject(instance, target)
-        verify(graph, times(1)).inject(target)
     }
 
 }

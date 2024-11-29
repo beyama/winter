@@ -1,8 +1,10 @@
 package io.jentz.winter
 
-import io.jentz.winter.inject.ApplicationScope
-
 internal val UNINITIALIZED_VALUE = Any()
+
+val ApplicationScope = qualifier("application scope")
+val Prototype = qualifier("prototype")
+val Singleton = qualifier("singleton")
 
 /**
  * Factory function signature with [Graph] as receiver.
@@ -10,10 +12,11 @@ internal val UNINITIALIZED_VALUE = Any()
 typealias GFactory<R> = Graph.() -> R
 
 /**
- * Factory callback function signature with [Graph] as receiver.
- * Used for onPostConstruct and onClose callbacks.
+ * Callback function signature with [Graph] as receiver.
  */
-typealias GFactoryCallback<R> = Graph.(R) -> Unit
+typealias GCallback<R> = Graph.(R) -> Unit
+
+typealias GDisposableSideEffect<R> = Graph.(R) -> GCallback<R>?
 
 /**
  * Function signature alias for component builder DSL blocks.
@@ -30,7 +33,7 @@ internal typealias OnCloseCallback = (Graph) -> Unit
 /**
  * Key used to store a set of dependency keys of eager dependencies in the dependency map.
  */
-internal val eagerDependenciesKey = typeKey<Set<TypeKey<Any>>>("EAGER_DEPENDENCIES")
+internal val eagerDependenciesKey = erased<Set<TypeKey<Any>>?>(qualifier("EAGER_DEPENDENCIES"))
 
 /**
  * Returns a [Component] without qualifier and without any declared dependencies.
@@ -50,7 +53,7 @@ fun emptyGraph(): Graph = Component.EMPTY.createGraph()
  * @return A instance of component containing all provider defined in the builder block.
  */
 fun component(
-    qualifier: Any = ApplicationScope::class,
+    qualifier: Qualifier = ApplicationScope,
     block: ComponentBuilderBlock
 ): Component = Component.Builder(qualifier).apply(block).build()
 
@@ -61,21 +64,5 @@ fun component(
  * @param block A builder block to register provider on the backing component.
  * @return A instance of component containing all provider defined in the builder block.
  */
-fun graph(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock): Graph =
+fun graph(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock): Graph =
     component(qualifier, block).createGraph()
-
-/**
- * Returns [TypeKey] for type [R].
- *
- * @param qualifier An optional qualifier for this key.
- * @param generics If true this creates a type key that also takes generic type parameters into
- *                 account.
- */
-inline fun <reified R : Any> typeKey(
-    qualifier: Any? = null,
-    generics: Boolean = false
-): TypeKey<R> = if (generics) {
-    object : GenericClassTypeKey<R>(qualifier) {}
-} else {
-    ClassTypeKey(R::class.java, qualifier)
-}

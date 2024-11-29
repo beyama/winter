@@ -1,7 +1,5 @@
 package io.jentz.winter
 
-import io.jentz.winter.WinterApplication.InjectionAdapter
-import io.jentz.winter.inject.ApplicationScope
 import io.jentz.winter.plugin.Plugins
 
 /**
@@ -74,7 +72,7 @@ open class WinterApplication() {
      * @param block The component builder block.
      */
     constructor(
-        qualifier: Any = ApplicationScope::class,
+        qualifier: Qualifier = ApplicationScope,
         block: ComponentBuilderBlock
     ) : this() {
         component(qualifier, block)
@@ -112,35 +110,9 @@ open class WinterApplication() {
         }
 
     /**
-     * The application injection adapter.
-     */
-    var injectionAdapter: InjectionAdapter? = null
-        set(value) {
-            synchronized(this) {
-                if (graphOrNull != null) {
-                    throw WinterException(
-                        "Cannot set injection adapter because application graph is already open."
-                    )
-                }
-                field = value
-            }
-        }
-
-    /**
      * The plugins registered on the application.
      */
     var plugins: Plugins = Plugins.EMPTY
-
-    /**
-     * If this is set to true, Winter will check for cyclic dependencies and throws an error if it
-     * encounters one. Without this check you will run in a StackOverflowError when you accidentally
-     * declared a cyclic dependency which may be hard to track down.
-     *
-     * Cyclic dependency checks are a bit more expensive but usually worth it in debug or test
-     * builds.
-     *
-     */
-    var checkForCyclicDependencies: Boolean = false
 
     /**
      * Sets the application component by supplying an optional qualifier and a component builder
@@ -149,7 +121,7 @@ open class WinterApplication() {
      * @param qualifier The qualifier for the new component.
      * @param block The component builder block.
      */
-    fun component(qualifier: Any = ApplicationScope::class, block: ComponentBuilderBlock) {
+    fun component(qualifier: Qualifier = ApplicationScope, block: ComponentBuilderBlock) {
         this.component = io.jentz.winter.component(qualifier, block)
     }
 
@@ -217,62 +189,5 @@ open class WinterApplication() {
         },
         block = block
     ).also { graphOrNull = it }
-
-    /**
-     * Inject dependencies into [instance] by using the dependency graph returned from
-     * [InjectionAdapter.get] called with [instance].
-     *
-     * @param instance The instance to retrieve the dependency graph for and inject dependencies
-     *                 into.
-     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
-     */
-    fun inject(instance: Any) {
-        val adapter = injectionAdapter ?: throw WinterException(
-            "No injection adapter configured."
-        )
-        val graph = adapter.get(instance) ?: throw WinterException(
-            "No graph found for instance `$instance`."
-        )
-        graph.inject(instance)
-    }
-
-    /**
-     * Inject dependencies with dependency graph from [instance] into [target].
-     * This uses the dependency graph returned from [InjectionAdapter.get] called with [instance].
-     *
-     * Usually we do not want knowledge of who owns a [Graph] in our application classes so
-     * the [InjectionAdapter] was created to hide that. But sometimes we find cases, especially
-     * on Android, where, for example, a class member function gets a Context passed into to
-     * do its work and we need that Context to retrieve the required dependency graph to inject
-     * the class dependencies into the class.
-     *
-     * @param instance The instance to retrieve the dependency graph for.
-     * @param target The target to inject dependencies into.
-     * @throws [io.jentz.winter.WinterException] If given [instance] type is not supported.
-     */
-    fun inject(instance: Any, target: Any) {
-        val adapter = injectionAdapter ?: throw WinterException(
-            "No injection adapter configured."
-        )
-        val graph = adapter.get(instance) ?: throw WinterException(
-            "No graph found for instance `$instance`."
-        )
-        graph.inject(target)
-    }
-
-    /**
-     * Adapter interface to provide application specific graph creation and retrieval strategy.
-     */
-    interface InjectionAdapter {
-
-        /**
-         * Get dependency graph for [instance].
-         *
-         * @param instance The instance to get the graph for.
-         * @return The graph for [instance] or null when instance type is not supported.
-         */
-        fun get(instance: Any): Graph?
-
-    }
 
 }

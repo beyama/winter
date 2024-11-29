@@ -1,6 +1,11 @@
 package io.jentz.winter.junit5
 
-import io.jentz.winter.testing.WinterTestSession
+import io.jentz.winter.ClassTypeKey
+import io.jentz.winter.Graph
+import io.jentz.winter.WinterApplication
+import io.jentz.winter.plugin.PluginBuilderBlock
+import io.jentz.winter.plugin.plugin
+import io.jentz.winter.qualifier
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolutionException
@@ -8,19 +13,25 @@ import org.junit.jupiter.api.extension.ParameterResolver
 
 abstract class AbstractWinterExtension(
     private val namespace: ExtensionContext.Namespace,
-    private val sessionBuilder: WinterTestSession.Builder
+    private val application: WinterApplication,
+    private val block: PluginBuilderBlock
 ) : ParameterResolver {
 
+    private var uninstaller: (() -> Unit)? = null
+
     protected fun before(context: ExtensionContext) {
-        val instances = context.testInstances.map { it.allInstances }.orElse(emptyList())
-        sessionBuilder.build(instances).apply {
-            context.session = this
-            start()
+        uninstaller = application.plugin {
+            block()
+
+            withNewGraph {
+                context.graph = this
+            }
         }
     }
 
     protected fun after(context: ExtensionContext) {
-        context.session.stop()
+        uninstaller?.invoke()
+        uninstaller = null
     }
 
     final override fun supportsParameter(
@@ -43,18 +54,22 @@ abstract class AbstractWinterExtension(
             .orElse(null)
 
         try {
-            return extensionContext.session.resolve(type, qualifier)
+            val key = ClassTypeKey(
+                type = type.kotlin.javaObjectType,
+                qualifier = qualifier?.let { qualifier(it) }
+            )
+            return extensionContext.graph.instance(key)
         } catch (t: Throwable) {
             throw ParameterResolutionException("Error resolving parameter `${parameter}`", t)
         }
     }
 
-    private var ExtensionContext.session: WinterTestSession
-        get() = getStore(namespace).get(SESSION, WinterTestSession::class.java)
-        set(value) = getStore(namespace).put(SESSION, value)
+    private var ExtensionContext.graph: Graph
+        get() = getStore(namespace).get(GRAPH, Graph::class.java)
+        set(value) = getStore(namespace).put(GRAPH, value)
 
     companion object {
-        private const val SESSION = "session"
+        private const val GRAPH = "graph"
     }
 
 }

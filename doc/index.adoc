@@ -300,20 +300,20 @@ val graph = coffeeAppComponent.createGraph()
 val heater: Heater = graph.instance()
 
 // get an optional instance of Heater
-val heater: Heater? = graph.instanceOrNull()
+val heater: Heater? = graph.instance()
 
 // get a provider for Heater
 val heaterProvider: () -> Heater = graph.provider()
 
-// get an optional provider for Heater
-val heaterProvider: (() -> Heater)? = graph.providerOrNull()
+// get a provider for an optional Heater
+val heaterProvider: () -> Heater? = graph.provider()
 
 // get a set of instances of type Pump; this is useful when you have registered
-// multiple Pumps with different qualifers
+// multiple Pumps with different qualifiers
 val pumps: Set<Pump> = graph.instancesOfType<Pump>()
 
-// get a set of providers for type Pump; this is useful when you have registerd
-// multiple Pumps with different qualifers
+// get a set of providers for type Pump; this is useful when you have registered
+// multiple Pumps with different qualifiers
 val pumps: Set<() -> Pump> = graph.providersOfType<Pump>()
 ----
 
@@ -457,14 +457,10 @@ like Android Activities and you need your classes to inject there dependencies t
 [source,kotlin]
 ----
 class MyActivity : Activity() {
-    // eager injection of a non-optional dependency
+    // eager injection of a dependency
     private val api: GitHubApi by inject()
-    // eager injection of an optional dependency
-    private val api: GitHubApi? by injectOrNull()
-    // lazy injection of a non-optional dependency
+    // lazy injection of a dependency
     private val api: GitHubApi by injectLazy()
-    // lazy injection of an optional dependency
-    private val api: GitHubApi? by injectLazyOrNull()
 
     override fun onCreate(savedInstanceState: Bundle?) {
       // ... create or get the dependency graph
