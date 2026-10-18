@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+  pull_request:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs of the same branch or pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: JVM tests & Android build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # Caches Gradle dependencies and validates the Gradle wrapper jar.
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Run JVM tests
+        run: >
+          ./gradlew
+          :winter:test
+          :winter-delegate:test
+          :winter-junit4:test
+          :winter-junit5:test
+
+      # Uses the Android SDK preinstalled on the runner.
+      - name: Build Android module
+        run: >
+          ./gradlew
+          :winter-androidx:assembleDebug
+          :winter-androidx:compileDebugAndroidTestKotlin
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'
+          if-no-files-found: ignore
