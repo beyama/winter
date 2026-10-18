@@ -268,6 +268,25 @@ class InjectedPropertyTest {
     }
 
 
+    @Test
+    fun `mapped properties of an injector should be injected`() {
+        val app = WinterApplication { constant(21) }
+        app.openGraph()
+
+        val target = MappedPropertiesClass(app)
+        target.injector.inject()
+
+        target.eager.shouldBe(42)
+        target.lazy.shouldBe("21!")
+        app.closeGraph()
+    }
+
+    private class MappedPropertiesClass(app: WinterApplication) {
+        val injector by app
+        val eager: Int by injector<Int>().map { it * 2 }
+        val lazy: String by injector.lazyInstance<Int>().map { it.toString() }.map { "$it!" }
+    }
+
     private class InjectedPropertiesClass(app: WinterApplication) {
 
         private val injector by app

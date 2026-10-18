@@ -31,9 +31,22 @@ abstract class InjectedProperty<out T> : ReadOnlyProperty<Any?, T> {
     }
 
     /**
+     * Called with the mapped property when [map] is called. Used by [Injector] to inject mapped
+     * properties too.
+     */
+    @PublishedApi
+    internal var onMapped: ((InjectedProperty<*>) -> Unit)? = null
+
+    /**
      * Apply a function to the retrieved instance.
      */
-    abstract fun <R> map(mapper: (T) -> R): InjectedProperty<R>
+    fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
+        createMapper(mapper).also { mapped ->
+            mapped.onMapped = onMapped
+            onMapped?.invoke(mapped)
+        }
+
+    protected abstract fun <R> createMapper(mapper: (T) -> R): InjectedProperty<R>
 
     protected abstract fun doInject(graph: Graph)
 
@@ -67,13 +80,14 @@ internal class EagerPropertyMapper<in I, out O>(
         return _value as O
     }
 
-    override fun <R> map(mapper: (O) -> R): InjectedProperty<R> =
+    override fun <R> createMapper(mapper: (O) -> R): InjectedProperty<R> =
         EagerPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
         val base = this.base!!
         val mapper = this.mapper!!
-        base.inject(graph)
+        // The base is already injected if it belongs to an Injector.
+        if (!base.isInjected) base.inject(graph)
         _value = mapper.invoke(base.value)
         this.base = null
         this.mapper = null
@@ -93,12 +107,14 @@ internal class LazyPropertyMapper<in I, out O>(
         mapper.invoke(base.value)
     }
 
-    override fun <R> map(mapper: (O) -> R): InjectedProperty<R> =
+    override fun <R> createMapper(mapper: (O) -> R): InjectedProperty<R> =
         LazyPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
-        base!!.inject(graph)
-        base = null
+        val base = this.base!!
+        // The base is already injected if it belongs to an Injector.
+        if (!base.isInjected) base.inject(graph)
+        this.base = null
     }
 
 }
@@ -119,7 +135,7 @@ internal abstract class AbstractEagerProperty<R : Any?, T>(
             return _value as T
         }
 
-    override fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
+    override fun <R> createMapper(mapper: (T) -> R): InjectedProperty<R> =
         EagerPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {
@@ -154,7 +170,7 @@ internal abstract class AbstractLazyProperty<R : Any?, T>(
             }
         }
 
-    override fun <R> map(mapper: (T) -> R): InjectedProperty<R> =
+    override fun <R> createMapper(mapper: (T) -> R): InjectedProperty<R> =
         LazyPropertyMapper(this, mapper)
 
     override fun doInject(graph: Graph) {

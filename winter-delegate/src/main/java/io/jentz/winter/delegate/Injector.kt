@@ -18,6 +18,16 @@ class Injector internal constructor(
     internal val properties = mutableListOf<InjectedProperty<*>>()
 
     /**
+     * Adds [property] and all properties mapped from it (see [InjectedProperty.map]) to the
+     * properties that get injected by [inject].
+     */
+    @PublishedApi
+    internal fun register(property: InjectedProperty<*>) {
+        properties.add(property)
+        property.onMapped = ::register
+    }
+
+    /**
      * Creates a property delegate for an instance of type `R`.
      *
      * @param key The [TypeKey] of the service to resolve
@@ -40,7 +50,7 @@ class Injector internal constructor(
         key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = InstanceProperty(key, block)
-        .also { properties.add(it) }
+        .also { register(it) }
 
     /**
      * Creates a property delegate for a [Provider] of type `() -> R`.
@@ -53,7 +63,7 @@ class Injector internal constructor(
         key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<Provider<R>> = ProviderProperty(key, block)
-        .also { properties.add(it) }
+        .also { register(it) }
 
     /**
      * Creates a lazy property delegate for an instance of type `R`.
@@ -68,7 +78,7 @@ class Injector internal constructor(
         key: TypeKey<R> = erased(),
         noinline block: ComponentBuilderBlock? = null
     ): InjectedProperty<R> = LazyInstanceProperty(key, block)
-        .also { properties.add(it) }
+        .also { register(it) }
 
     /**
      * Inject dependencies into properties by using the graph from [Graph.resolveGraph] with
