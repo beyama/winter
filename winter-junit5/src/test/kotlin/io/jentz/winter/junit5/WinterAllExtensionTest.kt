@@ -1,8 +1,9 @@
 package io.jentz.winter.junit5
 
+import assertk.assertThat
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
 import io.jentz.winter.WinterApplication
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -18,19 +19,17 @@ class WinterAllExtensionTest {
 
     class TestExtension : AfterAllCallback {
         override fun afterAll(context: ExtensionContext?) {
-            TestApp.plugins.isEmpty().shouldBeTrue()
+            assertThat(TestApp.plugins).isEmpty()
         }
     }
 
     @JvmField
     @RegisterExtension
-    val extension = WinterAllExtension {
-        application = TestApp
-    }
+    val extension = WinterAllExtension(TestApp) {}
 
     @Test
     fun `session plugin should be registered`() {
-        TestApp.plugins.size.shouldBe(1)
+        assertThat(TestApp.plugins.size).isEqualTo(1)
     }
 
 }

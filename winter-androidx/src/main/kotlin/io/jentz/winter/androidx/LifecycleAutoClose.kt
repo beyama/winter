@@ -1,8 +1,11 @@
 package io.jentz.winter.androidx
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import io.jentz.winter.Graph
+import io.jentz.winter.WinterException
 
 /**
  * Abstract LifecycleObserver that calls [close] and unregisters itself from
@@ -32,4 +35,21 @@ internal abstract class LifecycleAutoClose(
 
     protected abstract fun close()
 
+}
+
+fun Graph.closeWithLifecycle(
+    lifecycle: Lifecycle,
+    closeEvent: Event = when (lifecycle.currentState) {
+        Lifecycle.State.INITIALIZED -> Event.ON_DESTROY
+        Lifecycle.State.CREATED -> Event.ON_STOP
+        Lifecycle.State.STARTED -> Event.ON_PAUSE
+        Lifecycle.State.RESUMED, Lifecycle.State.DESTROYED -> {
+            throw WinterException("Cannot setup lifecycle auto close after onResume")
+        }
+    }
+): Graph {
+    lifecycle.addObserver(object : LifecycleAutoClose(closeEvent) {
+        override fun close() = this@closeWithLifecycle.close()
+    })
+    return this
 }

@@ -1,0 +1,5 @@
+package io.jentz.winter.androidx
+
+class ApplicationScopedService
+class ViewModelScopedService
+class ActivityScopedService

@@ -1,33 +1,29 @@
 package io.jentz.winter.junit5
 
-import io.jentz.winter.testing.WinterTestSession.Builder
+import io.jentz.winter.Winter
+import io.jentz.winter.WinterApplication
+import io.jentz.winter.plugin.PluginBuilderBlock
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace
 
 /**
- * JUnit5 extension that starts a [io.jentz.winter.testing.WinterTestSession] before each test
- * and stops the session after each test.
+ * JUnit5 extension that builds and installs a [Winter] [io.jentz.winter.plugin.Plugin] with
+ * [block] for each test and uninstalls it after each test.
  *
- * For more details see [io.jentz.winter.testing.WinterTestSession].
+ * This is useful to extend and observe the applications dependency graph during tests.
+ *
+ * For more details see [io.jentz.winter.plugin.PluginBuilder].
  */
 open class WinterEachExtension(
-    block: Builder.() -> Unit
+    application: WinterApplication = Winter,
+    block: PluginBuilderBlock
 ) : AbstractWinterExtension(
     Namespace.create("io.jentz.winter.each"),
-    Builder().apply(block)
+    application,
+    block
 ), BeforeEachCallback, AfterEachCallback {
-
-    /**
-     * Default constructor to use this with [org.junit.jupiter.api.extension.RegisterExtension].
-     *
-     * The default configuration will operate on the application graph and will bind all `Mock`
-     * annotated properties to it.
-     *
-     * This class is open and can be extended for other default configurations.
-     */
-    constructor(): this({ bindAllMocks() })
 
     final override fun beforeEach(context: ExtensionContext) {
         before(context)

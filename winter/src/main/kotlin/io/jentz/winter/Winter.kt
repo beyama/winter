@@ -13,10 +13,8 @@ package io.jentz.winter
  * Winter.component {
  *   // ... dependency declaration
  * }
- * // install RxJava 2 disposable plugin
- * Winter.installDisposablePlugin()
- * // configure injection adapter.
- * Winter.useAndroidPresentationScopeInjectionAdapter()
+ * // install a Winter plugin
+ * Winter.installMyPlugin()
  * // open the application dependency graph
  * Winter.openGraph()
  * ```

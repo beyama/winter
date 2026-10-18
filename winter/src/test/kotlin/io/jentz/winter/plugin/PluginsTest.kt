@@ -1,13 +1,13 @@
 package io.jentz.winter.plugin
 
-import com.nhaarman.mockitokotlin2.mock
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
-import io.kotlintest.shouldBe
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 
 
 class PluginsTest {

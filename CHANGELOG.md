@@ -1,6 +1,60 @@
 Changelog
 =========
 
+Version 0.10.0 *(unreleased)*
+-----------------------------
+
+This version is a major rework of the API. See the [guide](https://winter.jentz.io) for the
+current API.
+
+Removed:
+
+* Remove the JSR-330 annotation processor (winter-compiler) and the javax.inject support
+* Remove the winter-java, winter-rxjava2 and winter-testing modules; test support is now based on
+  plugins (`WinterApplication.plugin`) and provided by winter-junit4 and winter-junit5
+* Remove the injection adapters (`Winter.inject`); use the property delegates of the new
+  winter-delegate module and graph resolvers instead
+* Remove subgraph management from `Graph` (`openSubgraph`/`closeSubgraph`); subgraphs are created
+  with `Graph.createSubgraph` and closed by their creator
+* Remove soft and weak reference scopes
+* Remove `*OrNull` methods; request a nullable type for optional dependencies instead
+* Remove services for sets and maps of a type
+* Remove `WinterApplication.checkForCyclicDependencies`, the check is now always on and has no cost
+
+Changed:
+
+* Qualifiers and scopes are `Qualifier` values created with `qualifier("name")`, `qualifier<Type>()`
+  or from an enum value
+* Replace `typeKey` with `erased()` and `generic()` type keys
+* Lifecycle callbacks are registered with `onPostConstruct` and `onClose` on the returned service
+* Post-construct callbacks get the extended graph when runtime arguments were passed
+* `InjectedProperty.map` can't be overridden anymore, subclasses implement `createMapper`
+* Requires Java 17 and Kotlin 1.9 or newer; the AndroidX module requires minSdk 24
+
+Added:
+
+* winter-delegate module with `Injector`, property delegates and `GraphResolver`
+* AndroidX: `activityGraphResolver` for view model and activity subgraphs, `application` and
+  `activity` DSL functions, `androidLifecycle` and `androidProcessLifecycle` for singletons and
+  `Graph.closeWithLifecycle`
+* `singletonOf` and `prototypeOf` with constructor references and `Graph.new`
+* Retrieval methods take a builder block to pass runtime arguments to the factory
+* `WinterApplication.plugin` to build plugins with a DSL
+* `Component.Builder.containsKey` and `alias` on registered services
+
+Fixed:
+
+* Deadlock when singletons that depend on each other were resolved from different threads at the
+  same time
+* Mapped properties (`InjectedProperty.map`) of an `Injector` were never injected
+* The close callback of an aliased service was called for the alias and the target
+* Access to dependencies of an ancestor graph wasn't synchronized
+
+Improved:
+
+* Already created singletons are returned without taking the graph lock
+* Published to Maven Central through the Central Portal
+
 Version 0.9.0
 -------------
 

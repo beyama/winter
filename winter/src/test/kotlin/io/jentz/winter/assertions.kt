@@ -1,5 +1,6 @@
 package io.jentz.winter
 
+import io.jentz.winter.services.UnboundService
 import org.opentest4j.AssertionFailedError
 
 inline fun <T> expectValueToChange(from: T, to: T, valueProvider: () -> T, block: () -> Unit) {

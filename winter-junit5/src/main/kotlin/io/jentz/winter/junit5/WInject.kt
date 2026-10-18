@@ -5,9 +5,7 @@ import kotlin.annotation.AnnotationTarget.*
 
 /**
  * This annotation can be used to inject values into JUnit5 methods and constructors by using
- * the test graph to resolve them.
- *
- * The problem with Javax Inject is, that it does not allow value parameter targets.
+ * the latest opened graph of the test plugin.
  *
  * Example in a test using one of the Winter JUnit5 extensions:
  * ```

@@ -1,94 +1,105 @@
 # Winter
 
-[![Kotlin 1.3.40](https://img.shields.io/badge/Kotlin-1.3-blue.svg)](http://kotlinlang.org)
-[![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.jentz.winter%22)
-[![Travis](https://travis-ci.org/beyama/winter.svg?branch=develop)](https://travis-ci.org/beyama/winter/builds)
-[![MIT License](https://img.shields.io/github/license/beyama/winter.svg)](https://github.com/beyama/winter/blob/master/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/beyama/winter.svg)](https://github.com/beyama/winter/issues)
+[![CI](https://github.com/beyama/winter/actions/workflows/ci.yml/badge.svg)](https://github.com/beyama/winter/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://central.sonatype.com/namespace/io.jentz.winter)
+[![License](https://img.shields.io/github/license/beyama/winter.svg)](LICENSE)
 
-## Kotlin Dependency Injection
+Winter is a small and fast dependency injection library for Kotlin on the JVM and Android.
 
-Winter is a fast and intuitive dependency injection library for Kotlin on Android and the JVM.
+- Dependencies are declared in immutable components with a plain Kotlin DSL. No annotation
+  processing and no code generation.
+- Components nest: subcomponents describe parts of an application with a shorter lifetime, like a
+  user session or an Android activity.
+- Components can be composed from parts of different modules or targets: include, merge, derive
+  and override them.
+- Optional modules for property injection, Android lifecycles and JUnit 4/5 tests.
 
-It offers an idiomatic Kotlin API as well as optional JSR-330 support
-with annotation processor.
-
-**[Winter documentation](https://winter.jentz.io/)**
+**[Guide](https://winter.jentz.io)** · **[API docs](https://winter.jentz.io/api/)**
 
 ## Installation
 
-```groovy
+```kotlin
 dependencies {
-  // Core
-  implementation 'io.jentz.winter:winter:0.7.0'
-  // AndroidX support
-  implementation 'io.jentz.winter:winter-androidx:0.7.0'
-  // RxJava 2 disposable plugin
-  implementation 'io.jentz.winter:winter-rxjava2:0.7.0'
-  // Java support
-  implementation 'io.jentz.winter:winter-java:0.7.0'
-  // JUnit 4 test support
-  testImplementation 'io.jentz.winter:winter-junit4:0.7.0'  
-  // JUnit 5 test support
-  testImplementation 'io.jentz.winter:winter-junit5:0.7.0'  
-  // Optional JSR-330 support
-  kapt 'io.jentz.winter:winter-compiler:0.7.0'
+    implementation("io.jentz.winter:winter:0.10.0-alpha1-SNAPSHOT")
+    // optional
+    implementation("io.jentz.winter:winter-delegate:0.10.0-alpha1-SNAPSHOT")
+    implementation("io.jentz.winter:winter-androidx:0.10.0-alpha1-SNAPSHOT")
+    testImplementation("io.jentz.winter:winter-junit4:0.10.0-alpha1-SNAPSHOT")
+    testImplementation("io.jentz.winter:winter-junit5:0.10.0-alpha1-SNAPSHOT")
 }
 ```
 
-## Quickstart Android
-
-Given is an Android application with an application component, a presentation subcomponent that 
-survives orientation changes and an activity subcomponent.
+Version 0.10.0 is not released yet. Snapshots are published to the Maven Central snapshot
+repository:
 
 ```kotlin
-
-class MyApplication : Application() {
-  override fun onCreate() {
-    // define application component
-    Winter.component(ApplicationScope::class) {
-      singleton<HttpClient> { HttpClientImpl() }
-      singleton<GitHubApi> { GitHubApiImpl(instance()) }
-      
-        // define presentation subcomponent
-        subcomponent(PresentationScope::class) {
-          singleton<ReposListViewModel> { RepolistViewModel(instance<GitHubApi>()) }
-          
-          // define activity subcomponent
-          subcomponent(ActivityScope::class) {
-            singleton { Glide.with(instance()) }
-          }
-        }
-    }
-
-    // Configure the injection adapter to use   
-    Winter.useAndroidPresentationScopeAdapter()
-    // Create application dependency graph
-    Winter.inject(this)
-  }
+repositories {
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
 }
-
-class MyActivity : Activity() {
-  private val viewModel: RepoListViewModel by inject()
-  private val glide: RequestManager by inject()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    Winter.inject(this)
-    super.onCreate(savedInstanceState)
-  }
-
-}
-
 ```
 
-## Read more
+Winter requires Java 17 and Kotlin 1.9 or newer, the AndroidX module requires minSdk 24.
 
-Winter is used in production since end of 2017. The API is considered mostly stable but there will
-be no guarantee before version 1.x.
+## Example
 
-Winter supports only Android and JVM right now but support for native (iOS) and JavaScript is planed.  
+```kotlin
+val coffeeComponent = component {
+    singleton { Heater() }
+    singleton<Pump> { RotaryPump() }
+    prototype { CoffeeMaker(instance(), instance()) }
+}
 
-**[Winter documentation](https://winter.jentz.io/)**
+val graph = coffeeComponent.createGraph()
+val coffeeMaker: CoffeeMaker = graph.instance()
+```
+
+On Android, an activity gets its dependencies from an activity subgraph whose parent survives
+configuration changes:
+
+```kotlin
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        Winter.component {
+            singletonOf(::GitHubApi)
+            activityGraphResolver<RepoListActivity>()
+
+            subcomponent(ViewModelScope) {
+                singletonOf(::RepoListViewModel)
+                subcomponent(ActivityScope) {
+                    singleton { ImageLoader(instance()) }
+                }
+            }
+        }
+
+        Winter.openGraph { application(this@MyApplication) }
+    }
+}
+
+class RepoListActivity : ComponentActivity() {
+    private val injector by Winter
+    private val viewModel: RepoListViewModel by injector()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        injector.inject()
+        super.onCreate(savedInstanceState)
+    }
+}
+```
+
+See the [guide](https://winter.jentz.io) for everything else.
+
+## Development
+
+```bash
+./gradlew test                 # JVM tests
+./gradlew :dokkaGenerate       # API docs in build/dokka/html
+doc/build-site.sh              # guide and API docs in build/site (needs asciidoctor)
+```
+
+The code samples of the guide (`doc/index.adoc`) live in `docs` test packages of the modules and
+are included by tag, so they are compiled and run with the tests.
 
 ## License
 
@@ -105,4 +116,3 @@ Winter supports only Android and JVM right now but support for native (iOS) and 
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
