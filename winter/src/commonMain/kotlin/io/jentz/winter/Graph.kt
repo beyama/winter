@@ -248,7 +248,7 @@ class Graph internal constructor(
 
                 state.plugins.forEach { it.graphClose(this) }
 
-                state.registry.values.forEach { it.onClose() }
+                state.registry.services.forEach { it.onClose() }
 
                 state.onCloseCallback?.invoke(this)
             } finally {

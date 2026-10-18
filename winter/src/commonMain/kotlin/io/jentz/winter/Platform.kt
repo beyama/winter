@@ -25,7 +25,7 @@ internal expect inline fun <T> Lock.withLock(block: () -> T): T
 internal expect class ServiceRegistry() {
     operator fun get(key: TypeKey<*>): BoundService<*>?
     operator fun set(key: TypeKey<*>, service: BoundService<*>)
-    val values: Collection<BoundService<*>>
+    val services: Collection<BoundService<*>>
 }
 
 /**
@@ -39,3 +39,17 @@ internal expect val KClass<*>.displayName: String
  * classes.
  */
 internal expect val KClass<*>.qualifierName: String?
+
+/**
+ * Identity of the class [R] for [ClassTypeKey]: the `java.lang.Class` (object type) on the JVM,
+ * so that [erased] doesn't allocate a `KClass` per key, and the [KClass] elsewhere.
+ * Its `hashCode` must be equal to the hash code of the [KClass].
+ */
+@PublishedApi
+internal expect inline fun <reified R : Any?> classToken(): Any
+
+@PublishedApi
+internal expect val KClass<*>.classToken: Any
+
+@PublishedApi
+internal expect fun classOfToken(token: Any): KClass<*>

@@ -49,7 +49,4 @@ internal object Types {
     fun hashCode(type: KType, qualifier: Any?): Int =
         31 * hashCode(type) + (qualifier?.hashCode() ?: 0)
 
-    fun hashCode(cls: KClass<*>, qualifier: Any?): Int =
-        31 * cls.hashCode() + (qualifier?.hashCode() ?: 0)
-
 }

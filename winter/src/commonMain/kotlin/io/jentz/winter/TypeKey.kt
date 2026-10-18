@@ -32,7 +32,7 @@ inline fun <reified R: Any?> Set<TypeKey<*>>.ofType(key: TypeKey<R> = erased()):
  */
 inline fun <reified R : Any?> erased(
     qualifier: Qualifier? = null
-): TypeKey<R> = ClassTypeKey(R::class, null is R, qualifier)
+): TypeKey<R> = ClassTypeKey(classToken<R>(), null is R, qualifier)
 
 /**
  * Returns [TypeKey] for type [R] with generics information preserved.
@@ -52,11 +52,20 @@ inline fun <reified T: Any> KClass<T>.typeKey(qualifier: Qualifier? = null): Cla
 /**
  * [TypeKey] of a class, see [erased].
  */
-class ClassTypeKey<R>(
-    val type: KClass<*>,
-    override val isOptional: Boolean = false,
-    override val qualifier: Qualifier? = null
+class ClassTypeKey<R> @PublishedApi internal constructor(
+    /** See [classToken]. */
+    @PublishedApi internal val token: Any,
+    override val isOptional: Boolean,
+    override val qualifier: Qualifier?
 ) : TypeKey<R> {
+
+    constructor(
+        type: KClass<*>,
+        isOptional: Boolean = false,
+        qualifier: Qualifier? = null
+    ) : this(type.classToken, isOptional, qualifier)
+
+    val type: KClass<*> get() = classOfToken(token)
 
     private var _hashCode = 0
 
@@ -64,7 +73,7 @@ class ClassTypeKey<R>(
         if (other === this) return true
         if (other is GenericClassTypeKey<*>) return Types.equals(type, other.type)
         if (other !is ClassTypeKey) return false
-        return other.type == type
+        return other.token == token
     }
 
     override fun equals(other: Any?): Boolean {
@@ -73,7 +82,7 @@ class ClassTypeKey<R>(
 
     override fun hashCode(): Int {
         if (_hashCode == 0) {
-            _hashCode = Types.hashCode(type, qualifier)
+            _hashCode = 31 * token.hashCode() + (qualifier?.hashCode() ?: 0)
         }
         return _hashCode
     }

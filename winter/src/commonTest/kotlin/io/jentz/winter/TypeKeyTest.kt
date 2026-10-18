@@ -86,6 +86,21 @@ class TypeKeyTest {
     }
 
     @Test
+    fun `TypeKey from KClass should be equal to erased and generic TypeKey of the same class`() {
+        assertSameHashAndEquals(ClassTypeKey<TestClass>(TestClass::class), erased<TestClass>())
+        assertSameHashAndEquals(TestClass::class.typeKey(), generic<TestClass>())
+        assertEquals(TestClass::class, (erased<TestClass>() as ClassTypeKey).type)
+    }
+
+    @Test
+    fun `TypeKeys of primitive types should be equal`() {
+        assertSameHashAndEquals(ClassTypeKey<Int>(Int::class), erased<Int>())
+        assertSameHashAndEquals(erased<Int>(), generic<Int>())
+        assertSameHashAndEquals(erased<Int?>(), generic<Int>())
+        assertEquals(Int::class, (erased<Int>() as ClassTypeKey).type)
+    }
+
+    @Test
     fun `GenericTypeKey should not be equal to TypeKey of the raw class`() {
         assertNotSameHashAndEquals(erased<List<*>>(), generic<List<String>>())
         assertNotSameHashAndEquals(generic<List<String>>(), erased<List<*>>())

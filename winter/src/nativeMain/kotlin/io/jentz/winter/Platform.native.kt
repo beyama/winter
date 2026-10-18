@@ -25,9 +25,18 @@ internal actual class ServiceRegistry actual constructor() {
         map = HashMap(map).apply { put(key, service) }
     }
 
-    actual val values: Collection<BoundService<*>> get() = map.values
+    actual val services: Collection<BoundService<*>> get() = map.values
 }
 
 internal actual val KClass<*>.displayName: String get() = qualifiedName ?: simpleName ?: toString()
 
 internal actual val KClass<*>.qualifierName: String? get() = qualifiedName
+
+@PublishedApi
+internal actual inline fun <reified R : Any?> classToken(): Any = R::class
+
+@PublishedApi
+internal actual val KClass<*>.classToken: Any get() = this
+
+@PublishedApi
+internal actual fun classOfToken(token: Any): KClass<*> = token as KClass<*>

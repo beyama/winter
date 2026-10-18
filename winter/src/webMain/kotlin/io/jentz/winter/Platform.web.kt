@@ -1,6 +1,7 @@
 package io.jentz.winter
 
 import io.jentz.winter.services.BoundService
+import kotlin.reflect.KClass
 
 // JavaScript and WebAssembly are single threaded.
 
@@ -20,5 +21,14 @@ internal actual class ServiceRegistry actual constructor() {
         map[key] = service
     }
 
-    actual val values: Collection<BoundService<*>> get() = map.values
+    actual val services: Collection<BoundService<*>> get() = map.values
 }
+
+@PublishedApi
+internal actual inline fun <reified R : Any?> classToken(): Any = R::class
+
+@PublishedApi
+internal actual val KClass<*>.classToken: Any get() = this
+
+@PublishedApi
+internal actual fun classOfToken(token: Any): KClass<*> = token as KClass<*>
