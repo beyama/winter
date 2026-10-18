@@ -20,9 +20,10 @@ dokka {
     moduleName = findProperty("POM_NAME")?.toString() ?: project.name
 
     dokkaSourceSets.configureEach {
+        // src instead of src/main to cover the source sets of multiplatform modules too.
         sourceLink {
-            localDirectory = layout.projectDirectory.dir("src/main")
-            remoteUrl("https://github.com/beyama/winter/tree/master/${project.name}/src/main")
+            localDirectory = layout.projectDirectory.dir("src")
+            remoteUrl("https://github.com/beyama/winter/tree/master/${project.name}/src")
             remoteLineSuffix = "#L"
         }
     }

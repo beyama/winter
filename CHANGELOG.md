@@ -1,6 +1,28 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Added:
+
+* Kotlin Multiplatform: winter and winter-delegate support JVM (also used on Android), iOS
+  (`iosArm64`, `iosSimulatorArm64`, `iosX64`), macOS (`macosArm64`), JavaScript (`js`) and
+  WebAssembly (`wasmJs`). Native, JavaScript and WebAssembly projects need Kotlin 2.4 or newer,
+  JVM projects still Kotlin 1.9 or newer.
+
+Changed:
+
+* `io.jentz.winter:winter` and `io.jentz.winter:winter-delegate` are published as multiplatform
+  libraries. Gradle builds keep using these coordinates, builds without Gradle module metadata (e.g.
+  Maven) need `winter-jvm` and `winter-delegate-jvm`
+* `ClassTypeKey` takes a `KClass` instead of a `java.lang.Class`
+* `GenericClassTypeKey` isn't abstract anymore and takes the `KType` of `typeOf<T>()`; generic
+  keys ignore nullability, `generic<List<String?>?>()` equals `generic<List<String>>()`
+* On Kotlin/JS `qualifier<Type>()` isn't based on the qualified class name, which doesn't exist
+  there, but on the simple name plus a unique number
+* winter-delegate exposes winter as `api` dependency
+
 Version 0.10.0-alpha1 *(2026-10-18)*
 ------------------------------------
 

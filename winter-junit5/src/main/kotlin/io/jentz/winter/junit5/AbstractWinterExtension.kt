@@ -54,8 +54,8 @@ abstract class AbstractWinterExtension(
             .orElse(null)
 
         try {
-            val key = ClassTypeKey(
-                type = type.kotlin.javaObjectType,
+            val key = ClassTypeKey<Any>(
+                type = type.kotlin,
                 qualifier = qualifier?.let { qualifier(it) }
             )
             return extensionContext.graph.instance(key)
