@@ -53,7 +53,10 @@ private class BoundSingletonService<R : Any?>(
         if (v1 !== UNINITIALIZED_VALUE) {
             return v1 as R
         }
-        synchronized(this) {
+        // Lock on the graph, not on this service: Graph.evaluate and Graph.service lock the graph
+        // too and a separate per-service lock would allow lock-order inversion (deadlock) when
+        // two threads resolve singletons that depend on each other.
+        synchronized(graph) {
             val v2 = _value
             if (v2 !== UNINITIALIZED_VALUE) {
                 return v2 as R

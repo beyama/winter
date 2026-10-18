@@ -27,8 +27,11 @@ import org.mockito.kotlin.reset
 import org.mockito.kotlin.same
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GraphTest {
@@ -249,6 +252,32 @@ class GraphTest {
             (0..100).map {
                 executor.submit { graph.instance(erased<Int>(qualifier(it.toString()))).shouldBe(it) }
             }.forEach { it.get() }
+        }
+
+        @Test
+        fun `should not deadlock when singletons with dependencies are resolved concurrently`() {
+            // daemon threads so a deadlocked pair can't keep the test JVM alive
+            val executor = Executors.newFixedThreadPool(2) { Thread(it).apply { isDaemon = true } }
+            try {
+                repeat(2000) { run ->
+                    val graph = graph {
+                        singleton { Heater() }
+                        singleton { Thermosiphon(instance()) }
+                    }
+                    val barrier = CyclicBarrier(2)
+                    val futures = listOf(
+                        executor.submit { barrier.await(); graph.instance<Thermosiphon>() },
+                        executor.submit { barrier.await(); graph.instance<Heater>() }
+                    )
+                    try {
+                        futures.forEach { it.get(5, TimeUnit.SECONDS) }
+                    } catch (e: TimeoutException) {
+                        throw AssertionError("Deadlock while resolving singletons in run $run", e)
+                    }
+                }
+            } finally {
+                executor.shutdownNow()
+            }
         }
 
         @Test
