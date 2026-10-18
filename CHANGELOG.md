@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Version 0.10.0 *(unreleased)*
------------------------------
+Version 0.10.0-alpha1 *(2026-10-18)*
+------------------------------------
 
 This version is a major rework of the API. See the [guide](https://winter.jentz.io) for the
 current API.

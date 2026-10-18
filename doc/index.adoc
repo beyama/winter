@@ -4,7 +4,7 @@ Alexander Jentz
 :toclevels: 2
 :icons: font
 :source-highlighter: rouge
-:winter-version: 0.10.0-alpha1-SNAPSHOT
+:winter-version: 0.10.0-alpha1
 :core: ../winter/src/test/kotlin/io/jentz/winter/docs/CoreGuideTest.kt
 :delegate: ../winter-delegate/src/test/kotlin/io/jentz/winter/delegate/docs/DelegateGuideTest.kt
 :android: ../winter-androidx/src/androidTest/kotlin/io/jentz/winter/androidx/docs/AndroidGuideSamples.kt

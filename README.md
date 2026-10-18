@@ -20,17 +20,17 @@ Winter is a small and fast dependency injection library for Kotlin on the JVM an
 
 ```kotlin
 dependencies {
-    implementation("io.jentz.winter:winter:0.10.0-alpha1-SNAPSHOT")
+    implementation("io.jentz.winter:winter:0.10.0-alpha1")
     // optional
-    implementation("io.jentz.winter:winter-delegate:0.10.0-alpha1-SNAPSHOT")
-    implementation("io.jentz.winter:winter-androidx:0.10.0-alpha1-SNAPSHOT")
-    testImplementation("io.jentz.winter:winter-junit4:0.10.0-alpha1-SNAPSHOT")
-    testImplementation("io.jentz.winter:winter-junit5:0.10.0-alpha1-SNAPSHOT")
+    implementation("io.jentz.winter:winter-delegate:0.10.0-alpha1")
+    implementation("io.jentz.winter:winter-androidx:0.10.0-alpha1")
+    testImplementation("io.jentz.winter:winter-junit4:0.10.0-alpha1")
+    testImplementation("io.jentz.winter:winter-junit5:0.10.0-alpha1")
 }
 ```
 
-Version 0.10.0 is not released yet. Snapshots are published to the Maven Central snapshot
-repository:
+0.10.0-alpha1 is the first release of the reworked API, see the [changelog](CHANGELOG.md).
+Snapshots are published to the Maven Central snapshot repository:
 
 ```kotlin
 repositories {
