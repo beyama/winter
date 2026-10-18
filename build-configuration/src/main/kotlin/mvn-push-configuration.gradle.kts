@@ -63,9 +63,10 @@ publishing {
                     name = "OSSRH"
                     url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
 
+                    // Optional, so that builds without publishing (e.g. CI) don't need credentials.
                     credentials {
-                        username = stringProperty("SONATYPE_NEXUS_USERNAME")
-                        password = stringProperty("SONATYPE_NEXUS_PASSWORD")
+                        username = findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
+                        password = findProperty("SONATYPE_NEXUS_PASSWORD")?.toString()
                     }
                 }
             }
