@@ -5,13 +5,14 @@ Alexander Jentz
 :icons: font
 :source-highlighter: rouge
 :winter-version: 0.10.0-alpha1
-:core: ../winter/src/test/kotlin/io/jentz/winter/docs/CoreGuideTest.kt
-:delegate: ../winter-delegate/src/test/kotlin/io/jentz/winter/delegate/docs/DelegateGuideTest.kt
+:core: ../winter/src/commonTest/kotlin/io/jentz/winter/docs/CoreGuideTest.kt
+:delegate: ../winter-delegate/src/commonTest/kotlin/io/jentz/winter/delegate/docs/DelegateGuideTest.kt
 :android: ../winter-androidx/src/androidTest/kotlin/io/jentz/winter/androidx/docs/AndroidGuideSamples.kt
 :junit4: ../winter-junit4/src/test/kotlin/io/jentz/winter/junit4/docs/JUnit4GuideTest.kt
 :junit5: ../winter-junit5/src/test/kotlin/io/jentz/winter/junit5/docs/JUnit5GuideTest.kt
 
-Winter is a small and fast dependency injection library for Kotlin on the JVM and Android.
+Winter is a small and fast dependency injection library for Kotlin Multiplatform: JVM, Android,
+iOS, macOS, JavaScript and WebAssembly.
 
 * Dependencies are declared in immutable *components* with a plain Kotlin DSL. No annotation
   processing, no code generation and instances are created by your own factory functions.
@@ -53,25 +54,28 @@ repositories {
 ----
 
 Winter requires Java 17 and Kotlin 1.9 or newer, the AndroidX module requires minSdk 24.
+Kotlin Multiplatform projects add the core and delegate modules to their common source set, see
+<<Multiplatform>>.
 
 [cols="2,5",options="header"]
 |===
 | Module | Description
 
 | link:api/winter/index.html[winter]
-| Components, graphs and the `Winter` application object.
+| Components, graphs and the `Winter` application object. Multiplatform.
 
 | link:api/winter-delegate/index.html[winter-delegate]
 | Property delegates and graph resolvers for classes that can't use constructor injection.
+Multiplatform.
 
 | link:api/winter-androidx/index.html[winter-androidx]
-| Activity and view model subgraphs, lifecycle integration.
+| Activity and view model subgraphs, lifecycle integration. Android.
 
 | link:api/winter-junit4/index.html[winter-junit4]
-| JUnit 4 rule to extend the dependency graphs in tests.
+| JUnit 4 rule to extend the dependency graphs in tests. JVM.
 
 | link:api/winter-junit5/index.html[winter-junit5]
-| JUnit 5 extensions to extend the dependency graphs and inject test parameters.
+| JUnit 5 extensions to extend the dependency graphs and inject test parameters. JVM.
 |===
 
 == Quickstart
@@ -394,3 +398,45 @@ include::{core}[tag=circular]
 
 Graphs can be used from multiple threads. Instances are created while holding the lock of the graph
 they belong to. Already created singletons are returned without locking.
+
+On the JVM the lock of a graph is its monitor, on Kotlin/Native a reentrant lock from kotlinx-atomicfu.
+JavaScript and WebAssembly are single threaded and don't lock.
+
+== Multiplatform
+
+The core and delegate modules are Kotlin Multiplatform libraries with the targets JVM, iOS
+(`iosArm64`, `iosSimulatorArm64`, `iosX64`), macOS (`macosArm64`), JavaScript (`js`) and
+WebAssembly (`wasmJs`). The JVM target is also used on Android. The AndroidX and JUnit modules are
+Android and JVM only.
+
+[source,kotlin,subs="attributes+"]
+----
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.jentz.winter:winter:{winter-version}")
+            implementation("io.jentz.winter:winter-delegate:{winter-version}")
+        }
+    }
+}
+----
+
+Gradle selects the artifact for the platform (`winter-jvm`, `winter-iosarm64`, `winter-js` ...) from
+the Gradle module metadata of `io.jentz.winter:winter`, JVM and Android projects keep using
+`io.jentz.winter:winter`. Builds without Gradle module metadata, e.g. Maven, need to depend on
+`winter-jvm` and `winter-delegate-jvm` directly.
+
+JVM projects need Kotlin 1.9 or newer. Kotlin/Native, JavaScript and WebAssembly libraries can only
+be read by the Kotlin version they were built with or newer, these projects need Kotlin 2.4 or newer.
+
+There are a few differences between the platforms:
+
+* Type keys are based on `KClass` and `KType`. On the JVM `List` and `MutableList` are the same class,
+  on the other platforms they are different classes, so `erased<List<Pump>>()` and
+  `erased<MutableList<Pump>>()` are different keys there. Erased keys of arrays don't distinguish
+  the element type on JavaScript, WebAssembly and Kotlin/Native, use `generic()` keys for arrays.
+* `qualifier<Type>()` uses the qualified class name. Kotlin/JS has no qualified class names, there
+  the qualifier is the simple class name plus a number that is unique while the program runs.
+  Don't compare these qualifiers with string qualifiers.
+* Type keys and error messages use the qualified class names on the JVM (Java binary names),
+  Kotlin/Native and WebAssembly and the simple class names on JavaScript.

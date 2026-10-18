@@ -4,7 +4,8 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.jentz.winter/winter.svg)](https://central.sonatype.com/namespace/io.jentz.winter)
 [![License](https://img.shields.io/github/license/beyama/winter.svg)](LICENSE)
 
-Winter is a small and fast dependency injection library for Kotlin on the JVM and Android.
+Winter is a small and fast dependency injection library for Kotlin Multiplatform: JVM, Android,
+iOS, macOS, JavaScript and WebAssembly.
 
 - Dependencies are declared in immutable components with a plain Kotlin DSL. No annotation
   processing and no code generation.
@@ -39,6 +40,12 @@ repositories {
 ```
 
 Winter requires Java 17 and Kotlin 1.9 or newer, the AndroidX module requires minSdk 24.
+
+The core and delegate modules are Kotlin Multiplatform libraries (JVM, `iosArm64`,
+`iosSimulatorArm64`, `iosX64`, `macosArm64`, `js`, `wasmJs`), add them to `commonMain`. Native,
+JavaScript and WebAssembly projects need Kotlin 2.4 or newer. The AndroidX and JUnit modules are
+Android and JVM only. See [Multiplatform](https://winter.jentz.io/#_multiplatform) in the guide for
+the differences between the platforms.
 
 ## Example
 
@@ -93,13 +100,17 @@ See the [guide](https://winter.jentz.io) for everything else.
 ## Development
 
 ```bash
-./gradlew test                 # JVM tests
+./gradlew jvmTest test         # JVM tests
+./gradlew allTests             # tests on all targets that the host can run
 ./gradlew :dokkaGenerate       # API docs in build/dokka/html
 doc/build-site.sh              # guide and API docs in build/site (needs asciidoctor)
 ```
 
 The code samples of the guide (`doc/index.adoc`) live in `docs` test packages of the modules and
 are included by tag, so they are compiled and run with the tests.
+
+The iOS simulator tests need an installed iOS simulator runtime, exclude them with
+`-x :winter:iosSimulatorArm64Test -x :winter-delegate:iosSimulatorArm64Test` otherwise.
 
 ## License
 

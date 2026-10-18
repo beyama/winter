@@ -1,9 +1,12 @@
 plugins {
-    id("kotlin-library-configuration")
-    id("junit5-configuration")
+    id("kotlin-multiplatform-library-configuration")
     id("mvn-push-configuration")
 }
 
-dependencies {
-    testImplementation(libs.assertk)
+kotlin {
+    sourceSets {
+        nativeMain.dependencies {
+            implementation(libs.atomicfu)
+        }
+    }
 }

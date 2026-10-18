@@ -1,11 +1,13 @@
 plugins {
-    id("kotlin-library-configuration")
-    id("junit5-configuration")
+    id("kotlin-multiplatform-library-configuration")
     id("mvn-push-configuration")
 }
 
-dependencies {
-    implementation(project(":winter"))
-
-    testImplementation(libs.assertk)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            // The public API uses types of the core module.
+            api(project(":winter"))
+        }
+    }
 }
