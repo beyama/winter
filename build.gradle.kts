@@ -4,4 +4,13 @@
 plugins {
     id("kotlin-library-configuration") apply false
     id("android-library-configuration") apply false
+    id("api-docs-configuration")
+}
+
+dependencies {
+    dokka(project(":winter"))
+    dokka(project(":winter-delegate"))
+    dokka(project(":winter-androidx"))
+    dokka(project(":winter-junit4"))
+    dokka(project(":winter-junit5"))
 }

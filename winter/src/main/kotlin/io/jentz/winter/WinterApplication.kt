@@ -3,58 +3,27 @@ package io.jentz.winter
 import io.jentz.winter.plugin.Plugins
 
 /**
- * Holds plugins, the application [Component], the application [Graph] and offers an abstraction to
- * inject dependencies into classes that cannot make use of constructor injection using an
- * [InjectionAdapter] system.
+ * Holds the [plugins], the application [Component] and the application [Graph].
  *
- * The [InjectionAdapter] backed abstraction takes the burden off of the using class to know how
- * exactly a graph or parent graph is constructed and stored.
+ * Applications usually use the [Winter] object. To use Winter in a library it is recommended to
+ * create a library specific object from [WinterApplication], so that the library doesn't share
+ * its component, graph and plugins with the application.
  *
- * An application specific graph creation and retrieval strategy can be provided by setting a
- * custom [InjectionAdapter].
+ * Example:
  *
  * ```
- * Winter.adapter = MyCustomAdapter()
- * ```
- *
- * To use Winter in a library it is recommended to create a library specific object
- * from [WinterApplication] for use in applications it is recommended to use the [Winter] object.
- *
- * Example, using the SimpleAndroidInjectionAdapter which is part of the winter-androidx module:
- *
- * ```
- * class MyApplication : Application() {
- *   override fun onCreate() {
- *     super.onCreate()
- *
- *     // register component
- *     Winter.component {
- *       singleton<GitHubApi> { GitHubApiImpl() }
- *
- *       singleton { RepoListViewModel(instance()) }
- *
- *       subcomponent("activity") {
- *          singleton { Glide.with(instance<Activity>()) }
- *       }
- *     }
- *
- *     // register adapter
- *     Winter.useSimpleAndroidAdapter()
- *     // open application graph
- *     Winter.inject(this)
- *   }
+ * // configure the application component
+ * Winter.component {
+ *   singleton<GitHubApi> { GitHubApiImpl() }
+ *   singleton { RepoListViewModel(instance()) }
  * }
+ * // open the application graph
+ * val graph = Winter.openGraph()
+ * ```
  *
- * class MyActivity : Activity(), WinterAware {
- *   private val viewModel: RepoListViewModel by inject()
- *
- *   override fun onCreate(savedInstanceState: Bundle?) {
- *     Winter.inject(this)
- *     super.onCreate(savedInstanceState)
- *   }
- *
- * }
- *
+ * Classes that can't use constructor injection (e.g. Android activities) can retrieve their
+ * dependencies from the application graph with the property delegates of the winter-delegate
+ * module.
  */
 open class WinterApplication() {
 

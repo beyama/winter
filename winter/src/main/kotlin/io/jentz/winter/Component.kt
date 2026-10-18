@@ -253,7 +253,7 @@ class Component private constructor(
          * ```
          * singleton { ReposViewModel(instance()) }
          *
-         * alias(typeKey<ReposViewModel>(), typeKey<ViewModel<ReposViewState>>(generics = true))
+         * alias(erased<ReposViewModel>(), generic<ViewModel<ReposViewState>>())
          * ```
          *
          * @param targetKey The [TypeKey] of an entry an alias should be created for.
@@ -277,7 +277,7 @@ class Component private constructor(
          * ```
          * singleton {
          *   ReposViewModel(instance())
-         * }.alias(typeKey<ViewModel<ReposViewState>>(generics = true))
+         * }.alias(generic<ViewModel<ReposViewState>>())
          * ```
          * @param key The [TypeKey] of the alias.
          */

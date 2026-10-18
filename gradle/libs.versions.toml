@@ -2,6 +2,7 @@
 agp = "9.4.1"
 kotlin = "2.4.21"
 mavenPublish = "0.37.0"
+dokka = "2.2.0"
 # Compatibility floor for consumers: language/API version and the kotlin-stdlib version
 # that is published as dependency. Consumers need at least Kotlin 1.9 to read it.
 kotlinConsumerApi = "2.0"
@@ -23,6 +24,7 @@ espressoCore = "3.5.1"
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 maven-publish-gradle-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "mavenPublish" }
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
