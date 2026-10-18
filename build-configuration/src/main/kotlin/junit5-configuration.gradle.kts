@@ -13,20 +13,16 @@ internal val Project.libs: VersionCatalog get() =
     project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 dependencies {
-    testImplementation(libs.findLibrary("junit.jupiter.api").get())
-    testImplementation("io.kotlintest:kotlintest-assertions:3.4.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
-
-    testRuntimeOnly(libs.findLibrary("junit.vintage.engine").get())
+    testImplementation(libs.findLibrary("kotest.assertions").get())
+    testImplementation(libs.findLibrary("kotlin.reflect").get())
+    testImplementation(libs.findLibrary("mockito.core").get())
+    testImplementation(libs.findLibrary("mockito.kotlin").get())
 }
 
 testing {
     suites {
-        @Suppress("UnstableApiUsage")
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
+        named<JvmTestSuite>("test") {
+            useJUnitJupiter(libs.findVersion("junit5").get().requiredVersion)
         }
     }
 }

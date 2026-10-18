@@ -1,18 +1,15 @@
 plugins {
     `kotlin-dsl`
-    `kotlin-dsl-precompiled-script-plugins`
 }
 
-repositories{
+repositories {
     google()
     mavenCentral()
     gradlePluginPortal()
 }
 
-dependencies{
-    compileOnly(libs.kotlinJvmLib)
-
-    implementation(gradleApi())
+dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
+    implementation(libs.maven.publish.gradle.plugin)
 }

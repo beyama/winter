@@ -7,10 +7,10 @@ import io.jentz.winter.component
 import io.jentz.winter.emptyGraph
 import io.jentz.winter.graph
 import io.jentz.winter.erased
-import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.matchers.types.shouldBeNull
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested

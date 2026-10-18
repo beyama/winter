@@ -10,10 +10,10 @@ import io.jentz.winter.services.AliasService
 import io.jentz.winter.services.ConstantService
 import io.jentz.winter.services.PrototypeService
 import io.jentz.winter.services.SingletonService
-import io.kotlintest.matchers.boolean.shouldBeFalse
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.Test
 
 class ComponentBuilderTest {

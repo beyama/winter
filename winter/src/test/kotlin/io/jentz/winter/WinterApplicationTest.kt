@@ -1,11 +1,11 @@
 package io.jentz.winter
 
-import io.kotlintest.matchers.boolean.shouldBeTrue
-import io.kotlintest.matchers.types.shouldBeNull
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.matchers.types.shouldNotBeNull
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

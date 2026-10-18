@@ -2,10 +2,10 @@ package io.jentz.winter
 
 import io.jentz.winter.plugin.Plugin
 import io.jentz.winter.plugin.Plugins
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
