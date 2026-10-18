@@ -27,6 +27,7 @@ import org.mockito.kotlin.reset
 import org.mockito.kotlin.same
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -281,6 +282,48 @@ class GraphTest {
         }
 
         @Test
+        fun `should resolve already bound services while the graph lock is held`() {
+            val parent = graph {
+                singleton { Heater() }
+                subcomponent(QualifierSub) {
+                    singleton { Thermosiphon(instance()) }
+                }
+            }
+            val child = parent.createSubgraph(QualifierSub)
+            val heater = parent.instance<Heater>()
+            val thermosiphon = child.instance<Thermosiphon>()
+
+            val locked = CountDownLatch(2)
+            val release = CountDownLatch(1)
+            val lockHolders = listOf(parent, child).map { graph ->
+                Thread {
+                    synchronized(graph) {
+                        locked.countDown()
+                        release.await()
+                    }
+                }.apply { isDaemon = true; start() }
+            }
+            val executor = Executors.newSingleThreadExecutor { Thread(it).apply { isDaemon = true } }
+            try {
+                locked.await()
+                val future = executor.submit<Pair<Heater, Thermosiphon>> {
+                    child.instance<Heater>() to child.instance<Thermosiphon>()
+                }
+                val (resolvedHeater, resolvedThermosiphon) = try {
+                    future.get(5, TimeUnit.SECONDS)
+                } catch (e: TimeoutException) {
+                    throw AssertionError("Lookup of bound services blocked on graph lock", e)
+                }
+                resolvedHeater.shouldBeSameInstanceAs(heater)
+                resolvedThermosiphon.shouldBeSameInstanceAs(thermosiphon)
+            } finally {
+                release.countDown()
+                lockHolders.forEach { it.join() }
+                executor.shutdownNow()
+            }
+        }
+
+        @Test
         fun `should not resolve classes from child graphs`() {
             /**
              * class Heater
@@ -441,6 +484,17 @@ class GraphTest {
             graph { prototype { "string" } }.apply {
                 close()
                 shouldThrow<WinterException> { instance() }
+            }
+        }
+
+        @Test
+        fun `should throw an exception when graph is closed and service was already bound`() {
+            graph { singleton { "string" } }.apply {
+                instance<String>()
+                close()
+                shouldThrow<WinterException> {
+                    instance<String>()
+                }.message.shouldBe("Graph is already closed.")
             }
         }
 

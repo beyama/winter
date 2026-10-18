@@ -4,6 +4,7 @@ import io.jentz.winter.plugin.Plugins
 import io.jentz.winter.services.BoundService
 import io.jentz.winter.services.ConstantService
 import io.jentz.winter.services.checkedInstance
+import java.util.concurrent.ConcurrentHashMap
 
 private val QUALIFIER_DERIVED = qualifier("_DERIVED_")
 
@@ -33,9 +34,11 @@ class Graph internal constructor(
             val serviceEvaluator: ServiceEvaluator,
             val onCloseCallback: OnCloseCallback?
         ) : State() {
-            val registry: MutableMap<TypeKey<*>, BoundService<*>> = hashMapOf()
+            // Read without the graph lock by [service] and only written under the graph lock.
+            // TODO: replace with an expect/actual concurrent map for Kotlin Multiplatform.
+            val registry: MutableMap<TypeKey<*>, BoundService<*>> = ConcurrentHashMap()
 
-            var isClosing = false
+            @Volatile var isClosing = false
 
             init {
                 registry[KEY_GRAPH] = ConstantService(KEY_GRAPH, graph)
@@ -45,7 +48,7 @@ class Graph internal constructor(
         data object Closed : State()
     }
 
-    private var state: State
+    @Volatile private var state: State
 
     private inline fun <T> fold(ifClosed: () -> T, ifInitialized: (State.Initialized) -> T): T =
         when (val state = this.state) {
@@ -146,13 +149,28 @@ class Graph internal constructor(
         block: ComponentBuilderBlock? = null
     ): R = checkedService(key)?.checkedInstance(key.isOptional, block) as R
 
-    tailrec fun <R : Any?> service(key: TypeKey<R>, base: Graph? = this): BoundService<R>? =
-        base?.synchronizedMap { state ->
-            @Suppress("UNCHECKED_CAST")
-            return state.registry.getOrPut(key) {
-                state.component[key]?.bind(base) ?: return service(key, base.parent)
-            } as BoundService<R>
+    @Suppress("UNCHECKED_CAST")
+    tailrec fun <R : Any?> service(key: TypeKey<R>, base: Graph? = this): BoundService<R>? {
+        if (base == null) return null
+
+        // Lock-free fast path: already bound services and keys that aren't part of this graph's
+        // (immutable) component don't need the graph lock. A closed or closing graph takes the
+        // locked path below, which throws or waits until close is finished.
+        val state = base.state
+        if (state is State.Initialized && !state.isClosing) {
+            state.registry[key]?.let { return it as BoundService<R> }
+            if (state.component[key] == null) return service(key, state.parent)
         }
+
+        // Binding happens under the graph lock so that each service is only bound once.
+        val service = base.synchronizedMap {
+            it.registry[key] ?: it.component[key]?.bind(base)?.also { bound ->
+                it.registry[key] = bound
+            }
+        } ?: return service(key, base.parent)
+
+        return service as BoundService<R>
+    }
 
     fun <R: Any?> checkedService(key: TypeKey<R>): BoundService<R>? {
         val service = service(key)
